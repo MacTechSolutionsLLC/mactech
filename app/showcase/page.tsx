@@ -203,7 +203,7 @@ const tools: Tool[] = [
   {
     id: 'process-doc-generator',
     name: 'Process Documentation Generator',
-    category: 'Documentation & Process',
+    category: 'Automation & Compliance',
     status: 'coming-soon',
     description: 'Automated generation of ISO-compliant process documentation including procedures, work instructions, and quality management system documentation from templates and workflow inputs.',
     features: [
@@ -226,7 +226,7 @@ const tools: Tool[] = [
   {
     id: 'audit-evidence-collector',
     name: 'Audit Evidence Collector',
-    category: 'Documentation & Process',
+    category: 'Automation & Compliance',
     status: 'coming-soon',
     description: 'Automated collection and organization of evidence artifacts for ISO, accreditation, and compliance audits, eliminating last-minute evidence gathering.',
     features: [
@@ -297,7 +297,6 @@ const tools: Tool[] = [
 const categories = [
   'Automation & Compliance',
   'Assessment & Readiness',
-  'Documentation & Process',
   'Infrastructure & Engineering'
 ]
 
@@ -315,6 +314,7 @@ const statusColors = {
 
 export default function ShowcasePage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [activeTab, setActiveTab] = useState<string>(categories[0])
 
   const toggleItem = (id: string) => {
     const newExpanded = new Set(expandedItems)
@@ -326,10 +326,7 @@ export default function ShowcasePage() {
     setExpandedItems(newExpanded)
   }
 
-  const toolsByCategory = categories.map(category => ({
-    category,
-    tools: tools.filter(tool => tool.category === category)
-  }))
+  const activeTools = tools.filter(tool => tool.category === activeTab)
 
   return (
     <div className="bg-white">
@@ -344,17 +341,30 @@ export default function ShowcasePage() {
         </div>
       </section>
 
-      {/* Tools by Category */}
-      {toolsByCategory.map(({ category, tools: categoryTools }) => (
-        <section key={category} className="section-container bg-white border-b border-neutral-200">
+      {/* Tabs */}
+      <section className="section-container bg-white border-b border-neutral-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveTab(category)}
+                className={`px-6 py-3 text-body-sm font-medium transition-all duration-gentle ${
+                  activeTab === category
+                    ? 'bg-accent-700 text-white border border-accent-700'
+                    : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Tools Grid */}
           <div className="max-w-6xl mx-auto">
-            <div className="mb-12">
-              <div className="h-px w-16 bg-accent-700 mb-6"></div>
-              <h2 className="heading-2 mb-4">{category}</h2>
-            </div>
 
             <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-              {categoryTools.map((tool, index) => {
+              {activeTools.map((tool, index) => {
                 const isExpanded = expandedItems.has(tool.id)
                 return (
                   <div 
@@ -451,7 +461,6 @@ export default function ShowcasePage() {
             </div>
           </div>
         </section>
-      ))}
 
       {/* CTA Section */}
       <section className="section-container bg-accent-900 text-white">
