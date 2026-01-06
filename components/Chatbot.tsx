@@ -23,6 +23,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
+  const [threadId, setThreadId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -53,6 +54,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
           messages: [...messages, { role: 'user', content: userMessage }].map(
             (m) => ({ role: m.role, content: m.content })
           ),
+          threadId: threadId,
         }),
       })
 
@@ -71,6 +73,11 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
         ...prev,
         { role: 'assistant', content: data.message },
       ])
+
+      // Store thread ID for conversation continuity
+      if (data.threadId) {
+        setThreadId(data.threadId)
+      }
 
       // Check if response mentions scheduling
       if (
