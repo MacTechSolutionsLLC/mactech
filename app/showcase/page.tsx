@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 interface Tool {
   id: string
@@ -311,6 +314,18 @@ const statusColors = {
 }
 
 export default function ShowcasePage() {
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
+  const toggleItem = (id: string) => {
+    const newExpanded = new Set(expandedItems)
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id)
+    } else {
+      newExpanded.add(id)
+    }
+    setExpandedItems(newExpanded)
+  }
+
   const toolsByCategory = categories.map(category => ({
     category,
     tools: tools.filter(tool => tool.category === category)
@@ -338,80 +353,101 @@ export default function ShowcasePage() {
               <h2 className="heading-2 mb-4">{category}</h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-              {categoryTools.map((tool, index) => (
-                <div 
-                  key={tool.id} 
-                  className={`card p-8 lg:p-10 fade-in${index > 0 ? `-delay-${Math.min(index, 3)}` : ''}`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="heading-3">{tool.name}</h3>
-                    <span className={`text-body-sm font-medium px-3 py-1 rounded border ${statusColors[tool.status]}`}>
-                      {statusLabels[tool.status]}
-                    </span>
-                  </div>
-                  
-                  <p className="text-body text-neutral-700 mb-6 leading-relaxed">
-                    {tool.description}
-                  </p>
-
-                  <div className="mb-6">
-                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
-                      Key Features
-                    </h4>
-                    <ul className="space-y-2">
-                      {tool.features.map((feature, idx) => (
-                        <li key={idx} className="flex gap-3">
-                          <div className="flex-shrink-0 mt-1.5">
-                            <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+            <div className="space-y-4">
+              {categoryTools.map((tool, index) => {
+                const isExpanded = expandedItems.has(tool.id)
+                return (
+                  <div 
+                    key={tool.id} 
+                    className={`card border border-neutral-200 transition-all duration-gentle fade-in${index > 0 ? `-delay-${Math.min(index, 3)}` : ''}`}
+                  >
+                    {/* Header - Always visible */}
+                    <button
+                      onClick={() => toggleItem(tool.id)}
+                      className="w-full text-left p-6 hover:bg-neutral-50 transition-colors duration-gentle"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="heading-3">{tool.name}</h3>
+                            <span className={`text-body-sm font-medium px-3 py-1 rounded border ${statusColors[tool.status]}`}>
+                              {statusLabels[tool.status]}
+                            </span>
                           </div>
-                          <span className="text-body-sm text-neutral-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mb-6">
-                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
-                      Use Cases
-                    </h4>
-                    <ul className="space-y-2">
-                      {tool.useCases.map((useCase, idx) => (
-                        <li key={idx} className="flex gap-3">
-                          <div className="flex-shrink-0 mt-1.5">
-                            <svg className="w-4 h-4 text-accent-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <span className="text-body-sm text-neutral-700">{useCase}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-6 border-t border-neutral-200">
-                    <details className="group">
-                      <summary className="text-body-sm font-medium text-accent-700 cursor-pointer hover:text-accent-800 transition-colors list-none">
-                        <span className="flex items-center gap-2">
-                          Technical Details
-                          <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </span>
-                      </summary>
-                      <div className="mt-4 space-y-4">
-                        <div>
-                          <p className="text-body-sm text-neutral-700 leading-relaxed">{tool.technicalDetails}</p>
+                          <p className="text-body text-neutral-700 leading-relaxed">
+                            {tool.description}
+                          </p>
                         </div>
-                        <div>
-                          <h5 className="text-body-sm font-semibold text-neutral-900 mb-2">Integration</h5>
-                          <p className="text-body-sm text-neutral-700 leading-relaxed">{tool.integration}</p>
+                        <div className="flex-shrink-0">
+                          <svg 
+                            className={`w-5 h-5 text-neutral-400 transition-transform duration-gentle ${isExpanded ? 'rotate-180' : ''}`}
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor" 
+                            strokeWidth={2}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
                         </div>
                       </div>
-                    </details>
+                    </button>
+
+                    {/* Expandable Content */}
+                    {isExpanded && (
+                      <div className="px-6 pb-6 border-t border-neutral-200 pt-6 space-y-6">
+                        <div>
+                          <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
+                            Key Features
+                          </h4>
+                          <ul className="space-y-2">
+                            {tool.features.map((feature, idx) => (
+                              <li key={idx} className="flex gap-3">
+                                <div className="flex-shrink-0 mt-1.5">
+                                  <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                                </div>
+                                <span className="text-body-sm text-neutral-700">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
+                            Use Cases
+                          </h4>
+                          <ul className="space-y-2">
+                            {tool.useCases.map((useCase, idx) => (
+                              <li key={idx} className="flex gap-3">
+                                <div className="flex-shrink-0 mt-1.5">
+                                  <svg className="w-4 h-4 text-accent-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
+                                <span className="text-body-sm text-neutral-700">{useCase}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="pt-4 border-t border-neutral-200">
+                          <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
+                            Technical Details
+                          </h4>
+                          <div className="space-y-4">
+                            <div>
+                              <p className="text-body-sm text-neutral-700 leading-relaxed">{tool.technicalDetails}</p>
+                            </div>
+                            <div>
+                              <h5 className="text-body-sm font-semibold text-neutral-900 mb-2">Integration</h5>
+                              <p className="text-body-sm text-neutral-700 leading-relaxed">{tool.integration}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>
