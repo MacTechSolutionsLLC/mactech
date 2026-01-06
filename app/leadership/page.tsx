@@ -168,8 +168,14 @@ export default function LeadershipPage() {
           <div className="fade-in-delay-2">
             <div className="grid md:grid-cols-12 gap-12 items-start">
               <div className="md:col-span-4">
-                <div className="w-64 h-64 md:w-80 md:h-80 bg-accent-100 border border-accent-200 rounded-sm flex items-center justify-center mb-6">
-                  <span className="text-5xl font-semibold text-accent-700">JA</span>
+                <div className="relative w-64 h-64 md:w-80 md:h-80 mb-6 overflow-hidden rounded-sm border border-neutral-200">
+                  <Image
+                    src="/images/james-adams.png"
+                    alt="James Adams"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 256px, 320px"
+                  />
                 </div>
               </div>
               <div className="md:col-span-8">
