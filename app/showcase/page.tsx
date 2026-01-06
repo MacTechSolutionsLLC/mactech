@@ -361,9 +361,7 @@ export default function ShowcasePage() {
           </div>
 
           {/* Tools Grid */}
-          <div className="max-w-6xl mx-auto">
-
-            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {activeTools.map((tool, index) => {
                 const isExpanded = expandedItems.has(tool.id)
                 return (
@@ -459,7 +457,6 @@ export default function ShowcasePage() {
                 )
               })}
             </div>
-          </div>
         </section>
 
       {/* CTA Section */}
