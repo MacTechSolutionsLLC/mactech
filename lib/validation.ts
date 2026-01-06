@@ -4,11 +4,16 @@ import { z } from 'zod'
 export const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email address'),
-  organization: z.string().max(200).optional().or(z.literal('')),
-  phone: z.string().max(20).optional().or(z.literal('')),
+  organization: z.string().max(200).optional(),
+  phone: z.string().max(20).optional(),
   message: z.string().min(10, 'Message must be at least 10 characters').max(2000),
-  honeypot: z.string().max(0).optional().or(z.literal('')), // Honeypot field for spam protection
-})
+  honeypot: z.string().max(0).optional(), // Honeypot field for spam protection
+}).transform((data) => ({
+  ...data,
+  organization: data.organization?.trim() || undefined,
+  phone: data.phone?.trim() || undefined,
+  honeypot: data.honeypot || undefined,
+}))
 
 export const readinessAssessmentSchema = z.object({
   email: z.string().email('Invalid email address'),

@@ -7,16 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Clean up empty strings for optional fields
-    const cleanedBody = {
-      ...body,
-      organization: body.organization?.trim() || undefined,
-      phone: body.phone?.trim() || undefined,
-      honeypot: body.honeypot || undefined,
-    }
-
-    // Validate input
-    const validationResult = contactFormSchema.safeParse(cleanedBody)
+    // Validate input (schema will transform empty strings to undefined)
+    const validationResult = contactFormSchema.safeParse(body)
     if (!validationResult.success) {
       console.error('Validation errors:', validationResult.error.errors)
       return NextResponse.json(
