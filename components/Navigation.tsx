@@ -44,9 +44,9 @@ export default function Navigation() {
             <Image
               src="/mactech.png"
               alt="MacTech Solutions"
-              width={180}
-              height={40}
-              className="h-8 w-auto transition-opacity duration-gentle group-hover:opacity-80"
+              width={1440}
+              height={320}
+              className="h-64 w-auto transition-opacity duration-gentle group-hover:opacity-80"
               priority
             />
           </Link>
