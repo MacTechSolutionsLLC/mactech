@@ -12,45 +12,32 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = process.env.ASSISTANT_API_KEY || process.env.OPENAI_API_KEY
-    
-    // Check if ASSISTANT_API_KEY contains the assistant ID (some setups put it there)
-    // Otherwise, look for ASSISTANT_ID separately
-    let assistantId = process.env.ASSISTANT_ID
-    
-    // If ASSISTANT_ID is not set, check if ASSISTANT_API_KEY might be the ID
-    // This handles cases where the variable name is misleading
-    if (!assistantId && process.env.ASSISTANT_API_KEY) {
-      // If ASSISTANT_API_KEY doesn't look like an API key (starts with 'asst_'), it might be the ID
-      if (process.env.ASSISTANT_API_KEY.startsWith('asst_')) {
-        assistantId = process.env.ASSISTANT_API_KEY
-        // Use OPENAI_API_KEY for auth if available, otherwise we'll need both
-        if (!process.env.OPENAI_API_KEY) {
-          return NextResponse.json(
-            { error: 'Please set OPENAI_API_KEY for authentication and ASSISTANT_ID (or put Assistant ID in ASSISTANT_API_KEY)' },
-            { status: 500 }
-          )
-        }
-      }
-    }
+    const assistantId = process.env.ASSISTANT_ID
 
     if (!apiKey) {
-      console.error('ASSISTANT_API_KEY or OPENAI_API_KEY is not set in environment variables')
+      console.error('ASSISTANT_API_KEY or OPENAI_API_KEY is not set')
       return NextResponse.json(
-        { error: 'OpenAI API key not configured. Please set ASSISTANT_API_KEY (for API key) or OPENAI_API_KEY.' },
+        { error: 'OpenAI API key not configured' },
         { status: 500 }
       )
     }
 
     if (!assistantId) {
-      console.error('ASSISTANT_ID is not set. Available env vars:', Object.keys(process.env).filter(k => k.includes('ASSISTANT')))
+      console.error('ASSISTANT_ID is not set')
       return NextResponse.json(
         { 
           error: 'Assistant ID not configured',
-          details: 'Please set ASSISTANT_ID environment variable with your OpenAI Assistant ID (starts with "asst_"). You can find it in the OpenAI platform under your assistant settings.'
+          details: 'Please set ASSISTANT_ID environment variable in Railway with your OpenAI Assistant ID.'
         },
         { status: 500 }
       )
     }
+
+    // Log configuration (without exposing sensitive data)
+    console.log('Assistant API configured:', {
+      apiKeyLength: apiKey.length,
+      assistantIdPrefix: assistantId.substring(0, 10) + '...',
+    })
 
     // Get the last user message
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()
