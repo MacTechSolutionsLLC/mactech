@@ -227,8 +227,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/services" className="btn-primary inline-flex items-center justify-center">
-                  Learn More About Our Services
+                <Link href="/showcase" className="btn-primary inline-flex items-center justify-center">
+                  View All Tools & Capabilities
                 </Link>
                 <Link href="/contact" className="btn-secondary inline-flex items-center justify-center">
                   Discuss Your Requirements
