@@ -173,6 +173,118 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* STIG Generator Capability - Teaser Feature */}
+      <section className="section-container bg-white border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Content */}
+            <div className="fade-in">
+              <div className="h-px w-16 bg-accent-700 mb-6"></div>
+              <h2 className="heading-2 mb-4">Automated STIG Compliance</h2>
+              <p className="text-body-lg text-neutral-700 mb-6 leading-relaxed">
+                Our STIG Generator transforms DISA Security Technical Implementation Guides into 
+                production-ready automation artifacts—reducing manual effort and accelerating compliance.
+              </p>
+              <div className="space-y-4 mb-8">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-accent-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="heading-3 mb-1">Ansible Hardening Playbooks</h3>
+                    <p className="text-body text-neutral-700">
+                      Automatically generate idempotent playbooks that apply STIG controls programmatically.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-accent-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="heading-3 mb-1">Compliance Checker Playbooks</h3>
+                    <p className="text-body text-neutral-700">
+                      Validate STIG compliance with automated checker playbooks for continuous monitoring.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-accent-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="heading-3 mb-1">CTP Documentation</h3>
+                    <p className="text-body text-neutral-700">
+                      Generate Certification Test Procedure documents in standardized formats for manual controls.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/services" className="btn-primary inline-flex items-center justify-center">
+                  Learn More About Our Services
+                </Link>
+                <Link href="/contact" className="btn-secondary inline-flex items-center justify-center">
+                  Discuss Your Requirements
+                </Link>
+              </div>
+            </div>
+
+            {/* Visual/Code Preview */}
+            <div className="fade-in-delay-1">
+              <div className="card p-6 lg:p-8 bg-neutral-50 border-neutral-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-3 w-3 bg-red-500 rounded-full"></div>
+                  <div className="h-3 w-3 bg-yellow-500 rounded-full"></div>
+                  <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+                  <span className="text-body-sm text-neutral-500 ml-2">STIG Generator</span>
+                </div>
+                <div className="space-y-3 font-mono text-sm text-neutral-700">
+                  <div className="flex gap-2">
+                    <span className="text-neutral-400">$</span>
+                    <span>python -m app.main --stig-file RHEL_9_STIG.xml</span>
+                  </div>
+                  <div className="text-neutral-500 pl-4">→ Generating artifacts...</div>
+                  <div className="flex gap-2 pl-4">
+                    <span className="text-green-600">✓</span>
+                    <span>stig_rhel9_hardening.yml</span>
+                  </div>
+                  <div className="flex gap-2 pl-4">
+                    <span className="text-green-600">✓</span>
+                    <span>stig_rhel9_checker.yml</span>
+                  </div>
+                  <div className="flex gap-2 pl-4">
+                    <span className="text-green-600">✓</span>
+                    <span>stig_rhel9_ctp.csv</span>
+                  </div>
+                  <div className="text-neutral-500 pl-4 mt-4">Production-ready automation artifacts</div>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-semibold text-accent-700 mb-1">RHEL 8/9</div>
+                  <div className="text-body-sm text-neutral-600">Linux STIGs</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold text-accent-700 mb-1">Windows</div>
+                  <div className="text-body-sm text-neutral-600">Windows STIGs</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold text-accent-700 mb-1">Cisco</div>
+                  <div className="text-body-sm text-neutral-600">Network STIGs</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Why MacTech - Editorial list, confident */}
       <section className="section-container bg-neutral-50">
         <div className="max-w-4xl mx-auto">

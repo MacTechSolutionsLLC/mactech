@@ -51,7 +51,7 @@ export default function ServicesPage() {
                   <div className="flex-shrink-0 mt-1">
                     <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
                   </div>
-                  <span className="text-body text-neutral-700">STIG compliance assessment and remediation</span>
+                  <span className="text-body text-neutral-700">STIG compliance assessment and remediation with automated playbook generation</span>
                 </li>
                 <li className="flex gap-4">
                   <div className="flex-shrink-0 mt-1">
@@ -141,6 +141,8 @@ export default function ServicesPage() {
                   <li className="text-body text-neutral-700">POA&M with remediation plans</li>
                   <li className="text-body text-neutral-700">Continuous Monitoring Strategy</li>
                   <li className="text-body text-neutral-700">STIG compliance reports</li>
+                  <li className="text-body text-neutral-700">Automated Ansible hardening and checker playbooks</li>
+                  <li className="text-body text-neutral-700">Certification Test Procedure (CTP) documents</li>
                 </ul>
               </div>
               <div>
