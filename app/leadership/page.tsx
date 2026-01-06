@@ -21,13 +21,13 @@ export default function LeadershipPage() {
           <div className="fade-in">
             <div className="grid md:grid-cols-12 gap-12 items-start">
               <div className="md:col-span-4">
-                <div className="relative w-32 h-32 mb-6 overflow-hidden rounded-sm border border-neutral-200">
+                <div className="relative w-64 h-64 md:w-80 md:h-80 mb-6 overflow-hidden rounded-sm border border-neutral-200">
                   <Image
                     src="/images/brian-macdonald.png"
                     alt="Brian MacDonald"
                     fill
                     className="object-cover"
-                    sizes="128px"
+                    sizes="(max-width: 768px) 256px, 320px"
                   />
                 </div>
               </div>
@@ -94,8 +94,8 @@ export default function LeadershipPage() {
           <div className="fade-in-delay-1">
             <div className="grid md:grid-cols-12 gap-12 items-start">
               <div className="md:col-span-4">
-                <div className="w-32 h-32 bg-accent-100 border border-accent-200 rounded-sm flex items-center justify-center mb-6">
-                  <span className="text-3xl font-semibold text-accent-700">PC</span>
+                <div className="w-64 h-64 md:w-80 md:h-80 bg-accent-100 border border-accent-200 rounded-sm flex items-center justify-center mb-6">
+                  <span className="text-5xl font-semibold text-accent-700">PC</span>
                 </div>
               </div>
               <div className="md:col-span-8">
@@ -168,8 +168,8 @@ export default function LeadershipPage() {
           <div className="fade-in-delay-2">
             <div className="grid md:grid-cols-12 gap-12 items-start">
               <div className="md:col-span-4">
-                <div className="w-32 h-32 bg-accent-100 border border-accent-200 rounded-sm flex items-center justify-center mb-6">
-                  <span className="text-3xl font-semibold text-accent-700">JA</span>
+                <div className="w-64 h-64 md:w-80 md:h-80 bg-accent-100 border border-accent-200 rounded-sm flex items-center justify-center mb-6">
+                  <span className="text-5xl font-semibold text-accent-700">JA</span>
                 </div>
               </div>
               <div className="md:col-span-8">
