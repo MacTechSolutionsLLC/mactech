@@ -27,16 +27,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
-    // Save to database
-    const submission = await prisma.contactSubmission.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        organization: data.organization || null,
-        phone: data.phone || null,
-        message: data.message,
-      },
-    })
+    // Save to database (optional - only if DATABASE_URL is configured)
+    let submissionId = null
+    if (process.env.DATABASE_URL) {
+      try {
+        const submission = await prisma.contactSubmission.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            organization: data.organization || null,
+            phone: data.phone || null,
+            message: data.message,
+          },
+        })
+        submissionId = submission.id
+      } catch (dbError) {
+        console.error('Database save failed (non-critical):', dbError)
+        // Continue even if database save fails - Zapier is the primary storage
+      }
+    }
 
     // Send to Zapier webhook (async, don't wait)
     const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL || 'https://hooks.zapier.com/hooks/catch/17370933/uwfrwd6/'
@@ -52,17 +61,32 @@ export async function POST(request: NextRequest) {
       source: 'MacTech Solutions Contact Form',
     }
 
+    // Send to Zapier webhook
     fetch(zapierWebhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(webhookPayload),
-    }).catch((error) => {
-      console.error('Failed to send to Zapier webhook:', error)
     })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Zapier webhook error:', response.status, errorText)
+        } else {
+          const result = await response.json()
+          console.log('Zapier webhook success:', result)
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to send to Zapier webhook:', error)
+      })
 
-    return NextResponse.json({ success: true, id: submission.id })
+    return NextResponse.json({ 
+      success: true, 
+      id: submissionId,
+      message: 'Form submitted successfully. Data sent to Zapier webhook.'
+    })
   } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json(

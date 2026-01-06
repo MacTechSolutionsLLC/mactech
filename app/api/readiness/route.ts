@@ -28,21 +28,30 @@ export async function POST(request: NextRequest) {
     // Calculate readiness score
     const result = calculateReadinessScore(data)
 
-    // Save to database
-    const assessment = await prisma.readinessAssessment.create({
-      data: {
-        email: data.email,
-        name: data.name || null,
-        organization: data.organization || null,
-        systemType: data.systemType,
-        authStatus: data.authStatus,
-        auditHistory: data.auditHistory,
-        infraMaturity: data.infraMaturity,
-        timelinePressure: data.timelinePressure,
-        readinessScore: result.score,
-        gapsSummary: result.gapsSummary.join('; '),
-      },
-    })
+    // Save to database (optional - only if DATABASE_URL is configured)
+    let assessmentId = null
+    if (process.env.DATABASE_URL) {
+      try {
+        const assessment = await prisma.readinessAssessment.create({
+          data: {
+            email: data.email,
+            name: data.name || null,
+            organization: data.organization || null,
+            systemType: data.systemType,
+            authStatus: data.authStatus,
+            auditHistory: data.auditHistory,
+            infraMaturity: data.infraMaturity,
+            timelinePressure: data.timelinePressure,
+            readinessScore: result.score,
+            gapsSummary: result.gapsSummary.join('; '),
+          },
+        })
+        assessmentId = assessment.id
+      } catch (dbError) {
+        console.error('Database save failed (non-critical):', dbError)
+        // Continue even if database save fails - Zapier is the primary storage
+      }
+    }
 
     // Send to Zapier webhook (async, don't wait)
     const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL || 'https://hooks.zapier.com/hooks/catch/17370933/uwfrwd6/'
@@ -65,15 +74,26 @@ export async function POST(request: NextRequest) {
       source: 'MacTech Solutions Readiness Assessment',
     }
 
+    // Send to Zapier webhook
     fetch(zapierWebhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(webhookPayload),
-    }).catch((error) => {
-      console.error('Failed to send to Zapier webhook:', error)
     })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Zapier webhook error:', response.status, errorText)
+        } else {
+          const result = await response.json()
+          console.log('Zapier webhook success:', result)
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to send to Zapier webhook:', error)
+      })
 
     // Send results email to user
     sendEmail({
@@ -121,7 +141,7 @@ MacTech Solutions Team
 
     return NextResponse.json({
       success: true,
-      id: assessment.id,
+      id: assessmentId,
       result: {
         score: result.score,
         scoreValue: result.scoreValue,
