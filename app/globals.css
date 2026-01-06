@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply font-sans text-neutral-800 bg-neutral-50;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  /* Typography defaults */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-neutral-900;
+    font-feature-settings: 'kern' 1;
+  }
+}
+
+@layer components {
+  /* Premium button styles - restrained, confident */
+  .btn-primary {
+    @apply bg-accent-700 text-white px-8 py-3.5 text-body-sm font-medium tracking-wide;
+    @apply hover:bg-accent-800 active:bg-accent-900;
+    @apply transition-all duration-gentle ease-smooth;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-600 focus:ring-offset-2;
+    @apply disabled:opacity-40 disabled:cursor-not-allowed;
+    letter-spacing: 0.025em;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent text-accent-700 border border-accent-700 px-8 py-3.5 text-body-sm font-medium tracking-wide;
+    @apply hover:bg-accent-50 hover:border-accent-800 active:bg-accent-100;
+    @apply transition-all duration-gentle ease-smooth;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-600 focus:ring-offset-2;
+    @apply disabled:opacity-40 disabled:cursor-not-allowed;
+    letter-spacing: 0.025em;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-neutral-700 px-6 py-3 text-body-sm font-medium;
+    @apply hover:text-neutral-900 hover:bg-neutral-100;
+    @apply transition-all duration-gentle ease-smooth;
+    @apply focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2;
+  }
+  
+  /* Section containers with generous spacing */
+  .section-container {
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
+    @apply py-20 lg:py-30;
+  }
+
+  .section-narrow {
+    @apply max-w-4xl mx-auto px-6 sm:px-8 lg:px-12;
+    @apply py-20 lg:py-30;
+  }
+
+  .section-wide {
+    @apply max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-12;
+    @apply py-20 lg:py-30;
+  }
+  
+  /* Editorial typography hierarchy */
+  .heading-display {
+    @apply text-display text-neutral-900 font-semibold;
+    letter-spacing: -0.02em;
+  }
+
+  .heading-hero {
+    @apply text-hero text-neutral-900 font-semibold;
+    letter-spacing: -0.01em;
+  }
+  
+  .heading-1 {
+    @apply text-h1 text-neutral-900 font-semibold;
+    letter-spacing: -0.01em;
+  }
+  
+  .heading-2 {
+    @apply text-h2 text-neutral-900 font-semibold;
+    letter-spacing: -0.005em;
+  }
+  
+  .heading-3 {
+    @apply text-h3 text-neutral-900 font-semibold;
+  }
+
+  /* Typography utility classes - use Tailwind classes directly in components */
+  /* .text-body-lg, .text-body, .text-body-sm are defined in tailwind.config.ts */
+  /* Use them directly: text-body-lg text-neutral-700 */
+
+  /* Premium card component */
+  .card {
+    @apply bg-white border border-neutral-200 rounded-sm;
+    @apply transition-all duration-gentle ease-smooth;
+  }
+
+  .card-interactive {
+    @apply card hover:border-neutral-300 hover:shadow-sm;
+  }
+
+  /* Subtle fade-in animation */
+  .fade-in {
+    animation: fadeIn 0.6s ease-smooth;
+  }
+
+  .fade-in-delay-1 {
+    animation: fadeIn 0.6s ease-smooth 0.1s both;
+  }
+
+  .fade-in-delay-2 {
+    animation: fadeIn 0.6s ease-smooth 0.2s both;
+  }
+
+  .fade-in-delay-3 {
+    animation: fadeIn 0.6s ease-smooth 0.3s both;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Section divider - minimal, editorial */
+  .section-divider {
+    @apply border-t border-neutral-200;
+  }
+
+  /* Focus visible for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-accent-600 ring-offset-2;
+  }
+}
+
