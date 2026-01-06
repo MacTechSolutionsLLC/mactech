@@ -62,30 +62,6 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send to Zapier webhook:', error)
     })
 
-    // Send confirmation email to user
-    sendEmail({
-      to: data.email,
-      subject: 'Thank you for contacting MacTech Solutions',
-      html: `
-        <h2>Thank you for contacting MacTech Solutions</h2>
-        <p>We've received your message and will get back to you as soon as possible.</p>
-        <p>If you have urgent questions, please don't hesitate to reach out directly.</p>
-        <p>Best regards,<br>MacTech Solutions Team</p>
-      `,
-      text: `
-Thank you for contacting MacTech Solutions
-
-We've received your message and will get back to you as soon as possible.
-
-If you have urgent questions, please don't hesitate to reach out directly.
-
-Best regards,
-MacTech Solutions Team
-      `,
-    }).catch((error) => {
-      console.error('Failed to send confirmation email:', error)
-    })
-
     return NextResponse.json({ success: true, id: submission.id })
   } catch (error) {
     console.error('Contact form error:', error)
