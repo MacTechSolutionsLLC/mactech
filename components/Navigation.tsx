@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -34,21 +33,16 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex justify-between items-center min-h-20 py-4">
+        <div className="flex justify-between items-center h-20">
           {/* Logo - restrained, confident */}
           <Link 
             href="/" 
             className="flex items-center group"
             aria-label="MacTech Solutions Home"
           >
-            <Image
-              src="/mactech.png"
-              alt="MacTech Solutions"
-              width={1440}
-              height={320}
-              className="h-64 w-auto transition-opacity duration-gentle group-hover:opacity-80"
-              priority
-            />
+            <span className="text-lg font-semibold text-neutral-900 tracking-tight group-hover:text-neutral-700 transition-colors duration-gentle">
+              MacTech Solutions
+            </span>
           </Link>
           
           {/* Desktop Navigation - minimal, editorial */}
