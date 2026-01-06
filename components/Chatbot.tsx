@@ -59,7 +59,12 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get response')
+        console.error('Chat API error:', {
+          status: response.status,
+          error: data.error,
+          details: data.details,
+        })
+        throw new Error(data.details || data.error || 'Failed to get response')
       }
 
       setMessages((prev) => [
@@ -77,12 +82,22 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       }
     } catch (error) {
       console.error('Chat error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      
+      // Provide more helpful error messages
+      let userFriendlyMessage = "I apologize, but I'm having trouble connecting right now."
+      
+      if (errorMessage.includes('API key')) {
+        userFriendlyMessage = "I'm currently unavailable due to a configuration issue. Please contact us directly or schedule a call with one of our representatives."
+      } else if (errorMessage.includes('rate limit') || errorMessage.includes('quota')) {
+        userFriendlyMessage = "I'm experiencing high demand right now. Please try again in a moment, or schedule a call with one of our representatives."
+      }
+      
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content:
-            "I apologize, but I'm having trouble connecting right now. Would you like to schedule a call with one of our representatives instead?",
+          content: `${userFriendlyMessage} Would you like to schedule a call with one of our representatives instead?`,
         },
       ])
       setShowSchedule(true)

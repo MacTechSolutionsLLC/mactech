@@ -13,11 +13,15 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
+      console.error('OPENAI_API_KEY is not set in environment variables')
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
         { status: 500 }
       )
     }
+
+    // Log that API key is present (but not the key itself)
+    console.log('OpenAI API key is configured, length:', apiKey.length)
 
     // System prompt for MacTech Solutions
     const systemMessage = {
@@ -52,10 +56,23 @@ If someone asks about scheduling or wants to speak with a representative, encour
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      console.error('OpenAI API error:', error)
+      const errorText = await response.text()
+      let errorData
+      try {
+        errorData = JSON.parse(errorText)
+      } catch {
+        errorData = { error: errorText }
+      }
+      console.error('OpenAI API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      })
       return NextResponse.json(
-        { error: 'Failed to get response from AI' },
+        { 
+          error: 'Failed to get response from AI',
+          details: errorData.error || errorData.message || 'Unknown error'
+        },
         { status: response.status }
       )
     }
