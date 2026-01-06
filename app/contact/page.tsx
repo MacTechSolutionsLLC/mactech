@@ -34,6 +34,10 @@ export default function ContactPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        // Show validation details if available
+        if (data.details && Array.isArray(data.details)) {
+          throw new Error(`${data.error}: ${data.details.join(', ')}`)
+        }
         throw new Error(data.error || 'Failed to send message')
       }
 

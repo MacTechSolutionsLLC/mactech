@@ -7,11 +7,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // Clean up empty strings for optional fields
+    const cleanedBody = {
+      ...body,
+      organization: body.organization?.trim() || undefined,
+      phone: body.phone?.trim() || undefined,
+      honeypot: body.honeypot || undefined,
+    }
+
     // Validate input
-    const validationResult = contactFormSchema.safeParse(body)
+    const validationResult = contactFormSchema.safeParse(cleanedBody)
     if (!validationResult.success) {
+      console.error('Validation errors:', validationResult.error.errors)
       return NextResponse.json(
-        { error: 'Invalid form data', details: validationResult.error.errors },
+        { 
+          error: 'Invalid form data', 
+          details: validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        },
         { status: 400 }
       )
     }
@@ -36,28 +48,92 @@ export async function POST(request: NextRequest) {
     })
 
     // Send email notification (async, don't wait)
-    const emailTo = process.env.SMTP_TO || 'contact@mactechsolutions.com'
+    const emailTo = process.env.SMTP_TO || 'bmacdonald417@gmail.com'
+    const organization = data.organization?.trim() || 'Not provided'
+    const phone = data.phone?.trim() || 'Not provided'
+    
     sendEmail({
       to: emailTo,
-      subject: `New Contact Form Submission from ${data.name}`,
+      subject: `New Contact Form Submission - MacTech Solutions Website`,
       html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        ${data.organization ? `<p><strong>Organization:</strong> ${data.organization}</p>` : ''}
-        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
-        <p><strong>Message:</strong></p>
-        <p>${data.message.replace(/\n/g, '<br>')}</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #1e3a8a; color: white; padding: 20px; text-align: center; }
+            .content { background-color: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+            .field { margin-bottom: 15px; }
+            .label { font-weight: bold; color: #1e3a8a; }
+            .value { margin-top: 5px; padding: 10px; background-color: white; border-left: 3px solid #1e3a8a; }
+            .message-box { margin-top: 20px; padding: 15px; background-color: white; border: 1px solid #d1d5db; }
+            .footer { margin-top: 20px; padding: 15px; text-align: center; color: #6b7280; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2 style="margin: 0;">New Contact Form Submission</h2>
+              <p style="margin: 10px 0 0 0; font-size: 14px;">MacTech Solutions Website</p>
+            </div>
+            <div class="content">
+              <div class="field">
+                <div class="label">Name:</div>
+                <div class="value">${data.name}</div>
+              </div>
+              <div class="field">
+                <div class="label">Email:</div>
+                <div class="value"><a href="mailto:${data.email}">${data.email}</a></div>
+              </div>
+              <div class="field">
+                <div class="label">Organization:</div>
+                <div class="value">${organization}</div>
+              </div>
+              <div class="field">
+                <div class="label">Phone:</div>
+                <div class="value">${phone}</div>
+              </div>
+              <div class="message-box">
+                <div class="label">Message:</div>
+                <div style="margin-top: 10px; white-space: pre-wrap;">${data.message.replace(/\n/g, '<br>')}</div>
+              </div>
+            </div>
+            <div class="footer">
+              <p>This email was automatically generated from the MacTech Solutions contact form.</p>
+              <p>Submitted on ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
+            </div>
+          </div>
+        </body>
+        </html>
       `,
       text: `
-New Contact Form Submission
+NEW CONTACT FORM SUBMISSION
+MacTech Solutions Website
 
-Name: ${data.name}
-Email: ${data.email}
-${data.organization ? `Organization: ${data.organization}\n` : ''}
-${data.phone ? `Phone: ${data.phone}\n` : ''}
-Message:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NAME:
+${data.name}
+
+EMAIL:
+${data.email}
+
+ORGANIZATION:
+${organization}
+
+PHONE:
+${phone}
+
+MESSAGE:
 ${data.message}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Submitted on: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}
+
+This email was automatically generated from the MacTech Solutions contact form.
       `,
     }).catch((error) => {
       console.error('Failed to send email:', error)
