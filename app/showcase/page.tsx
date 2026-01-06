@@ -353,7 +353,7 @@ export default function ShowcasePage() {
               <h2 className="heading-2 mb-4">{category}</h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {categoryTools.map((tool, index) => {
                 const isExpanded = expandedItems.has(tool.id)
                 return (
@@ -367,10 +367,10 @@ export default function ShowcasePage() {
                       className="w-full text-left p-6 hover:bg-neutral-50 transition-colors duration-gentle"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
                             <h3 className="heading-3">{tool.name}</h3>
-                            <span className={`text-body-sm font-medium px-3 py-1 rounded border ${statusColors[tool.status]}`}>
+                            <span className={`text-body-sm font-medium px-3 py-1 rounded border flex-shrink-0 ${statusColors[tool.status]}`}>
                               {statusLabels[tool.status]}
                             </span>
                           </div>
