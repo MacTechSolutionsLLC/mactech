@@ -7,9 +7,20 @@ export default function ServicesPage() {
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-4xl mx-auto">
           <h1 className="heading-hero mb-6">Our Services</h1>
-          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed">
+          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed mb-6">
             Procurement-ready service offerings designed for federal programs and defense contractors.
           </p>
+          <div className="card p-6 bg-accent-50 border border-accent-200">
+            <p className="text-body text-neutral-700 mb-4">
+              <strong className="font-semibold text-neutral-900">Automation-Enhanced Delivery:</strong> Many of our services are supported by proprietary automation tools that accelerate delivery, reduce manual effort, and ensure consistency. 
+            </p>
+            <Link href="/showcase" className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center gap-1">
+              View our tools and capabilities
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -157,6 +168,58 @@ export default function ServicesPage() {
                 </ul>
               </div>
             </div>
+            <div className="mt-8 pt-8 border-t border-neutral-200">
+              <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">Supporting Tools & Capabilities</h4>
+              <p className="text-body-sm text-neutral-700 mb-4">
+                Our RMF and cybersecurity services are enhanced by automation tools including:
+              </p>
+              <ul className="grid md:grid-cols-2 gap-3">
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>STIG Generator for automated playbook generation</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>RMF Artifact Generator for documentation automation</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Control Implementation Validator for SCA preparation</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>ATO Readiness Dashboard for progress tracking</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Continuous Monitoring Automation Platform</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>SCA Preparation Toolkit</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/showcase" className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center gap-1">
+                  Explore all tools and capabilities
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -302,6 +365,40 @@ export default function ServicesPage() {
                 </ul>
               </div>
             </div>
+            <div className="mt-8 pt-8 border-t border-neutral-200">
+              <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">Supporting Tools & Capabilities</h4>
+              <p className="text-body-sm text-neutral-700 mb-4">
+                Our infrastructure services leverage automation tools including:
+              </p>
+              <ul className="grid md:grid-cols-2 gap-3">
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Infrastructure Compliance Scanner for pre-deployment validation</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Compliant Infrastructure Templates for rapid deployment</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Network Security Configuration Generator</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/showcase" className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center gap-1">
+                  Explore all tools and capabilities
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -445,6 +542,34 @@ export default function ServicesPage() {
                   <li className="text-body text-neutral-700">Proactive compliance posture</li>
                   <li className="text-body text-neutral-700">Confidence in audit readiness</li>
                 </ul>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-neutral-200">
+              <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">Supporting Tools & Capabilities</h4>
+              <p className="text-body-sm text-neutral-700 mb-4">
+                Our quality and compliance services are enhanced by automation tools including:
+              </p>
+              <ul className="grid md:grid-cols-2 gap-3">
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Process Documentation Generator for ISO-compliant documentation</span>
+                </li>
+                <li className="text-body-sm text-neutral-700 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-accent-700 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Audit Evidence Collector for automated evidence organization</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/showcase" className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center gap-1">
+                  Explore all tools and capabilities
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>
