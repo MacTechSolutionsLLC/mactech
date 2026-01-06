@@ -150,7 +150,7 @@ export default function ReadinessPage() {
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">Contact Information</h2>
                   <p className="text-body text-neutral-600 mb-8">
-                    We'll send your assessment results to this address.
+                    We&apos;ll send your assessment results to this address.
                   </p>
                   <div className="space-y-6">
                     <div>
@@ -402,7 +402,7 @@ export default function ReadinessPage() {
                   <div className="mb-8">
                     <h2 className="heading-2 mb-2">Your Readiness Assessment</h2>
                     <p className="text-body text-neutral-600">
-                      Based on your responses, here's your readiness profile.
+                      Based on your responses, here&apos;s your readiness profile.
                     </p>
                   </div>
 
@@ -462,7 +462,7 @@ export default function ReadinessPage() {
                     <div className="bg-accent-50 border border-accent-200 p-8 rounded-sm">
                       <h3 className="heading-3 mb-3">Next Steps</h3>
                       <p className="text-body text-neutral-700 mb-6 leading-relaxed">
-                        We've sent your assessment results to your email. A MacTech Solutions team member 
+                        We&apos;ve sent your assessment results to your email. A MacTech Solutions team member 
                         will reach out to discuss how we can help address these gaps and improve your readiness.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4">

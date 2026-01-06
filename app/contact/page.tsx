@@ -79,7 +79,7 @@ export default function ContactPage() {
               <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-sm fade-in">
                 <p className="text-body font-semibold text-green-800 mb-1">Thank you for your message</p>
                 <p className="text-body-sm text-green-700">
-                  We'll get back to you as soon as possible.
+                  We&apos;ll get back to you as soon as possible.
                 </p>
               </div>
             )}
