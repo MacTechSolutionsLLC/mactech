@@ -12,9 +12,9 @@ export default function Footer() {
               <Image
                 src="/mactech.png"
                 alt="MacTech Solutions"
-                width={1440}
-                height={320}
-                className="h-64 w-auto brightness-0 invert"
+                width={300}
+                height={60}
+                className="h-10 w-auto brightness-0 invert"
               />
             </Link>
             <p className="text-body-sm text-neutral-400 max-w-md leading-relaxed">

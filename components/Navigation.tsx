@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -40,9 +41,14 @@ export default function Navigation() {
             className="flex items-center group"
             aria-label="MacTech Solutions Home"
           >
-            <span className="text-lg font-semibold text-neutral-900 tracking-tight group-hover:text-neutral-700 transition-colors duration-gentle">
-              MacTech Solutions
-            </span>
+            <Image
+              src="/mactech.png"
+              alt="MacTech Solutions"
+              width={300}
+              height={60}
+              className="h-10 w-auto transition-opacity duration-gentle group-hover:opacity-80"
+              priority
+            />
           </Link>
           
           {/* Desktop Navigation - minimal, editorial */}
