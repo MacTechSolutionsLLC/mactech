@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -7,9 +8,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
           {/* Brand */}
           <div className="md:col-span-2">
-            <h3 className="text-white font-semibold text-lg mb-4 tracking-tight">
-              MacTech Solutions
-            </h3>
+            <Link href="/" className="inline-block mb-4">
+              <Image
+                src="/mactech.png"
+                alt="MacTech Solutions"
+                width={180}
+                height={40}
+                className="h-8 w-auto brightness-0 invert"
+              />
+            </Link>
             <p className="text-body-sm text-neutral-400 max-w-md leading-relaxed">
               Veteran-owned consulting firm specializing in DoD cybersecurity, 
               infrastructure engineering, and compliance for federal programs and defense contractors.
