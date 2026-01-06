@@ -457,6 +457,7 @@ export default function ShowcasePage() {
                 )
               })}
             </div>
+          </div>
         </section>
 
       {/* CTA Section */}
