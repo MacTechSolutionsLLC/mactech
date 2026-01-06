@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validation'
 import { prisma } from '@/lib/prisma'
-import { sendEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,96 +38,28 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send email notification (async, don't wait)
-    const emailTo = process.env.SMTP_TO || 'bmacdonald417@gmail.com'
-    const organization = data.organization?.trim() || 'Not provided'
-    const phone = data.phone?.trim() || 'Not provided'
+    // Send to Zapier webhook (async, don't wait)
+    const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL || 'https://hooks.zapier.com/hooks/catch/17370933/uwfrwd6/'
     
-    sendEmail({
-      to: emailTo,
-      subject: `New Contact Form Submission - MacTech Solutions Website`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #1e3a8a; color: white; padding: 20px; text-align: center; }
-            .content { background-color: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
-            .field { margin-bottom: 15px; }
-            .label { font-weight: bold; color: #1e3a8a; }
-            .value { margin-top: 5px; padding: 10px; background-color: white; border-left: 3px solid #1e3a8a; }
-            .message-box { margin-top: 20px; padding: 15px; background-color: white; border: 1px solid #d1d5db; }
-            .footer { margin-top: 20px; padding: 15px; text-align: center; color: #6b7280; font-size: 12px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h2 style="margin: 0;">New Contact Form Submission</h2>
-              <p style="margin: 10px 0 0 0; font-size: 14px;">MacTech Solutions Website</p>
-            </div>
-            <div class="content">
-              <div class="field">
-                <div class="label">Name:</div>
-                <div class="value">${data.name}</div>
-              </div>
-              <div class="field">
-                <div class="label">Email:</div>
-                <div class="value"><a href="mailto:${data.email}">${data.email}</a></div>
-              </div>
-              <div class="field">
-                <div class="label">Organization:</div>
-                <div class="value">${organization}</div>
-              </div>
-              <div class="field">
-                <div class="label">Phone:</div>
-                <div class="value">${phone}</div>
-              </div>
-              <div class="message-box">
-                <div class="label">Message:</div>
-                <div style="margin-top: 10px; white-space: pre-wrap;">${data.message.replace(/\n/g, '<br>')}</div>
-              </div>
-            </div>
-            <div class="footer">
-              <p>This email was automatically generated from the MacTech Solutions contact form.</p>
-              <p>Submitted on ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-      text: `
-NEW CONTACT FORM SUBMISSION
-MacTech Solutions Website
+    const webhookPayload = {
+      name: data.name,
+      email: data.email,
+      organization: data.organization?.trim() || '',
+      phone: data.phone?.trim() || '',
+      message: data.message,
+      submittedAt: new Date().toISOString(),
+      submittedAtFormatted: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
+      source: 'MacTech Solutions Contact Form',
+    }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-NAME:
-${data.name}
-
-EMAIL:
-${data.email}
-
-ORGANIZATION:
-${organization}
-
-PHONE:
-${phone}
-
-MESSAGE:
-${data.message}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Submitted on: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}
-
-This email was automatically generated from the MacTech Solutions contact form.
-      `,
+    fetch(zapierWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(webhookPayload),
     }).catch((error) => {
-      console.error('Failed to send email:', error)
+      console.error('Failed to send to Zapier webhook:', error)
     })
 
     // Send confirmation email to user

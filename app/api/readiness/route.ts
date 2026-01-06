@@ -44,49 +44,35 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send email notification to MacTech (async, don't wait)
-    const emailTo = process.env.SMTP_TO || 'contact@mactechsolutions.com'
-    sendEmail({
-      to: emailTo,
-      subject: `New Readiness Assessment - ${result.score.toUpperCase()} Readiness`,
-      html: `
-        <h2>New Readiness Assessment Submission</h2>
-        <p><strong>Email:</strong> ${data.email}</p>
-        ${data.name ? `<p><strong>Name:</strong> ${data.name}</p>` : ''}
-        ${data.organization ? `<p><strong>Organization:</strong> ${data.organization}</p>` : ''}
-        <hr>
-        <h3>Assessment Results</h3>
-        <p><strong>Readiness Score:</strong> ${result.scoreValue}/100 (${result.score.toUpperCase()})</p>
-        <p><strong>System Type:</strong> ${data.systemType}</p>
-        <p><strong>Auth Status:</strong> ${data.authStatus}</p>
-        <p><strong>Audit History:</strong> ${data.auditHistory}</p>
-        <p><strong>Infrastructure Maturity:</strong> ${data.infraMaturity}</p>
-        <p><strong>Timeline Pressure:</strong> ${data.timelinePressure}</p>
-        <h4>Identified Gaps:</h4>
-        <ul>
-          ${result.gapsSummary.map(gap => `<li>${gap}</li>`).join('')}
-        </ul>
-      `,
-      text: `
-New Readiness Assessment Submission
+    // Send to Zapier webhook (async, don't wait)
+    const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL || 'https://hooks.zapier.com/hooks/catch/17370933/uwfrwd6/'
+    
+    const webhookPayload = {
+      type: 'Readiness Assessment',
+      email: data.email,
+      name: data.name || '',
+      organization: data.organization?.trim() || '',
+      readinessScore: result.scoreValue,
+      readinessLevel: result.score.toUpperCase(),
+      systemType: data.systemType,
+      authStatus: data.authStatus,
+      auditHistory: data.auditHistory,
+      infraMaturity: data.infraMaturity,
+      timelinePressure: data.timelinePressure,
+      gapsSummary: result.gapsSummary.join('; '),
+      submittedAt: new Date().toISOString(),
+      submittedAtFormatted: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
+      source: 'MacTech Solutions Readiness Assessment',
+    }
 
-Email: ${data.email}
-${data.name ? `Name: ${data.name}\n` : ''}
-${data.organization ? `Organization: ${data.organization}\n` : ''}
-
-Assessment Results:
-Readiness Score: ${result.scoreValue}/100 (${result.score.toUpperCase()})
-System Type: ${data.systemType}
-Auth Status: ${data.authStatus}
-Audit History: ${data.auditHistory}
-Infrastructure Maturity: ${data.infraMaturity}
-Timeline Pressure: ${data.timelinePressure}
-
-Identified Gaps:
-${result.gapsSummary.map(gap => `- ${gap}`).join('\n')}
-      `,
+    fetch(zapierWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(webhookPayload),
     }).catch((error) => {
-      console.error('Failed to send email:', error)
+      console.error('Failed to send to Zapier webhook:', error)
     })
 
     // Send results email to user
