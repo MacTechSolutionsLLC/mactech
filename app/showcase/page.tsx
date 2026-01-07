@@ -314,6 +314,213 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'AI-powered contract analysis system that parses contract language and identifies risk patterns. Maps contractual obligations to technical deliverables and compliance requirements.',
     integration: 'Integrates with contract management systems, project management platforms, and compliance tools. Exports risk analysis reports for stakeholder review.'
+  },
+  {
+    id: 'iso-compliance-tracker',
+    name: 'ISO Compliance Tracker',
+    category: 'Assessment & Readiness',
+    status: 'in-development',
+    description: 'Automated tracking and monitoring of ISO 9001 and ISO 17025 compliance status across organizational processes, identifying gaps and generating compliance reports for audits.',
+    features: [
+      'Tracks compliance status against ISO 9001 and ISO 17025 requirements',
+      'Identifies gaps and non-conformances in real-time',
+      'Generates compliance reports for internal and external audits',
+      'Tracks corrective actions and improvement initiatives',
+      'Monitors process compliance across departments',
+      'Provides compliance dashboards and metrics'
+    ],
+    useCases: [
+      'Maintain ongoing ISO compliance visibility',
+      'Prepare for ISO certification audits',
+      'Track corrective action effectiveness',
+      'Support laboratory accreditation efforts'
+    ],
+    technicalDetails: 'Rule-based compliance tracking system that maps organizational processes to ISO requirements. Uses automated data collection and validation to assess compliance status continuously.',
+    integration: 'Integrates with quality management systems, document management platforms, ticketing systems, and audit management tools. Exports compliance data to ISO certification platforms.'
+  },
+  {
+    id: 'quality-management-builder',
+    name: 'Quality Management System Builder',
+    category: 'Automation & Compliance',
+    status: 'in-development',
+    description: 'Interactive tool for building complete Quality Management Systems (QMS) aligned with ISO 9001 and ISO 17025 requirements, generating procedures, work instructions, and quality manuals.',
+    features: [
+      'Interactive QMS builder with ISO requirement mapping',
+      'Generates procedures and work instructions from templates',
+      'Creates quality manuals and policy documents',
+      'Validates QMS structure against ISO requirements',
+      'Supports document control and review workflows',
+      'Exports QMS documentation in standard formats'
+    ],
+    useCases: [
+      'Build QMS from scratch for ISO certification',
+      'Standardize quality processes across organizations',
+      'Accelerate ISO 9001 or ISO 17025 implementation',
+      'Maintain QMS documentation currency'
+    ],
+    technicalDetails: 'Template-driven QMS builder with intelligent requirement mapping. Uses organizational inputs and process data to generate compliant quality management system documentation with proper structure and formatting.',
+    integration: 'Integrates with document management systems, quality management platforms, and ISO certification management tools. Supports export to Word, PDF, and QMS software formats.'
+  },
+  {
+    id: 'audit-readiness-scorecard',
+    name: 'Audit Readiness Scorecard',
+    category: 'Assessment & Readiness',
+    status: 'in-development',
+    description: 'Automated scoring and assessment of audit readiness across ISO, accreditation, and compliance audits, identifying high-risk areas and generating readiness reports for leadership.',
+    features: [
+      'Automated audit readiness scoring across multiple standards',
+      'Tracks evidence completeness by audit requirement',
+      'Identifies high-risk areas before audit events',
+      'Generates readiness reports for leadership',
+      'Provides gap analysis with remediation priorities',
+      'Tracks readiness trends over time'
+    ],
+    useCases: [
+      'Assess readiness before external audits',
+      'Identify and prioritize audit preparation gaps',
+      'Provide leadership visibility into audit readiness',
+      'Support proactive audit preparation'
+    ],
+    technicalDetails: 'Scoring engine that analyzes evidence completeness, process maturity, and compliance status against audit requirements. Uses weighted scoring algorithms to calculate readiness scores and identify risk areas.',
+    integration: 'Integrates with document management systems, quality management platforms, evidence collection tools, and audit management systems. Exports readiness reports to executive dashboards.'
+  },
+  {
+    id: 'infrastructure-performance-optimizer',
+    name: 'Infrastructure Performance Optimizer',
+    category: 'Infrastructure & Engineering',
+    status: 'in-development',
+    description: 'Automated analysis and optimization of infrastructure performance metrics, identifying bottlenecks, capacity issues, and optimization opportunities across data center and cloud environments.',
+    features: [
+      'Analyzes infrastructure performance metrics in real-time',
+      'Identifies performance bottlenecks and optimization opportunities',
+      'Provides capacity planning recommendations',
+      'Generates performance reports for stakeholders',
+      'Tracks performance trends and anomalies',
+      'Recommends infrastructure improvements'
+    ],
+    useCases: [
+      'Optimize infrastructure performance and efficiency',
+      'Identify capacity planning needs',
+      'Troubleshoot performance issues',
+      'Support infrastructure modernization decisions'
+    ],
+    technicalDetails: 'Performance monitoring and analysis system that collects metrics from infrastructure components. Uses machine learning to identify patterns, predict capacity needs, and recommend optimizations.',
+    integration: 'Integrates with monitoring tools (Prometheus, Grafana, CloudWatch), infrastructure management platforms, and capacity planning systems. Exports performance data to reporting dashboards.'
+  },
+  {
+    id: 'disaster-recovery-planner',
+    name: 'Disaster Recovery Planner',
+    category: 'Infrastructure & Engineering',
+    status: 'in-development',
+    description: 'Automated generation of disaster recovery plans from infrastructure inventory, mapping dependencies, recovery priorities, and creating RTO/RPO-aligned recovery procedures.',
+    features: [
+      'Generates disaster recovery plans from infrastructure inventory',
+      'Maps system dependencies and recovery priorities',
+      'Creates RTO/RPO-aligned recovery procedures',
+      'Validates against business continuity requirements',
+      'Generates recovery runbooks and procedures',
+      'Tracks recovery testing and validation'
+    ],
+    useCases: [
+      'Develop comprehensive disaster recovery plans',
+      'Ensure DR plans align with business requirements',
+      'Maintain DR plan currency as infrastructure changes',
+      'Support business continuity planning'
+    ],
+    technicalDetails: 'DR plan generator that analyzes infrastructure topology, dependencies, and business requirements to create recovery procedures. Maps recovery time objectives (RTO) and recovery point objectives (RPO) to technical recovery steps.',
+    integration: 'Integrates with infrastructure management platforms, configuration management databases (CMDB), business continuity tools, and documentation systems. Exports DR plans to standard formats.'
+  },
+  {
+    id: 'infrastructure-cost-optimizer',
+    name: 'Infrastructure Cost Optimizer',
+    category: 'Infrastructure & Engineering',
+    status: 'in-development',
+    description: 'Automated analysis of infrastructure costs across on-premises and cloud environments, identifying optimization opportunities, cost trends, and providing cloud migration cost projections.',
+    features: [
+      'Analyzes infrastructure costs across environments',
+      'Identifies cost optimization opportunities',
+      'Provides cloud migration cost projections',
+      'Generates cost-benefit analysis reports',
+      'Tracks cost trends and anomalies',
+      'Recommends cost-saving strategies'
+    ],
+    useCases: [
+      'Optimize infrastructure costs and spending',
+      'Evaluate cloud migration economics',
+      'Identify cost-saving opportunities',
+      'Support infrastructure investment decisions'
+    ],
+    technicalDetails: 'Cost analysis engine that aggregates cost data from multiple sources (cloud providers, on-premises systems, vendor invoices). Uses cost modeling and optimization algorithms to identify savings opportunities.',
+    integration: 'Integrates with cloud provider billing APIs (AWS Cost Explorer, Azure Cost Management), financial systems, and infrastructure management platforms. Exports cost analysis to financial reporting tools.'
+  },
+  {
+    id: 'vendor-risk-assessor',
+    name: 'Vendor Risk Assessment Tool',
+    category: 'Automation & Compliance',
+    status: 'in-development',
+    description: 'Automated assessment of vendor and subcontractor risk profiles, evaluating contract compliance, performance, and identifying risk areas in vendor relationships for regulated programs.',
+    features: [
+      'Assesses vendor and subcontractor risk profiles',
+      'Evaluates contract compliance and performance',
+      'Identifies risk areas in vendor relationships',
+      'Generates risk mitigation recommendations',
+      'Tracks vendor performance over time',
+      'Provides vendor risk scoring and categorization'
+    ],
+    useCases: [
+      'Assess vendor risk before contract execution',
+      'Monitor ongoing vendor compliance and performance',
+      'Identify and mitigate vendor-related risks',
+      'Support vendor management decisions'
+    ],
+    technicalDetails: 'Risk assessment engine that analyzes vendor contracts, performance data, and compliance information. Uses risk scoring algorithms to evaluate vendor risk and generate mitigation recommendations.',
+    integration: 'Integrates with vendor management systems, contract management platforms, performance monitoring tools, and risk management systems. Exports risk assessments to procurement and compliance platforms.'
+  },
+  {
+    id: 'governance-structure-builder',
+    name: 'Governance Structure Builder',
+    category: 'Automation & Compliance',
+    status: 'in-development',
+    description: 'Interactive tool for designing governance frameworks for complex programs, mapping decision-making authority, approval workflows, and identifying governance gaps and conflicts.',
+    features: [
+      'Helps design governance frameworks for complex programs',
+      'Maps decision-making authority and approval workflows',
+      'Identifies governance gaps and conflicts',
+      'Generates governance documentation',
+      'Validates governance structure completeness',
+      'Supports role and responsibility mapping'
+    ],
+    useCases: [
+      'Design governance structures for new programs',
+      'Improve governance clarity in existing programs',
+      'Identify and resolve governance conflicts',
+      'Support program management and decision-making'
+    ],
+    technicalDetails: 'Governance modeling tool that uses organizational structure and program requirements to design governance frameworks. Maps roles, responsibilities, decision rights, and approval workflows.',
+    integration: 'Integrates with project management platforms, organizational charting tools, and documentation systems. Exports governance documentation to program management and collaboration platforms.'
+  },
+  {
+    id: 'contract-obligation-tracker',
+    name: 'Contract Obligation Tracker',
+    category: 'Automation & Compliance',
+    status: 'in-development',
+    description: 'Automated tracking of contractual obligations across multiple contracts, mapping obligations to deliverables and milestones, with alerts for upcoming obligations and deadlines.',
+    features: [
+      'Tracks contractual obligations across contracts',
+      'Maps obligations to deliverables and milestones',
+      'Alerts on upcoming obligations and deadlines',
+      'Generates obligation compliance reports',
+      'Tracks obligation fulfillment status',
+      'Identifies obligation conflicts and dependencies'
+    ],
+    useCases: [
+      'Track and manage contractual obligations',
+      'Ensure timely fulfillment of contract requirements',
+      'Identify obligation conflicts and gaps',
+      'Support contract compliance monitoring'
+    ],
+    technicalDetails: 'Obligation tracking system that parses contracts to extract obligations and maps them to deliverables. Uses calendar and milestone tracking to alert on upcoming obligations and deadlines.',
+    integration: 'Integrates with contract management systems, project management platforms, and compliance tools. Exports obligation tracking data to reporting and dashboard systems.'
   }
 ]
 
