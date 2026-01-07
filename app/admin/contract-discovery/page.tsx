@@ -44,6 +44,9 @@ export default function ContractDiscoveryPage() {
   const [keywords, setKeywords] = useState('')
   const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_year')
   const [previewResult, setPreviewResult] = useState<DiscoveryResult | null>(null)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [testingTemplate, setTestingTemplate] = useState<string | null>(null)
+  const [templateResults, setTemplateResults] = useState<any>(null)
 
   const agencyOptions = [
     'Department of Defense',
@@ -393,7 +396,7 @@ export default function ContractDiscoveryPage() {
               )}
 
               {/* Search Button */}
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
                 <button
                   onClick={handleSearch}
                   disabled={isSearching}
@@ -408,7 +411,160 @@ export default function ContractDiscoveryPage() {
                 >
                   Test SerpAPI Connection
                 </button>
+                <button
+                  onClick={() => setShowTemplates(!showTemplates)}
+                  type="button"
+                  className="btn-secondary"
+                >
+                  {showTemplates ? 'Hide' : 'Show'} Search Templates
+                </button>
               </div>
+
+              {/* Search Templates */}
+              {showTemplates && (
+                <div className="border border-neutral-200 rounded-sm p-6 bg-neutral-50">
+                  <h3 className="heading-3 mb-4">Optimized Search Templates</h3>
+                  <p className="text-body-sm text-neutral-600 mb-6">
+                    Pre-configured queries optimized for MacTech&apos;s service offerings. Click to test or use as starting point.
+                  </p>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 mb-6">
+                    {[
+                      {
+                        name: 'RMF & ATO Services',
+                        description: 'Risk Management Framework and Authorization to Operate contracts',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "Performance Work Statement") ("RMF" OR "Risk Management Framework" OR "ATO" OR "Authorization to Operate" OR "STIG")',
+                        keywords: 'RMF, ATO, STIG',
+                      },
+                      {
+                        name: 'Cybersecurity & STIG Compliance',
+                        description: 'STIG compliance and cybersecurity assessment contracts',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("STIG" OR "Security Technical Implementation Guide" OR "cybersecurity assessment" OR "security control assessment")',
+                        keywords: 'STIG, cybersecurity, assessment',
+                      },
+                      {
+                        name: 'Infrastructure Engineering',
+                        description: 'Infrastructure, cloud migration, and systems engineering',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("infrastructure engineering" OR "cloud migration" OR "systems engineering" OR "platform engineering" OR "IaC")',
+                        keywords: 'infrastructure, cloud, engineering',
+                      },
+                      {
+                        name: 'ISO Compliance & Quality',
+                        description: 'ISO certification, quality management, and audit readiness',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("ISO 9001" OR "ISO 17025" OR "ISO 27001" OR "quality management system" OR "audit readiness")',
+                        keywords: 'ISO, quality, audit',
+                      },
+                      {
+                        name: 'Veteran-Owned Set-Asides',
+                        description: 'SDVOSB and veteran-owned set-aside opportunities',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS" OR "Sources Sought") ("SDVOSB" OR "Service-Disabled Veteran" OR "veteran-owned" OR "VOSB") ("cybersecurity" OR "RMF" OR "infrastructure")',
+                        keywords: 'SDVOSB, veteran-owned, set-aside',
+                      },
+                      {
+                        name: 'DoD Cybersecurity',
+                        description: 'Department of Defense cybersecurity and RMF contracts',
+                        query: 'filetype:pdf site:sam.gov ("Statement of Work" OR "PWS") ("Department of Defense" OR "DoD" OR "Air Force" OR "Navy" OR "Army") ("RMF" OR "ATO" OR "cybersecurity" OR "STIG")',
+                        keywords: 'DoD, military, cybersecurity',
+                      },
+                      {
+                        name: 'Continuous Monitoring',
+                        description: 'ConMon and continuous monitoring services',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("Continuous Monitoring" OR "ConMon" OR "continuous assessment" OR "security monitoring")',
+                        keywords: 'ConMon, monitoring, assessment',
+                      },
+                      {
+                        name: 'NIST 800-53 Compliance',
+                        description: 'NIST 800-53 security control implementation and assessment',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("NIST 800-53" OR "security controls" OR "control assessment" OR "SCA")',
+                        keywords: 'NIST, security controls, SCA',
+                      },
+                      {
+                        name: 'CMMC & Defense Contractors',
+                        description: 'CMMC compliance for defense contractors',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("CMMC" OR "Cybersecurity Maturity Model Certification" OR "defense contractor" OR "DFARS")',
+                        keywords: 'CMMC, DFARS, defense',
+                      },
+                      {
+                        name: 'Boston Area Contracts',
+                        description: 'Government contracts in Boston/New England area',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("Boston" OR "Massachusetts" OR "New England" OR "Rhode Island") ("cybersecurity" OR "RMF" OR "infrastructure")',
+                        keywords: 'Boston, Massachusetts, local',
+                      },
+                      {
+                        name: 'Small Business Set-Asides',
+                        description: 'Small business, 8(a), and HUBZone opportunities',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS" OR "Sources Sought") ("small business" OR "8(a)" OR "HUBZone" OR "WOSB") ("cybersecurity" OR "RMF" OR "infrastructure")',
+                        keywords: 'small business, 8(a), HUBZone',
+                      },
+                      {
+                        name: 'NAICS Engineering Services',
+                        description: 'Engineering and cybersecurity services by NAICS codes',
+                        query: 'filetype:pdf (site:sam.gov OR site:.gov OR site:.mil) ("Statement of Work" OR "PWS") ("NAICS 541330" OR "NAICS 541511" OR "NAICS 541512")',
+                        keywords: 'NAICS, engineering, services',
+                      },
+                    ].map((template, idx) => (
+                      <div key={idx} className="border border-neutral-200 rounded-sm p-4 bg-white">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="text-body-sm font-semibold text-neutral-900">{template.name}</h4>
+                          <button
+                            onClick={async () => {
+                              setTestingTemplate(template.name)
+                              setTemplateResults(null)
+                              try {
+                                const response = await fetch('/api/admin/contract-discovery/test-queries', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ query: template.query, name: template.name }),
+                                })
+                                const data = await response.json()
+                                setTemplateResults(data)
+                              } catch (err) {
+                                console.error('Error testing template:', err)
+                              } finally {
+                                setTestingTemplate(null)
+                              }
+                            }}
+                            disabled={testingTemplate === template.name}
+                            className="text-body-xs text-accent-700 hover:text-accent-800 font-medium disabled:opacity-50"
+                          >
+                            {testingTemplate === template.name ? 'Testing...' : 'Test Query'}
+                          </button>
+                        </div>
+                        <p className="text-body-xs text-neutral-600 mb-2">{template.description}</p>
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {template.keywords.split(', ').map((kw, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-accent-50 text-accent-700 text-body-xs rounded">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setCustomQuery(template.query)
+                            setUseCustomQuery(true)
+                            setShowTemplates(false)
+                          }}
+                          className="text-body-xs text-neutral-600 hover:text-neutral-900 font-medium"
+                        >
+                          Use This Query →
+                        </button>
+                        {templateResults && templateResults.query === template.query && (
+                          <div className="mt-3 pt-3 border-t border-neutral-200">
+                            <p className="text-body-xs text-neutral-600 mb-1">
+                              Test Results: {templateResults.results?.total || 0} total, {templateResults.results?.relevant || 0} relevant
+                            </p>
+                            {templateResults.results?.topResults && templateResults.results.topResults.length > 0 && (
+                              <div className="text-body-xs text-neutral-500">
+                                Top result: {templateResults.results.topResults[0].title?.substring(0, 60)}...
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Test Result Display */}
               {testResult && (
