@@ -446,6 +446,9 @@ export default function ReadinessPage() {
                     {/* Gaps Summary - Editorial */}
                     <div>
                       <h3 className="heading-3 mb-4">Identified Gaps & Recommendations</h3>
+                      <p className="text-body-sm text-neutral-600 mb-4">
+                        These recommendations address both technical readiness and contractual risk considerations.
+                      </p>
                       <div className="space-y-4">
                         {result.gapsSummary.map((gap, index) => (
                           <div key={index} className="flex gap-4 pb-4 border-b border-neutral-200 last:border-0">

@@ -20,7 +20,7 @@ export default function HomePage() {
               </h1>
               <p className="text-body-lg text-neutral-700 mb-10 max-w-2xl leading-relaxed">
                 MacTech Solutions helps federal programs and defense contractors achieve authorization, 
-                audit readiness, and operational confidence.
+                audit readiness, and operational confidence through integrated technical and risk-aware delivery.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/readiness" className="btn-primary inline-flex items-center justify-center">
@@ -90,7 +90,7 @@ export default function HomePage() {
           <div className="mb-20 text-center">
             <h2 className="heading-2 mb-4">What We Do</h2>
             <p className="text-body text-neutral-600 max-w-2xl mx-auto">
-              Integrated capabilities across cybersecurity, infrastructure, and compliance.
+              Integrated capabilities across cybersecurity, infrastructure, compliance, and risk management.
             </p>
           </div>
           
@@ -343,6 +343,20 @@ export default function HomePage() {
                 <p className="text-body text-neutral-700 leading-relaxed">
                   We bridge the gap between cybersecurity, infrastructure, and compliance. 
                   No silos. No handoffs. Just results.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-6 fade-in-delay-3">
+              <div className="flex-shrink-0">
+                <div className="h-1 w-12 bg-accent-700 mt-3"></div>
+              </div>
+              <div>
+                <h3 className="heading-3 mb-2">Risk-Aware Execution</h3>
+                <p className="text-body text-neutral-700 leading-relaxed">
+                  We integrate technical execution with contract and risk awareness — reducing surprises 
+                  during audits, authorizations, and disputes. Our in-house legal expertise ensures 
+                  contracts align with deliverables from day one.
                 </p>
               </div>
             </div>

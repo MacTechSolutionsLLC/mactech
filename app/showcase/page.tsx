@@ -291,6 +291,29 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive workflow automation platform integrating artifact generation, progress tracking, and team collaboration. Includes integrations with major RMF management platforms and custom workflow capabilities.',
     integration: 'Integrates with eMASS, Xacta, document management systems, ticketing platforms, and other RMF tools. Provides API for custom integrations.'
+  },
+  {
+    id: 'contract-risk-analyzer',
+    name: 'Contract Risk Analyzer',
+    category: 'Automation & Compliance',
+    status: 'coming-soon',
+    description: 'Automated analysis tool that identifies contractual risks and alignment gaps in scopes of work, vendor agreements, and delivery models for regulated programs.',
+    features: [
+      'Analyzes contracts for cyber and compliance obligation alignment',
+      'Identifies risk areas in scopes of work and delivery models',
+      'Maps contractual requirements to technical deliverables',
+      'Flags vendor and subcontractor agreement misalignments',
+      'Generates risk mitigation recommendations',
+      'Provides governance and signature authority clarity'
+    ],
+    useCases: [
+      'Reduce contractual risk before program execution',
+      'Ensure contracts align with technical capabilities',
+      'Identify vendor agreement gaps early',
+      'Support risk-aware project planning'
+    ],
+    technicalDetails: 'AI-powered contract analysis system that parses contract language and identifies risk patterns. Maps contractual obligations to technical deliverables and compliance requirements.',
+    integration: 'Integrates with contract management systems, project management platforms, and compliance tools. Exports risk analysis reports for stakeholder review.'
   }
 ]
 

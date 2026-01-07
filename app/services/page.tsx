@@ -576,6 +576,135 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      {/* Contracts & Risk Alignment */}
+      <section className="section-container bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <div className="h-px w-16 bg-accent-700 mb-6"></div>
+            <h2 className="heading-2 mb-4">Contracts & Risk Alignment</h2>
+            <p className="text-body-lg text-neutral-700 max-w-3xl leading-relaxed">
+              Reducing downstream legal and contractual risk through better upfront alignment. 
+              We integrate technical execution with contract and risk awareness — reducing surprises 
+              during audits, authorizations, and disputes.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16 mb-16">
+            <div>
+              <h3 className="heading-3 mb-6">What We Do</h3>
+              <ul className="space-y-4">
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Contractual readiness for cyber and compliance obligations</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Risk identification in scopes of work and delivery models</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Vendor and subcontractor agreement alignment</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Governance and signature authority clarity</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Risk-aware delivery planning for regulated programs</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Contract review and alignment with technical deliverables</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="heading-3 mb-6">When You Need It</h3>
+              <ul className="space-y-4">
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Drafting or negotiating contracts for cyber/compliance services</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Managing vendor and subcontractor relationships</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Preparing for program reviews or disputes</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Need for risk-aware project planning</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Ensuring contract terms align with technical capabilities</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Complex program structures requiring governance clarity</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="card p-8 lg:p-12 bg-white border border-neutral-200">
+            <h3 className="heading-3 mb-8">What You Get</h3>
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">Artifacts</h4>
+                <ul className="space-y-3">
+                  <li className="text-body text-neutral-700">Contract alignment assessments</li>
+                  <li className="text-body text-neutral-700">Risk identification and mitigation plans</li>
+                  <li className="text-body text-neutral-700">Vendor agreement review and recommendations</li>
+                  <li className="text-body text-neutral-700">Governance structure documentation</li>
+                  <li className="text-body text-neutral-700">Delivery model risk analysis</li>
+                  <li className="text-body text-neutral-700">Contractual obligation mapping</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">Outcomes</h4>
+                <ul className="space-y-3">
+                  <li className="text-body text-neutral-700">Reduced contractual and legal risk</li>
+                  <li className="text-body text-neutral-700">Clear alignment between contracts and deliverables</li>
+                  <li className="text-body text-neutral-700">Better vendor and subcontractor management</li>
+                  <li className="text-body text-neutral-700">Reduced surprises during audits and authorizations</li>
+                  <li className="text-body text-neutral-700">Improved governance and decision-making clarity</li>
+                  <li className="text-body text-neutral-700">Risk-aware program execution</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA - Restrained */}
       <section className="section-container bg-accent-900 text-white">
         <div className="max-w-3xl mx-auto text-center">

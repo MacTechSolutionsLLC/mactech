@@ -245,6 +245,86 @@ export default function LeadershipPage() {
               </div>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="h-px bg-neutral-200"></div>
+
+          {/* John Milso */}
+          <div className="fade-in-delay-3">
+            <div className="grid md:grid-cols-12 gap-12 items-start">
+              <div className="md:col-span-4">
+                <div className="relative w-64 h-64 md:w-80 md:h-80 mb-6 overflow-hidden rounded-sm border border-neutral-200">
+                  <Image
+                    src="/images/john-milso.png"
+                    alt="John Milso"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 256px, 320px"
+                  />
+                </div>
+              </div>
+              <div className="md:col-span-8">
+                <h2 className="heading-2 mb-2">John Milso</h2>
+                <p className="text-body-sm text-accent-700 font-medium mb-6 uppercase tracking-wide">
+                  Director of Legal, Contracts & Risk Advisory (Key Personnel)
+                </p>
+                <div className="prose prose-neutral max-w-none">
+                  <p className="text-body text-neutral-700 mb-6 leading-relaxed">
+                    John brings extensive experience as former Senior Legal Counsel at a global, publicly traded 
+                    software company. His background includes commercial contracts, corporate governance, M&A due 
+                    diligence, and complex litigation across regulated industries. He helps MacTech clients reduce 
+                    downstream legal and contractual risk through better upfront alignment.
+                  </p>
+                  <div className="mb-6">
+                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">
+                      Areas of Expertise
+                    </h4>
+                    <ul className="space-y-2">
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Commercial Contracts (Software, Services, Vendors)</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Corporate Governance</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">M&A Due Diligence</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Risk Identification and Mitigation</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Vendor and Subcontractor Agreement Alignment</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Contractual Readiness for Cyber and Compliance Obligations</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <p className="text-body-sm text-neutral-600 italic">
+                    Available for proposals as key personnel. Licensed in Massachusetts and Rhode Island.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
