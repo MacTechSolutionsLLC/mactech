@@ -21,6 +21,7 @@ interface SearchRequestBody {
   agency?: string[]
   naics_codes?: string[]
   document_types?: ('SOW' | 'PWS' | 'RFQ' | 'RFP' | 'Sources Sought' | 'Other')[]
+  keywords?: string
   num_results?: number
   filters?: {
     filetype?: string
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       agency: body.agency,
       naics_codes: body.naics_codes,
       document_types: body.document_types,
+      keywords: body.keywords,
       num_results: body.num_results || 20,
       filters: body.filters,
       set_aside: body.set_aside,
@@ -74,12 +76,29 @@ export async function POST(request: NextRequest) {
     // Call SerpAPI
     let results: any
     try {
-      results = await getJson({
+      const serpApiParams: any = {
         engine: 'google',
         q: googleQuery,
         api_key: serpApiKey,
         num: body.num_results || 20,
-      })
+      }
+
+      // Add date filter if specified (SerpAPI supports tbs parameter)
+      if (body.filters?.date_range) {
+        switch (body.filters.date_range) {
+          case 'past_week':
+            serpApiParams.tbs = 'qdr:w' // Past week
+            break
+          case 'past_month':
+            serpApiParams.tbs = 'qdr:m' // Past month
+            break
+          case 'past_year':
+            serpApiParams.tbs = 'qdr:y' // Past year
+            break
+        }
+      }
+
+      results = await getJson(serpApiParams)
       
       console.log('SerpAPI Response:', {
         hasResults: !!results,

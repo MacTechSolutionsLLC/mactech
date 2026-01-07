@@ -41,6 +41,9 @@ export default function ContractDiscoveryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<any>(null)
+  const [keywords, setKeywords] = useState('')
+  const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_year')
+  const [previewResult, setPreviewResult] = useState<DiscoveryResult | null>(null)
 
   const agencyOptions = [
     'Department of Defense',
@@ -83,10 +86,12 @@ export default function ContractDiscoveryPage() {
           agency: agency.length > 0 ? agency : undefined,
           naics_codes: naicsCodes.length > 0 ? naicsCodes : undefined,
           document_types: documentTypes,
+          keywords: keywords || undefined,
           num_results: 20,
           filters: {
             filetype: 'pdf',
             site: ['sam.gov', '.gov', '.mil'],
+            date_range: dateRange, // Only get recent results
           },
         }),
       })
@@ -120,6 +125,20 @@ export default function ContractDiscoveryPage() {
     } finally {
       setIsSearching(false)
     }
+  }
+
+  const handlePreview = (result: DiscoveryResult) => {
+    setPreviewResult(result)
+  }
+
+  const handleOpenPDF = (url: string, id: string) => {
+    // Open PDF in new tab
+    window.open(url, '_blank')
+    
+    // Update database to mark as downloaded
+    fetch(`/api/admin/contract-discovery/${id}/download`, {
+      method: 'POST',
+    }).catch(err => console.error('Error marking as downloaded:', err))
   }
 
   const handleDownloadPDF = async (url: string, id: string) => {
@@ -236,6 +255,24 @@ export default function ContractDiscoveryPage() {
                     </select>
                   </div>
 
+                  {/* Keywords */}
+                  <div>
+                    <label htmlFor="keywords" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                      Keywords (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      id="keywords"
+                      value={keywords}
+                      onChange={(e) => setKeywords(e.target.value)}
+                      placeholder="metrology, calibration, testing, etc."
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                    />
+                    <p className="mt-1 text-body-xs text-neutral-500">
+                      Enter specific keywords to search for. Separate multiple keywords with commas.
+                    </p>
+                  </div>
+
                   {/* Location */}
                   <div>
                     <label htmlFor="location" className="block text-body-sm font-medium text-neutral-900 mb-2">
@@ -249,6 +286,26 @@ export default function ContractDiscoveryPage() {
                       placeholder="Boston, Massachusetts, New England, etc."
                       className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                     />
+                  </div>
+
+                  {/* Date Range */}
+                  <div>
+                    <label htmlFor="date-range" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                      Date Range (Only Recent Results)
+                    </label>
+                    <select
+                      id="date-range"
+                      value={dateRange}
+                      onChange={(e) => setDateRange(e.target.value as 'past_week' | 'past_month' | 'past_year')}
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                    >
+                      <option value="past_week">Past Week</option>
+                      <option value="past_month">Past Month</option>
+                      <option value="past_year">Past Year (Default)</option>
+                    </select>
+                    <p className="mt-1 text-body-xs text-neutral-500">
+                      Only show results from the selected time period to avoid outdated contracts.
+                    </p>
                   </div>
 
                   {/* Agency */}
@@ -468,17 +525,23 @@ export default function ContractDiscoveryPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => handlePreview(result)}
+                                className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
+                              >
+                                Preview
+                              </button>
                               {result.document_type === 'pdf' && (
                                 <button
-                                  onClick={() => handleDownloadPDF(result.url, result.id)}
-                                  className="text-body-xs text-accent-700 hover:text-accent-800 font-medium"
+                                  onClick={() => handleOpenPDF(result.url, result.id)}
+                                  className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
                                 >
-                                  Download PDF
+                                  Open PDF
                                 </button>
                               )}
                               <button
                                 onClick={() => handleGenerateProposal(result.url)}
-                                className="text-body-xs text-accent-700 hover:text-accent-800 font-medium"
+                                className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
                               >
                                 Generate Proposal
                               </button>
@@ -500,6 +563,159 @@ export default function ContractDiscoveryPage() {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Preview Modal */}
+      {previewResult && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between">
+              <h3 className="heading-3">Preview</h3>
+              <button
+                onClick={() => setPreviewResult(null)}
+                className="text-neutral-400 hover:text-neutral-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Title</h4>
+                <p className="text-body text-neutral-700">{previewResult.title}</p>
+              </div>
+
+              {previewResult.snippet && (
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Description</h4>
+                  <p className="text-body text-neutral-700">{previewResult.snippet}</p>
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">URL</h4>
+                  <a
+                    href={previewResult.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-body-sm text-accent-700 hover:text-accent-800 break-all"
+                  >
+                    {previewResult.url}
+                  </a>
+                </div>
+
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Domain</h4>
+                  <p className="text-body-sm text-neutral-700">{previewResult.domain}</p>
+                </div>
+
+                {previewResult.agency && (
+                  <div>
+                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Agency</h4>
+                    <p className="text-body-sm text-neutral-700">{previewResult.agency}</p>
+                  </div>
+                )}
+
+                {previewResult.notice_id && (
+                  <div>
+                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Notice ID</h4>
+                    <p className="text-body-sm text-neutral-700">{previewResult.notice_id}</p>
+                  </div>
+                )}
+
+                {previewResult.solicitation_number && (
+                  <div>
+                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Solicitation Number</h4>
+                    <p className="text-body-sm text-neutral-700">{previewResult.solicitation_number}</p>
+                  </div>
+                )}
+
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Relevance Score</h4>
+                  <p className={`text-body-sm font-medium ${getRelevanceColor(previewResult.relevance_score)}`}>
+                    {previewResult.relevance_score}
+                  </p>
+                </div>
+
+                {previewResult.detected_service_category && (
+                  <div>
+                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Service Category</h4>
+                    <p className="text-body-sm text-neutral-700 capitalize">
+                      {previewResult.detected_service_category}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {previewResult.detected_keywords && previewResult.detected_keywords.length > 0 && (
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Detected Keywords</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {previewResult.detected_keywords.map((kw, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-block px-2 py-1 bg-accent-50 text-accent-700 text-body-xs rounded"
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {previewResult.location_mentions && previewResult.location_mentions.length > 0 && (
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Location Mentions</h4>
+                  <p className="text-body-sm text-neutral-700">
+                    {previewResult.location_mentions.join(', ')}
+                  </p>
+                </div>
+              )}
+
+              {previewResult.naics_codes && previewResult.naics_codes.length > 0 && (
+                <div>
+                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">NAICS Codes</h4>
+                  <p className="text-body-sm text-neutral-700">
+                    {previewResult.naics_codes.join(', ')}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-4 border-t border-neutral-200">
+                {previewResult.document_type === 'pdf' && (
+                  <button
+                    onClick={() => {
+                      handleOpenPDF(previewResult.url, previewResult.id)
+                      setPreviewResult(null)
+                    }}
+                    className="btn-primary"
+                  >
+                    Open PDF in New Tab
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    handleGenerateProposal(previewResult.url)
+                    setPreviewResult(null)
+                  }}
+                  className="btn-secondary"
+                >
+                  Generate Proposal
+                </button>
+                <a
+                  href={previewResult.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                >
+                  View Source
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
