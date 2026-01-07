@@ -101,29 +101,28 @@ export function buildSearchQuery(request: SearchRequest): string {
   query += `filetype:${filetype} `
   query += `(${sites.map(s => `site:${s}`).join(' OR ')}) `
 
-  // Date range filter - only get recent results
-  if (request.filters?.date_range) {
-    // Google date filter: after:YYYY-MM-DD
-    const today = new Date()
-    let cutoffDate: Date
-    
-    switch (request.filters.date_range) {
-      case 'past_week':
-        cutoffDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-        break
-      case 'past_month':
-        cutoffDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-        break
-      case 'past_year':
-        cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-        break
-      default:
-        cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-    }
-    
-    const dateStr = cutoffDate.toISOString().split('T')[0] // YYYY-MM-DD
-    query += `after:${dateStr} `
-  }
+  // Note: Date filtering is handled via SerpAPI tbs parameter, not in query string
+  // We'll add it to the query for display purposes, but SerpAPI handles it via tbs param
+  // Keeping this commented out to avoid query syntax issues
+  // if (request.filters?.date_range) {
+  //   const today = new Date()
+  //   let cutoffDate: Date
+  //   switch (request.filters.date_range) {
+  //     case 'past_week':
+  //       cutoffDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+  //       break
+  //     case 'past_month':
+  //       cutoffDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+  //       break
+  //     case 'past_year':
+  //       cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+  //       break
+  //     default:
+  //       cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+  //   }
+  //   const dateStr = cutoffDate.toISOString().split('T')[0]
+  //   query += `after:${dateStr} `
+  // }
 
   // Document type keywords
   const docTypes = request.document_types || ['SOW', 'PWS']
@@ -159,26 +158,7 @@ export function buildSearchQuery(request: SearchRequest): string {
   // Custom query override
   if (request.query) {
     query = request.query
-    // Add date filter to custom query if not already present
-    if (request.filters?.date_range && !query.includes('after:')) {
-      const today = new Date()
-      let cutoffDate: Date
-      switch (request.filters.date_range) {
-        case 'past_week':
-          cutoffDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-          break
-        case 'past_month':
-          cutoffDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-          break
-        case 'past_year':
-          cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-          break
-        default:
-          cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-      }
-      const dateStr = cutoffDate.toISOString().split('T')[0]
-      query += ` after:${dateStr}`
-    }
+    // Date filtering handled via SerpAPI tbs parameter, not in query
   }
 
   // Location filter

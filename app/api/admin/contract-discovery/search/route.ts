@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       hasApiKey: !!serpApiKey,
       apiKeyLength: serpApiKey?.length || 0,
       numResults: body.num_results || 20,
+      dateRange: body.filters?.date_range,
     })
 
     // Call SerpAPI
@@ -84,6 +85,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Add date filter if specified (SerpAPI supports tbs parameter)
+      // Note: tbs parameter works better than after: in query for SerpAPI
       if (body.filters?.date_range) {
         switch (body.filters.date_range) {
           case 'past_week':
@@ -96,7 +98,16 @@ export async function POST(request: NextRequest) {
             serpApiParams.tbs = 'qdr:y' // Past year
             break
         }
+        console.log('Added date filter:', serpApiParams.tbs)
       }
+
+      console.log('SerpAPI params:', {
+        engine: serpApiParams.engine,
+        q: serpApiParams.q,
+        num: serpApiParams.num,
+        tbs: serpApiParams.tbs,
+        hasApiKey: !!serpApiParams.api_key,
+      })
 
       results = await getJson(serpApiParams)
       
@@ -240,15 +251,20 @@ export async function POST(request: NextRequest) {
         created_at: r.created_at,
       })),
     })
-  } catch (error) {
-    console.error('Error in contract discovery search:', error)
-    return NextResponse.json(
-      { 
-        error: 'Failed to perform search',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+    } catch (error) {
+      console.error('Error in contract discovery search:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorDetails = error instanceof Error ? error.stack : String(error)
+      
+      return NextResponse.json(
+        { 
+          error: 'Failed to perform search',
+          message: errorMessage,
+          details: process.env.NODE_ENV === 'development' ? errorDetails : undefined,
+          query: googleQuery,
+        },
+        { status: 500 }
+      )
+    }
 }
 
