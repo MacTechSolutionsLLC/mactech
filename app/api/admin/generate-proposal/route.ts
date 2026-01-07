@@ -94,7 +94,9 @@ async function extractTextFromFile(file: File): Promise<string> {
           }
         }
         
-        return pdfData?.text || pdfData || ''
+        // Ensure we return a string
+        const extractedText = pdfData?.text || (typeof pdfData === 'string' ? pdfData : '')
+        return extractedText || ''
       } catch (error) {
         console.error('Error parsing PDF:', error)
         throw new Error(`Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -119,6 +121,12 @@ function extractSOWInfo(text: string) {
     deliverables: '',
     timeline: '',
     budget: '',
+  }
+
+  // Ensure text is a string
+  if (!text || typeof text !== 'string') {
+    console.warn('extractSOWInfo received non-string value:', typeof text)
+    return info
   }
 
   // Extract title (often in first few lines or after "Statement of Work" or "SOW")
@@ -493,8 +501,11 @@ export async function POST(request: NextRequest) {
     // Extract text from uploaded file
     const text = await extractTextFromFile(file)
     
+    // Ensure text is a string before processing
+    const textString = typeof text === 'string' ? text : String(text || '')
+    
     // Extract SOW information
-    const sowInfo = extractSOWInfo(text)
+    const sowInfo = extractSOWInfo(textString)
 
     // Generate documents
     const proposalBuffer = await generateProposal(sowInfo)
