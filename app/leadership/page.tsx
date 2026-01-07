@@ -255,7 +255,7 @@ export default function LeadershipPage() {
               <div className="md:col-span-4">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 mb-6 overflow-hidden rounded-sm border border-neutral-200">
                   <Image
-                    src="/images/john-milso.png"
+                    src="/images/jon.png"
                     alt="John Milso"
                     fill
                     className="object-cover"
