@@ -608,21 +608,30 @@ async function generateBOE(sowInfo: Record<string, string>): Promise<Buffer> {
     })
   )
 
+  // Use fixed widths in twips (1/20th of a point) for better control
+  // Standard page width is ~12240 twips (8.5 inches), so we'll use:
+  // Labor Category: 4000 twips (~3.3 inches)
+  // Estimated Hours: 2000 twips (~1.7 inches)  
+  // Description: 6240 twips (~5.2 inches)
   const laborTable = new Table({
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
     rows: [
       new TableRow({
         children: [
           new TableCell({
             children: [new Paragraph({ text: 'Labor Category' })],
-            width: { size: 40, type: WidthType.PERCENTAGE },
+            width: { size: 4000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: 'Estimated Hours' })],
-            width: { size: 20, type: WidthType.PERCENTAGE },
+            width: { size: 2000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: 'Description' })],
-            width: { size: 40, type: WidthType.PERCENTAGE },
+            width: { size: 6240, type: WidthType.DXA },
           }),
         ],
       }),
@@ -630,12 +639,15 @@ async function generateBOE(sowInfo: Record<string, string>): Promise<Buffer> {
         children: [
           new TableCell({
             children: [new Paragraph({ text: 'Senior Consultant / Program Manager' })],
+            width: { size: 4000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: seniorHours.toString() })],
+            width: { size: 2000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: 'Project management, requirements analysis, client coordination, quality assurance' })],
+            width: { size: 6240, type: WidthType.DXA },
           }),
         ],
       }),
@@ -643,12 +655,15 @@ async function generateBOE(sowInfo: Record<string, string>): Promise<Buffer> {
         children: [
           new TableCell({
             children: [new Paragraph({ text: 'Technical Lead / Subject Matter Expert' })],
+            width: { size: 4000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: technicalHours.toString() })],
+            width: { size: 2000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: 'Technical execution, design, implementation, documentation, testing' })],
+            width: { size: 6240, type: WidthType.DXA },
           }),
         ],
       }),
@@ -656,25 +671,31 @@ async function generateBOE(sowInfo: Record<string, string>): Promise<Buffer> {
         children: [
           new TableCell({
             children: [new Paragraph({ text: 'Support Staff / Junior Analyst' })],
+            width: { size: 4000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: supportHours.toString() })],
+            width: { size: 2000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: 'Data collection, documentation support, administrative tasks, research' })],
+            width: { size: 6240, type: WidthType.DXA },
           }),
         ],
       }),
       new TableRow({
         children: [
           new TableCell({
-            children: [new Paragraph({ text: 'TOTAL HOURS' })],
+            children: [new Paragraph({ children: [new TextRun({ text: 'TOTAL HOURS', bold: true })] })],
+            width: { size: 4000, type: WidthType.DXA },
           }),
           new TableCell({
-            children: [new Paragraph({ text: (seniorHours + technicalHours + supportHours).toString() })],
+            children: [new Paragraph({ children: [new TextRun({ text: (seniorHours + technicalHours + supportHours).toString(), bold: true })] })],
+            width: { size: 2000, type: WidthType.DXA },
           }),
           new TableCell({
             children: [new Paragraph({ text: '' })],
+            width: { size: 6240, type: WidthType.DXA },
           }),
         ],
       }),
