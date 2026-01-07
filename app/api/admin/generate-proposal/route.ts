@@ -124,8 +124,12 @@ function extractSOWInfo(text: string) {
   }
 
   // Ensure text is a string
-  if (!text || typeof text !== 'string') {
-    console.warn('extractSOWInfo received non-string value:', typeof text)
+  if (typeof text !== 'string') {
+    console.warn('extractSOWInfo received non-string value:', typeof text, text)
+    return info
+  }
+
+  if (!text || text.trim().length === 0) {
     return info
   }
 
@@ -522,9 +526,10 @@ export async function POST(request: NextRequest) {
     await writeFile(proposalPath, proposalBuffer)
     await writeFile(boePath, boeBuffer)
 
+    // Return download URLs via API route
     return NextResponse.json({
-      proposalUrl: `/output/${proposalFilename}`,
-      boeUrl: `/output/${boeFilename}`,
+      proposalUrl: `/api/admin/download?file=${proposalFilename}`,
+      boeUrl: `/api/admin/download?file=${boeFilename}`,
       sowInfo, // Return extracted info for debugging/review
     })
   } catch (error) {
