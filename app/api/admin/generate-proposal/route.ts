@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
-const pdfParse = require('pdf-parse')
 // @ts-ignore - mammoth doesn't have TypeScript types
 import mammoth from 'mammoth'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType } from 'docx'
@@ -26,8 +25,34 @@ async function extractTextFromFile(file: File): Promise<string> {
 
   switch (extension) {
     case 'pdf':
-      const pdfData = await pdfParse(buffer)
-      return pdfData.text
+      // Use dynamic import for pdf-parse to avoid ES module issues in production
+      // pdf-parse exports PDFParse as named export, but also works as default in some contexts
+      try {
+        const pdfParseModule = await import('pdf-parse')
+        // Try different export patterns - pdf-parse can export differently in different environments
+        let pdfParseFn: any
+        
+        if (typeof (pdfParseModule as any).PDFParse === 'function') {
+          pdfParseFn = (pdfParseModule as any).PDFParse
+        } else if (typeof (pdfParseModule as any).default === 'function') {
+          pdfParseFn = (pdfParseModule as any).default
+        } else if (typeof pdfParseModule === 'function') {
+          pdfParseFn = pdfParseModule
+        } else {
+          // Last resort: try to find any function export
+          pdfParseFn = Object.values(pdfParseModule).find((val: any) => typeof val === 'function')
+        }
+        
+        if (!pdfParseFn || typeof pdfParseFn !== 'function') {
+          throw new Error('Could not find pdf-parse function')
+        }
+        
+        const pdfData = await pdfParseFn(buffer)
+        return pdfData.text || ''
+      } catch (error) {
+        console.error('Error parsing PDF:', error)
+        throw new Error(`Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      }
     case 'docx':
     case 'doc':
       const docxResult = await mammoth.extractRawText({ buffer })
