@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
 
     const body: SearchRequestBody = await request.json()
     
-    // Validate SerpAPI key
-    const serpApiKey = process.env.SERPAPI_KEY
+    // Validate SerpAPI key (support both SERPAPI_KEY and SERP_API_KEY)
+    const serpApiKey = process.env.SERPAPI_KEY || process.env.SERP_API_KEY
     if (!serpApiKey) {
       return NextResponse.json(
-        { error: 'SerpAPI key not configured' },
+        { error: 'SerpAPI key not configured. Please set SERPAPI_KEY or SERP_API_KEY environment variable.' },
         { status: 500 }
       )
     }
