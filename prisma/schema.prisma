@@ -36,3 +36,33 @@ model ContactSubmission {
   createdAt   DateTime @default(now())
 }
 
+model GovernmentContractDiscovery {
+  id                  String   @id @default(cuid())
+  google_query        String
+  service_category    String?
+  title               String
+  url                 String   @unique
+  domain              String
+  snippet             String?
+  document_type       String?
+  notice_id           String?
+  solicitation_number String?
+  agency              String?
+  naics_codes         String   @default("[]") // JSON array as string for SQLite
+  set_aside           String   @default("[]") // JSON array as string for SQLite
+  location_mentions   String   @default("[]") // JSON array as string for SQLite
+  detected_keywords   String   @default("[]") // JSON array as string for SQLite
+  relevance_score     Int      @default(0)
+  ingestion_status    String   @default("discovered")
+  verified            Boolean  @default(false)
+  verified_at         DateTime?
+  verified_by         String?
+  downloaded          Boolean  @default(false)
+  downloaded_at       DateTime?
+  proposal_generated  Boolean  @default(false)
+  proposal_generated_at DateTime?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  discovered_by       String?
+}
+

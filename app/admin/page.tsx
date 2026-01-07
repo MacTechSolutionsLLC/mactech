@@ -61,9 +61,14 @@ export default function AdminPage() {
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-4xl mx-auto">
           <h1 className="heading-hero mb-6">Admin Portal</h1>
-          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed">
+          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed mb-6">
             Upload a Statement of Work (SOW) to automatically generate a Proposal and Basis of Estimate (BOE).
           </p>
+          <div className="flex gap-4">
+            <Link href="/admin/contract-discovery" className="btn-secondary">
+              Contract Discovery
+            </Link>
+          </div>
         </div>
       </section>
 
