@@ -151,7 +151,7 @@ async function testQuery(test: QueryTest) {
 
 async function main() {
   console.log('Testing Contract Discovery Query Templates')
-  console.log(`Using SerpAPI Key: ${SERPAPI_KEY.substring(0, 10)}...`)
+  console.log(`Using SerpAPI Key: ${SERPAPI_KEY ? SERPAPI_KEY.substring(0, 10) + '...' : 'NOT SET'}`)
   console.log(`Total queries to test: ${queryTemplates.length}`)
 
   const results = []
