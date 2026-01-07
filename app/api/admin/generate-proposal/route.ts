@@ -26,29 +26,75 @@ async function extractTextFromFile(file: File): Promise<string> {
   switch (extension) {
     case 'pdf':
       // Use dynamic import for pdf-parse to avoid ES module issues in production
-      // pdf-parse exports PDFParse as named export, but also works as default in some contexts
+      // pdf-parse can export differently in different environments (function vs class)
       try {
-        const pdfParseModule = await import('pdf-parse')
-        // Try different export patterns - pdf-parse can export differently in different environments
-        let pdfParseFn: any
+        const pdfParseModule: any = await import('pdf-parse')
         
-        if (typeof (pdfParseModule as any).PDFParse === 'function') {
-          pdfParseFn = (pdfParseModule as any).PDFParse
-        } else if (typeof (pdfParseModule as any).default === 'function') {
-          pdfParseFn = (pdfParseModule as any).default
-        } else if (typeof pdfParseModule === 'function') {
-          pdfParseFn = pdfParseModule
-        } else {
-          // Last resort: try to find any function export
-          pdfParseFn = Object.values(pdfParseModule).find((val: any) => typeof val === 'function')
+        // pdf-parse typically exports a function, but in production builds it might be a class
+        // Try multiple approaches to handle both cases
+        let pdfData: any
+        
+        // Strategy 1: Try default export as function
+        if (pdfParseModule.default) {
+          try {
+            pdfData = await pdfParseModule.default(buffer)
+          } catch (funcError: any) {
+            // If function call fails with "cannot be invoked without 'new'", try as class
+            if (funcError?.message?.includes('cannot be invoked without') || 
+                funcError?.message?.includes('Class constructor')) {
+              pdfData = await new pdfParseModule.default(buffer)
+            } else {
+              throw funcError
+            }
+          }
+        }
+        // Strategy 2: Try PDFParse named export
+        else if (pdfParseModule.PDFParse) {
+          try {
+            pdfData = await pdfParseModule.PDFParse(buffer)
+          } catch (funcError: any) {
+            if (funcError?.message?.includes('cannot be invoked without') || 
+                funcError?.message?.includes('Class constructor')) {
+              pdfData = await new pdfParseModule.PDFParse(buffer)
+            } else {
+              throw funcError
+            }
+          }
+        }
+        // Strategy 3: Try module itself (for CommonJS compatibility)
+        else {
+          // Find the actual parse function/class
+          const possibleExports = [
+            pdfParseModule.default,
+            pdfParseModule.PDFParse,
+            ...Object.values(pdfParseModule).filter((v: any) => typeof v === 'function')
+          ]
+          
+          for (const pdfExport of possibleExports) {
+            if (!pdfExport) continue
+            
+            try {
+              pdfData = await pdfExport(buffer)
+              break
+            } catch (tryError: any) {
+              if (tryError?.message?.includes('cannot be invoked without') || 
+                  tryError?.message?.includes('Class constructor')) {
+                try {
+                  pdfData = await new pdfExport(buffer)
+                  break
+                } catch {
+                  continue
+                }
+              }
+            }
+          }
+          
+          if (!pdfData) {
+            throw new Error('Could not find or execute pdf-parse function')
+          }
         }
         
-        if (!pdfParseFn || typeof pdfParseFn !== 'function') {
-          throw new Error('Could not find pdf-parse function')
-        }
-        
-        const pdfData = await pdfParseFn(buffer)
-        return pdfData.text || ''
+        return pdfData?.text || pdfData || ''
       } catch (error) {
         console.error('Error parsing PDF:', error)
         throw new Error(`Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
