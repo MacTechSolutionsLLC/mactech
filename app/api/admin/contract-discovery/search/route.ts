@@ -174,77 +174,109 @@ export async function POST(request: NextRequest) {
       processSearchResult(result, searchRequest)
     )
 
-    // Store results in database
-    const storedResults = await Promise.all(
-      processedResults.map(async (result) => {
-        try {
-          // Check if URL already exists
-          const existing = await prisma.governmentContractDiscovery.findUnique({
-            where: { url: result.url },
+    // Try to store results in database, but don't fail if DB is unavailable
+    let dbAvailable = false
+    let dbWarnings: string[] = []
+    
+    try {
+      // Test database connection
+      await prisma.$connect()
+      dbAvailable = true
+    } catch (dbError) {
+      console.warn('Database not available, returning results without storage:', dbError)
+      dbWarnings.push(`Database unavailable: ${dbError instanceof Error ? dbError.message : 'Unknown error'}. Results will not be saved.`)
+    }
+
+    let storedResults = processedResults
+
+    if (dbAvailable) {
+      try {
+        storedResults = await Promise.all(
+          processedResults.map(async (result) => {
+            try {
+              // Check if URL already exists
+              const existing = await prisma.governmentContractDiscovery.findUnique({
+                where: { url: result.url },
+              })
+
+              if (existing) {
+                // Update existing record
+                const updated = await prisma.governmentContractDiscovery.update({
+                  where: { url: result.url },
+                  data: {
+                    title: result.title,
+                    snippet: result.snippet || null,
+                    domain: result.domain,
+                    document_type: result.document_type || null,
+                    notice_id: result.notice_id || null,
+                    solicitation_number: result.solicitation_number || null,
+                    agency: result.agency || null,
+                    naics_codes: JSON.stringify(result.naics_codes || []),
+                    set_aside: JSON.stringify(result.set_aside || []),
+                    location_mentions: JSON.stringify(result.location_mentions || []),
+                    detected_keywords: JSON.stringify(result.detected_keywords || []),
+                    relevance_score: result.relevance_score || 0,
+                    google_query: googleQuery,
+                    service_category: result.detected_service_category || searchRequest.service_category || null,
+                    updated_at: new Date(),
+                  },
+                })
+                // Return processed result with DB id
+                return { ...result, id: updated.id }
+              } else {
+                // Create new record
+                const created = await prisma.governmentContractDiscovery.create({
+                  data: {
+                    title: result.title,
+                    url: result.url,
+                    domain: result.domain,
+                    snippet: result.snippet || null,
+                    document_type: result.document_type || null,
+                    notice_id: result.notice_id || null,
+                    solicitation_number: result.solicitation_number || null,
+                    agency: result.agency || null,
+                    naics_codes: JSON.stringify(result.naics_codes || []),
+                    set_aside: JSON.stringify(result.set_aside || []),
+                    location_mentions: JSON.stringify(result.location_mentions || []),
+                    detected_keywords: JSON.stringify(result.detected_keywords || []),
+                    relevance_score: result.relevance_score || 0,
+                    google_query: googleQuery,
+                    service_category: result.detected_service_category || searchRequest.service_category || null,
+                    ingestion_status: 'discovered',
+                    verified: false,
+                  },
+                })
+                // Return processed result with DB id
+                return { ...result, id: created.id }
+              }
+            } catch (error) {
+              console.error('Error storing individual result:', error)
+              dbWarnings.push(`Failed to store result for ${result.url}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+              // Return processed result without DB id
+              return { ...result, id: `temp-${Date.now()}-${Math.random()}` }
+            }
           })
+        )
+      } catch (bulkError) {
+        console.error('Error in bulk database operation:', bulkError)
+        dbWarnings.push(`Database operation failed: ${bulkError instanceof Error ? bulkError.message : 'Unknown error'}`)
+        // Use processed results with temp IDs
+        storedResults = processedResults.map(r => ({ ...r, id: `temp-${Date.now()}-${Math.random()}` }))
+      }
+    } else {
+      // Database not available, use processed results with temp IDs
+      storedResults = processedResults.map(r => ({ ...r, id: `temp-${Date.now()}-${Math.random()}` }))
+    }
 
-          if (existing) {
-            // Update existing record
-            return await prisma.governmentContractDiscovery.update({
-              where: { url: result.url },
-              data: {
-                title: result.title,
-                snippet: result.snippet || null,
-                domain: result.domain,
-                document_type: result.document_type || null,
-                notice_id: result.notice_id || null,
-                solicitation_number: result.solicitation_number || null,
-                agency: result.agency || null,
-                naics_codes: JSON.stringify(result.naics_codes || []),
-                set_aside: JSON.stringify(result.set_aside || []),
-                location_mentions: JSON.stringify(result.location_mentions || []),
-                detected_keywords: JSON.stringify(result.detected_keywords || []),
-                relevance_score: result.relevance_score || 0,
-                google_query: googleQuery,
-                service_category: result.detected_service_category || searchRequest.service_category || null,
-                updated_at: new Date(),
-              },
-            })
-          } else {
-            // Create new record
-            return await prisma.governmentContractDiscovery.create({
-              data: {
-                title: result.title,
-                url: result.url,
-                domain: result.domain,
-                snippet: result.snippet || null,
-                document_type: result.document_type || null,
-                notice_id: result.notice_id || null,
-                solicitation_number: result.solicitation_number || null,
-                agency: result.agency || null,
-                naics_codes: JSON.stringify(result.naics_codes || []),
-                set_aside: JSON.stringify(result.set_aside || []),
-                location_mentions: JSON.stringify(result.location_mentions || []),
-                detected_keywords: JSON.stringify(result.detected_keywords || []),
-                relevance_score: result.relevance_score || 0,
-                google_query: googleQuery,
-                service_category: result.detected_service_category || searchRequest.service_category || null,
-                ingestion_status: 'discovered',
-                verified: false,
-              },
-            })
-          }
-        } catch (error) {
-          console.error('Error storing result:', error)
-          return null
-        }
-      })
-    )
-
-    // Filter out null results
-    const validResults = storedResults.filter(r => r !== null)
+    // All results should be valid now (no nulls)
+    const validResults = storedResults
 
     return NextResponse.json({
       success: true,
       query: googleQuery,
       results_count: validResults.length,
-      results: validResults.map(r => ({
-        id: r.id,
+      results: validResults.map((r: any) => ({
+        id: r.id || `temp-${Date.now()}-${Math.random()}`,
         title: r.title,
         url: r.url,
         domain: r.domain,
@@ -253,16 +285,16 @@ export async function POST(request: NextRequest) {
         notice_id: r.notice_id,
         solicitation_number: r.solicitation_number,
         agency: r.agency,
-        naics_codes: JSON.parse(r.naics_codes || '[]'),
-        set_aside: JSON.parse(r.set_aside || '[]'),
-        location_mentions: JSON.parse(r.location_mentions || '[]'),
-        detected_keywords: JSON.parse(r.detected_keywords || '[]'),
-        relevance_score: r.relevance_score,
-        detected_service_category: r.service_category as any,
-        ingestion_status: r.ingestion_status,
-        verified: r.verified,
-        created_at: r.created_at,
+        naics_codes: Array.isArray(r.naics_codes) ? r.naics_codes : (r.naics_codes || []),
+        set_aside: Array.isArray(r.set_aside) ? r.set_aside : (r.set_aside || []),
+        location_mentions: Array.isArray(r.location_mentions) ? r.location_mentions : (r.location_mentions || []),
+        detected_keywords: Array.isArray(r.detected_keywords) ? r.detected_keywords : (r.detected_keywords || []),
+        relevance_score: r.relevance_score || 0,
+        detected_service_category: r.detected_service_category,
+        ingestion_status: r.ingestion_status || 'discovered',
+        verified: r.verified || false,
       })),
+      warnings: dbWarnings.length > 0 ? dbWarnings : undefined,
     })
     } catch (error) {
       console.error('Error in contract discovery search:', error)

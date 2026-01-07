@@ -114,8 +114,20 @@ export default function ContractDiscoveryPage() {
         console.warn('Search warning:', data.warning)
       }
 
+      if (data.warnings && data.warnings.length > 0) {
+        console.warn('Database warnings:', data.warnings)
+        // Show non-blocking warning to user
+        setError(`Note: ${data.warnings[0]}. Results are still available.`)
+      }
+
       setResults(data.results || [])
       setSearchQuery(data.query || '')
+      
+      if (data.results && data.results.length === 0) {
+        setError('No results found. Try adjusting your search criteria.')
+      } else {
+        setError(null) // Clear any previous errors if we have results
+      }
       
       if (data.results_count === 0) {
         setError(data.warning || 'No results found. Try adjusting your search criteria.')
