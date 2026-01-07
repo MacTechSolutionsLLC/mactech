@@ -64,16 +64,69 @@ export async function POST(request: NextRequest) {
 
     const googleQuery = body.query || buildSearchQuery(searchRequest)
 
-    // Call SerpAPI
-    const results = await getJson({
-      engine: 'google',
-      q: googleQuery,
-      api_key: serpApiKey,
-      num: body.num_results || 20,
+    console.log('Contract Discovery Search:', {
+      query: googleQuery,
+      hasApiKey: !!serpApiKey,
+      apiKeyLength: serpApiKey?.length || 0,
+      numResults: body.num_results || 20,
     })
+
+    // Call SerpAPI
+    let results: any
+    try {
+      results = await getJson({
+        engine: 'google',
+        q: googleQuery,
+        api_key: serpApiKey,
+        num: body.num_results || 20,
+      })
+      
+      console.log('SerpAPI Response:', {
+        hasResults: !!results,
+        organicResultsCount: results?.organic_results?.length || 0,
+        error: results?.error,
+        searchMetadata: results?.search_metadata,
+      })
+    } catch (serpError) {
+      console.error('SerpAPI Error:', serpError)
+      return NextResponse.json(
+        { 
+          error: 'SerpAPI request failed',
+          message: serpError instanceof Error ? serpError.message : 'Unknown SerpAPI error',
+          details: serpError
+        },
+        { status: 500 }
+      )
+    }
+
+    // Check for SerpAPI errors in response
+    if (results.error) {
+      console.error('SerpAPI returned error:', results.error)
+      return NextResponse.json(
+        { 
+          error: 'SerpAPI error',
+          message: results.error,
+          details: results
+        },
+        { status: 500 }
+      )
+    }
 
     // Process results
     const organicResults = (results.organic_results || []) as any[]
+    console.log('Processing results:', organicResults.length)
+    
+    if (organicResults.length === 0) {
+      console.warn('No organic results found in SerpAPI response')
+      return NextResponse.json({
+        success: true,
+        query: googleQuery,
+        results_count: 0,
+        results: [],
+        warning: 'No results found. Try adjusting your search criteria.',
+      })
+    }
+
     const processedResults = organicResults.map((result: any) => 
       processSearchResult(result, searchRequest)
     )

@@ -40,6 +40,7 @@ export default function ContractDiscoveryPage() {
   const [results, setResults] = useState<DiscoveryResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [testResult, setTestResult] = useState<any>(null)
 
   const agencyOptions = [
     'Department of Defense',
@@ -51,6 +52,18 @@ export default function ContractDiscoveryPage() {
     'DOE',
     'NASA',
   ]
+
+  const handleTestConnection = async () => {
+    try {
+      const response = await fetch('/api/admin/contract-discovery/test')
+      const data = await response.json()
+      setTestResult(data)
+      console.log('Test result:', data)
+    } catch (err) {
+      console.error('Test error:', err)
+      setTestResult({ success: false, error: err instanceof Error ? err.message : 'Test failed' })
+    }
+  }
 
   const handleSearch = async () => {
     setIsSearching(true)
@@ -80,12 +93,28 @@ export default function ContractDiscoveryPage() {
 
       const data = await response.json()
 
+      console.log('Search response:', {
+        ok: response.ok,
+        status: response.status,
+        data: data,
+      })
+
       if (!response.ok) {
-        throw new Error(data.error || 'Search failed')
+        const errorMessage = data.error || data.message || 'Search failed'
+        console.error('Search error:', errorMessage, data)
+        throw new Error(errorMessage)
+      }
+
+      if (data.warning) {
+        console.warn('Search warning:', data.warning)
       }
 
       setResults(data.results || [])
       setSearchQuery(data.query || '')
+      
+      if (data.results_count === 0) {
+        setError(data.warning || 'No results found. Try adjusting your search criteria.')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -303,7 +332,30 @@ export default function ContractDiscoveryPage() {
                 >
                   {isSearching ? 'Searching...' : 'Run Discovery'}
                 </button>
+                <button
+                  onClick={handleTestConnection}
+                  type="button"
+                  className="btn-secondary"
+                >
+                  Test SerpAPI Connection
+                </button>
               </div>
+
+              {/* Test Result Display */}
+              {testResult && (
+                <div className={`border p-4 rounded-sm ${
+                  testResult.success 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <h4 className="text-body-sm font-semibold mb-2">
+                    SerpAPI Test Result
+                  </h4>
+                  <pre className="text-body-xs overflow-auto max-h-60">
+                    {JSON.stringify(testResult, null, 2)}
+                  </pre>
+                </div>
+              )}
 
               {/* Search Query Display */}
               {searchQuery && (
