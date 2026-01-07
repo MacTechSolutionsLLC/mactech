@@ -32,6 +32,8 @@ interface SearchRequestBody {
 }
 
 export async function POST(request: NextRequest) {
+  let googleQuery = '' // Declare at function level for error handling
+  
   try {
     // TODO: Add admin authentication check
     // const session = await getServerSession()
@@ -64,7 +66,18 @@ export async function POST(request: NextRequest) {
       set_aside: body.set_aside,
     }
 
-    const googleQuery = body.query || buildSearchQuery(searchRequest)
+    try {
+      googleQuery = body.query || buildSearchQuery(searchRequest)
+    } catch (queryError) {
+      console.error('Error building query:', queryError)
+      return NextResponse.json(
+        { 
+          error: 'Failed to build search query',
+          message: queryError instanceof Error ? queryError.message : 'Unknown error'
+        },
+        { status: 400 }
+      )
+    }
 
     console.log('Contract Discovery Search:', {
       query: googleQuery,
