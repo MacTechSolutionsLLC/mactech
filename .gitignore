@@ -39,3 +39,9 @@ next-env.d.ts
 /prisma/dev.db
 /prisma/dev.db-journal
 
+# uploads and generated documents
+/public/uploads/*
+!/public/uploads/.gitkeep
+/public/output/*
+!/public/output/.gitkeep
+
