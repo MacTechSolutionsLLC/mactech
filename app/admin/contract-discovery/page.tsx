@@ -757,12 +757,6 @@ export default function ContractDiscoveryPage() {
                   </div>
                 )}
 
-                <div>
-                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Relevance Score</h4>
-                  <p className={`text-body-sm font-medium ${getRelevanceColor(previewResult.relevance_score)}`}>
-                    {previewResult.relevance_score}
-                  </p>
-                </div>
 
                 {previewResult.detected_service_category && (
                   <div>
