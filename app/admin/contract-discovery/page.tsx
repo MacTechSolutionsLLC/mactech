@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+// Updated: NIST control IDs now included in STIG generator playbooks
+
 type ServiceCategory = 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
 type DocumentType = 'SOW' | 'PWS' | 'RFQ' | 'RFP' | 'Sources Sought' | 'Other'
 type IngestionStatus = 'discovered' | 'verified' | 'in_review' | 'ignored'
