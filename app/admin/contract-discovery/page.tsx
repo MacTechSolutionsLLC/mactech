@@ -684,13 +684,6 @@ export default function ContractDiscoveryPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span
-                              className={`inline-block px-2 py-1 text-body-xs font-medium rounded ${getStatusBadgeColor(result.ingestion_status)}`}
-                            >
-                              {result.ingestion_status.replace('_', ' ').toUpperCase()}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
                             <button
                               onClick={() => handleOpenPDF(result.url, result.id)}
                               className="btn-primary text-body-sm px-4 py-2"
