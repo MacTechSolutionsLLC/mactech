@@ -367,6 +367,24 @@ def _generate_linux_check(control: StigControl, check_text: str) -> list[str]:
 
 def _generate_windows_check(control: StigControl, check_text: str) -> list[str]:
     """Generate Windows check task."""
+    nist_display = _format_nist_for_display(control.nist_family_id)
+    task_name_prefix = f"{control.id} | {nist_display} |" if nist_display else f"{control.id} |"
+    
+    tags_base = [
+        "        - stig_check",
+        f"        - {control.id}",
+        f"        - {control.category}",
+        f"        - severity_{control.severity}",
+        f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
+    ]
+    
+    # Add NIST tags if available
+    if nist_display:
+        nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
+        if nist_family:
+            tags_base.append(f"        - nist_{nist_family.lower()}")
+        tags_base.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
+    
     # Use structured check commands from control
     check_commands = control.check_commands or control.candidate_check_blocks
     
@@ -379,28 +397,19 @@ def _generate_windows_check(control: StigControl, check_text: str) -> list[str]:
         var_name = _sanitize_var_name(f"{control.id}_reg")
         
         return [
-            f"    - name: '{control.id} | Check registry value'",
+            f"    - name: '{task_name_prefix} Check registry value'",
             "      win_regedit:",
             f"        path: {reg_path}",
             f"        name: {reg_value}",
             f"      register: {var_name}_result",
             "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
+        ] + tags_base + [
             "",
-            f"    - name: '{control.id} | Display registry value'",
+            f"    - name: '{task_name_prefix} Display registry value'",
             "      debug:",
             f"        var: {var_name}_result.value",
             "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-        ]
+        ] + tags_base
     
     elif ps_commands:
         # PowerShell command check
@@ -408,27 +417,18 @@ def _generate_windows_check(control: StigControl, check_text: str) -> list[str]:
         var_name = _sanitize_var_name(f"{control.id}_ps")
         
         return [
-            f"    - name: '{control.id} | Run PowerShell check'",
+            f"    - name: '{task_name_prefix} Run PowerShell check'",
             "      win_shell:",
             f"        cmd: {cmd}",
             f"      register: {var_name}_result",
             "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
+        ] + tags_base + [
             "",
-            f"    - name: '{control.id} | Display PowerShell result'",
+            f"    - name: '{task_name_prefix} Display PowerShell result'",
             "      debug:",
             f"        var: {var_name}_result.stdout",
             "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-        ]
+        ] + tags_base
     
     else:
         # Manual check
@@ -436,16 +436,11 @@ def _generate_windows_check(control: StigControl, check_text: str) -> list[str]:
         title_clean = control.title.replace(':', ' -').replace(chr(10), ' ').replace(chr(13), ' ').replace('[', '(').replace(']', ')')[:80]
         return [
             f"    # Manual check required - see CTP document for procedure",
-            f"    - name: '{control.id} | {title_clean}'",
+            f"    - name: '{task_name_prefix} {title_clean}'",
             "      debug:",
             f"        msg: \"{control.id} requires manual verification. See CTP document for procedure.\"",
             "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-        ]
+        ] + tags_base
 
 
 def _generate_network_check(control: StigControl, check_text: str) -> list[str]:
@@ -522,19 +517,32 @@ def _generate_network_check(control: StigControl, check_text: str) -> list[str]:
 
 def _generate_generic_check(control: StigControl, check_text: str) -> list[str]:
     """Generate generic check task."""
+    nist_display = _format_nist_for_display(control.nist_family_id)
+    task_name_prefix = f"{control.id} | {nist_display} |" if nist_display else f"{control.id} |"
     title_clean = control.title.replace(':', ' -').replace(chr(10), ' ').replace(chr(13), ' ').replace('[', '(').replace(']', ')')[:80]
-    return [
-        f"    # Manual check required - see CTP document for procedure",
-        f"    - name: '{control.id} | {title_clean}'",
-        "      debug:",
-        f"        msg: \"{control.id} requires manual verification. See CTP document for procedure.\"",
-        "      tags:",
+    
+    tags_base = [
         "        - stig_check",
         f"        - {control.id}",
         f"        - {control.category}",
         f"        - severity_{control.severity}",
         f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
     ]
+    
+    # Add NIST tags if available
+    if nist_display:
+        nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
+        if nist_family:
+            tags_base.append(f"        - nist_{nist_family.lower()}")
+        tags_base.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
+    
+    return [
+        f"    # Manual check required - see CTP document for procedure",
+        f"    - name: '{task_name_prefix} {title_clean}'",
+        "      debug:",
+        f"        msg: \"{control.id} requires manual verification. See CTP document for procedure.\"",
+        "      tags:",
+    ] + tags_base
 
 
 def _extract_file_paths(text: str) -> list[str]:
