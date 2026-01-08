@@ -74,7 +74,7 @@ def _format_nist_for_display(nist_id: str | None) -> str | None:
     Format NIST control ID for display in task names and comments.
     
     Converts various formats to standard format (e.g., AU.5):
-    - "AU.02.b" -> "AU.2.b"
+    - "AU.02.b" -> "AU.2.b" (removes leading zeros)
     - "AU-2" -> "AU.2"
     - "OS-000023" -> "OS-000023" (keeps OS format)
     - "CCI-000048" -> looks up in mapping if available
@@ -88,7 +88,20 @@ def _format_nist_for_display(nist_id: str | None) -> str | None:
     if not nist_id:
         return None
     
-    # If it's already in standard format (AU.5, AU.2.b, etc.), return as-is
+    # Keep OS- format as-is (e.g., OS-000023) - don't convert these
+    if nist_id.startswith("OS-"):
+        return nist_id
+    
+    # Handle AU.02.b format - remove leading zeros from control number
+    # Pattern: AU.02.b, AU.02, AU.02(3), etc.
+    dot_match = re.match(r'^([A-Z]{2})\.0*(\d+)(.*)$', nist_id)
+    if dot_match:
+        family = dot_match.group(1)
+        num = dot_match.group(2)  # Already has leading zeros removed by regex
+        suffix = dot_match.group(3)
+        return f"{family}.{num}{suffix}"
+    
+    # If it's already in standard format without leading zeros (AU.5, AU.2.b, etc.), return as-is
     if re.match(r'^[A-Z]{2}\.\d+([a-z]|\([^)]+\))?$', nist_id):
         return nist_id
     
@@ -99,10 +112,6 @@ def _format_nist_for_display(nist_id: str | None) -> str | None:
         num = match.group(2).lstrip('0') or '0'  # Remove leading zeros
         suffix = match.group(3)
         return f"{family}.{num}{suffix}"
-    
-    # Keep OS- format as-is (e.g., OS-000023)
-    if nist_id.startswith("OS-"):
-        return nist_id
     
     # Return as-is if we can't parse it
     return nist_id
