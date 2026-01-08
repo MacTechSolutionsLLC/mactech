@@ -191,9 +191,130 @@ export function buildSearchQuery(request: SearchRequest): string {
 }
 
 /**
+ * Check if a result is likely a Statement of Work or related contract document
+ */
+function isLikelySOW(result: any): boolean {
+  const title = (result.title || '').toLowerCase()
+  const snippet = (result.snippet || '').toLowerCase()
+  const url = (result.link || result.url || '').toLowerCase()
+  const text = `${title} ${snippet} ${url}`
+
+  // Strong indicators of SOW/PWS documents
+  const strongIndicators = [
+    'statement of work',
+    'performance work statement',
+    'pws',
+    'sow',
+    'work statement',
+    'scope of work',
+    'statement of objectives',
+    'soo',
+    'request for proposal',
+    'rfp',
+    'request for quotation',
+    'rfq',
+    'solicitation',
+    'sources sought',
+    'notice of intent',
+    'contract opportunity',
+    'procurement',
+    'acquisition',
+  ]
+
+  // Weak indicators (might be related but not definitive)
+  const weakIndicators = [
+    'contract',
+    'agreement',
+    'task order',
+    'delivery order',
+    'modification',
+  ]
+
+  // Exclude common non-SOW documents
+  const excludeTerms = [
+    'entity registration',
+    'entity checklist',
+    'sam.gov registration',
+    'uei number',
+    'cage code',
+    'vendor guide',
+    'user guide',
+    'help document',
+    'faq',
+    'training',
+    'tutorial',
+    'handbook',
+    'manual',
+    'policy',
+    'regulation',
+    'directive',
+    'instruction',
+    'memorandum',
+    'memo',
+    'newsletter',
+    'announcement',
+    'press release',
+  ]
+
+  // Check exclusions first
+  for (const exclude of excludeTerms) {
+    if (text.includes(exclude)) {
+      return false
+    }
+  }
+
+  // Count strong indicators
+  const strongCount = strongIndicators.filter(indicator => text.includes(indicator)).length
+  const weakCount = weakIndicators.filter(indicator => text.includes(indicator)).length
+
+  // Must have at least one strong indicator
+  if (strongCount === 0) {
+    return false
+  }
+
+  // If we have multiple strong indicators, it's very likely
+  if (strongCount >= 2) {
+    return true
+  }
+
+  // If we have one strong indicator and it's in the title, likely
+  if (strongCount === 1 && strongIndicators.some(ind => title.includes(ind))) {
+    return true
+  }
+
+  // If we have one strong indicator and weak indicators, likely
+  if (strongCount === 1 && weakCount >= 1) {
+    return true
+  }
+
+  // URL patterns that suggest SOW documents
+  const urlPatterns = [
+    '/sow',
+    '/pws',
+    '/statement-of-work',
+    '/performance-work-statement',
+    '/solicitation',
+    '/procurement',
+    '/acquisition',
+    '/contract',
+    '/opportunity',
+  ]
+
+  if (urlPatterns.some(pattern => url.includes(pattern))) {
+    return true
+  }
+
+  return false
+}
+
+/**
  * Extract information from search result
  */
-export function processSearchResult(result: any, request: SearchRequest): DiscoveryResult {
+export function processSearchResult(result: any, request: SearchRequest): DiscoveryResult | null {
+  // Filter out results that are clearly not SOW documents
+  if (!isLikelySOW(result)) {
+    return null
+  }
   const title = result.title || ''
   const url = result.link || ''
   const snippet = result.snippet || ''

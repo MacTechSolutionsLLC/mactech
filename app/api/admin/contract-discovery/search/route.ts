@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getJson } from 'serpapi'
-import { buildSearchQuery, processSearchResult, SearchRequest } from '@/lib/contract-discovery'
+import { buildSearchQuery, processSearchResult, SearchRequest, DiscoveryResult } from '@/lib/contract-discovery'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -170,9 +170,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const processedResults = organicResults.map((result: any) => 
-      processSearchResult(result, searchRequest)
-    )
+    // Process and filter results - only keep actual SOW documents
+    const processedResults = organicResults
+      .map((result: any) => processSearchResult(result, searchRequest))
+      .filter((result): result is DiscoveryResult => result !== null) // Remove null results (non-SOW documents)
 
     // Try to store results in database, but don't fail if DB is unavailable
     let dbAvailable = false

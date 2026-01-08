@@ -621,8 +621,7 @@ export default function ContractDiscoveryPage() {
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Title</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Domain</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Agency</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Status</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Actions</th>
+                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-200">
@@ -692,36 +691,12 @@ export default function ContractDiscoveryPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex flex-col gap-2">
-                              <button
-                                onClick={() => handlePreview(result)}
-                                className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
-                              >
-                                Preview
-                              </button>
-                              {result.document_type === 'pdf' && (
-                                <button
-                                  onClick={() => handleOpenPDF(result.url, result.id)}
-                                  className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
-                                >
-                                  Open PDF
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleGenerateProposal(result.url)}
-                                className="text-body-xs text-accent-700 hover:text-accent-800 font-medium text-left"
-                              >
-                                Generate Proposal
-                              </button>
-                              <a
-                                href={result.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-body-xs text-neutral-600 hover:text-neutral-900"
-                              >
-                                View Source
-                              </a>
-                            </div>
+                            <button
+                              onClick={() => handleOpenPDF(result.url, result.id)}
+                              className="btn-primary text-body-sm px-4 py-2"
+                            >
+                              Open PDF
+                            </button>
                           </td>
                         </tr>
                       ))}
