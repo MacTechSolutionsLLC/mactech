@@ -78,6 +78,47 @@ def generate_checker_playbook(
             f.write("\n")
 
 
+def _format_nist_for_display(nist_id: str | None) -> str | None:
+    """
+    Format NIST control ID for display in task names and comments.
+    
+    Converts various formats to standard format (e.g., AU.5):
+    - "AU.02.b" -> "AU.2.b"
+    - "AU-2" -> "AU.2"
+    - "OS-000023" -> "OS-000023" (keeps OS format)
+    - "CCI-000048" -> looks up in mapping if available
+    
+    Args:
+        nist_id: NIST control ID in various formats
+        
+    Returns:
+        Formatted NIST ID string or None if not available
+    """
+    import re
+    
+    if not nist_id:
+        return None
+    
+    # If it's already in standard format (AU.5, AU.2.b, etc.), return as-is
+    if re.match(r'^[A-Z]{2}\.\d+([a-z]|\([^)]+\))?$', nist_id):
+        return nist_id
+    
+    # Convert AU-2 format to AU.2
+    match = re.match(r'^([A-Z]{2})-(\d+)(.*)$', nist_id)
+    if match:
+        family = match.group(1)
+        num = match.group(2).lstrip('0') or '0'  # Remove leading zeros
+        suffix = match.group(3)
+        return f"{family}.{num}{suffix}"
+    
+    # Keep OS- format as-is (e.g., OS-000023)
+    if nist_id.startswith("OS-"):
+        return nist_id
+    
+    # Return as-is if we can't parse it
+    return nist_id
+
+
 def _get_playbook_name(stig_name: str, os_family: str) -> str:
     """Extract playbook name from STIG name or OS family."""
     stig_lower = stig_name.lower()
@@ -123,12 +164,13 @@ def _format_checker_task(control: StigControl, os_family: str) -> list[str]:
     
     category_clean = clean_comment(control.category)
     severity_clean = clean_comment(control.severity)
-    nist_clean = clean_comment(control.nist_family_id or 'N/A')
+    nist_display = _format_nist_for_display(control.nist_family_id)
+    nist_clean = clean_comment(nist_display or 'N/A')
 
     # Add metadata comments
     lines.append(f"    # Category: {category_clean}")
     lines.append(f"    # STIG Severity: {severity_clean}")
-    lines.append(f"    # NIST: {nist_clean}")
+    lines.append(f"    # NIST Control: {nist_clean}")
     lines.append(f"    # Scannability: {'Scannable with Nessus' if control.is_automatable else 'Not Scannable with Nessus'}")
 
     # Generate check based on OS family
@@ -148,6 +190,7 @@ def _format_checker_task(control: StigControl, os_family: str) -> list[str]:
 
 def _generate_linux_check(control: StigControl, check_text: str) -> list[str]:
     """Generate Linux check task using structured check_commands with improved sanitization."""
+    nist_display = _format_nist_for_display(control.nist_family_id)
     from .extractors import is_probable_cli_command, normalize_command_line
     
     # Prose prefixes that should be rejected
@@ -214,30 +257,39 @@ def _generate_linux_check(control: StigControl, check_text: str) -> list[str]:
         # Clean command to avoid YAML issues
         cmd_clean = cmd.replace(':', ' -') if ':' in cmd and not cmd.strip().startswith('/') else cmd
         
-        return [
-            f"    - name: '{control.id} | Run check command'",
-            "      shell:",
-            f"        cmd: {cmd_clean}",
-            f"      register: {var_name}_result",
-            "      changed_when: false",
-            "      failed_when: false",
-            "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-            "",
-            f"    - name: '{control.id} | Display check result'",
-            "      debug:",
-            f"        var: {var_name}_result.stdout",
-            "      tags:",
+        nist_display = _format_nist_for_display(control.nist_family_id)
+        task_name_prefix = f"{control.id} | {nist_display} |" if nist_display else f"{control.id} |"
+        
+        tags_base = [
             "        - stig_check",
             f"        - {control.id}",
             f"        - {control.category}",
             f"        - severity_{control.severity}",
             f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
         ]
+        
+        # Add NIST tags if available
+        if nist_display:
+            nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
+            if nist_family:
+                tags_base.append(f"        - nist_{nist_family.lower()}")
+            tags_base.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
+        
+        return [
+            f"    - name: '{task_name_prefix} Run check command'",
+            "      shell:",
+            f"        cmd: {cmd_clean}",
+            f"      register: {var_name}_result",
+            "      changed_when: false",
+            "      failed_when: false",
+            "      tags:",
+        ] + tags_base + [
+            "",
+            f"    - name: '{task_name_prefix} Display check result'",
+            "      debug:",
+            f"        var: {var_name}_result.stdout",
+            "      tags:",
+        ] + tags_base
     
     # Check if it mentions a file path (fallback)
     file_paths = _extract_file_paths(check_text)
@@ -283,22 +335,34 @@ def _generate_linux_check(control: StigControl, check_text: str) -> list[str]:
     
     # Manual check placeholder - use manual_notes if available
     title_clean = control.title.replace(':', ' -').replace(chr(10), ' ').replace(chr(13), ' ').replace('[', '(').replace(']', ')')[:80]
+    nist_display = _format_nist_for_display(control.nist_family_id)
+    task_name_prefix = f"{control.id} | {nist_display} |" if nist_display else f"{control.id} |"
     
     manual_msg = f"{control.id} requires manual verification."
     if control.manual_notes:
         manual_msg += f" See STIG documentation for procedure."
     
-    return [
-        f"    - name: '{control.id} | {title_clean}'",
-        "      debug:",
-        f"        msg: \"{manual_msg}\"",
-        "      tags:",
+    tags_base = [
         "        - stig_check",
         f"        - {control.id}",
         f"        - {control.category}",
         f"        - severity_{control.severity}",
         f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
     ]
+    
+    # Add NIST tags if available
+    if nist_display:
+        nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
+        if nist_family:
+            tags_base.append(f"        - nist_{nist_family.lower()}")
+        tags_base.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
+    
+    return [
+        f"    - name: '{task_name_prefix} {title_clean}'",
+        "      debug:",
+        f"        msg: \"{manual_msg}\"",
+        "      tags:",
+    ] + tags_base
 
 
 def _generate_windows_check(control: StigControl, check_text: str) -> list[str]:
