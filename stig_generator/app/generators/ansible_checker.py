@@ -296,42 +296,46 @@ def _generate_linux_check(control: StigControl, check_text: str) -> list[str]:
     if file_paths:
         file_path = file_paths[0]
         var_name = _sanitize_var_name(f"{control.id}_{file_path}")
+        nist_display = _format_nist_for_display(control.nist_family_id)
+        task_name_prefix = f"{control.id} | {nist_display} |" if nist_display else f"{control.id} |"
         
-        return [
-            f"    - name: '{control.id} | Check {file_path}'",
-            "      stat:",
-            f"        path: {file_path}",
-            f"      register: {var_name}_stat",
-            "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-            "",
-            f"    - name: '{control.id} | Assert {file_path} exists'",
-            "      assert:",
-            "        that:",
-            f"          - {var_name}_stat.stat.exists",
-            f"        fail_msg: \"{control.id} failed: {file_path} does not exist\"",
-            f"        success_msg: \"{control.id} passed: {file_path} exists\"",
-            "      tags:",
-            "        - stig_check",
-            f"        - {control.id}",
-            f"        - {control.category}",
-            f"        - severity_{control.severity}",
-            f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
-            "",
-            f"    - name: '{control.id} | Display file permissions'",
-            "      debug:",
-            f"        msg: \"Mode: {{{{{var_name}_stat.stat.mode}}}}, Owner: {{{{{var_name}_stat.stat.pw_name}}}}, Group: {{{{{var_name}_stat.stat.gr_name}}}}\"",
-            "      tags:",
+        tags_base = [
             "        - stig_check",
             f"        - {control.id}",
             f"        - {control.category}",
             f"        - severity_{control.severity}",
             f"        - {'validate_scannable_with_nessus' if control.is_automatable else 'validate_not_scannable_with_nessus'}",
         ]
+        
+        # Add NIST tags if available
+        if nist_display:
+            nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
+            if nist_family:
+                tags_base.append(f"        - nist_{nist_family.lower()}")
+            tags_base.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
+        
+        return [
+            f"    - name: '{task_name_prefix} Check {file_path}'",
+            "      stat:",
+            f"        path: {file_path}",
+            f"      register: {var_name}_stat",
+            "      tags:",
+        ] + tags_base + [
+            "",
+            f"    - name: '{task_name_prefix} Assert {file_path} exists'",
+            "      assert:",
+            "        that:",
+            f"          - {var_name}_stat.stat.exists",
+            f"        fail_msg: \"{control.id} failed: {file_path} does not exist\"",
+            f"        success_msg: \"{control.id} passed: {file_path} exists\"",
+            "      tags:",
+        ] + tags_base + [
+            "",
+            f"    - name: '{task_name_prefix} Display file permissions'",
+            "      debug:",
+            f"        msg: \"Mode: {{{{{var_name}_stat.stat.mode}}}}, Owner: {{{{{var_name}_stat.stat.pw_name}}}}, Group: {{{{{var_name}_stat.stat.gr_name}}}}\"",
+            "      tags:",
+        ] + tags_base
     
     # Manual check placeholder - use manual_notes if available
     title_clean = control.title.replace(':', ' -').replace(chr(10), ' ').replace(chr(13), ' ').replace('[', '(').replace(']', ')')[:80]
