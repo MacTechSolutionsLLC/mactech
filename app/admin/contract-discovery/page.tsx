@@ -188,11 +188,6 @@ export default function ContractDiscoveryPage() {
     }
   }
 
-  const getRelevanceColor = (score: number) => {
-    if (score >= 20) return 'text-green-600 font-semibold'
-    if (score >= 15) return 'text-yellow-600'
-    return 'text-gray-600'
-  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -617,7 +612,6 @@ export default function ContractDiscoveryPage() {
                 <table className="w-full">
                   <thead className="bg-neutral-50 border-b border-neutral-200">
                     <tr>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Score</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Title</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Domain</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Agency</th>
@@ -629,11 +623,6 @@ export default function ContractDiscoveryPage() {
                       .sort((a, b) => b.relevance_score - a.relevance_score)
                       .map((result) => (
                         <tr key={result.id} className="hover:bg-neutral-50">
-                          <td className="px-4 py-3">
-                            <span className={`text-body-sm font-medium ${getRelevanceColor(result.relevance_score)}`}>
-                              {result.relevance_score}
-                            </span>
-                          </td>
                           <td className="px-4 py-3">
                             <div className="max-w-md">
                               <p className="text-body-sm font-medium text-neutral-900 mb-1 line-clamp-2">
