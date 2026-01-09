@@ -59,10 +59,10 @@ export async function POST(request: NextRequest) {
       location: body.location,
       agency: body.agency,
       naics_codes: body.naics_codes,
-      document_types: body.document_types,
+      document_types: body.document_types, // Optional - not required for SAM.gov opportunity searches
       keywords: body.keywords,
-      num_results: body.num_results || 20,
-      filters: body.filters,
+      num_results: body.num_results || 30,
+      filters: body.filters || { site: ['sam.gov'] }, // Default to SAM.gov only
       set_aside: body.set_aside,
     }
 

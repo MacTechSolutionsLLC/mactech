@@ -62,6 +62,92 @@ export interface DiscoveryResult {
 }
 
 /**
+ * VetCert-eligible set-aside phrases (exact phrases to target)
+ * These are the contract terms that indicate VetCert-eligible opportunities
+ */
+export const VETCERT_SET_ASIDE_PHRASES = [
+  // Government-wide (FAR 19.14)
+  'Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside',
+  'Service-Disabled Veteran-Owned Small Business (SDVOSB) Sole Source',
+  'SDVOSB Set-Aside',
+  'SDVOSB Sole Source',
+  
+  // VA "Veterans First" (VA-specific labels)
+  'Veteran-Owned Small Business Set Aside, Department of Veterans Affairs',
+  'Veteran-Owned Small Business Sole Source, Department of Veterans Affairs',
+  'VOSB Set Aside, Department of Veterans Affairs',
+  'VOSB Sole Source, Department of Veterans Affairs',
+  
+  // Certification language
+  'SBA certified SDVOSB',
+  'SBA certified VOSB',
+  'listed in SBA certification database',
+  'Veteran Small Business Certification Program',
+  'VetCert',
+  '13 CFR Part 128',
+  'veterans.certify.sba.gov',
+]
+
+/**
+ * VetCert abbreviations and variants
+ */
+export const VETCERT_VARIANTS = [
+  'SDVOSB',
+  'VOSB',
+  'service disabled veteran owned',
+  'veteran owned',
+  'set aside',
+  'set-aside',
+  'sole source',
+  'sole-source',
+]
+
+/**
+ * Cyber/RMF NAICS codes for VetCert opportunities
+ */
+export const CYBER_RMF_NAICS_CODES = [
+  '541512', // Computer Systems Design Services
+  '541519', // Other Computer Related Services
+  '541511', // Custom Computer Programming Services
+]
+
+/**
+ * PSC codes that frequently capture RMF/cyber consulting
+ */
+export const RMF_CYBER_PSC_CODES = [
+  'D310', // IT & Telecom: Cyber Security and Data Backup
+  'D307', // IT & Telecom: IT Strategy and Architecture
+  'D399', // IT & Telecom: Other IT and Telecommunications
+]
+
+/**
+ * RMF role and artifact keywords (for 1-FTE style work)
+ */
+export const RMF_ROLE_KEYWORDS = [
+  'ISSO', // Information System Security Officer
+  'ISSM', // Information System Security Manager
+  'ISSE', // Information System Security Engineer
+  'SCA',  // Security Control Assessor
+]
+
+export const RMF_ARTIFACT_KEYWORDS = [
+  'eMASS', // Enterprise Mission Assurance Support Service
+  'ATO',   // Authorization to Operate
+  'SSP',   // System Security Plan
+  'SAP',   // Security Assessment Plan
+  'SAR',   // Security Assessment Report
+  'POA&M', // Plan of Action and Milestones
+  'NIST 800-53',
+  'continuous monitoring',
+  'control assessment',
+]
+
+/**
+ * GSA MAS HACS SIN for RMF services
+ */
+export const GSA_HACS_SIN = '54151HACS' // Highly Adaptive Cybersecurity Services (HACS)
+
+/**
  * Service category keyword mappings
  */
 const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
@@ -69,7 +155,11 @@ const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
     'RMF', 'Risk Management Framework', 'ATO', 'Authorization to Operate',
     'STIG', 'Security Technical Implementation Guide', 'ConMon', 'Continuous Monitoring',
     'SCA', 'Security Control Assessment', 'POA&M', 'Plan of Action',
-    'SSP', 'System Security Plan', 'NIST 800-53', 'CMMC', 'cybersecurity'
+    'SSP', 'System Security Plan', 'NIST 800-53', 'CMMC', 'cybersecurity',
+    // RMF roles
+    ...RMF_ROLE_KEYWORDS,
+    // RMF artifacts
+    ...RMF_ARTIFACT_KEYWORDS,
   ],
   infrastructure: [
     'data center', 'cloud migration', 'infrastructure as code', 'IaC',
@@ -90,53 +180,28 @@ const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
 
 /**
  * Build Google search query from search request
+ * Focused on SAM.gov opportunity listings (HTML pages, not PDFs)
  */
 export function buildSearchQuery(request: SearchRequest): string {
   let query = ''
 
-  // Base filetype and site filters
-  const filetype = request.filters?.filetype || 'pdf'
-  const sites = request.filters?.site || ['sam.gov', '.gov', '.mil']
+  // Focus on SAM.gov only - opportunity listings (HTML pages)
+  // Exclude PDFs to get the actual opportunity page, not attached documents
+  const sites = request.filters?.site || ['sam.gov']
+  query += `site:${sites[0]} `
   
-  query += `filetype:${filetype} `
-  query += `(${sites.map(s => `site:${s}`).join(' OR ')}) `
+  // Exclude PDFs and common file types to focus on opportunity listing pages
+  query += `-filetype:pdf -filetype:doc -filetype:docx -filetype:xls -filetype:xlsx `
 
-  // Note: Date filtering is handled via SerpAPI tbs parameter, not in query string
-  // We'll add it to the query for display purposes, but SerpAPI handles it via tbs param
-  // Keeping this commented out to avoid query syntax issues
-  // if (request.filters?.date_range) {
-  //   const today = new Date()
-  //   let cutoffDate: Date
-  //   switch (request.filters.date_range) {
-  //     case 'past_week':
-  //       cutoffDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-  //       break
-  //     case 'past_month':
-  //       cutoffDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-  //       break
-  //     case 'past_year':
-  //       cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-  //       break
-  //     default:
-  //       cutoffDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-  //   }
-  //   const dateStr = cutoffDate.toISOString().split('T')[0]
-  //   query += `after:${dateStr} `
-  // }
-
-  // Document type keywords
-  const docTypes = request.document_types || ['SOW', 'PWS']
-  const docTypeQuery = docTypes.map(dt => {
-    switch (dt) {
-      case 'SOW': return '"Statement of Work"'
-      case 'PWS': return '"Performance Work Statement"'
-      case 'RFQ': return '"Request for Quotation"'
-      case 'RFP': return '"Request for Proposal"'
-      case 'Sources Sought': return '"Sources Sought"'
-      default: return `"${dt}"`
-    }
-  }).join(' OR ')
-  query += `(${docTypeQuery}) `
+  // Target SAM.gov opportunity pages - look for contract opportunity keywords
+  const opportunityKeywords = [
+    'contract opportunity',
+    'solicitation',
+    'notice',
+    'opportunity',
+    'procurement'
+  ]
+  query += `(${opportunityKeywords.join(' OR ')}) `
 
   // Service category keywords
   if (request.service_category && request.service_category !== 'general') {
@@ -158,6 +223,10 @@ export function buildSearchQuery(request: SearchRequest): string {
   // Custom query override
   if (request.query) {
     query = request.query
+    // Ensure SAM.gov focus if not already specified
+    if (!query.includes('site:sam.gov') && !query.includes('site:')) {
+      query = `site:sam.gov ${query}`
+    }
     // Date filtering handled via SerpAPI tbs parameter, not in query
   }
 
@@ -186,12 +255,16 @@ export function buildSearchQuery(request: SearchRequest): string {
   if (request.set_aside && request.set_aside.length > 0) {
     query += `(${request.set_aside.map(s => `"${s}"`).join(' OR ')}) `
   }
+  
+  // PSC codes (if we add PSC code support to SearchRequest in the future)
+  // For now, PSC codes can be added via custom keywords
 
   return query.trim()
 }
 
 /**
- * Check if a result is likely a Statement of Work or related contract document
+ * Check if a result is likely a SAM.gov contract opportunity listing
+ * Focuses on opportunity pages, not PDF attachments
  */
 function isLikelySOW(result: any): boolean {
   const title = (result.title || '').toLowerCase()
@@ -199,38 +272,62 @@ function isLikelySOW(result: any): boolean {
   const url = (result.link || result.url || '').toLowerCase()
   const text = `${title} ${snippet} ${url}`
 
-  // Strong indicators of SOW/PWS documents
+  // Must be from SAM.gov
+  if (!url.includes('sam.gov')) {
+    return false
+  }
+
+  // Exclude PDFs and document downloads - we want the opportunity page
+  if (url.includes('.pdf') || url.includes('.doc') || url.includes('.docx') || 
+      url.includes('.xls') || url.includes('.xlsx') || url.includes('download')) {
+    return false
+  }
+
+  // Strong indicators of contract opportunity listings
   const strongIndicators = [
-    'statement of work',
-    'performance work statement',
-    'pws',
-    'sow',
-    'work statement',
-    'scope of work',
-    'statement of objectives',
-    'soo',
+    'contract opportunity',
+    'solicitation',
+    'notice id',
+    'opportunity',
+    'procurement',
+    'acquisition',
     'request for proposal',
     'rfp',
     'request for quotation',
     'rfq',
-    'solicitation',
     'sources sought',
-    'notice of intent',
-    'contract opportunity',
-    'procurement',
-    'acquisition',
+    'presolicitation',
+    'combined synopsis',
   ]
 
-  // Weak indicators (might be related but not definitive)
-  const weakIndicators = [
-    'contract',
-    'agreement',
-    'task order',
-    'delivery order',
-    'modification',
+  // URL patterns that indicate opportunity pages
+  const opportunityUrlPatterns = [
+    '/opportunities/',
+    '/view/',
+    '/opportunity/',
+    '/solicitation/',
+    '/notice/',
+    'noticeid=',
+    'opportunityid=',
   ]
 
-  // Exclude common non-SOW documents
+  // Check if URL matches opportunity page patterns
+  const hasOpportunityUrl = opportunityUrlPatterns.some(pattern => url.includes(pattern))
+
+  // Count strong indicators
+  const strongCount = strongIndicators.filter(indicator => text.includes(indicator)).length
+
+  // If URL pattern matches and has at least one indicator, it's likely
+  if (hasOpportunityUrl && strongCount >= 1) {
+    return true
+  }
+
+  // If multiple strong indicators, very likely
+  if (strongCount >= 2) {
+    return true
+  }
+
+  // Exclude common non-opportunity pages
   const excludeTerms = [
     'entity registration',
     'entity checklist',
@@ -254,53 +351,20 @@ function isLikelySOW(result: any): boolean {
     'newsletter',
     'announcement',
     'press release',
+    'home page',
+    'login',
+    'register',
   ]
 
-  // Check exclusions first
+  // Check exclusions
   for (const exclude of excludeTerms) {
     if (text.includes(exclude)) {
       return false
     }
   }
 
-  // Count strong indicators
-  const strongCount = strongIndicators.filter(indicator => text.includes(indicator)).length
-  const weakCount = weakIndicators.filter(indicator => text.includes(indicator)).length
-
-  // Must have at least one strong indicator
-  if (strongCount === 0) {
-    return false
-  }
-
-  // If we have multiple strong indicators, it's very likely
-  if (strongCount >= 2) {
-    return true
-  }
-
-  // If we have one strong indicator and it's in the title, likely
-  if (strongCount === 1 && strongIndicators.some(ind => title.includes(ind))) {
-    return true
-  }
-
-  // If we have one strong indicator and weak indicators, likely
-  if (strongCount === 1 && weakCount >= 1) {
-    return true
-  }
-
-  // URL patterns that suggest SOW documents
-  const urlPatterns = [
-    '/sow',
-    '/pws',
-    '/statement-of-work',
-    '/performance-work-statement',
-    '/solicitation',
-    '/procurement',
-    '/acquisition',
-    '/contract',
-    '/opportunity',
-  ]
-
-  if (urlPatterns.some(pattern => url.includes(pattern))) {
+  // If we have opportunity URL pattern, it's likely
+  if (hasOpportunityUrl) {
     return true
   }
 
@@ -450,9 +514,24 @@ function extractSamGovInfo(url: string, title: string, snippet: string): Partial
     info.naics_codes = [naicsMatch[1]]
   }
   
-  // Set-aside extraction
+  // Set-aside extraction - Enhanced for VetCert
   const setAsidePatterns = [
+    // VetCert-specific patterns (exact phrases)
+    /(SERVICE-DISABLED VETERAN-OWNED SMALL BUSINESS \(SDVOSB\) SET-ASIDE)/i,
+    /(SERVICE-DISABLED VETERAN-OWNED SMALL BUSINESS \(SDVOSB\) SOLE SOURCE)/i,
+    /(VETERAN-OWNED SMALL BUSINESS SET ASIDE, DEPARTMENT OF VETERANS AFFAIRS)/i,
+    /(VETERAN-OWNED SMALL BUSINESS SOLE SOURCE, DEPARTMENT OF VETERANS AFFAIRS)/i,
+    /(SBA CERTIFIED SDVOSB)/i,
+    /(SBA CERTIFIED VOSB)/i,
+    /(LISTED IN SBA CERTIFICATION DATABASE)/i,
+    /(VETERAN SMALL BUSINESS CERTIFICATION PROGRAM)/i,
+    /(VETCERT)/i,
+    /(13 CFR PART 128)/i,
+    /(VETERANS\.CERTIFY\.SBA\.GOV)/i,
+    
+    // Standard patterns
     /(SDVOSB|SERVICE-DISABLED VETERAN-OWNED)/i,
+    /(VOSB|VETERAN-OWNED SMALL BUSINESS)/i,
     /(8\(A\)|8A)/i,
     /(WOSB|WOMAN-OWNED)/i,
     /(HUBZONE)/i,
@@ -466,6 +545,17 @@ function extractSamGovInfo(url: string, title: string, snippet: string): Partial
       setAsides.push(match[1])
     }
   }
+  
+  // Also check for VetCert variants in text
+  VETCERT_VARIANTS.forEach(variant => {
+    if (text.includes(variant.toUpperCase())) {
+      const normalized = variant.toUpperCase()
+      if (!setAsides.some(sa => sa.toUpperCase().includes(normalized))) {
+        setAsides.push(variant)
+      }
+    }
+  })
+  
   if (setAsides.length > 0) {
     info.set_aside = setAsides
   }
@@ -486,6 +576,53 @@ function detectKeywords(title: string, snippet: string, category?: ServiceCatego
       keywords.push(keyword)
     }
   })
+  
+  // Check for VetCert set-aside phrases
+  VETCERT_SET_ASIDE_PHRASES.forEach(phrase => {
+    if (text.includes(phrase.toUpperCase())) {
+      keywords.push(phrase)
+    }
+  })
+  
+  // Check for VetCert variants
+  VETCERT_VARIANTS.forEach(variant => {
+    if (text.includes(variant.toUpperCase())) {
+      keywords.push(variant)
+    }
+  })
+  
+  // Check for RMF roles
+  RMF_ROLE_KEYWORDS.forEach(role => {
+    if (text.includes(role.toUpperCase())) {
+      keywords.push(role)
+    }
+  })
+  
+  // Check for RMF artifacts
+  RMF_ARTIFACT_KEYWORDS.forEach(artifact => {
+    if (text.includes(artifact.toUpperCase())) {
+      keywords.push(artifact)
+    }
+  })
+  
+  // Check for cyber/RMF NAICS codes
+  CYBER_RMF_NAICS_CODES.forEach(naics => {
+    if (text.includes(`NAICS ${naics}`) || text.includes(naics)) {
+      keywords.push(`NAICS ${naics}`)
+    }
+  })
+  
+  // Check for PSC codes
+  RMF_CYBER_PSC_CODES.forEach(psc => {
+    if (text.includes(`PSC ${psc}`) || text.includes(psc)) {
+      keywords.push(`PSC ${psc}`)
+    }
+  })
+  
+  // Check for GSA HACS
+  if (text.includes(GSA_HACS_SIN) || text.includes('HACS') || text.includes('HIGHLY ADAPTIVE CYBERSECURITY')) {
+    keywords.push('GSA HACS', GSA_HACS_SIN)
+  }
   
   // Common contract keywords
   const commonKeywords = ['SOW', 'PWS', 'RFQ', 'RFP', 'RFP', 'SOURCES SOUGHT', 'SAM.GOV']
@@ -592,9 +729,19 @@ function calculateRelevanceScore(params: {
     score += 5
   }
   
-  // Domain is sam.gov
+  // Domain is sam.gov (high priority for opportunity listings)
   if (domain.includes('sam.gov')) {
-    score += 5
+    score += 15 // Significant boost for SAM.gov opportunity pages
+  }
+  
+  // URL indicates opportunity listing page (not PDF)
+  if (url.includes('/opportunities/') || url.includes('/view/') || url.includes('noticeid=')) {
+    score += 10
+  }
+  
+  // Exclude PDFs - we want opportunity pages
+  if (url.includes('.pdf') || url.includes('download')) {
+    score -= 20 // Heavy penalty for PDFs
   }
   
   // Document type is PDF
@@ -636,6 +783,44 @@ function calculateRelevanceScore(params: {
     }
   }
   
+  // VetCert-eligible boost (high priority)
+  const isVetCertEligible = VETCERT_SET_ASIDE_PHRASES.some(phrase => 
+    text.includes(phrase.toUpperCase())
+  ) || VETCERT_VARIANTS.some(variant => 
+    text.includes(variant.toUpperCase()) && 
+    (text.includes('SET-ASIDE') || text.includes('SOLE SOURCE') || text.includes('SET ASIDE'))
+  )
+  
+  if (isVetCertEligible) {
+    score += 15 // Significant boost for VetCert-eligible opportunities
+  }
+  
+  // RMF role/artifact boost (indicates 1-FTE style work)
+  const hasRmfRole = RMF_ROLE_KEYWORDS.some(role => text.includes(role))
+  const hasRmfArtifact = RMF_ARTIFACT_KEYWORDS.some(artifact => text.includes(artifact.toUpperCase()))
+  
+  if (hasRmfRole) {
+    score += 8 // RMF roles indicate specific expertise needed
+  }
+  if (hasRmfArtifact) {
+    score += 5 // RMF artifacts indicate RMF-specific work
+  }
+  
+  // Cyber/RMF NAICS code boost
+  if (CYBER_RMF_NAICS_CODES.some(naics => text.includes(naics))) {
+    score += 5
+  }
+  
+  // PSC code boost
+  if (RMF_CYBER_PSC_CODES.some(psc => text.includes(psc))) {
+    score += 3
+  }
+  
+  // GSA HACS boost
+  if (text.includes(GSA_HACS_SIN) || text.includes('HACS') || text.includes('HIGHLY ADAPTIVE CYBERSECURITY')) {
+    score += 5
+  }
+  
   // Service category match
   if (request.service_category && detected_service_category === request.service_category) {
     score += 5
@@ -646,19 +831,103 @@ function calculateRelevanceScore(params: {
 
 /**
  * Get preset queries for service categories
+ * Focused on SAM.gov opportunity listings
  */
 export function getPresetQuery(category: ServiceCategory, location?: string, agency?: string[]): string {
   const baseQuery = buildSearchQuery({
     service_category: category,
     location,
     agency,
-    document_types: ['SOW', 'PWS'],
     filters: {
-      filetype: 'pdf',
-      site: ['sam.gov', '.gov', '.mil']
+      site: ['sam.gov']
     }
   })
   
   return baseQuery
+}
+
+/**
+ * Build optimized VetCert-eligible query for cyber/RMF opportunities
+ * Combines VetCert set-aside terms with cyber/RMF keywords and NAICS codes
+ * Focused on SAM.gov opportunity listings (HTML pages, not PDFs)
+ */
+export function buildVetCertCyberQuery(options: {
+  setAsideType?: 'SDVOSB' | 'VOSB' | 'both'
+  includeSoleSource?: boolean
+  includeRmfRoles?: boolean
+  includeRmfArtifacts?: boolean
+  naicsCodes?: string[]
+  location?: string
+  agency?: string[]
+}): string {
+  const {
+    setAsideType = 'both',
+    includeSoleSource = true,
+    includeRmfRoles = true,
+    includeRmfArtifacts = true,
+    naicsCodes = CYBER_RMF_NAICS_CODES,
+    location,
+    agency
+  } = options
+
+  let query = 'site:sam.gov -filetype:pdf -filetype:doc -filetype:docx '
+  query += '(contract opportunity OR solicitation OR notice) '
+
+  // VetCert set-aside terms
+  const setAsideTerms: string[] = []
+  if (setAsideType === 'SDVOSB' || setAsideType === 'both') {
+    setAsideTerms.push('"Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside"')
+    if (includeSoleSource) {
+      setAsideTerms.push('"Service-Disabled Veteran-Owned Small Business (SDVOSB) Sole Source"')
+    }
+    setAsideTerms.push('"SDVOSB Set-Aside"', '"SBA certified SDVOSB"')
+  }
+  if (setAsideType === 'VOSB' || setAsideType === 'both') {
+    setAsideTerms.push('"Veteran-Owned Small Business Set Aside, Department of Veterans Affairs"')
+    if (includeSoleSource) {
+      setAsideTerms.push('"Veteran-Owned Small Business Sole Source, Department of Veterans Affairs"')
+    }
+    setAsideTerms.push('"VOSB Set Aside"', '"SBA certified VOSB"')
+  }
+  // Add variants
+  setAsideTerms.push('"SDVOSB"', '"VOSB"', '"Service-Disabled Veteran"', '"veteran-owned"')
+  
+  query += `(${setAsideTerms.join(' OR ')}) `
+
+  // Cyber/RMF keywords
+  const cyberTerms: string[] = ['"RMF"', '"Risk Management Framework"', '"cybersecurity"', '"ATO"', '"Authorization to Operate"']
+  
+  if (includeRmfRoles) {
+    cyberTerms.push(...RMF_ROLE_KEYWORDS.map(role => `"${role}"`))
+  }
+  
+  if (includeRmfArtifacts) {
+    cyberTerms.push(...RMF_ARTIFACT_KEYWORDS.map(artifact => `"${artifact}"`))
+  }
+  
+  query += `(${cyberTerms.join(' OR ')}) `
+
+  // NAICS codes
+  if (naicsCodes && naicsCodes.length > 0) {
+    query += `(${naicsCodes.map(n => `"NAICS ${n}"`).join(' OR ')}) `
+  }
+
+  // Location
+  if (location) {
+    query += `"${location}" `
+  }
+
+  // Agency
+  if (agency && agency.length > 0) {
+    const agencyQueries = agency.map(a => {
+      if (a.includes('.gov') || a.includes('.mil')) {
+        return `site:${a}`
+      }
+      return `"${a}"`
+    })
+    query += `(${agencyQueries.join(' OR ')}) `
+  }
+
+  return query.trim()
 }
 
