@@ -47,7 +47,7 @@ const nextConfig = {
     if (isServer) {
       const webpack = require('webpack')
       
-      // Inject File polyfill at the top of server bundles
+      // Inject File polyfill at the very start of ALL server chunks
       const filePolyfillCode = `
 if (typeof globalThis.File === 'undefined') {
   try {
@@ -75,19 +75,51 @@ if (typeof globalThis.File === 'undefined') {
     };
   }
 }
+// Also define File on global scope (not just globalThis) for compatibility
+if (typeof global !== 'undefined' && typeof global.File === 'undefined') {
+  global.File = globalThis.File;
+}
 `
       
-      // Use BannerPlugin to inject polyfill at the start of server chunks
-      // Only apply to server-side bundles
+      // Use BannerPlugin to inject polyfill - apply to ALL server chunks
       config.plugins.push(
         new webpack.BannerPlugin({
           banner: filePolyfillCode,
           raw: true,
           entryOnly: false,
-          test: /\.js$/, // Only apply to JS files
-          include: /server/, // Only server bundles
         })
       )
+
+      // Also use DefinePlugin to replace File references with globalThis.File
+      // But this won't work for constructors, so we'll use a custom plugin
+      config.plugins.push({
+        apply: (compiler) => {
+          compiler.hooks.compilation.tap('FilePolyfillPlugin', (compilation) => {
+            compilation.hooks.processAssets.tap(
+              {
+                name: 'FilePolyfillPlugin',
+                stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+              },
+              (assets) => {
+                // Inject polyfill at the start of each server chunk
+                Object.keys(assets).forEach((filename) => {
+                  if (filename.includes('server') && filename.endsWith('.js')) {
+                    const asset = assets[filename]
+                    const source = asset.source()
+                    // Only inject if File polyfill isn't already present
+                    if (!source.includes('globalThis.File')) {
+                      assets[filename] = {
+                        source: () => filePolyfillCode + '\n' + source,
+                        size: () => filePolyfillCode.length + source.length,
+                      }
+                    }
+                  }
+                })
+              }
+            )
+          })
+        },
+      })
     }
 
     config.watchOptions = {
