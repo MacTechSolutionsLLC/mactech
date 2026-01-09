@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      color: #1a73e8;
+    }
+    .section {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #5f6368;
+      margin-bottom: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    .status {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+    }
+    .status.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      display: block;
+    }
+    .status.error {
+      background: #ffebee;
+      color: #c62828;
+      display: block;
+    }
+    .info {
+      font-size: 11px;
+      color: #5f6368;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h3>MacTech Contract Scraper</h3>
+  
+  <div class="section">
+    <label for="apiUrl">API URL:</label>
+    <input type="text" id="apiUrl" placeholder="http://localhost:3000" />
+    <div class="info">Set your MacTech platform API URL (default: localhost:3000)</div>
+  </div>
+  
+  <button id="saveBtn">Save Settings</button>
+  
+  <div id="status" class="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+
