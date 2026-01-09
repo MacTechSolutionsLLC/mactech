@@ -444,13 +444,7 @@ export default function ContractDiscoveryPage() {
       })
       
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      
-      // Check if it's a SerpAPI key error
-      if (errorMessage.includes('SerpAPI key') || errorMessage.includes('SERPAPI_KEY')) {
-        setError('SerpAPI key not configured. Please set the SERPAPI_KEY environment variable. Get your key from https://serpapi.com/manage-api-key')
-      } else {
-        setError(errorMessage)
-      }
+      setError(errorMessage)
     } finally {
       setIsSearching(false)
       console.log(`[${searchId}] Frontend: Search finished`)
@@ -623,9 +617,14 @@ export default function ContractDiscoveryPage() {
                 Find VetCert-eligible and RMF opportunities on SAM.gov
               </p>
             </div>
-            <Link href="/admin" className="btn-secondary">
-              Back to Admin
-            </Link>
+            <div className="flex gap-4">
+              <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
+                Dashboard
+              </Link>
+              <Link href="/admin" className="btn-secondary">
+                Back to Admin
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -636,29 +635,6 @@ export default function ContractDiscoveryPage() {
           <div className="card p-8 lg:p-12">
             <div className="mb-6">
               <h2 className="heading-2 mb-4">Quick Search</h2>
-              
-              {/* Important Notice */}
-              <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-sm mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="text-yellow-600 text-xl flex-shrink-0 mt-0.5">⚠️</div>
-                  <div className="flex-1">
-                    <p className="text-body-sm font-semibold text-yellow-900 mb-2">
-                      Temporary Workaround: Copy Query to Google
-                    </p>
-                    <p className="text-body-sm text-yellow-800 mb-3">
-                      Due to current SerpAPI limitations, we recommend copying the generated query and pasting it directly into Google Search for best results. Click the &quot;Copy Query&quot; button below after selecting a template.
-                    </p>
-                    <a
-                      href="https://www.google.com/search"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-body-sm font-medium text-yellow-900 hover:text-yellow-950 underline"
-                    >
-                      Open Google Search →
-                    </a>
-                  </div>
-                </div>
-              </div>
               
               <p className="text-body-sm text-neutral-600 mb-6">
                 Select a pre-configured search template to find contract opportunities on SAM.gov. 
@@ -779,14 +755,14 @@ export default function ContractDiscoveryPage() {
               <div className="mt-6 bg-red-50 border border-red-200 p-4 rounded-sm">
                 <p className="text-body-sm text-red-800 font-semibold mb-2">Error</p>
                 <p className="text-body-sm text-red-700 mb-2">{error}</p>
-                {error.includes('SerpAPI key') && (
+                {error.includes('SAM.gov API key') && (
                   <div className="mt-3 pt-3 border-t border-red-200">
                     <p className="text-body-xs text-red-600 mb-2">
                       <strong>Setup Instructions:</strong>
                     </p>
                     <ol className="text-body-xs text-red-600 list-decimal list-inside space-y-1">
-                      <li>Get your SerpAPI key from <a href="https://serpapi.com/manage-api-key" target="_blank" rel="noopener noreferrer" className="underline">serpapi.com/manage-api-key</a></li>
-                      <li>Add <code className="bg-red-100 px-1 rounded">SERPAPI_KEY=your-key-here</code> to your environment variables</li>
+                      <li>Get your SAM.gov API key from <a href="https://api.sam.gov/" target="_blank" rel="noopener noreferrer" className="underline">api.sam.gov</a></li>
+                      <li>Add <code className="bg-red-100 px-1 rounded">SAM_GOV_API_KEY=your-key-here</code> to your environment variables</li>
                       <li>For Railway: Add it in the Variables section of your project settings</li>
                       <li>Restart your application after adding the key</li>
                     </ol>

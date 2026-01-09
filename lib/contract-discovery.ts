@@ -227,7 +227,7 @@ export function buildSearchQuery(request: SearchRequest): string {
     if (!query.includes('site:sam.gov') && !query.includes('site:')) {
       query = `site:sam.gov ${query}`
     }
-    // Date filtering handled via SerpAPI tbs parameter, not in query
+    // Date filtering handled via SAM.gov API postedFrom/postedTo parameters
   }
 
   // Location filter
