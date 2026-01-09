@@ -80,43 +80,64 @@ export async function POST(request: NextRequest) {
       .trim()
       .substring(0, 30000) // Limit to ~30k chars
 
-    const prompt = `You are parsing a SAM.gov contract opportunity page HTML. Extract structured information from the HTML and return ONLY valid JSON.
+    const prompt = `You are parsing a SAM.gov contract opportunity page HTML. Extract structured information accurately from the HTML.
 
-Extract the following fields:
-- title: The contract opportunity title
-- description: The main description/scope of work (exclude contact info, footers, navigation, attachments sections)
-- noticeId: The notice ID if present
-- solicitationNumber: The solicitation number if present
-- agency: The contracting agency/department name
-- naicsCodes: Array of NAICS codes (6-digit numbers)
-- setAside: Array of set-aside types (e.g., SDVOSB, VOSB, 8(a), HUBZone, WOSB, Small Business)
-- deadline: Response deadline/date
+CRITICAL EXTRACTION RULES:
+
+1. TITLE: Extract the exact contract title (usually in an h1 or title element). Do NOT include "Contract Opportunity" or "SAM.gov" in the title.
+
+2. NOTICE ID: Look for "Notice ID" label followed by the ID value (e.g., "N6945026R0025"). Extract ONLY the ID value, not the label "Notice ID".
+
+3. SOLICITATION NUMBER: Look for "Solicitation Number" or similar labels. Extract ONLY the number/value, not the label text.
+
+4. DESCRIPTION: Extract the FULL description text from the "Description" section. Include amendment text if present. Stop extraction at "Contact Information", "Attachments", "Links", or footer sections. Include the complete description including amendment details.
+
+5. SET-ASIDE: Extract the exact set-aside text (e.g., "Service-Disabled Veteran-Owned Small Business (SDVOSB) Sole Source"). Normalize to abbreviations: SDVOSB, VOSB, 8(a), HUBZone, WOSB, Small Business Set-Aside.
+
+6. POINTS OF CONTACT:
+   - Extract name: Just the person's name (e.g., "Cyndi Cisneros"), NOT "Primary Point of Contact" or "Information"
+   - Extract email: Full email address
+   - Extract phone: Phone number with formatting
+   - Extract role: "Primary Point of Contact" or "Alternative Point of Contact" or specific role
+
+7. DEADLINE: Look for "Date Offers Due" or "Response Deadline" - extract the full date/time string.
+
+8. POSTED DATE: Look for "Published Date" - extract the full date/time string.
+
+9. AGENCY: Extract the full agency path (e.g., "DEPT OF DEFENSE > DEPT OF THE NAVY > NAVFAC")
+
+10. NAICS CODE: Extract the 6-digit code (e.g., "237310")
+
+11. PLACE OF PERFORMANCE: Extract the full address/location text.
+
+Extract these fields:
+- title: Contract opportunity title (exact text, no labels)
+- description: Complete description including amendments (stop before Contact Information)
+- noticeId: Notice ID value only (e.g., "N6945026R0025")
+- solicitationNumber: Solicitation number value only
+- agency: Full agency hierarchy
+- naicsCodes: Array of 6-digit NAICS codes
+- setAside: Array of normalized set-aside types (SDVOSB, VOSB, etc.)
+- deadline: "Date Offers Due" value
 - responseDeadline: Same as deadline
-- postedDate: When the opportunity was posted
-- estimatedValue: Contract value estimate (e.g., "$1M", "$500K")
-- periodOfPerformance: Period of performance dates/duration
-- placeOfPerformance: Location/place of performance
-- contractType: Type of contract (RFP, RFQ, SOW, PWS, etc.)
-- classificationCode: PSC or classification code if present
-- pointsOfContact: Array of contact objects with name, email, phone, role
-- requirements: Array of key requirements/qualifications
+- postedDate: "Published Date" value
+- estimatedValue: Contract value if present
+- periodOfPerformance: Period of performance if present
+- placeOfPerformance: Full place of performance address
+- contractType: Contract type (Solicitation, RFP, RFQ, etc.)
+- classificationCode: Product Service Code (PSC) if present
+- pointsOfContact: Array of {name, email, phone, role} objects
+- requirements: Array of key requirements
 - keywords: Array of relevant keywords
-- sowAttachmentUrl: URL to SOW/PWS attachment if present
-- sowAttachmentType: Type of attachment (PDF, DOCX, etc.)
-
-IMPORTANT RULES:
-1. For description: Extract ONLY the actual contract description. Stop at "Contact Information", "Attachments", "Links", "Feedback", or footer sections. Do NOT include contact details, addresses, phone numbers, or navigation elements.
-2. For pointsOfContact: Extract name, email, phone, and role. Skip generic/non-POC emails (noreply, automated, system, etc.)
-3. For requirements: Extract key requirements, qualifications, or must-have items
-4. Return null for fields that are not found
-5. Return ONLY valid JSON, no markdown, no explanations
+- sowAttachmentUrl: URL to attachments if present
+- sowAttachmentType: Attachment type
 
 HTML Content:
-${htmlContent.substring(0, 100000)} // Limit HTML to ~100k chars
+${htmlContent.substring(0, 150000)}
 
 URL: ${url || 'Unknown'}
 
-Return JSON in this exact format:
+Return ONLY valid JSON in this exact format (use null for missing fields, empty arrays [] for missing arrays):
 {
   "title": "string or null",
   "description": "string or null",
@@ -176,9 +197,58 @@ Return JSON in this exact format:
       }
     }
 
+    // Clean and validate the parsed data
+    const cleanedData: ParsedContractData = {
+      ...parsedData,
+      // Clean notice ID - remove "Notice ID" label if present
+      noticeId: parsedData.noticeId 
+        ? parsedData.noticeId.replace(/^notice\s+id\s*:?\s*/i, '').trim() || null
+        : null,
+      
+      // Clean solicitation number - remove label if present
+      solicitationNumber: parsedData.solicitationNumber
+        ? parsedData.solicitationNumber.replace(/^solicitation\s+(number\s*:?\s*)?/i, '').trim() || null
+        : null,
+      
+      // Clean title - remove common suffixes
+      title: parsedData.title
+        ? parsedData.title.replace(/\s*-\s*SAM\.gov\s*$/i, '').replace(/\s*-\s*Contract Opportunity\s*$/i, '').trim() || null
+        : null,
+      
+      // Clean description - ensure it's complete
+      description: parsedData.description
+        ? parsedData.description.trim() || null
+        : null,
+      
+      // Clean POC names - remove "Primary Point of Contact", "Information", etc.
+      pointsOfContact: parsedData.pointsOfContact?.map(poc => ({
+        name: poc.name?.replace(/^(primary\s+point\s+of\s+contact|alternative\s+point\s+of\s+contact|information)\s*/i, '').trim() || poc.name,
+        email: poc.email?.trim() || poc.email,
+        phone: poc.phone?.trim() || poc.phone,
+        role: poc.role?.trim() || poc.role,
+      })) || null,
+      
+      // Normalize set-aside values
+      setAside: parsedData.setAside?.map(sa => {
+        const normalized = sa.toUpperCase().trim()
+        if (normalized.includes('SDVOSB') || normalized.includes('SERVICE-DISABLED')) return 'SDVOSB'
+        if (normalized.includes('VOSB') || normalized.includes('VETERAN-OWNED')) return 'VOSB'
+        if (normalized.includes('8(A)') || normalized.includes('8A')) return '8(a)'
+        if (normalized.includes('HUBZONE') || normalized.includes('HUBZONE')) return 'HUBZone'
+        if (normalized.includes('WOSB') || normalized.includes('WOMAN-OWNED')) return 'WOSB'
+        if (normalized.includes('SMALL BUSINESS')) return 'Small Business Set-Aside'
+        return sa
+      }) || null,
+      
+      // Ensure arrays are arrays
+      naicsCodes: Array.isArray(parsedData.naicsCodes) ? parsedData.naicsCodes : null,
+      requirements: Array.isArray(parsedData.requirements) ? parsedData.requirements : null,
+      keywords: Array.isArray(parsedData.keywords) ? parsedData.keywords : null,
+    }
+
     return NextResponse.json({
       success: true,
-      data: parsedData,
+      data: cleanedData,
     }, {
       headers: corsHeaders,
     })
