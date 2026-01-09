@@ -403,6 +403,7 @@ export function processSearchResult(result: any, request: SearchRequest): Discov
   const relevance_score = calculateRelevanceScore({
     title,
     snippet,
+    url,
     domain,
     document_type,
     detected_keywords,
@@ -707,6 +708,7 @@ function extractLocations(title: string, snippet: string): string[] {
 function calculateRelevanceScore(params: {
   title: string
   snippet: string
+  url: string
   domain: string
   document_type?: string
   detected_keywords: string[]
@@ -715,7 +717,7 @@ function calculateRelevanceScore(params: {
   request: SearchRequest
 }): number {
   let score = 0
-  const { title, snippet, domain, document_type, detected_keywords, detected_service_category, location_mentions, request } = params
+  const { title, snippet, url, domain, document_type, detected_keywords, detected_service_category, location_mentions, request } = params
   
   const text = `${title} ${snippet}`.toUpperCase()
   
