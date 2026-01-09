@@ -816,13 +816,19 @@ export async function POST(request: NextRequest) {
     await ensureDirectories()
 
     const formData = await request.formData()
-    const file = formData.get('sow') as { arrayBuffer: () => Promise<ArrayBuffer>; name: string } | null
-
-    if (!file) {
+    const fileInput = formData.get('sow')
+    
+    if (!fileInput || typeof fileInput !== 'object' || !('arrayBuffer' in fileInput)) {
       return NextResponse.json(
         { error: 'No file uploaded' },
         { status: 400 }
       )
+    }
+
+    // Type-safe file object
+    const file = {
+      arrayBuffer: () => (fileInput as any).arrayBuffer(),
+      name: (fileInput as any).name || 'unknown',
     }
 
     // Extract text from uploaded file
