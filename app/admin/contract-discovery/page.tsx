@@ -27,105 +27,272 @@ interface DiscoveryResult {
   created_at: string
 }
 
+type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
+
 interface SearchTemplate {
   name: string
   description: string
   query: string
   keywords: string
   category: 'vetcert' | 'rmf' | 'general'
+  pillar?: Pillar
 }
 
 const SEARCH_TEMPLATES: SearchTemplate[] = [
+  // Security Pillar - Patrick Caruso
   {
-    name: 'VetCert SDVOSB Set-Asides (Cyber/RMF)',
+    name: 'Security: VetCert SDVOSB Set-Asides (Cyber/RMF)',
     description: 'SBA-certified SDVOSB set-aside opportunities for cybersecurity and RMF',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53" OR "ISSO" OR "ISSM")',
     keywords: 'VetCert, SDVOSB, RMF, cybersecurity',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VetCert SDVOSB Sole Source (Cyber/RMF)',
+    name: 'Security: VetCert SDVOSB Sole Source (Cyber/RMF)',
     description: 'SBA-certified SDVOSB sole source opportunities for cybersecurity and RMF',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Sole Source" OR "SDVOSB Sole Source") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53" OR "ISSO" OR "ISSM")',
     keywords: 'VetCert, SDVOSB, sole source, RMF',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VA Veterans First VOSB (Cyber/RMF)',
+    name: 'Security: VA Veterans First VOSB (Cyber/RMF)',
     description: 'VA-specific veteran-owned set-aside opportunities for cybersecurity',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Veteran-Owned Small Business Set Aside, Department of Veterans Affairs" OR "VOSB Set Aside, Department of Veterans Affairs") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53")',
     keywords: 'VA, VOSB, Veterans First, RMF',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VetCert RMF Roles (ISSO/ISSM/ISSE)',
+    name: 'Security: VetCert RMF Roles (ISSO/ISSM/ISSE)',
     description: 'VetCert-eligible opportunities requiring ISSO, ISSM, or ISSE roles',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran" OR "veteran-owned") ("ISSO" OR "ISSM" OR "ISSE" OR "Information System Security Officer" OR "Information System Security Manager")',
     keywords: 'ISSO, ISSM, ISSE, VetCert, RMF roles',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VetCert eMASS & ATO Support',
+    name: 'Security: VetCert eMASS & ATO Support',
     description: 'VetCert-eligible opportunities for eMASS and ATO support services',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("eMASS" OR "ATO" OR "Authorization to Operate" OR "SSP" OR "System Security Plan")',
     keywords: 'eMASS, ATO, SSP, VetCert',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VetCert NIST 800-53 & Control Assessment',
+    name: 'Security: VetCert NIST 800-53 & Control Assessment',
     description: 'VetCert-eligible opportunities for NIST 800-53 compliance and control assessment',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("NIST 800-53" OR "security control assessment" OR "SCA" OR "control assessment" OR "continuous monitoring")',
     keywords: 'NIST 800-53, SCA, control assessment, VetCert',
     category: 'vetcert',
+    pillar: 'Security',
   },
   {
-    name: 'VetCert Cyber NAICS (541512/541519/541511)',
-    description: 'VetCert-eligible opportunities with cyber/RMF NAICS codes',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("NAICS 541512" OR "NAICS 541519" OR "NAICS 541511") ("RMF" OR "cybersecurity" OR "ATO")',
-    keywords: 'NAICS 541512, NAICS 541519, NAICS 541511, VetCert',
-    category: 'vetcert',
-  },
-  {
-    name: 'GSA HACS VetCert Opportunities',
-    description: 'GSA MAS HACS SIN opportunities for VetCert-eligible businesses',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("54151HACS" OR "HACS" OR "Highly Adaptive Cybersecurity Services") ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran" OR "veteran-owned") ("RMF" OR "ATO" OR "cybersecurity")',
-    keywords: 'GSA HACS, 54151HACS, VetCert, RMF',
-    category: 'vetcert',
-  },
-  {
-    name: 'RMF & ATO Services',
+    name: 'Security: RMF & ATO Services',
     description: 'Risk Management Framework and Authorization to Operate contracts',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("RMF" OR "Risk Management Framework" OR "ATO" OR "Authorization to Operate" OR "STIG")',
     keywords: 'RMF, ATO, STIG',
     category: 'rmf',
+    pillar: 'Security',
   },
   {
-    name: 'Cybersecurity & STIG Compliance',
+    name: 'Security: Cybersecurity & STIG Compliance',
     description: 'STIG compliance and cybersecurity assessment contracts',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("STIG" OR "Security Technical Implementation Guide" OR "cybersecurity assessment" OR "security control assessment")',
     keywords: 'STIG, cybersecurity, assessment',
     category: 'rmf',
+    pillar: 'Security',
   },
   {
-    name: 'NIST 800-53 Compliance',
+    name: 'Security: NIST 800-53 Compliance',
     description: 'NIST 800-53 security control implementation and assessment',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("NIST 800-53" OR "security controls" OR "control assessment" OR "SCA")',
     keywords: 'NIST, security controls, SCA',
     category: 'rmf',
+    pillar: 'Security',
   },
   {
-    name: 'DoD Cybersecurity',
+    name: 'Security: DoD Cybersecurity',
     description: 'Department of Defense cybersecurity and RMF contracts',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Department of Defense" OR "DoD" OR "Air Force" OR "Navy" OR "Army") ("RMF" OR "ATO" OR "cybersecurity" OR "STIG")',
     keywords: 'DoD, military, cybersecurity',
     category: 'rmf',
+    pillar: 'Security',
   },
   {
-    name: 'Continuous Monitoring',
+    name: 'Security: Continuous Monitoring',
     description: 'ConMon and continuous monitoring services',
     query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Continuous Monitoring" OR "ConMon" OR "continuous assessment" OR "security monitoring")',
     keywords: 'ConMon, monitoring, assessment',
     category: 'rmf',
+    pillar: 'Security',
+  },
+  {
+    name: 'Security: GSA HACS VetCert Opportunities',
+    description: 'GSA MAS HACS SIN opportunities for VetCert-eligible businesses',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("54151HACS" OR "HACS" OR "Highly Adaptive Cybersecurity Services") ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran" OR "veteran-owned") ("RMF" OR "ATO" OR "cybersecurity")',
+    keywords: 'GSA HACS, 54151HACS, VetCert, RMF',
+    category: 'vetcert',
+    pillar: 'Security',
+  },
+  {
+    name: 'Security: VetCert Cyber NAICS (541512/541519/541511)',
+    description: 'VetCert-eligible opportunities with cyber/RMF NAICS codes',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("NAICS 541512" OR "NAICS 541519" OR "NAICS 541511") ("RMF" OR "cybersecurity" OR "ATO")',
+    keywords: 'NAICS 541512, NAICS 541519, NAICS 541511, VetCert',
+    category: 'vetcert',
+    pillar: 'Security',
+  },
+  
+  // Infrastructure Pillar - James Adams
+  {
+    name: 'Infrastructure: Data Center Services',
+    description: 'Data center architecture, design, and deployment opportunities',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("data center" OR "datacenter" OR "data center architecture" OR "data center design" OR "data center deployment")',
+    keywords: 'data center, architecture, deployment',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Storage & Backup Solutions',
+    description: 'Storage systems, backup, and data management contracts',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("storage" OR "backup" OR "data storage" OR "backup solutions" OR "storage systems" OR "SAN" OR "NAS")',
+    keywords: 'storage, backup, SAN, NAS',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Network Architecture & Configuration',
+    description: 'Network design, configuration, and security infrastructure',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("network architecture" OR "network design" OR "network configuration" OR "network infrastructure" OR "routing" OR "switching")',
+    keywords: 'network, architecture, configuration',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Virtualization & Cloud Platforms',
+    description: 'Virtualization, cloud migration, and platform services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("virtualization" OR "cloud migration" OR "cloud platform" OR "VMware" OR "Hyper-V" OR "virtual infrastructure")',
+    keywords: 'virtualization, cloud, VMware',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Infrastructure as Code (IaC)',
+    description: 'Infrastructure automation, IaC, and deployment optimization',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Infrastructure as Code" OR "IaC" OR "infrastructure automation" OR "deployment automation" OR "Ansible" OR "Terraform")',
+    keywords: 'IaC, automation, Ansible, Terraform',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Performance Optimization & Capacity Planning',
+    description: 'System performance, optimization, and capacity planning services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("performance optimization" OR "capacity planning" OR "system performance" OR "performance tuning" OR "resource optimization")',
+    keywords: 'performance, optimization, capacity planning',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  {
+    name: 'Infrastructure: Health Monitoring & Observability',
+    description: 'Infrastructure monitoring, health checks, and observability platforms',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("infrastructure monitoring" OR "health monitoring" OR "system monitoring" OR "observability" OR "infrastructure health")',
+    keywords: 'monitoring, observability, health checks',
+    category: 'general',
+    pillar: 'Infrastructure',
+  },
+  
+  // Quality Pillar - Brian MacDonald
+  {
+    name: 'Quality: ISO Compliance & Certification',
+    description: 'ISO 9001, ISO 17025, and quality management system opportunities',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("ISO 9001" OR "ISO 17025" OR "ISO compliance" OR "quality management system" OR "QMS" OR "ISO certification")',
+    keywords: 'ISO, QMS, compliance, certification',
+    category: 'general',
+    pillar: 'Quality',
+  },
+  {
+    name: 'Quality: Audit Readiness & Compliance',
+    description: 'Audit readiness, compliance assessment, and audit support services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("audit readiness" OR "audit support" OR "compliance assessment" OR "internal audit" OR "external audit" OR "audit preparation")',
+    keywords: 'audit, readiness, compliance',
+    category: 'general',
+    pillar: 'Quality',
+  },
+  {
+    name: 'Quality: Metrology & Calibration Services',
+    description: 'Metrology management, calibration, and measurement services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("metrology" OR "calibration" OR "measurement services" OR "calibration services" OR "metrology management")',
+    keywords: 'metrology, calibration, measurement',
+    category: 'general',
+    pillar: 'Quality',
+  },
+  {
+    name: 'Quality: Process Documentation & SOP Automation',
+    description: 'Standard operating procedures, process documentation, and automation',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SOP" OR "standard operating procedure" OR "process documentation" OR "procedure automation" OR "process standardization")',
+    keywords: 'SOP, documentation, process automation',
+    category: 'general',
+    pillar: 'Quality',
+  },
+  {
+    name: 'Quality: Quality Assurance & Testing',
+    description: 'QA services, testing, and quality control opportunities',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("quality assurance" OR "QA" OR "quality control" OR "testing services" OR "quality testing")',
+    keywords: 'QA, quality assurance, testing',
+    category: 'general',
+    pillar: 'Quality',
+  },
+  
+  // Governance Pillar - John Milso
+  {
+    name: 'Governance: Contract Management & Administration',
+    description: 'Contract management, administration, and contract lifecycle services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("contract management" OR "contract administration" OR "contract lifecycle" OR "contract support")',
+    keywords: 'contract management, administration, lifecycle',
+    category: 'general',
+    pillar: 'Governance',
+  },
+  {
+    name: 'Governance: Legal Document Generation',
+    description: 'Legal document generation, contract drafting, and document automation',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("legal document" OR "contract drafting" OR "document generation" OR "legal document automation" OR "contract templates")',
+    keywords: 'legal documents, contract drafting, automation',
+    category: 'general',
+    pillar: 'Governance',
+  },
+  {
+    name: 'Governance: Risk Analysis & Assessment',
+    description: 'Risk analysis, risk assessment, and risk management services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("risk analysis" OR "risk assessment" OR "risk management" OR "risk identification" OR "risk mitigation")',
+    keywords: 'risk analysis, assessment, management',
+    category: 'general',
+    pillar: 'Governance',
+  },
+  {
+    name: 'Governance: Corporate Governance & Compliance',
+    description: 'Corporate governance, compliance, and regulatory advisory services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("corporate governance" OR "governance advisory" OR "regulatory compliance" OR "compliance advisory")',
+    keywords: 'corporate governance, compliance, advisory',
+    category: 'general',
+    pillar: 'Governance',
+  },
+  {
+    name: 'Governance: Due Diligence & M&A Support',
+    description: 'Due diligence, M&A support, and transactional legal services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("due diligence" OR "M&A" OR "mergers and acquisitions" OR "transactional support" OR "acquisition support")',
+    keywords: 'due diligence, M&A, transactional',
+    category: 'general',
+    pillar: 'Governance',
+  },
+  {
+    name: 'Governance: Litigation Support',
+    description: 'Litigation support, legal research, and case management services',
+    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("litigation support" OR "legal research" OR "case management" OR "legal support services")',
+    keywords: 'litigation, legal research, case management',
+    category: 'general',
+    pillar: 'Governance',
   },
 ]
 
@@ -137,6 +304,8 @@ export default function ContractDiscoveryPage() {
   const [error, setError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_month')
   const [templateFilter, setTemplateFilter] = useState<'all' | 'vetcert' | 'rmf' | 'general'>('all')
+  const [pillarFilter, setPillarFilter] = useState<'all' | Pillar>('all')
+  const [copiedQuery, setCopiedQuery] = useState(false)
 
   const handleSearch = async (template: SearchTemplate) => {
     setIsSearching(true)
@@ -203,9 +372,21 @@ export default function ContractDiscoveryPage() {
     }).catch(err => console.error('Error marking as viewed:', err))
   }
 
-  const filteredTemplates = templateFilter === 'all' 
-    ? SEARCH_TEMPLATES 
-    : SEARCH_TEMPLATES.filter(t => t.category === templateFilter)
+  const filteredTemplates = SEARCH_TEMPLATES.filter(t => {
+    const matchesCategory = templateFilter === 'all' || t.category === templateFilter
+    const matchesPillar = pillarFilter === 'all' || t.pillar === pillarFilter
+    return matchesCategory && matchesPillar
+  })
+
+  const copyQueryToClipboard = async (query: string) => {
+    try {
+      await navigator.clipboard.writeText(query)
+      setCopiedQuery(true)
+      setTimeout(() => setCopiedQuery(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy query:', err)
+    }
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -232,6 +413,30 @@ export default function ContractDiscoveryPage() {
           <div className="card p-8 lg:p-12">
             <div className="mb-6">
               <h2 className="heading-2 mb-4">Quick Search</h2>
+              
+              {/* Important Notice */}
+              <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-sm mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="text-yellow-600 text-xl flex-shrink-0 mt-0.5">⚠️</div>
+                  <div className="flex-1">
+                    <p className="text-body-sm font-semibold text-yellow-900 mb-2">
+                      Temporary Workaround: Copy Query to Google
+                    </p>
+                    <p className="text-body-sm text-yellow-800 mb-3">
+                      Due to current SerpAPI limitations, we recommend copying the generated query and pasting it directly into Google Search for best results. Click the "Copy Query" button below after selecting a template.
+                    </p>
+                    <a
+                      href="https://www.google.com/search"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-body-sm font-medium text-yellow-900 hover:text-yellow-950 underline"
+                    >
+                      Open Google Search →
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
               <p className="text-body-sm text-neutral-600 mb-6">
                 Select a pre-configured search template to find contract opportunities on SAM.gov. 
                 All searches target opportunity listing pages (not PDF attachments).
@@ -254,8 +459,33 @@ export default function ContractDiscoveryPage() {
                 </select>
               </div>
 
+              {/* Pillar Filter */}
+              <div className="mb-4">
+                <label className="block text-body-sm font-medium text-neutral-900 mb-2">
+                  Filter by Pillar
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {(['all', 'Security', 'Infrastructure', 'Quality', 'Governance'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setPillarFilter(filter)}
+                      className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
+                        pillarFilter === filter
+                          ? 'bg-accent-700 text-white'
+                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {filter === 'all' ? 'All Pillars' : filter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Template Filter */}
               <div className="mb-6">
+                <label className="block text-body-sm font-medium text-neutral-900 mb-2">
+                  Filter by Category
+                </label>
                 <div className="flex gap-2 flex-wrap">
                   {(['all', 'vetcert', 'rmf'] as const).map((filter) => (
                     <button
@@ -267,7 +497,7 @@ export default function ContractDiscoveryPage() {
                           : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                       }`}
                     >
-                      {filter === 'all' ? 'All Templates' : filter === 'vetcert' ? 'VetCert' : 'RMF'}
+                      {filter === 'all' ? 'All Categories' : filter === 'vetcert' ? 'VetCert' : 'RMF'}
                     </button>
                   ))}
                 </div>
@@ -276,40 +506,56 @@ export default function ContractDiscoveryPage() {
 
             {/* Search Templates Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTemplates.map((template, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSearch(template)}
-                  disabled={isSearching}
-                  className={`text-left p-4 border-2 rounded-sm transition-all ${
-                    selectedTemplate?.name === template.name
-                      ? 'border-accent-700 bg-accent-50'
-                      : 'border-neutral-200 bg-white hover:border-accent-500 hover:bg-accent-50'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-body-sm font-semibold text-neutral-900 pr-2">
-                      {template.name}
-                    </h3>
-                    {isSearching && selectedTemplate?.name === template.name && (
-                      <div className="animate-spin h-4 w-4 border-2 border-accent-700 border-t-transparent rounded-full flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-body-xs text-neutral-600 mb-3">
-                    {template.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {template.keywords.split(', ').slice(0, 3).map((kw, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 bg-neutral-100 text-neutral-700 text-body-xs rounded"
-                      >
-                        {kw}
-                      </span>
-                    ))}
-                  </div>
-                </button>
-              ))}
+              {filteredTemplates.map((template, idx) => {
+                const pillarColors = {
+                  Security: 'bg-red-100 text-red-800 border-red-300',
+                  Infrastructure: 'bg-blue-100 text-blue-800 border-blue-300',
+                  Quality: 'bg-green-100 text-green-800 border-green-300',
+                  Governance: 'bg-purple-100 text-purple-800 border-purple-300',
+                }
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleSearch(template)}
+                    disabled={isSearching}
+                    className={`text-left p-4 border-2 rounded-sm transition-all ${
+                      selectedTemplate?.name === template.name
+                        ? 'border-accent-700 bg-accent-50'
+                        : 'border-neutral-200 bg-white hover:border-accent-500 hover:bg-accent-50'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-body-sm font-semibold text-neutral-900 mb-1">
+                          {template.name}
+                        </h3>
+                        {template.pillar && (
+                          <span className={`inline-block px-2 py-0.5 text-body-xs font-medium rounded border ${pillarColors[template.pillar]}`}>
+                            {template.pillar}
+                          </span>
+                        )}
+                      </div>
+                      {isSearching && selectedTemplate?.name === template.name && (
+                        <div className="animate-spin h-4 w-4 border-2 border-accent-700 border-t-transparent rounded-full flex-shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-body-xs text-neutral-600 mb-3">
+                      {template.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {template.keywords.split(', ').slice(0, 3).map((kw, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 bg-neutral-100 text-neutral-700 text-body-xs rounded"
+                        >
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
 
             {/* Error Display */}
@@ -335,9 +581,42 @@ export default function ContractDiscoveryPage() {
 
             {/* Search Query Display */}
             {searchQuery && (
-              <div className="mt-6 bg-neutral-50 border border-neutral-200 p-4 rounded-sm">
-                <p className="text-body-sm font-medium text-neutral-900 mb-1">Search Query:</p>
-                <p className="text-body-sm text-neutral-700 font-mono break-all">{searchQuery}</p>
+              <div className="mt-6 bg-neutral-50 border-2 border-accent-500 p-4 rounded-sm">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <p className="text-body-sm font-semibold text-neutral-900">Google Search Query:</p>
+                  <button
+                    onClick={() => copyQueryToClipboard(searchQuery)}
+                    className="flex items-center gap-2 px-4 py-2 bg-accent-700 text-white text-body-sm font-medium rounded-sm hover:bg-accent-800 transition-colors flex-shrink-0"
+                  >
+                    {copiedQuery ? (
+                      <>
+                        <span>✓</span>
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>📋</span>
+                        <span>Copy Query</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="bg-white border border-neutral-300 p-3 rounded-sm mb-3">
+                  <p className="text-body-sm text-neutral-700 font-mono break-all">{searchQuery}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-body-sm font-medium text-accent-700 hover:text-accent-800 underline"
+                  >
+                    🔍 Search on Google →
+                  </a>
+                  <p className="text-body-xs text-neutral-600">
+                    Copy the query above and paste it into Google Search, or click the link to search directly.
+                  </p>
+                </div>
               </div>
             )}
           </div>
