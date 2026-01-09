@@ -64,8 +64,7 @@ if (typeof globalThis.File === 'undefined' && typeof globalThis.Blob !== 'undefi
   } as any
 }
 
-// Export File for webpack ProvidePlugin
-module.exports = globalThis.File
+// Export File for ES modules (no CommonJS exports)
 export default globalThis.File
 export {}
 

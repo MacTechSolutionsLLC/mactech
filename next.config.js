@@ -78,11 +78,14 @@ if (typeof globalThis.File === 'undefined') {
 `
       
       // Use BannerPlugin to inject polyfill at the start of server chunks
+      // Only apply to server-side bundles
       config.plugins.push(
         new webpack.BannerPlugin({
           banner: filePolyfillCode,
           raw: true,
           entryOnly: false,
+          test: /\.js$/, // Only apply to JS files
+          include: /server/, // Only server bundles
         })
       )
     }
