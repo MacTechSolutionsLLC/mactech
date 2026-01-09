@@ -6,6 +6,9 @@ import { existsSync } from 'fs'
 import mammoth from 'mammoth'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType } from 'docx'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // Ensure uploads directory exists
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads')
 const OUTPUT_DIR = join(process.cwd(), 'public', 'output')
@@ -19,7 +22,7 @@ async function ensureDirectories() {
   }
 }
 
-async function extractTextFromFile(file: File): Promise<string> {
+async function extractTextFromFile(file: { arrayBuffer: () => Promise<ArrayBuffer>; name: string }): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer())
   const extension = file.name.split('.').pop()?.toLowerCase()
 
@@ -813,7 +816,7 @@ export async function POST(request: NextRequest) {
     await ensureDirectories()
 
     const formData = await request.formData()
-    const file = formData.get('sow') as File
+    const file = formData.get('sow') as { arrayBuffer: () => Promise<ArrayBuffer>; name: string } | null
 
     if (!file) {
       return NextResponse.json(
