@@ -52,7 +52,7 @@ export async function scrapeContractPage(url: string): Promise<ScrapeResult> {
     }
 
     const htmlContent = await response.text()
-    const $ = cheerio.load(htmlContent)
+    const $ = cheerio.load(htmlContent) as cheerio.CheerioAPI
     
     // Extract text content (remove scripts, styles, etc.)
     $('script, style, noscript').remove()
@@ -382,7 +382,8 @@ export async function scrapeSOWAttachment(url: string, type: string): Promise<{ 
 
     if (type === 'PDF') {
       // For PDF, we'll need to use pdf-parse (already in dependencies)
-      const pdfParse = (await import('pdf-parse')).default
+      const pdfParseModule: any = await import('pdf-parse')
+      const pdfParse = pdfParseModule.default || pdfParseModule
       const buffer = await response.arrayBuffer()
       const data = await pdfParse(Buffer.from(buffer))
       return {
