@@ -333,6 +333,549 @@ const tools: Tool[] = [
       templates: ['RMF workflow templates', 'Authorization process templates']
     }
   },
+  // Infrastructure Domain - James Adams
+  {
+    id: 'data-center-deployment',
+    name: 'Data Center Deployment Automation',
+    category: 'Infrastructure & Engineering',
+    status: 'available',
+    description: 'Automated infrastructure provisioning templates for common DoD architectures with storage array configuration automation, VMWare host attachment, and pre-deployment STIG compliance checking.',
+    features: [
+      'Storage array configuration (Dell/EMC, VxRail, Unity, XtremIO)',
+      'VMWare host attachment and configuration',
+      'Network configuration validation',
+      'Pre-deployment STIG compliance checking',
+      'ML-based capacity planning',
+      'Deployment template library'
+    ],
+    useCases: [
+      'Accelerate data center infrastructure deployment',
+      'Eliminate manual configuration errors',
+      'Ensure compliance from initial deployment',
+      'Reduce deployment time from weeks to days'
+    ],
+    technicalDetails: 'Automated infrastructure provisioning with built-in compliance validation. Supports multiple storage arrays, VMWare environments, and network configurations. Includes deployment templates for common DoD architectures.',
+    integration: 'Integrates with VMWare vCenter, storage management APIs, network management tools, and compliance scanners. Supports Terraform and Ansible for infrastructure-as-code.',
+    deliverables: {
+      modules: ['Deployment automation module', 'Storage configuration module', 'Network validation module'],
+      templates: ['Web application stack templates', 'Database infrastructure templates', 'Cloud environment templates']
+    }
+  },
+  {
+    id: 'infrastructure-health-monitoring',
+    name: 'Infrastructure Health Monitoring & Predictive Analytics',
+    category: 'Infrastructure & Engineering',
+    status: 'available',
+    description: 'Real-time infrastructure health dashboards with predictive failure analysis, automated ticket generation, and ML-based anomaly detection.',
+    features: [
+      'Predictive failure analysis using ML',
+      'Real-time health dashboards',
+      'Automated ticket generation for proactive maintenance',
+      'Anomaly detection and alerting',
+      'Automated root cause analysis',
+      'Integration with NinjaOne, EPS, ITGlue, WFM'
+    ],
+    useCases: [
+      'Prevent critical infrastructure failures',
+      'Reduce unplanned downtime',
+      'Optimize maintenance scheduling',
+      'Improve infrastructure reliability'
+    ],
+    technicalDetails: 'ML-powered monitoring platform that predicts failures before they occur. Integrates with major infrastructure management tools and provides automated remediation workflows.',
+    integration: 'Integrates with NinjaOne, EPS, ITGlue, WFM, Prometheus, Grafana, and cloud monitoring services. Provides REST API for custom integrations.',
+    deliverables: {
+      platforms: ['Health Monitoring Platform'],
+      modules: ['Predictive analytics module', 'Alerting module', 'Integration adapter modules']
+    }
+  },
+  {
+    id: 'network-config-automation',
+    name: 'Network Configuration Automation',
+    category: 'Infrastructure & Engineering',
+    status: 'available',
+    description: 'Automated network topology generation, firewall rule generation, and network compliance checking aligned with DISA Network STIGs.',
+    features: [
+      'Network topology generation from requirements',
+      'Firewall rule generation and validation',
+      'DISA Network STIG compliance checking',
+      'Security zone configuration',
+      'Network performance optimization',
+      'Configuration export to vendor formats'
+    ],
+    useCases: [
+      'Accelerate network security configuration development',
+      'Ensure network designs meet DoD security requirements',
+      'Standardize network security across environments',
+      'Reduce manual configuration errors'
+    ],
+    technicalDetails: 'Network topology analyzer that generates security configurations based on network diagrams, security zones, and DoD network security requirements. Validates against DISA Network STIGs.',
+    integration: 'Integrates with network management platforms, firewall management tools, and network documentation systems. Supports Cisco, Juniper, and other major vendors.',
+    deliverables: {
+      modules: ['Topology generator module', 'Firewall rule engine', 'STIG compliance checker'],
+      templates: ['Network security templates', 'Firewall rule templates']
+    }
+  },
+  // Quality Assurance Domain - Brian MacDonald
+  {
+    id: 'iso-compliance-platform',
+    name: 'ISO 17025/9001 Compliance Automation',
+    category: 'Quality Assurance',
+    status: 'available',
+    description: 'Automated ISO compliance program management with gap analysis, audit readiness scoring, and SOP generation aligned with ISO 17025 and ISO 9001 requirements.',
+    features: [
+      'ISO 17025 and ISO 9001 compliance tracking',
+      'Automated gap identification and analysis',
+      'Audit readiness scoring and recommendations',
+      'SOP generation from requirements',
+      'Management review automation',
+      'Corrective action tracking'
+    ],
+    useCases: [
+      'Maintain ongoing ISO compliance visibility',
+      'Prepare for ISO certification audits',
+      'Accelerate ISO implementation',
+      'Support laboratory accreditation efforts'
+    ],
+    technicalDetails: 'Comprehensive ISO compliance platform that tracks requirements, identifies gaps, and generates audit-ready documentation. Includes automated SOP generation and management review workflows.',
+    integration: 'Integrates with quality management systems, document management platforms, and ISO certification management tools. Exports compliance data to audit platforms.',
+    deliverables: {
+      platforms: ['ISO Compliance Platform'],
+      modules: ['Gap analysis module', 'Audit readiness module', 'SOP generator module'],
+      templates: ['ISO procedure templates', 'Quality manual templates']
+    }
+  },
+  {
+    id: 'sop-automation-module',
+    name: 'SOP Development & Technical Writing Automation',
+    category: 'Quality Assurance',
+    status: 'available',
+    description: 'Automated SOP generation from templates with consistency checking, version control, and review workflows aligned with ISO requirements.',
+    features: [
+      'Automated SOP generation from requirements',
+      'SOP consistency checking and validation',
+      'Version control and change management',
+      'Review and approval workflows',
+      'Multi-format export (Word, PDF, HTML)',
+      'ISO requirement mapping'
+    ],
+    useCases: [
+      'Accelerate SOP development and maintenance',
+      'Ensure consistency across all SOPs',
+      'Maintain version control and change history',
+      'Streamline review and approval processes'
+    ],
+    technicalDetails: 'Template-driven SOP generation system with intelligent requirement mapping. Uses organizational inputs to generate compliant documentation with proper structure and formatting.',
+    integration: 'Integrates with document management systems, quality management platforms, and ISO certification tools. Supports export to Word, PDF, and QMS software formats.',
+    deliverables: {
+      modules: ['SOP generator module', 'Version control module', 'Review workflow module'],
+      templates: ['SOP templates', 'Work instruction templates', 'Procedure templates']
+    }
+  },
+  {
+    id: 'metrology-management',
+    name: 'Laboratory & Metrology Management',
+    category: 'Quality Assurance',
+    status: 'available',
+    description: 'Metrology project tracking for 5,000+ projects with calibration schedule automation, measurement uncertainty analysis, and traceability chain documentation.',
+    features: [
+      'Metrology project tracking and management',
+      'Calibration schedule automation',
+      'Equipment lifecycle management',
+      'Measurement uncertainty analysis (GUM)',
+      'Traceability chain documentation',
+      'Equipment certification tracking'
+    ],
+    useCases: [
+      'Manage large-scale metrology programs',
+      'Automate calibration scheduling',
+      'Maintain measurement traceability',
+      'Support laboratory accreditation'
+    ],
+    technicalDetails: 'Comprehensive metrology management platform that automates calibration scheduling, tracks equipment lifecycle, and maintains traceability chains. Includes uncertainty calculation following GUM methodology.',
+    integration: 'Integrates with laboratory information systems, calibration management tools, and quality management platforms. Exports data to accreditation systems.',
+    deliverables: {
+      platforms: ['Metrology Management Platform'],
+      modules: ['Calibration scheduler module', 'Uncertainty calculator module', 'Traceability tracker module']
+    }
+  },
+  {
+    id: 'audit-readiness-platform',
+    name: 'Regulatory Audit Readiness & Documentation',
+    category: 'Quality Assurance',
+    status: 'available',
+    description: 'Automated audit evidence collection with readiness scoring across DLA, ISO, FDA standards. Includes pre-audit gap analysis and automated audit response generation.',
+    features: [
+      'Automated audit evidence collection',
+      'Audit readiness scoring (DLA, ISO, FDA)',
+      'Pre-audit gap analysis',
+      'Automated audit response generation',
+      'Evidence package generation',
+      'CAPA management integration'
+    ],
+    useCases: [
+      'Maintain continuous audit readiness',
+      'Prepare for regulatory audits with confidence',
+      'Eliminate last-minute evidence scrambling',
+      'Support multiple audit types simultaneously'
+    ],
+    technicalDetails: 'Comprehensive audit readiness platform that collects, validates, and organizes evidence. Uses ML to predict audit questions and generate responses. Tracks readiness scores across multiple standards.',
+    integration: 'Integrates with document management systems, quality management platforms, evidence collection tools, and audit management systems. Exports readiness reports to executive dashboards.',
+    deliverables: {
+      platforms: ['Audit Readiness Platform'],
+      modules: ['Evidence collection module', 'Readiness scoring module', 'Response generator module']
+    }
+  },
+  // Legal & Contracts Domain - John Milso
+  {
+    id: 'contract-management-platform',
+    name: 'Contract Management & Analysis',
+    category: 'Legal & Contracts',
+    status: 'available',
+    description: 'Complete contract lifecycle management with risk analysis, obligation tracking, and automated compliance monitoring for vendor and subcontractor agreements.',
+    features: [
+      'Contract lifecycle management',
+      'Automated risk analysis and scoring',
+      'Obligation tracking and alerts',
+      'Contract compliance monitoring',
+      'Vendor and subcontractor management',
+      'Expiration and renewal tracking'
+    ],
+    useCases: [
+      'Track and manage contractual obligations',
+      'Identify and mitigate contract risks',
+      'Ensure timely fulfillment of contract requirements',
+      'Support vendor management decisions'
+    ],
+    technicalDetails: 'Comprehensive contract management platform that analyzes contracts for risks, tracks obligations, and monitors compliance. Uses AI/NLP to identify risk patterns and generate recommendations.',
+    integration: 'Integrates with contract management systems, project management platforms, financial systems, and compliance tools. Exports contract data to reporting and dashboard systems.',
+    deliverables: {
+      platforms: ['Contract Management Platform'],
+      modules: ['Risk analysis module', 'Obligation tracker module', 'Compliance monitor module']
+    }
+  },
+  {
+    id: 'legal-document-generation',
+    name: 'Legal Document Generation & Review',
+    category: 'Legal & Contracts',
+    status: 'available',
+    description: 'Automated generation of legal documents including NDAs, MSAs, SOWs, and licenses with AI-powered risk review and document comparison capabilities.',
+    features: [
+      'Automated legal document generation',
+      'AI-powered risk identification',
+      'Document comparison and versioning',
+      'Review workflow automation',
+      'Multi-format export (Word, PDF)',
+      'Template library for common documents'
+    ],
+    useCases: [
+      'Accelerate legal document creation',
+      'Identify risks in contract language',
+      'Compare document versions',
+      'Standardize legal documentation'
+    ],
+    technicalDetails: 'Template-driven legal document generation system with AI-powered risk analysis. Uses NLP to identify risk patterns, compare documents, and generate recommendations.',
+    integration: 'Integrates with contract management systems, document management platforms, and legal review tools. Exports documents to standard formats and legal software.',
+    deliverables: {
+      modules: ['Document generator module', 'Risk analyzer module', 'Comparison engine module'],
+      templates: ['NDA templates', 'MSA templates', 'SOW templates', 'License agreement templates']
+    }
+  },
+  {
+    id: 'contract-risk-analysis',
+    name: 'Contract Risk Analysis & Mitigation',
+    category: 'Legal & Contracts',
+    status: 'available',
+    description: 'Automated contract risk assessment with dispute prediction, liability analysis, and risk mitigation recommendations for vendor and subcontractor agreements.',
+    features: [
+      'Automated contract risk scoring',
+      'Dispute probability prediction',
+      'Liability assessment and analysis',
+      'Risk factor identification',
+      'Mitigation recommendation generation',
+      'Insurance coverage gap analysis'
+    ],
+    useCases: [
+      'Assess vendor risk before contract execution',
+      'Predict and prevent contract disputes',
+      'Identify liability exposure',
+      'Support risk-aware contract negotiation'
+    ],
+    technicalDetails: 'AI-powered risk analysis engine that evaluates contracts for risks, predicts disputes using ML models, and assesses liability exposure. Generates actionable mitigation recommendations.',
+    integration: 'Integrates with contract management systems, vendor management platforms, and risk management tools. Exports risk assessments to procurement and compliance systems.',
+    deliverables: {
+      modules: ['Risk scoring module', 'Dispute predictor module', 'Liability assessor module']
+    }
+  },
+  // Cybersecurity & RMF Domain - Patrick Caruso
+  {
+    id: 'rmf-requirements-management',
+    name: 'RMF Requirements Management & Traceability',
+    category: 'Cybersecurity & RMF',
+    status: 'available',
+    description: 'Complete RMF requirements tracking with BOE planning, control adjudication, and full traceability from requirements to implementation and evidence.',
+    features: [
+      'RMF requirements tracking and management',
+      'BOE (Body of Evidence) plan generation',
+      'Control adjudication workflows',
+      'Full traceability chain documentation',
+      'Implementation status tracking',
+      'Evidence requirement mapping'
+    ],
+    useCases: [
+      'Track RMF requirements through full lifecycle',
+      'Generate BOE plans automatically',
+      'Maintain complete requirement traceability',
+      'Support Security Control Assessments'
+    ],
+    technicalDetails: 'Comprehensive RMF requirements management platform that tracks controls from identification through authorization. Includes automated BOE planning and traceability documentation.',
+    integration: 'Integrates with eMASS, Xacta, document management systems, and evidence collection tools. Exports traceability data to RMF platforms.',
+    deliverables: {
+      platforms: ['RMF Requirements Management Platform'],
+      modules: ['Requirements tracker module', 'BOE generator module', 'Traceability module']
+    }
+  },
+  {
+    id: 'security-architecture',
+    name: 'Security Architecture & Baseline Controls',
+    category: 'Cybersecurity & RMF',
+    status: 'available',
+    description: 'Security baseline management with architecture review automation, control implementation validation, and security zone configuration aligned with NIST 800-53.',
+    features: [
+      'Security baseline creation and management',
+      'Architecture review automation',
+      'Control implementation validation',
+      'Security zone configuration',
+      'Baseline compliance checking',
+      'Review workflow automation'
+    ],
+    useCases: [
+      'Establish and maintain security baselines',
+      'Automate architecture security reviews',
+      'Validate control implementations',
+      'Ensure consistent security architecture'
+    ],
+    technicalDetails: 'Security architecture management platform that creates and validates security baselines. Includes automated review workflows and compliance checking against NIST 800-53.',
+    integration: 'Integrates with RMF platforms, security tools, and architecture documentation systems. Exports baselines to security management platforms.',
+    deliverables: {
+      modules: ['Baseline manager module', 'Architecture reviewer module', 'Compliance validator module']
+    }
+  },
+  {
+    id: 'vulnerability-compliance',
+    name: 'Vulnerability Management & Compliance Scanning',
+    category: 'Cybersecurity & RMF',
+    status: 'available',
+    description: 'Automated CVE analysis, vulnerability scanning integration (HBSS/EVSS/STIG), and remediation tracking with compliance validation.',
+    features: [
+      'Automated CVE analysis and risk assessment',
+      'Integration with HBSS, EVSS, STIG scanners',
+      'Vulnerability scan orchestration',
+      'Remediation tracking and validation',
+      'Compliance gap identification',
+      'Risk-based prioritization'
+    ],
+    useCases: [
+      'Automate vulnerability management workflows',
+      'Integrate multiple scanning tools',
+      'Track remediation progress',
+      'Maintain continuous compliance'
+    ],
+    technicalDetails: 'Comprehensive vulnerability management platform that integrates with major scanning tools, analyzes CVEs, and tracks remediation. Includes compliance validation and risk scoring.',
+    integration: 'Integrates with HBSS, EVSS, Nessus, Qualys, STIG scanners, and ticketing systems. Exports vulnerability data to RMF platforms and SIEMs.',
+    deliverables: {
+      platforms: ['Vulnerability Management Platform'],
+      modules: ['CVE analyzer module', 'Scanner integration module', 'Remediation tracker module']
+    }
+  },
+  {
+    id: 'security-documentation',
+    name: 'Security Documentation & CDRL Automation',
+    category: 'Cybersecurity & RMF',
+    status: 'available',
+    description: 'Automated generation of security documentation including CDRLs, work instructions, integration plans, and BOE documents with version control and approval workflows.',
+    features: [
+      'Automated CDRL and non-CDRL document generation',
+      'Work instruction generation',
+      'Integration plan automation',
+      'BOE document creation',
+      'Version control and approval workflows',
+      'Multi-format export'
+    ],
+    useCases: [
+      'Accelerate security documentation creation',
+      'Generate CDRL deliverables automatically',
+      'Maintain documentation currency',
+      'Streamline approval processes'
+    ],
+    technicalDetails: 'Template-driven security documentation platform that generates CDRLs, work instructions, and integration plans. Includes version control and automated approval workflows.',
+    integration: 'Integrates with document management systems, RMF platforms, and CDRL tracking systems. Exports documents to standard formats.',
+    deliverables: {
+      modules: ['CDRL generator module', 'Work instruction module', 'Document manager module'],
+      templates: ['CDRL templates', 'Work instruction templates', 'Integration plan templates']
+    }
+  },
+  {
+    id: 'cybersecurity-team-leadership',
+    name: 'Cybersecurity Team Leadership & Performance',
+    category: 'Cybersecurity & RMF',
+    status: 'available',
+    description: 'Team management platform for cybersecurity professionals with performance reviews, development planning, workload analysis, and skill gap identification.',
+    features: [
+      'Team member performance tracking',
+      'Automated performance reviews',
+      'Development plan creation',
+      'Workload analysis and optimization',
+      'Skill gap identification',
+      'Career goal tracking'
+    ],
+    useCases: [
+      'Manage cybersecurity team performance',
+      'Identify skill gaps and training needs',
+      'Optimize team workload distribution',
+      'Support professional development'
+    ],
+    technicalDetails: 'Team leadership platform that tracks performance, identifies skill gaps, and supports professional development. Includes workload analysis and development planning tools.',
+    integration: 'Integrates with HR systems, learning management platforms, and project management tools. Exports performance data to HR and leadership dashboards.',
+    deliverables: {
+      platforms: ['Team Leadership Platform'],
+      modules: ['Performance tracker module', 'Development planner module', 'Workload analyzer module']
+    }
+  },
+  // Compliance & Security Domain - Shared
+  {
+    id: 'stig-compliance-validation',
+    name: 'STIG Compliance Validation',
+    category: 'Automation & Compliance',
+    status: 'available',
+    description: 'Automated STIG compliance validation with remediation playbook generation, compliance scoring, and gap analysis for RHEL, Windows, and Cisco systems.',
+    features: [
+      'STIG compliance validation automation',
+      'Remediation playbook generation',
+      'Compliance scoring and metrics',
+      'Gap analysis and recommendations',
+      'Multi-system type support (RHEL, Windows, Cisco)',
+      'Integration with STIG Generator tool'
+    ],
+    useCases: [
+      'Validate STIG compliance before deployment',
+      'Generate remediation playbooks automatically',
+      'Track compliance across multiple systems',
+      'Maintain continuous STIG compliance'
+    ],
+    technicalDetails: 'STIG compliance validation platform that scans systems, identifies gaps, and generates remediation playbooks. Integrates with STIG Generator for automated playbook creation.',
+    integration: 'Integrates with STIG Generator, vulnerability scanners, configuration management tools, and RMF platforms. Exports compliance data to security management systems.',
+    deliverables: {
+      modules: ['STIG validator module', 'Playbook generator module', 'Compliance scorer module']
+    }
+  },
+  {
+    id: 'evidence-collection',
+    name: 'Security Control Evidence Collection & Validation',
+    category: 'Automation & Compliance',
+    status: 'available',
+    description: 'Automated evidence collection, quality validation, and gap identification for security control assessments with evidence package generation.',
+    features: [
+      'Automated evidence collection from multiple sources',
+      'Evidence quality validation and scoring',
+      'Gap identification and analysis',
+      'Evidence package generation',
+      'Evidence organization by control',
+      'Validation workflow automation'
+    ],
+    useCases: [
+      'Automate evidence collection for SCAs',
+      'Validate evidence quality before assessments',
+      'Identify evidence gaps early',
+      'Generate complete evidence packages'
+    ],
+    technicalDetails: 'Evidence collection platform that automates gathering, validates quality using ML, and organizes evidence by control. Includes gap analysis and package generation.',
+    integration: 'Integrates with document management systems, configuration management tools, log aggregation systems, and RMF platforms. Exports evidence packages to assessment tools.',
+    deliverables: {
+      modules: ['Evidence collector module', 'Quality validator module', 'Package generator module']
+    }
+  },
+  {
+    id: 'rmf-artifacts',
+    name: 'RMF Artifact Generation & Quality Assurance',
+    category: 'Automation & Compliance',
+    status: 'available',
+    description: 'Automated generation of RMF artifacts (SSP, RAR, POA&M, CONMON) with quality validation, completeness checking, and standard DoD format export.',
+    features: [
+      'Automated SSP, RAR, POA&M, CONMON generation',
+      'Artifact quality validation',
+      'Completeness checking',
+      'Standard DoD format export',
+      'Version control and approval workflows',
+      'Template library for common artifacts'
+    ],
+    useCases: [
+      'Generate RMF artifacts automatically',
+      'Ensure artifact quality and completeness',
+      'Accelerate ATO package development',
+      'Maintain artifact currency'
+    ],
+    technicalDetails: 'RMF artifact generation platform that creates compliant documentation from system data. Includes quality validation, completeness checking, and automated formatting.',
+    integration: 'Integrates with eMASS, Xacta, document management systems, and RMF platforms. Exports artifacts to standard DoD formats.',
+    deliverables: {
+      modules: ['SSP generator module', 'RAR generator module', 'POA&M generator module', 'CONMON generator module'],
+      templates: ['SSP templates', 'RAR templates', 'POA&M templates', 'CONMON templates']
+    }
+  },
+  // Support Automation Domain - Shared
+  {
+    id: 'ticket-routing-platform',
+    name: 'Intelligent Ticket Routing & Resolution',
+    category: 'Support & Operations',
+    status: 'available',
+    description: 'AI-powered ticket routing with intelligent engineer assignment, solution generation, and automated resolution workflows for technical support teams.',
+    features: [
+      'Intelligent ticket routing using ML',
+      'Automated engineer assignment',
+      'Solution generation from knowledge base',
+      'SLA tracking and management',
+      'Ticket metrics and analytics',
+      'Historical pattern analysis'
+    ],
+    useCases: [
+      'Route tickets to the right engineer automatically',
+      'Generate solutions from historical data',
+      'Improve resolution times',
+      'Optimize support team workload'
+    ],
+    technicalDetails: 'ML-powered ticket routing platform that analyzes tickets, routes to appropriate engineers, and generates solutions. Includes SLA tracking and performance analytics.',
+    integration: 'Integrates with ticketing systems (Jira, ServiceNow), knowledge bases, and support tools. Provides REST API for custom integrations.',
+    deliverables: {
+      platforms: ['Ticket Routing Platform'],
+      modules: ['Routing engine module', 'Solution generator module', 'Analytics module']
+    }
+  },
+  {
+    id: 'knowledge-base-automation',
+    name: 'Knowledge Base & Documentation Automation',
+    category: 'Support & Operations',
+    status: 'available',
+    description: 'Automated knowledge base management with intelligent search, Q&A capabilities, and auto-generation of articles from resolved tickets.',
+    features: [
+      'Automated knowledge article creation',
+      'Intelligent search and Q&A',
+      'Auto-generation from tickets',
+      'Article quality scoring',
+      'Usage analytics and optimization',
+      'Multi-format content support'
+    ],
+    useCases: [
+      'Build and maintain knowledge bases automatically',
+      'Enable self-service support',
+      'Capture knowledge from ticket resolutions',
+      'Improve support efficiency'
+    ],
+    technicalDetails: 'Knowledge base platform with AI-powered search, Q&A capabilities, and automated article generation. Includes quality scoring and usage analytics.',
+    integration: 'Integrates with ticketing systems, documentation platforms, and support tools. Provides search API for custom applications.',
+    deliverables: {
+      platforms: ['Knowledge Base Platform'],
+      modules: ['Article generator module', 'Search engine module', 'Q&A module']
+    }
+  },
   {
     id: 'contract-risk-analyzer',
     name: 'Contract Risk Analyzer',
@@ -573,7 +1116,11 @@ const tools: Tool[] = [
 const categories = [
   'Automation & Compliance',
   'Assessment & Readiness',
-  'Infrastructure & Engineering'
+  'Infrastructure & Engineering',
+  'Cybersecurity & RMF',
+  'Quality Assurance',
+  'Legal & Contracts',
+  'Support & Operations'
 ]
 
 const statusLabels = {
