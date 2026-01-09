@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 interface Tool {
   id: string
@@ -592,25 +592,27 @@ export default function ShowcasePage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<string>(categories[0])
 
-  const toggleItem = (id: string, event?: React.MouseEvent) => {
+  const toggleItem = useCallback((id: string, event?: React.MouseEvent) => {
     if (event) {
       event.preventDefault()
       event.stopPropagation()
     }
-    const newExpanded = new Set(expandedItems)
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id)
-    } else {
-      newExpanded.add(id)
-    }
-    setExpandedItems(newExpanded)
-  }
+    setExpandedItems(prev => {
+      const newExpanded = new Set(prev)
+      if (newExpanded.has(id)) {
+        newExpanded.delete(id)
+      } else {
+        newExpanded.add(id)
+      }
+      return newExpanded
+    })
+  }, [])
 
-  const handleTabChange = (category: string) => {
+  const handleTabChange = useCallback((category: string) => {
     setActiveTab(category)
     // Clear expanded items when switching tabs
     setExpandedItems(new Set())
-  }
+  }, [])
 
   const activeTools = tools.filter(tool => tool.category === activeTab)
 
@@ -704,17 +706,22 @@ export default function ShowcasePage() {
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {activeTools.map((tool, index) => {
-                const uniqueKey = `${activeTab}-${tool.id}`
+                // Use a truly unique key combining category, tool id, and index
+                const uniqueKey = `${activeTab}-${tool.id}-${index}`
                 const isExpanded = expandedItems.has(uniqueKey)
                 return (
                   <div 
-                    key={uniqueKey} 
+                    key={`${tool.id}-${index}`} 
                     className={`card border border-neutral-200 transition-all duration-gentle fade-in${index > 0 ? `-delay-${Math.min(index, 3)}` : ''}`}
                   >
                     {/* Header - Always visible */}
                     <button
                       type="button"
-                      onClick={(e) => toggleItem(uniqueKey, e)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        toggleItem(uniqueKey, e)
+                      }}
                       className="w-full text-left p-6 hover:bg-neutral-50 transition-colors duration-gentle"
                     >
                       <div className="flex items-start justify-between gap-4">
