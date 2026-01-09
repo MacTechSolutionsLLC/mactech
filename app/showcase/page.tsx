@@ -592,7 +592,11 @@ export default function ShowcasePage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<string>(categories[0])
 
-  const toggleItem = (id: string) => {
+  const toggleItem = (id: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     const newExpanded = new Set(expandedItems)
     if (newExpanded.has(id)) {
       newExpanded.delete(id)
@@ -600,6 +604,12 @@ export default function ShowcasePage() {
       newExpanded.add(id)
     }
     setExpandedItems(newExpanded)
+  }
+
+  const handleTabChange = (category: string) => {
+    setActiveTab(category)
+    // Clear expanded items when switching tabs
+    setExpandedItems(new Set())
   }
 
   const activeTools = tools.filter(tool => tool.category === activeTab)
@@ -679,7 +689,7 @@ export default function ShowcasePage() {
             {categories.map((category) => (
               <button
                 key={category}
-                onClick={() => setActiveTab(category)}
+                onClick={() => handleTabChange(category)}
                 className={`px-6 py-3 text-body-sm font-medium transition-all duration-gentle ${
                   activeTab === category
                     ? 'bg-accent-700 text-white border border-accent-700'
@@ -694,15 +704,17 @@ export default function ShowcasePage() {
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {activeTools.map((tool, index) => {
-                const isExpanded = expandedItems.has(tool.id)
+                const uniqueKey = `${activeTab}-${tool.id}`
+                const isExpanded = expandedItems.has(uniqueKey)
                 return (
                   <div 
-                    key={tool.id} 
+                    key={uniqueKey} 
                     className={`card border border-neutral-200 transition-all duration-gentle fade-in${index > 0 ? `-delay-${Math.min(index, 3)}` : ''}`}
                   >
                     {/* Header - Always visible */}
                     <button
-                      onClick={() => toggleItem(tool.id)}
+                      type="button"
+                      onClick={(e) => toggleItem(uniqueKey, e)}
                       className="w-full text-left p-6 hover:bg-neutral-50 transition-colors duration-gentle"
                     >
                       <div className="flex items-start justify-between gap-4">
