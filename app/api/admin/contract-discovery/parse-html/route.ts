@@ -202,23 +202,23 @@ Return ONLY valid JSON in this exact format (use null for missing fields, empty 
       ...parsedData,
       // Clean notice ID - remove "Notice ID" label if present
       noticeId: parsedData.noticeId 
-        ? parsedData.noticeId.replace(/^notice\s+id\s*:?\s*/i, '').trim() || null
-        : null,
+        ? (parsedData.noticeId.replace(/^notice\s+id\s*:?\s*/i, '').trim() || undefined)
+        : undefined,
       
       // Clean solicitation number - remove label if present
       solicitationNumber: parsedData.solicitationNumber
-        ? parsedData.solicitationNumber.replace(/^solicitation\s+(number\s*:?\s*)?/i, '').trim() || null
-        : null,
+        ? (parsedData.solicitationNumber.replace(/^solicitation\s+(number\s*:?\s*)?/i, '').trim() || undefined)
+        : undefined,
       
       // Clean title - remove common suffixes
       title: parsedData.title
-        ? parsedData.title.replace(/\s*-\s*SAM\.gov\s*$/i, '').replace(/\s*-\s*Contract Opportunity\s*$/i, '').trim() || null
-        : null,
+        ? (parsedData.title.replace(/\s*-\s*SAM\.gov\s*$/i, '').replace(/\s*-\s*Contract Opportunity\s*$/i, '').trim() || undefined)
+        : undefined,
       
       // Clean description - ensure it's complete
       description: parsedData.description
-        ? parsedData.description.trim() || null
-        : null,
+        ? (parsedData.description.trim() || undefined)
+        : undefined,
       
       // Clean POC names - remove "Primary Point of Contact", "Information", etc.
       pointsOfContact: parsedData.pointsOfContact?.map(poc => ({
@@ -226,7 +226,7 @@ Return ONLY valid JSON in this exact format (use null for missing fields, empty 
         email: poc.email?.trim() || poc.email,
         phone: poc.phone?.trim() || poc.phone,
         role: poc.role?.trim() || poc.role,
-      })) || null,
+      })),
       
       // Normalize set-aside values
       setAside: parsedData.setAside?.map(sa => {
@@ -238,12 +238,12 @@ Return ONLY valid JSON in this exact format (use null for missing fields, empty 
         if (normalized.includes('WOSB') || normalized.includes('WOMAN-OWNED')) return 'WOSB'
         if (normalized.includes('SMALL BUSINESS')) return 'Small Business Set-Aside'
         return sa
-      }) || null,
+      }),
       
-      // Ensure arrays are arrays
-      naicsCodes: Array.isArray(parsedData.naicsCodes) ? parsedData.naicsCodes : null,
-      requirements: Array.isArray(parsedData.requirements) ? parsedData.requirements : null,
-      keywords: Array.isArray(parsedData.keywords) ? parsedData.keywords : null,
+      // Ensure arrays are arrays (use undefined instead of null)
+      naicsCodes: Array.isArray(parsedData.naicsCodes) ? parsedData.naicsCodes : undefined,
+      requirements: Array.isArray(parsedData.requirements) ? parsedData.requirements : undefined,
+      keywords: Array.isArray(parsedData.keywords) ? parsedData.keywords : undefined,
     }
 
     return NextResponse.json({
