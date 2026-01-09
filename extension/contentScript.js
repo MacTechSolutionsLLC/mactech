@@ -42,7 +42,7 @@
     return contractIndicators.some(indicator => bodyText.includes(indicator))
   }
 
-  // Extract contract data from the page
+  // Extract contract data from the page - Enhanced with structured parsing
   function extractContractData() {
     const url = window.location.href
     const hostname = window.location.hostname.toLowerCase()
@@ -52,6 +52,11 @@
     const h1Title = document.querySelector('h1')?.textContent?.trim()
     if (h1Title && h1Title.length > 10) {
       title = h1Title
+    }
+    // Also check for SAM.gov specific title elements
+    const samTitle = document.querySelector('[data-testid="opportunity-title"], .opportunity-title, #opportunity-title')?.textContent?.trim()
+    if (samTitle && samTitle.length > 10) {
+      title = samTitle
     }
     title = title.replace(/\s*-\s*SAM\.gov\s*$/i, '').trim() || 'Contract Opportunity'
     
@@ -70,40 +75,159 @@
     // Extract snippet (first 500 chars of visible text)
     const snippet = textContent.substring(0, 500)
     
+    // Extract structured data from SAM.gov pages
+    const structuredData = extractStructuredData(document, textContent, htmlContent)
+    
     // Try to extract structured data
     const data = {
       url,
-      title: title,
+      title: structuredData.title || title,
       htmlContent,
       textContent,
       snippet,
       domain: hostname,
-      documentType: detectDocumentType(url, title, textContent),
-      noticeId: extractNoticeId(textContent, url),
-      solicitationNumber: extractSolicitationNumber(textContent),
-      agency: extractAgency(textContent, title),
-      naicsCodes: extractNaicsCodes(textContent),
-      setAside: extractSetAside(textContent),
-      keywords: extractKeywords(textContent, title),
-      sowAttachmentUrl: findSOWAttachment(),
-      sowAttachmentType: findSOWAttachmentType(),
-      pointsOfContact: extractPointsOfContact(textContent, htmlContent),
-      description: extractDescription(textContent, htmlContent),
-      requirements: extractRequirements(textContent),
-      deadline: extractDeadline(textContent),
-      estimatedValue: extractEstimatedValue(textContent),
-      periodOfPerformance: extractPeriodOfPerformance(textContent),
-      placeOfPerformance: extractPlaceOfPerformance(textContent),
+      documentType: structuredData.documentType || detectDocumentType(url, title, textContent),
+      noticeId: structuredData.noticeId || extractNoticeId(textContent, url),
+      solicitationNumber: structuredData.solicitationNumber || extractSolicitationNumber(textContent),
+      agency: structuredData.agency || extractAgency(textContent, title),
+      naicsCodes: structuredData.naicsCodes || extractNaicsCodes(textContent),
+      setAside: structuredData.setAside || extractSetAside(textContent),
+      keywords: structuredData.keywords || extractKeywords(textContent, title),
+      sowAttachmentUrl: structuredData.sowAttachmentUrl || findSOWAttachment(),
+      sowAttachmentType: structuredData.sowAttachmentType || findSOWAttachmentType(),
+      pointsOfContact: structuredData.pointsOfContact || extractPointsOfContact(textContent, htmlContent),
+      description: structuredData.description || extractDescription(textContent, htmlContent),
+      requirements: structuredData.requirements || extractRequirements(textContent),
+      deadline: structuredData.deadline || extractDeadline(textContent),
+      estimatedValue: structuredData.estimatedValue || extractEstimatedValue(textContent),
+      periodOfPerformance: structuredData.periodOfPerformance || extractPeriodOfPerformance(textContent),
+      placeOfPerformance: structuredData.placeOfPerformance || extractPlaceOfPerformance(textContent),
+      postedDate: structuredData.postedDate || null,
+      responseDeadline: structuredData.responseDeadline || structuredData.deadline || null,
+      contractType: structuredData.contractType || null,
+      classificationCode: structuredData.classificationCode || null,
     }
     
     console.log('[MacTech Scraper] Extracted data:', {
       title: data.title,
       pocCount: data.pointsOfContact?.length || 0,
       hasDescription: !!data.description,
-      requirementsCount: data.requirements?.length || 0
+      requirementsCount: data.requirements?.length || 0,
+      noticeId: data.noticeId,
+      solicitationNumber: data.solicitationNumber,
+      agency: data.agency
     })
     
     return data
+  }
+
+  // Extract structured data from SAM.gov pages
+  function extractStructuredData(doc, text, html) {
+    const result = {}
+    
+    try {
+      // Extract from SAM.gov data attributes and structured elements
+      const dataElements = doc.querySelectorAll('[data-testid], [data-field], [class*="field"], [class*="label"]')
+      
+      dataElements.forEach(el => {
+        const label = el.textContent?.toLowerCase() || ''
+        const value = el.nextElementSibling?.textContent?.trim() || 
+                     el.querySelector('.value, [class*="value"]')?.textContent?.trim() ||
+                     el.textContent?.trim()
+        
+        // Map common SAM.gov fields
+        if (label.includes('notice id') || label.includes('noticeid')) {
+          result.noticeId = value.match(/[a-z0-9-]+/i)?.[0] || value
+        }
+        if (label.includes('solicitation') && !result.solicitationNumber) {
+          result.solicitationNumber = value
+        }
+        if (label.includes('agency') || label.includes('department')) {
+          result.agency = value
+        }
+        if (label.includes('deadline') || label.includes('response date') || label.includes('closing')) {
+          result.responseDeadline = value
+          result.deadline = value
+        }
+        if (label.includes('posted') || label.includes('published')) {
+          result.postedDate = value
+        }
+        if (label.includes('naics')) {
+          const codes = value.match(/\d{6}/g) || []
+          result.naicsCodes = codes
+        }
+        if (label.includes('set-aside') || label.includes('setaside')) {
+          result.setAside = [value]
+        }
+        if (label.includes('contract type') || label.includes('type of')) {
+          result.contractType = value
+        }
+      })
+      
+      // Extract from tables (common SAM.gov structure)
+      const tables = doc.querySelectorAll('table')
+      tables.forEach(table => {
+        const rows = table.querySelectorAll('tr')
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('td, th')
+          if (cells.length >= 2) {
+            const label = cells[0]?.textContent?.toLowerCase()?.trim() || ''
+            const value = cells[1]?.textContent?.trim() || ''
+            
+            if (label.includes('notice id') && !result.noticeId) {
+              result.noticeId = value.match(/[a-z0-9-]+/i)?.[0] || value
+            }
+            if (label.includes('solicitation') && !result.solicitationNumber) {
+              result.solicitationNumber = value
+            }
+            if (label.includes('agency') && !result.agency) {
+              result.agency = value
+            }
+            if (label.includes('deadline') || label.includes('response') || label.includes('closing')) {
+              result.responseDeadline = value
+              result.deadline = value
+            }
+            if (label.includes('posted') || label.includes('published')) {
+              result.postedDate = value
+            }
+            if (label.includes('naics')) {
+              const codes = value.match(/\d{6}/g) || []
+              if (codes.length > 0) result.naicsCodes = codes
+            }
+            if (label.includes('set-aside') || label.includes('setaside')) {
+              if (!result.setAside) result.setAside = []
+              result.setAside.push(value)
+            }
+            if (label.includes('contract type') || label.includes('type')) {
+              result.contractType = value
+            }
+            if (label.includes('classification') || label.includes('psc')) {
+              result.classificationCode = value
+            }
+          }
+        })
+      })
+      
+      // Extract title from SAM.gov specific elements
+      const titleEl = doc.querySelector('[data-testid="opportunity-title"], .opportunity-title, h1.opportunity-title, #opportunity-title')
+      if (titleEl) {
+        result.title = titleEl.textContent?.trim()
+      }
+      
+      // Extract description from SAM.gov description sections
+      const descEl = doc.querySelector('[data-testid="description"], .description-content, #description, [class*="description"]')
+      if (descEl) {
+        const descText = descEl.textContent?.trim()
+        if (descText && descText.length > 100) {
+          result.description = descText.substring(0, 5000)
+        }
+      }
+      
+    } catch (e) {
+      console.warn('[MacTech Scraper] Error extracting structured data:', e)
+    }
+    
+    return result
   }
 
   // Detect document type
