@@ -45,21 +45,44 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     // Ensure File polyfill is available during webpack bundling
     if (isServer) {
-      // Add webpack plugin to provide File globally
       const webpack = require('webpack')
       
-      // Create a plugin that defines File globally
+      // Inject File polyfill at the top of server bundles
+      const filePolyfillCode = `
+if (typeof globalThis.File === 'undefined') {
+  try {
+    const { Blob } = require('buffer');
+    if (Blob) {
+      globalThis.Blob = Blob;
+      globalThis.File = class File extends Blob {
+        constructor(fileBits, fileName, options = {}) {
+          super(fileBits, options);
+          this.name = fileName;
+          this.lastModified = options.lastModified ?? Date.now();
+        }
+      };
+    }
+  } catch (e) {
+    globalThis.File = class File {
+      constructor(fileBits, fileName, options = {}) {
+        this.name = fileName;
+        this.lastModified = options.lastModified ?? Date.now();
+        this.size = 0;
+        this.type = options.type || '';
+      }
+      arrayBuffer() { return Promise.resolve(new ArrayBuffer(0)); }
+      text() { return Promise.resolve(''); }
+    };
+  }
+}
+`
+      
+      // Use BannerPlugin to inject polyfill at the start of server chunks
       config.plugins.push(
-        new webpack.DefinePlugin({
-          'globalThis.File': JSON.stringify('File'), // This won't work, File needs to be a constructor
-        })
-      )
-
-      // Try to provide File via ProvidePlugin (but this also won't work for constructors)
-      // Instead, we'll use a custom plugin to inject the polyfill
-      config.plugins.push(
-        new webpack.ProvidePlugin({
-          File: require.resolve('./lib/polyfills/file-polyfill'),
+        new webpack.BannerPlugin({
+          banner: filePolyfillCode,
+          raw: true,
+          entryOnly: false,
         })
       )
     }
