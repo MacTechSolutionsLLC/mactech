@@ -32,7 +32,10 @@ interface SearchRequestBody {
 }
 
 export async function POST(request: NextRequest) {
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   let googleQuery = '' // Declare at function level for error handling
+  
+  console.log(`[${requestId}] Contract Discovery API Request Started`)
   
   try {
     // TODO: Add admin authentication check
@@ -41,21 +44,53 @@ export async function POST(request: NextRequest) {
     //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     // }
 
-    const body: SearchRequestBody = await request.json()
+    let body: SearchRequestBody
+    try {
+      body = await request.json()
+      console.log(`[${requestId}] Request body parsed:`, {
+        hasQuery: !!body.query,
+        queryLength: body.query?.length || 0,
+        serviceCategory: body.service_category,
+        numResults: body.num_results,
+        filters: body.filters,
+        hasKeywords: !!body.keywords,
+      })
+    } catch (parseError) {
+      console.error(`[${requestId}] Failed to parse request body:`, parseError)
+      return NextResponse.json(
+        { 
+          error: 'Invalid request body',
+          message: parseError instanceof Error ? parseError.message : 'Failed to parse JSON',
+          requestId,
+        },
+        { status: 400 }
+      )
+    }
     
     // Validate SerpAPI key (support both SERPAPI_KEY and SERP_API_KEY)
     const serpApiKey = process.env.SERPAPI_KEY || process.env.SERP_API_KEY
     if (!serpApiKey) {
-      console.error('SerpAPI key missing. Check environment variables SERPAPI_KEY or SERP_API_KEY')
+      console.error(`[${requestId}] SerpAPI key missing. Check environment variables SERPAPI_KEY or SERP_API_KEY`)
+      console.error(`[${requestId}] Environment check:`, {
+        hasSERPAPI_KEY: !!process.env.SERPAPI_KEY,
+        hasSERP_API_KEY: !!process.env.SERP_API_KEY,
+        nodeEnv: process.env.NODE_ENV,
+      })
       return NextResponse.json(
         { 
           error: 'SerpAPI key not configured',
           message: 'Please set SERPAPI_KEY or SERP_API_KEY environment variable. Get your key from https://serpapi.com/manage-api-key',
-          details: 'The Contract Discovery feature requires a SerpAPI key to search for government contract opportunities.'
+          details: 'The Contract Discovery feature requires a SerpAPI key to search for government contract opportunities.',
+          requestId,
         },
         { status: 500 }
       )
     }
+    
+    console.log(`[${requestId}] SerpAPI key validated:`, {
+      keyLength: serpApiKey.length,
+      keyPrefix: serpApiKey.substring(0, 8) + '...',
+    })
 
     // Build search query
     const searchRequest: SearchRequest = {
@@ -73,23 +108,36 @@ export async function POST(request: NextRequest) {
 
     try {
       googleQuery = body.query || buildSearchQuery(searchRequest)
+      console.log(`[${requestId}] Query built successfully:`, {
+        query: googleQuery,
+        queryLength: googleQuery.length,
+        wasProvided: !!body.query,
+        wasBuilt: !body.query,
+      })
     } catch (queryError) {
-      console.error('Error building query:', queryError)
+      console.error(`[${requestId}] Error building query:`, {
+        error: queryError,
+        message: queryError instanceof Error ? queryError.message : 'Unknown error',
+        stack: queryError instanceof Error ? queryError.stack : undefined,
+        searchRequest,
+      })
       return NextResponse.json(
         { 
           error: 'Failed to build search query',
-          message: queryError instanceof Error ? queryError.message : 'Unknown error'
+          message: queryError instanceof Error ? queryError.message : 'Unknown error',
+          requestId,
         },
         { status: 400 }
       )
     }
 
-    console.log('Contract Discovery Search:', {
+    console.log(`[${requestId}] Contract Discovery Search Configuration:`, {
       query: googleQuery,
       hasApiKey: !!serpApiKey,
       apiKeyLength: serpApiKey?.length || 0,
       numResults: body.num_results || 20,
       dateRange: body.filters?.date_range,
+      filters: body.filters,
     })
 
     // Call SerpAPI
@@ -124,29 +172,64 @@ export async function POST(request: NextRequest) {
         serpApiParams.tbs = dateFilter
       }
 
-      console.log('SerpAPI params:', {
+      console.log(`[${requestId}] SerpAPI request params:`, {
         engine: serpApiParams.engine,
         q: serpApiParams.q,
+        qLength: serpApiParams.q?.length || 0,
         num: serpApiParams.num,
         tbs: serpApiParams.tbs,
         hasApiKey: !!serpApiParams.api_key,
+        apiKeyPrefix: serpApiParams.api_key?.substring(0, 8) + '...',
       })
 
+      const serpApiStartTime = Date.now()
+      console.log(`[${requestId}] Calling SerpAPI at ${new Date().toISOString()}`)
+      
       results = await getJson(serpApiParams)
       
-      console.log('SerpAPI Response:', {
+      const serpApiDuration = Date.now() - serpApiStartTime
+      console.log(`[${requestId}] SerpAPI response received (${serpApiDuration}ms):`, {
         hasResults: !!results,
         organicResultsCount: results?.organic_results?.length || 0,
         error: results?.error,
+        errorMessage: results?.error,
         searchMetadata: results?.search_metadata,
+        responseKeys: results ? Object.keys(results) : [],
+        fullResponse: JSON.stringify(results).substring(0, 500), // First 500 chars for debugging
       })
+      
+      if (results?.error) {
+        console.error(`[${requestId}] SerpAPI returned error in response:`, {
+          error: results.error,
+          errorType: typeof results.error,
+          fullError: results,
+        })
+      }
+      
+      if (!results?.organic_results || results.organic_results.length === 0) {
+        console.warn(`[${requestId}] No organic results in SerpAPI response:`, {
+          hasResults: !!results,
+          responseStructure: results ? Object.keys(results) : [],
+          answerBox: results?.answer_box,
+          knowledgeGraph: results?.knowledge_graph,
+          relatedQuestions: results?.related_questions?.length || 0,
+        })
+      }
     } catch (serpError) {
-      console.error('SerpAPI Error:', serpError)
+      console.error(`[${requestId}] SerpAPI request exception:`, {
+        error: serpError,
+        message: serpError instanceof Error ? serpError.message : 'Unknown SerpAPI error',
+        stack: serpError instanceof Error ? serpError.stack : undefined,
+        name: serpError instanceof Error ? serpError.name : undefined,
+        query: googleQuery,
+      })
       return NextResponse.json(
         { 
           error: 'SerpAPI request failed',
           message: serpError instanceof Error ? serpError.message : 'Unknown SerpAPI error',
-          details: serpError
+          details: process.env.NODE_ENV === 'development' ? String(serpError) : undefined,
+          requestId,
+          query: googleQuery,
         },
         { status: 500 }
       )
@@ -154,14 +237,19 @@ export async function POST(request: NextRequest) {
 
     // Check for SerpAPI errors in response
     if (results.error) {
-      console.error('SerpAPI returned error:', results.error)
-      console.error('Query that failed:', googleQuery)
+      console.error(`[${requestId}] SerpAPI returned error in response:`, {
+        error: results.error,
+        errorType: typeof results.error,
+        query: googleQuery,
+        fullResponse: results,
+      })
       return NextResponse.json(
         { 
           error: 'SerpAPI error',
           message: results.error,
           query: googleQuery,
-          details: results
+          details: process.env.NODE_ENV === 'development' ? results : undefined,
+          requestId,
         },
         { status: 500 }
       )
@@ -169,23 +257,63 @@ export async function POST(request: NextRequest) {
 
     // Process results
     const organicResults = (results.organic_results || []) as any[]
-    console.log('Processing results:', organicResults.length)
+    console.log(`[${requestId}] Processing ${organicResults.length} organic results`)
     
     if (organicResults.length === 0) {
-      console.warn('No organic results found in SerpAPI response')
+      console.warn(`[${requestId}] No organic results found in SerpAPI response:`, {
+        query: googleQuery,
+        responseStructure: results ? Object.keys(results) : [],
+        hasAnswerBox: !!results?.answer_box,
+        hasKnowledgeGraph: !!results?.knowledge_graph,
+        hasRelatedQuestions: !!results?.related_questions,
+        fullResponseSample: results ? JSON.stringify(results).substring(0, 1000) : 'No response',
+      })
       return NextResponse.json({
         success: true,
         query: googleQuery,
         results_count: 0,
         results: [],
         warning: 'No results found. Try adjusting your search criteria.',
+        requestId,
+        debug: process.env.NODE_ENV === 'development' ? {
+          responseKeys: results ? Object.keys(results) : [],
+          hasOrganicResults: !!results?.organic_results,
+        } : undefined,
       })
     }
+    
+    console.log(`[${requestId}] Sample of first organic result:`, {
+      firstResult: organicResults[0] ? {
+        title: organicResults[0].title,
+        link: organicResults[0].link,
+        snippet: organicResults[0].snippet?.substring(0, 100),
+      } : null,
+    })
 
     // Process and filter results - only keep actual SOW documents
+    console.log(`[${requestId}] Processing ${organicResults.length} results through processSearchResult`)
     const processedResults = organicResults
-      .map((result: any) => processSearchResult(result, searchRequest))
+      .map((result: any, index: number) => {
+        try {
+          const processed = processSearchResult(result, searchRequest)
+          if (!processed) {
+            console.log(`[${requestId}] Result ${index + 1} filtered out (null returned)`)
+          }
+          return processed
+        } catch (processError) {
+          console.error(`[${requestId}] Error processing result ${index + 1}:`, {
+            error: processError,
+            result: {
+              title: result.title,
+              link: result.link,
+            },
+          })
+          return null
+        }
+      })
       .filter((result): result is DiscoveryResult => result !== null) // Remove null results (non-SOW documents)
+    
+    console.log(`[${requestId}] After processing: ${processedResults.length} valid results (${organicResults.length - processedResults.length} filtered out)`)
 
     // Try to store results in database, but don't fail if DB is unavailable
     let dbAvailable = false
@@ -284,10 +412,13 @@ export async function POST(request: NextRequest) {
     // All results should be valid now (no nulls)
     const validResults = storedResults
 
+    console.log(`[${requestId}] Returning ${validResults.length} results to client`)
+    
     return NextResponse.json({
       success: true,
       query: googleQuery,
       results_count: validResults.length,
+      requestId,
       results: validResults.map((r: any) => ({
         id: r.id || `temp-${Date.now()}-${Math.random()}`,
         title: r.title,
@@ -310,7 +441,14 @@ export async function POST(request: NextRequest) {
       warnings: dbWarnings.length > 0 ? dbWarnings : undefined,
     })
     } catch (error) {
-      console.error('Error in contract discovery search:', error)
+      console.error(`[${requestId}] Unhandled error in contract discovery search:`, {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : undefined,
+        query: googleQuery,
+        timestamp: new Date().toISOString(),
+      })
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       const errorDetails = error instanceof Error ? error.stack : String(error)
       
@@ -320,9 +458,12 @@ export async function POST(request: NextRequest) {
           message: errorMessage,
           details: process.env.NODE_ENV === 'development' ? errorDetails : undefined,
           query: googleQuery,
+          requestId,
         },
         { status: 500 }
       )
+    } finally {
+      console.log(`[${requestId}] Contract Discovery API Request Completed`)
     }
 }
 

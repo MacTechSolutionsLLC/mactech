@@ -308,6 +308,14 @@ export default function ContractDiscoveryPage() {
   const [copiedQuery, setCopiedQuery] = useState(false)
 
   const handleSearch = async (template: SearchTemplate) => {
+    const searchId = `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    console.log(`[${searchId}] Frontend: Search started`, {
+      template: template.name,
+      query: template.query,
+      dateRange,
+      timestamp: new Date().toISOString(),
+    })
+    
     setIsSearching(true)
     setError(null)
     setResults([])
@@ -315,42 +323,114 @@ export default function ContractDiscoveryPage() {
     setSearchQuery(template.query)
 
     try {
+      const requestBody = {
+        query: template.query,
+        num_results: 30,
+        filters: {
+          site: ['sam.gov'],
+          date_range: dateRange,
+        },
+      }
+      
+      console.log(`[${searchId}] Frontend: Sending API request`, {
+        url: '/api/admin/contract-discovery/search',
+        method: 'POST',
+        body: requestBody,
+      })
+      
+      const requestStartTime = Date.now()
       const response = await fetch('/api/admin/contract-discovery/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          query: template.query,
-          num_results: 30,
-          filters: {
-            site: ['sam.gov'],
-            date_range: dateRange,
-          },
-        }),
+        body: JSON.stringify(requestBody),
       })
 
-      const data = await response.json()
+      const requestDuration = Date.now() - requestStartTime
+      console.log(`[${searchId}] Frontend: API response received (${requestDuration}ms)`, {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+      })
+
+      let data: any
+      try {
+        data = await response.json()
+        console.log(`[${searchId}] Frontend: Response data parsed`, {
+          success: data.success,
+          resultsCount: data.results_count || 0,
+          hasResults: !!data.results && data.results.length > 0,
+          resultsLength: data.results?.length || 0,
+          hasError: !!data.error,
+          error: data.error,
+          hasWarnings: !!data.warnings && data.warnings.length > 0,
+          warnings: data.warnings,
+          requestId: data.requestId,
+          query: data.query,
+        })
+      } catch (parseError) {
+        console.error(`[${searchId}] Frontend: Failed to parse response JSON`, {
+          error: parseError,
+          status: response.status,
+          statusText: response.statusText,
+        })
+        const text = await response.text()
+        console.error(`[${searchId}] Frontend: Response text (first 500 chars):`, text.substring(0, 500))
+        throw new Error(`Failed to parse response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
+      }
 
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Search failed'
         const fullMessage = data.details ? `${errorMessage}. ${data.details}` : errorMessage
+        console.error(`[${searchId}] Frontend: API returned error`, {
+          status: response.status,
+          error: data.error,
+          message: data.message,
+          details: data.details,
+          requestId: data.requestId,
+        })
         throw new Error(fullMessage)
       }
 
       if (data.warnings && data.warnings.length > 0) {
+        console.warn(`[${searchId}] Frontend: API warnings`, data.warnings)
         setError(`Note: ${data.warnings[0]}. Results are still available.`)
       }
 
+      console.log(`[${searchId}] Frontend: Setting results`, {
+        resultsCount: data.results?.length || 0,
+        sampleResult: data.results?.[0] ? {
+          title: data.results[0].title,
+          url: data.results[0].url,
+          relevanceScore: data.results[0].relevance_score,
+        } : null,
+      })
+      
       setResults(data.results || [])
       setSearchQuery(data.query || template.query)
       
       if (data.results && data.results.length === 0) {
+        console.warn(`[${searchId}] Frontend: No results returned`, {
+          query: data.query,
+          requestId: data.requestId,
+        })
         setError('No results found. Try a different search template or adjust the date range.')
       } else {
         setError(null)
+        console.log(`[${searchId}] Frontend: Search completed successfully`, {
+          resultsCount: data.results?.length || 0,
+        })
       }
     } catch (err) {
+      console.error(`[${searchId}] Frontend: Search error`, {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        name: err instanceof Error ? err.name : undefined,
+      })
+      
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       
       // Check if it's a SerpAPI key error
@@ -361,6 +441,7 @@ export default function ContractDiscoveryPage() {
       }
     } finally {
       setIsSearching(false)
+      console.log(`[${searchId}] Frontend: Search finished`)
     }
   }
 
@@ -423,7 +504,7 @@ export default function ContractDiscoveryPage() {
                       Temporary Workaround: Copy Query to Google
                     </p>
                     <p className="text-body-sm text-yellow-800 mb-3">
-                      Due to current SerpAPI limitations, we recommend copying the generated query and pasting it directly into Google Search for best results. Click the "Copy Query" button below after selecting a template.
+                      Due to current SerpAPI limitations, we recommend copying the generated query and pasting it directly into Google Search for best results. Click the &quot;Copy Query&quot; button below after selecting a template.
                     </p>
                     <a
                       href="https://www.google.com/search"

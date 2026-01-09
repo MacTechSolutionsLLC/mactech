@@ -274,12 +274,24 @@ function isLikelySOW(result: any): boolean {
 
   // Must be from SAM.gov
   if (!url.includes('sam.gov')) {
+    console.log('[isLikelySOW] Filtered: Not from sam.gov', {
+      url: url.substring(0, 100),
+      hasLink: !!result.link,
+      hasUrl: !!result.url,
+    })
     return false
   }
 
   // Exclude PDFs and document downloads - we want the opportunity page
   if (url.includes('.pdf') || url.includes('.doc') || url.includes('.docx') || 
       url.includes('.xls') || url.includes('.xlsx') || url.includes('download')) {
+    console.log('[isLikelySOW] Filtered: Document download URL', {
+      url: url.substring(0, 100),
+      isPdf: url.includes('.pdf'),
+      isDoc: url.includes('.doc'),
+      isXls: url.includes('.xls'),
+      hasDownload: url.includes('download'),
+    })
     return false
   }
 
@@ -313,17 +325,30 @@ function isLikelySOW(result: any): boolean {
 
   // Check if URL matches opportunity page patterns
   const hasOpportunityUrl = opportunityUrlPatterns.some(pattern => url.includes(pattern))
+  const matchedUrlPatterns = opportunityUrlPatterns.filter(pattern => url.includes(pattern))
 
   // Count strong indicators
   const strongCount = strongIndicators.filter(indicator => text.includes(indicator)).length
+  const matchedIndicators = strongIndicators.filter(indicator => text.includes(indicator))
 
   // If URL pattern matches and has at least one indicator, it's likely
   if (hasOpportunityUrl && strongCount >= 1) {
+    console.log('[isLikelySOW] Accepted: URL pattern + indicator', {
+      url: url.substring(0, 100),
+      matchedUrlPatterns,
+      matchedIndicators,
+      strongCount,
+    })
     return true
   }
 
   // If multiple strong indicators, very likely
   if (strongCount >= 2) {
+    console.log('[isLikelySOW] Accepted: Multiple indicators', {
+      url: url.substring(0, 100),
+      matchedIndicators,
+      strongCount,
+    })
     return true
   }
 
@@ -359,15 +384,30 @@ function isLikelySOW(result: any): boolean {
   // Check exclusions
   for (const exclude of excludeTerms) {
     if (text.includes(exclude)) {
+      console.log('[isLikelySOW] Filtered: Exclude term matched', {
+        url: url.substring(0, 100),
+        excludeTerm: exclude,
+      })
       return false
     }
   }
 
   // If we have opportunity URL pattern, it's likely
   if (hasOpportunityUrl) {
+    console.log('[isLikelySOW] Accepted: Opportunity URL pattern', {
+      url: url.substring(0, 100),
+      matchedUrlPatterns,
+    })
     return true
   }
 
+  console.log('[isLikelySOW] Filtered: No strong indicators or URL patterns', {
+    url: url.substring(0, 100),
+    title: title.substring(0, 100),
+    hasOpportunityUrl,
+    strongCount,
+    matchedIndicators,
+  })
   return false
 }
 
@@ -375,13 +415,33 @@ function isLikelySOW(result: any): boolean {
  * Extract information from search result
  */
 export function processSearchResult(result: any, request: SearchRequest): DiscoveryResult | null {
+  const resultId = `result-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
+  const title = result.title || ''
+  const url = result.link || result.url || ''
+  const snippet = result.snippet || ''
+  
+  console.log(`[${resultId}] Processing search result:`, {
+    title: title.substring(0, 100),
+    url: url.substring(0, 100),
+    snippet: snippet.substring(0, 100),
+    hasLink: !!result.link,
+    hasUrl: !!result.url,
+    resultKeys: Object.keys(result),
+  })
+  
   // Filter out results that are clearly not SOW documents
-  if (!isLikelySOW(result)) {
+  const isLikely = isLikelySOW(result)
+  if (!isLikely) {
+    console.log(`[${resultId}] Result filtered out by isLikelySOW:`, {
+      title: title.substring(0, 100),
+      url: url.substring(0, 100),
+      reason: 'isLikelySOW returned false',
+    })
     return null
   }
-  const title = result.title || ''
-  const url = result.link || ''
-  const snippet = result.snippet || ''
+  
+  console.log(`[${resultId}] Result passed isLikelySOW check, processing...`)
+  
   const domain = extractDomain(url)
   
   // Detect document type
@@ -410,6 +470,18 @@ export function processSearchResult(result: any, request: SearchRequest): Discov
     detected_service_category,
     location_mentions,
     request
+  })
+
+  console.log(`[${resultId}] Result processed successfully:`, {
+    title: title.substring(0, 100),
+    url: url.substring(0, 100),
+    domain,
+    document_type,
+    detected_keywords: detected_keywords.slice(0, 5),
+    detected_service_category,
+    relevance_score,
+    hasNoticeId: !!samInfo.notice_id,
+    hasSolicitationNumber: !!samInfo.solicitation_number,
   })
 
   return {
