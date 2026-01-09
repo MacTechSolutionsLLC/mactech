@@ -94,6 +94,23 @@ export async function POST(request: NextRequest) {
 
     // Call SerpAPI
     let results: any
+    // Determine date filter (tbs parameter) before try block for use in fallback
+    let dateFilter: string | undefined
+    if (body.filters?.date_range) {
+      switch (body.filters.date_range) {
+        case 'past_week':
+          dateFilter = 'qdr:w' // Past week
+          break
+        case 'past_month':
+          dateFilter = 'qdr:m' // Past month
+          break
+        case 'past_year':
+          dateFilter = 'qdr:y' // Past year
+          break
+      }
+      console.log('Added date filter:', dateFilter)
+    }
+    
     try {
       const serpApiParams: any = {
         engine: 'google',
@@ -102,21 +119,9 @@ export async function POST(request: NextRequest) {
         num: body.num_results || 20,
       }
 
-      // Add date filter if specified (SerpAPI supports tbs parameter)
-      // Note: tbs parameter works better than after: in query for SerpAPI
-      if (body.filters?.date_range) {
-        switch (body.filters.date_range) {
-          case 'past_week':
-            serpApiParams.tbs = 'qdr:w' // Past week
-            break
-          case 'past_month':
-            serpApiParams.tbs = 'qdr:m' // Past month
-            break
-          case 'past_year':
-            serpApiParams.tbs = 'qdr:y' // Past year
-            break
-        }
-        console.log('Added date filter:', serpApiParams.tbs)
+      // Add date filter if specified
+      if (dateFilter) {
+        serpApiParams.tbs = dateFilter
       }
 
       console.log('SerpAPI params:', {
@@ -169,13 +174,19 @@ export async function POST(request: NextRequest) {
         console.log('Simplified query:', simplifiedQuery)
         
         try {
-          const fallbackResults = await getJson({
+          const fallbackParams: any = {
             engine: 'google',
             q: simplifiedQuery,
             api_key: serpApiKey,
             num: body.num_results || 20,
-            tbs: serpApiParams.tbs,
-          })
+          }
+          
+          // Add date filter if it was set
+          if (dateFilter) {
+            fallbackParams.tbs = dateFilter
+          }
+          
+          const fallbackResults = await getJson(fallbackParams)
           
           if (!fallbackResults.error && fallbackResults.organic_results) {
             console.log('Fallback query succeeded with', fallbackResults.organic_results.length, 'results')
