@@ -7,6 +7,7 @@ This directory contains all automation modules, platforms, programs, and templat
 - **infrastructure/** - James Adams domain (Data center, storage, networking, deployment)
 - **quality-assurance/** - Brian MacDonald domain (ISO compliance, metrology, audit readiness)
 - **legal-contracts/** - John Milso domain (Contracts, legal documents, risk analysis)
+- **cybersecurity-rmf/** - Patrick Caruso domain (RMF management, security architecture, vulnerability management)
 - **compliance-security/** - Shared domain (STIG, RMF, security controls)
 - **support-automation/** - Shared domain (Tickets, knowledge base)
 - **integration/** - Shared domain (Multi-tool integration, workflows)

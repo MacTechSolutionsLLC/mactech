@@ -309,6 +309,75 @@ MacTech's automation platforms are organized by the diverse expertise of our tea
 
 ---
 
+## CYBERSECURITY & RMF DOMAIN (Patrick Caruso)
+
+**Team Leader:** Patrick Caruso, Manager Systems Engineering 2  
+**Expertise:** Cybersecurity & RMF management, ISSM, security architecture, vulnerability management, CVE analysis, HBSS/EVSS scanning, security documentation, team leadership, space systems cybersecurity
+
+### Modules
+
+#### 1. RMF Requirements Management & Traceability Platform
+- **Path:** `platforms/cybersecurity-rmf/rmf-management/`
+- **Status:** Production Ready
+- **Description:** Comprehensive RMF requirements traceability using DOORs and JIRA Confluence integration with security control adjudication and BOE plan development
+- **Quote:** "I've adjudicated RMF requirements across complex space systems, managing traceability in DOORs and JIRA while ensuring every control has proper evidence. This platform automates the entire RMF lifecycle, from requirements to evidence to authorization, with full traceability and auditability."
+- **Key Features:**
+  - RMF requirements traceability (DOORs, JIRA Confluence)
+  - Security control adjudication and tracking
+  - Body of Evidence (BOE) plan development
+  - RMF workflow automation (Steps 1-6)
+  - Security Control Traceability Matrix (SCTM) automation
+
+#### 2. Security Architecture & Baseline Controls Platform
+- **Path:** `platforms/cybersecurity-rmf/security-architecture/`
+- **Status:** Production Ready
+- **Description:** Security architecture reviews and baseline security controls formulation for space systems and DoD environments
+- **Quote:** "I've led architecture reviews and formulated baseline security controls for space systems at Northrop Grumman. This platform automates security architecture design, validates controls against requirements, and ensures consistency across large corporate infrastructures."
+- **Key Features:**
+  - Security architecture review automation
+  - Baseline security controls formulation
+  - Standardized cybersecurity practices
+  - Architecture-driven risk analysis
+  - Security control mapping to requirements
+
+#### 3. Vulnerability Management & Compliance Scanning Platform
+- **Path:** `platforms/cybersecurity-rmf/vulnerability-compliance/`
+- **Status:** Production Ready
+- **Description:** CVE analysis and software vetting, HBSS/EVSS vulnerability and compliance scanning with mitigation adjudication
+- **Quote:** "I've vetted software with CVE analysis for program approval and performed HBSS/EVSS scans across classified systems. This platform automates CVE analysis, tracks vulnerabilities through their lifecycle, and ensures nothing is missed in the approval process."
+- **Key Features:**
+  - CVE analysis and software vetting automation
+  - HBSS/EVSS vulnerability and compliance scanning
+  - STIG compliance scanning and validation
+  - Vulnerability review and mitigation adjudication
+  - Risk-based vulnerability prioritization
+
+#### 4. Security Documentation & CDRL Automation Platform
+- **Path:** `platforms/cybersecurity-rmf/security-documentation/`
+- **Status:** Production Ready
+- **Description:** Automated generation of technical documentation for CDRL and non-CDRL deliveries, security integration plans, and work instructions
+- **Quote:** "I've drafted and published technical documentation for CDRL deliveries and developed work instructions for security engineering processes. This platform automates documentation generation, ensures consistency, and maintains version control—turning weeks of documentation work into days."
+- **Key Features:**
+  - Automated CDRL and non-CDRL documentation generation
+  - Security integration and testing plan automation
+  - Work instruction generation (PPSM, STIG, SW Approval)
+  - BOE documentation automation
+  - Version control and change management
+
+#### 5. Cybersecurity Team Leadership & Performance Platform
+- **Path:** `platforms/cybersecurity-rmf/team-leadership/`
+- **Status:** Production Ready
+- **Description:** Team leadership and performance optimization for cybersecurity teams with career development tracking and performance metrics
+- **Quote:** "I lead a team of 13 senior systems engineers, driving technical excellence while fostering career development and performance optimization. This platform provides the tools to track performance, identify development opportunities, and ensure team members have what they need to excel."
+- **Key Features:**
+  - Team performance tracking and metrics
+  - Career development planning and tracking
+  - Performance optimization recommendations
+  - Conflict resolution workflow automation
+  - Skill gap analysis and training recommendations
+
+---
+
 ## INTEGRATION DOMAIN (Shared)
 
 **Team Members:** All (cross-functional integration needs)
@@ -428,6 +497,11 @@ MacTech's automation platforms are organized by the diverse expertise of our tea
 - [ ] Full Legal & Contract Automation Platform
 - [ ] Litigation Support & Case Management Module
 - [ ] Corporate Governance & Compliance Automation Platform
+- [x] RMF Requirements Management & Traceability Platform
+- [x] Security Architecture & Baseline Controls Platform
+- [x] Vulnerability Management & Compliance Scanning Platform
+- [x] Security Documentation & CDRL Automation Platform
+- [x] Cybersecurity Team Leadership & Performance Platform
 
 ---
 
