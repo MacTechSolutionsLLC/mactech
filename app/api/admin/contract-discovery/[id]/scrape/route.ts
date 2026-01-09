@@ -3,6 +3,9 @@ import { scrapeContractPage, saveScrapedContract } from '@/lib/contract-scraper'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
 
 /**
  * Scrape contract opportunity page
@@ -10,10 +13,11 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const contractId = params.id
+    const resolvedParams = await Promise.resolve(params)
+    const contractId = resolvedParams.id
 
     // Get contract from database
     const contract = await prisma.governmentContractDiscovery.findUnique({
