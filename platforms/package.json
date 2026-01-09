@@ -1,0 +1,31 @@
+{
+  "name": "mactech-platforms",
+  "version": "1.0.0",
+  "description": "MacTech Automation Platforms - Complete suite of automation modules organized by team expertise",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "workspaces": [
+    "infrastructure/*",
+    "quality-assurance/*",
+    "legal-contracts/*",
+    "compliance-security/*",
+    "support-automation/*",
+    "integration/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.19.27",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  }
+}
+
