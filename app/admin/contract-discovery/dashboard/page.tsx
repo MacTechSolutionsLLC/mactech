@@ -54,16 +54,24 @@ export default function ContractDashboardPage() {
       if (filter === 'scraped') params.append('scraped', 'true')
       
       const response = await fetch(`/api/admin/contract-discovery/list?${params.toString()}`)
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+      }
+      
       const data = await response.json()
       
       if (data.success) {
         setContracts(data.contracts || [])
+        setError(null)
       } else {
-        setError(data.error || 'Failed to load contracts')
+        setError(data.error || data.message || 'Failed to load contracts')
       }
     } catch (err) {
       console.error('Error loading contracts:', err)
-      setError('Failed to load contracts')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load contracts'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

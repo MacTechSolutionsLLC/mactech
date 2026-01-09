@@ -4,11 +4,41 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 /**
+ * Safely parse JSON with fallback
+ */
+function safeJsonParse(jsonString: string | null | undefined, fallback: any = []): any {
+  if (!jsonString || jsonString.trim() === '') {
+    return fallback
+  }
+  try {
+    return JSON.parse(jsonString)
+  } catch (error) {
+    console.warn('Failed to parse JSON:', { jsonString, error })
+    return fallback
+  }
+}
+
+/**
  * List all discovered contracts with filtering
  * GET /api/admin/contract-discovery/list?status=discovered&scraped=true
  */
 export async function GET(request: NextRequest) {
   try {
+    // Test database connection first
+    try {
+      await prisma.$connect()
+    } catch (dbError) {
+      console.error('Database connection error:', dbError)
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Database connection failed',
+          details: dbError instanceof Error ? dbError.message : 'Unknown database error',
+        },
+        { status: 500 }
+      )
+    }
+
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') // discovered, verified, ignored
     const scraped = searchParams.get('scraped') // true, false
@@ -46,15 +76,33 @@ export async function GET(request: NextRequest) {
       skip: offset,
     })
 
-    // Parse JSON fields
-    const parsedContracts = contracts.map(contract => ({
-      ...contract,
-      naics_codes: JSON.parse(contract.naics_codes || '[]'),
-      set_aside: JSON.parse(contract.set_aside || '[]'),
-      location_mentions: JSON.parse(contract.location_mentions || '[]'),
-      detected_keywords: JSON.parse(contract.detected_keywords || '[]'),
-      analysis_keywords: JSON.parse(contract.analysis_keywords || '[]'),
-    }))
+    // Parse JSON fields with error handling
+    const parsedContracts = contracts.map(contract => {
+      try {
+        return {
+          ...contract,
+          naics_codes: safeJsonParse(contract.naics_codes, []),
+          set_aside: safeJsonParse(contract.set_aside, []),
+          location_mentions: safeJsonParse(contract.location_mentions, []),
+          detected_keywords: safeJsonParse(contract.detected_keywords, []),
+          analysis_keywords: safeJsonParse(contract.analysis_keywords, []),
+        }
+      } catch (parseError) {
+        console.error('Error parsing contract JSON:', {
+          contractId: contract.id,
+          error: parseError,
+        })
+        // Return contract with empty arrays if parsing fails
+        return {
+          ...contract,
+          naics_codes: [],
+          set_aside: [],
+          location_mentions: [],
+          detected_keywords: [],
+          analysis_keywords: [],
+        }
+      }
+    })
 
     // Get total count
     const total = await prisma.governmentContractDiscovery.count({ where })
@@ -67,11 +115,17 @@ export async function GET(request: NextRequest) {
       offset,
     })
   } catch (error) {
-    console.error('Error listing contracts:', error)
+    console.error('Error listing contracts:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
     return NextResponse.json(
       {
+        success: false,
         error: 'Failed to list contracts',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
     )
