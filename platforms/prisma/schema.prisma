@@ -1,0 +1,296 @@
+// MacTech Platforms Database Schema
+// This schema supports all automation platforms
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Infrastructure Domain
+model Deployment {
+  id            String   @id @default(uuid())
+  name          String
+  architecture  String
+  storageType   String
+  status        String
+  systemId      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deployedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+model SystemHealth {
+  id            String   @id @default(uuid())
+  systemId      String   @unique
+  systemName    String
+  systemType    String
+  status        String
+  lastUpdated   DateTime @default(now())
+  
+  @@index([status])
+  @@index([systemType])
+}
+
+// Quality Assurance Domain
+model ISOComplianceProgram {
+  id            String   @id @default(uuid())
+  organizationId String
+  standard      String
+  scope         String
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([organizationId])
+  @@index([standard])
+}
+
+model SOP {
+  id            String   @id @default(uuid())
+  title         String
+  requirement   String
+  standard      String?
+  version       String
+  status        String
+  content       String
+  format        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([status])
+  @@index([standard])
+}
+
+model MetrologyProject {
+  id            String   @id @default(uuid())
+  projectName   String
+  equipmentId   String?
+  status        String
+  dueDate       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([equipmentId])
+  @@index([status])
+}
+
+// Legal & Contracts Domain
+model Contract {
+  id            String   @id @default(uuid())
+  title         String
+  type          String
+  status        String
+  riskScore     Int?
+  startDate     DateTime
+  endDate       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  signedAt      DateTime?
+  expiresAt     DateTime?
+  
+  @@index([status])
+  @@index([type])
+  @@index([expiresAt])
+}
+
+model ContractObligation {
+  id            String   @id @default(uuid())
+  contractId    String
+  description   String
+  type          String
+  dueDate       DateTime
+  status        String
+  completedAt   DateTime?
+  
+  @@index([contractId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Cybersecurity & RMF Domain
+model RMFRequirement {
+  id                String   @id @default(uuid())
+  systemId          String
+  controlId         String
+  title             String
+  implementationStatus String
+  traceabilityId    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([implementationStatus])
+}
+
+model BOEPlan {
+  id            String   @id @default(uuid())
+  systemId      String
+  controlId     String
+  evidenceType  String
+  status        String
+  dueDate       DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([status])
+}
+
+model SecurityBaseline {
+  id            String   @id @default(uuid())
+  name          String
+  systemType    String
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([status])
+  @@index([systemType])
+}
+
+model CVEAnalysis {
+  id            String   @id @default(uuid())
+  softwareName  String
+  version       String
+  status        String
+  riskLevel     String
+  recommendation String
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([status])
+  @@index([riskLevel])
+}
+
+model VulnerabilityScan {
+  id            String   @id @default(uuid())
+  systemId      String
+  scanType      String
+  status        String
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+// Compliance & Security Domain
+model STIGValidation {
+  id            String   @id @default(uuid())
+  systemId      String
+  stigProfile   String
+  systemType    String
+  status        String
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+model Evidence {
+  id            String   @id @default(uuid())
+  controlId     String
+  systemId      String
+  evidenceType  String
+  status        String
+  qualityScore  Int?
+  collectedAt   DateTime?
+  validatedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([status])
+}
+
+model RMFArtifact {
+  id            String   @id @default(uuid())
+  artifactType  String
+  systemId      String
+  systemName    String
+  status        String
+  qualityScore  Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([artifactType])
+  @@index([status])
+}
+
+// Support Automation Domain
+model Ticket {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  category      String?
+  priority      String
+  status        String
+  requester     String
+  assignedTo    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  resolvedAt    DateTime?
+  slaDeadline   DateTime?
+  
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+}
+
+model KnowledgeArticle {
+  id            String   @id @default(uuid())
+  title         String
+  content       String
+  category      String?
+  status        String
+  views         Int       @default(0)
+  helpful       Int       @default(0)
+  notHelpful    Int       @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastViewedAt  DateTime?
+  
+  @@index([status])
+  @@index([category])
+}
+
+// Team Leadership Domain
+model TeamMember {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  role              String
+  performanceScore  Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([role])
+}
+
+model PerformanceReview {
+  id            String   @id @default(uuid())
+  teamMemberId String
+  reviewDate    DateTime @default(now())
+  reviewer      String
+  overallRating String
+  createdAt     DateTime @default(now())
+  
+  @@index([teamMemberId])
+  @@index([reviewDate])
+}
+
