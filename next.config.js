@@ -44,32 +44,24 @@ const nextConfig = {
   // Exclude vetted folder from webpack watch (for dev mode)
   webpack: (config, { isServer }) => {
     // Ensure File polyfill is available during webpack bundling
-    if (isServer && typeof globalThis.File === 'undefined') {
-      try {
-        const { Blob } = require('buffer')
-        if (Blob) {
-          globalThis.Blob = Blob
-          globalThis.File = class File extends Blob {
-            constructor(fileBits, fileName, options = {}) {
-              super(fileBits, options)
-              this.name = fileName
-              this.lastModified = options.lastModified ?? Date.now()
-            }
-          }
-        }
-      } catch (e) {
-        // Fallback
-        globalThis.File = class File {
-          constructor(fileBits, fileName, options = {}) {
-            this.name = fileName
-            this.lastModified = options.lastModified ?? Date.now()
-            this.size = 0
-            this.type = options.type || ''
-          }
-          arrayBuffer() { return Promise.resolve(new ArrayBuffer(0)) }
-          text() { return Promise.resolve('') }
-        }
-      }
+    if (isServer) {
+      // Add webpack plugin to provide File globally
+      const webpack = require('webpack')
+      
+      // Create a plugin that defines File globally
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          'globalThis.File': JSON.stringify('File'), // This won't work, File needs to be a constructor
+        })
+      )
+
+      // Try to provide File via ProvidePlugin (but this also won't work for constructors)
+      // Instead, we'll use a custom plugin to inject the polyfill
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          File: require.resolve('./lib/polyfills/file-polyfill'),
+        })
+      )
     }
 
     config.watchOptions = {

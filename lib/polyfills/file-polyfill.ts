@@ -4,10 +4,13 @@
 
 // Ensure Blob exists first (Node.js 18+ has Blob, but we check anyway)
 if (typeof globalThis.Blob === 'undefined') {
-  // Minimal Blob polyfill if needed
-  const { Blob: NodeBlob } = require('buffer')
-  if (NodeBlob) {
-    globalThis.Blob = NodeBlob
+  try {
+    const { Blob: NodeBlob } = require('buffer')
+    if (NodeBlob) {
+      globalThis.Blob = NodeBlob
+    }
+  } catch (e) {
+    // Blob not available, will use fallback
   }
 }
 
@@ -61,5 +64,8 @@ if (typeof globalThis.File === 'undefined' && typeof globalThis.Blob !== 'undefi
   } as any
 }
 
+// Export File for webpack ProvidePlugin
+module.exports = globalThis.File
+export default globalThis.File
 export {}
 
