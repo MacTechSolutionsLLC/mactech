@@ -303,7 +303,7 @@ export default function ContractDiscoveryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_month')
-  const [templateFilter, setTemplateFilter] = useState<'all' | 'vetcert' | 'rmf' | 'general'>('all')
+  const [vetcertOnly, setVetcertOnly] = useState(false)
   const [pillarFilter, setPillarFilter] = useState<'all' | Pillar>('all')
   const [copiedQuery, setCopiedQuery] = useState(false)
 
@@ -454,9 +454,9 @@ export default function ContractDiscoveryPage() {
   }
 
   const filteredTemplates = SEARCH_TEMPLATES.filter(t => {
-    const matchesCategory = templateFilter === 'all' || t.category === templateFilter
+    const matchesVetcert = !vetcertOnly || t.category === 'vetcert'
     const matchesPillar = pillarFilter === 'all' || t.pillar === pillarFilter
-    return matchesCategory && matchesPillar
+    return matchesVetcert && matchesPillar
   })
 
   const copyQueryToClipboard = async (query: string) => {
@@ -562,26 +562,19 @@ export default function ContractDiscoveryPage() {
                 </div>
               </div>
 
-              {/* Template Filter */}
+              {/* VetCert Only Checkbox */}
               <div className="mb-6">
-                <label className="block text-body-sm font-medium text-neutral-900 mb-2">
-                  Filter by Category
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vetcertOnly}
+                    onChange={(e) => setVetcertOnly(e.target.checked)}
+                    className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
+                  />
+                  <span className="text-body-sm font-medium text-neutral-900">
+                    VetCert only
+                  </span>
                 </label>
-                <div className="flex gap-2 flex-wrap">
-                  {(['all', 'vetcert', 'rmf'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setTemplateFilter(filter)}
-                      className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
-                        templateFilter === filter
-                          ? 'bg-accent-700 text-white'
-                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                      }`}
-                    >
-                      {filter === 'all' ? 'All Categories' : filter === 'vetcert' ? 'VetCert' : 'RMF'}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
