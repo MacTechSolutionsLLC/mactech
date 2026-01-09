@@ -581,18 +581,26 @@
     return uniqueContacts.slice(0, 10) // Increased limit to 10 contacts
   }
 
-  // Extract full description - Enhanced version
+  // Extract full description - Enhanced version with better SAM.gov parsing
   function extractDescription(text, html) {
-    // First try HTML structure
-    if (html) {
+    // First try HTML structure with better SAM.gov selectors
+    if (html && typeof document !== 'undefined') {
       try {
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(html, 'text/html')
-        
-        // Look for description sections in HTML
+        // Use live DOM if available (we're in a browser extension)
         const descSelectors = [
-          '[class*="description"]',
-          '[id*="description"]',
+          // SAM.gov specific selectors
+          '[data-testid="description"]',
+          '[data-testid="description-content"]',
+          '[data-testid="opportunity-description"]',
+          '#description',
+          '#description-content',
+          '.description-content',
+          '.opportunity-description',
+          '[class*="description-content"]',
+          '[class*="opportunity-description"]',
+          // Generic but common
+          '[class*="description"]:not([class*="contact"]):not([class*="poc"])',
+          '[id*="description"]:not([id*="contact"]):not([id*="poc"])',
           '[class*="summary"]',
           '[id*="summary"]',
           '[class*="overview"]',
@@ -603,24 +611,101 @@
           '[class*="statement"]',
           'article',
           'main',
+          // Look for divs after "Description" labels
+          'div:has(+ div[class*="description"])',
         ]
         
         for (const selector of descSelectors) {
           try {
-            const elements = doc.querySelectorAll(selector)
+            const elements = document.querySelectorAll(selector)
             for (const el of elements) {
               const elText = el.textContent || ''
-              // Skip if too short or too long
-              if (elText.length < 200 || elText.length > 10000) continue
+              // Skip if too short or too long, or contains mostly navigation/UI
+              if (elText.length < 200 || elText.length > 15000) continue
+              
+              // Skip if it's mostly links or navigation
+              const linkCount = el.querySelectorAll('a').length
+              if (linkCount > elText.length / 50) continue // Too many links relative to text
               
               // Check if it looks like a description (has sentences, not just keywords)
               const sentences = elText.match(/[^.!?]+[.!?]+/g) || []
-              if (sentences.length >= 2) {
-                return elText.trim().substring(0, 5000)
+              if (sentences.length >= 3) {
+                // Clean up the text
+                let cleaned = elText.trim()
+                // Remove excessive whitespace
+                cleaned = cleaned.replace(/\s+/g, ' ')
+                // Remove common UI elements
+                cleaned = cleaned.replace(/\b(Back to top|Print|Share|Download|View all|See more)\b/gi, '')
+                
+                if (cleaned.length >= 200) {
+                  console.log('[MacTech Scraper] Found description via selector:', selector)
+                  return cleaned.substring(0, 8000)
+                }
               }
             }
           } catch (e) {
             // Continue to next selector
+          }
+        }
+        
+        // Try to find description by looking for label + content pattern
+        const labels = document.querySelectorAll('label, dt, th, [class*="label"], [class*="field-label"]')
+        for (const label of labels) {
+          const labelText = label.textContent?.toLowerCase() || ''
+          if (labelText.includes('description') || labelText.includes('summary') || 
+              labelText.includes('overview') || labelText.includes('background')) {
+            // Try to find the associated content
+            let contentEl = label.nextElementSibling
+            if (!contentEl) {
+              // Try parent's next sibling
+              contentEl = label.parentElement?.nextElementSibling
+            }
+            if (!contentEl) {
+              // Try finding in same parent
+              contentEl = label.parentElement?.querySelector('[class*="value"], [class*="content"], div, p')
+            }
+            
+            if (contentEl) {
+              const contentText = contentEl.textContent?.trim() || ''
+              if (contentText.length >= 200 && contentText.length < 15000) {
+                const sentences = contentText.match(/[^.!?]+[.!?]+/g) || []
+                if (sentences.length >= 2) {
+                  console.log('[MacTech Scraper] Found description via label pattern')
+                  return contentText.replace(/\s+/g, ' ').substring(0, 8000)
+                }
+              }
+            }
+          }
+        }
+        
+        // Try parsing HTML string if live DOM didn't work
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, 'text/html')
+        
+        // Same selectors but on parsed doc
+        for (const selector of descSelectors.slice(0, 15)) { // Limit to avoid too many queries
+          try {
+            const elements = doc.querySelectorAll(selector)
+            for (const el of elements) {
+              const elText = el.textContent || ''
+              if (elText.length < 200 || elText.length > 15000) continue
+              
+              const linkCount = el.querySelectorAll('a').length
+              if (linkCount > elText.length / 50) continue
+              
+              const sentences = elText.match(/[^.!?]+[.!?]+/g) || []
+              if (sentences.length >= 3) {
+                let cleaned = elText.trim().replace(/\s+/g, ' ')
+                cleaned = cleaned.replace(/\b(Back to top|Print|Share|Download|View all|See more)\b/gi, '')
+                
+                if (cleaned.length >= 200) {
+                  console.log('[MacTech Scraper] Found description via parsed HTML:', selector)
+                  return cleaned.substring(0, 8000)
+                }
+              }
+            }
+          } catch (e) {
+            // Continue
           }
         }
       } catch (e) {
@@ -628,41 +713,81 @@
       }
     }
     
-    // Look for description sections in text
+    // Look for description sections in text with better patterns
     const descPatterns = [
-      /(?:description|summary|overview|background|purpose|objective)[:\s]+([^]{200,3000})/i,
-      /(?:statement of work|sow|scope of work|scope)[:\s]+([^]{200,3000})/i,
-      /(?:this\s+(?:opportunity|contract|solicitation|procurement))([^]{200,3000})/i,
+      // SAM.gov common patterns
+      /(?:description|summary|overview|background|purpose|objective|scope)[:\s\n]+([^]{300,5000})/i,
+      /(?:statement of work|sow|performance work statement|pws|scope of work)[:\s\n]+([^]{300,5000})/i,
+      /(?:this\s+(?:opportunity|contract|solicitation|procurement|acquisition))([^]{300,5000})/i,
+      /(?:the\s+(?:government|agency|contracting officer))([^]{300,5000})/i,
+      // Look for paragraphs that start with common description phrases
+      /(?:the\s+purpose|this\s+opportunity|the\s+objective|the\s+goal)[^]{200,4000}/i,
     ]
     
     for (const pattern of descPatterns) {
       const match = text.match(pattern)
       if (match && match[1]) {
-        const desc = match[1].trim()
+        let desc = match[1].trim()
+        // Clean up
+        desc = desc.replace(/\s+/g, ' ')
+        // Remove common UI noise
+        desc = desc.replace(/\b(Back to top|Print|Share|Download|View all|See more|Contact|POC|Point of Contact)\b.*$/gi, '')
+        
         // Validate it's a real description (has multiple sentences)
         const sentences = desc.match(/[^.!?]+[.!?]+/g) || []
-        if (sentences.length >= 2) {
-          return desc.substring(0, 5000)
+        if (sentences.length >= 2 && desc.length >= 200) {
+          console.log('[MacTech Scraper] Found description via text pattern')
+          return desc.substring(0, 8000)
         }
       }
     }
     
-    // Fallback: use first substantial paragraphs
-    const paragraphs = text.split(/\n\n+/).filter(p => {
+    // Fallback: use substantial paragraphs (improved logic)
+    const paragraphs = text.split(/\n\n+|\.\s+(?=[A-Z])/).filter(p => {
       const trimmed = p.trim()
-      return trimmed.length > 150 && trimmed.length < 2000
+      // Better filtering: must have multiple sentences and reasonable length
+      const sentences = trimmed.match(/[^.!?]+[.!?]+/g) || []
+      return trimmed.length > 200 && trimmed.length < 3000 && sentences.length >= 2
     })
     
     if (paragraphs.length > 0) {
-      // Take first 2-3 paragraphs
-      const combined = paragraphs.slice(0, 3).join('\n\n').trim()
+      // Take first 2-4 paragraphs that form a coherent description
+      let combined = ''
+      for (let i = 0; i < Math.min(4, paragraphs.length); i++) {
+        const para = paragraphs[i].trim()
+        if (para.length >= 200) {
+          combined += (combined ? '\n\n' : '') + para
+          if (combined.length >= 500) break // Stop when we have enough
+        }
+      }
+      
       if (combined.length >= 200) {
-        return combined.substring(0, 5000)
+        console.log('[MacTech Scraper] Found description via paragraph extraction')
+        return combined.substring(0, 8000)
       }
     }
     
-    // Last resort: first 5000 chars of text
-    return text.substring(0, 5000)
+    // Last resort: find the longest paragraph-like section
+    const sections = text.match(/[^.!?]{200,2000}[.!?]+/g) || []
+    if (sections.length > 0) {
+      // Sort by length and take the longest reasonable section
+      const sorted = sections.sort((a, b) => b.length - a.length)
+      for (const section of sorted) {
+        const cleaned = section.trim().replace(/\s+/g, ' ')
+        if (cleaned.length >= 200 && cleaned.length < 5000) {
+          const sentences = cleaned.match(/[^.!?]+[.!?]+/g) || []
+          if (sentences.length >= 2) {
+            console.log('[MacTech Scraper] Found description via longest section')
+            return cleaned.substring(0, 8000)
+          }
+        }
+      }
+    }
+    
+    // Final fallback: first 8000 chars, but cleaned
+    const cleaned = text.replace(/\s+/g, ' ').trim()
+    console.log('[MacTech Scraper] Using fallback description extraction')
+    return cleaned.substring(0, 8000)
   }
 
   // Extract requirements
