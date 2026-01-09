@@ -49,7 +49,7 @@ export default function LeadershipPage() {
           <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-6 mb-6">
             <h2 className="heading-3 mb-4">Our Four Pillars of Expertise</h2>
             <p className="text-body-sm text-neutral-700 mb-4 leading-relaxed">
-              MacTech's leadership is organized into four pillars, each representing a core domain of expertise 
+              MacTech&apos;s leadership is organized into four pillars, each representing a core domain of expertise 
               and led by a senior practitioner with deep experience in that area.
             </p>
             <div className="grid md:grid-cols-2 gap-4">
