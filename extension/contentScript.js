@@ -581,8 +581,87 @@
     return uniqueContacts.slice(0, 10) // Increased limit to 10 contacts
   }
 
-  // Extract full description - Enhanced version with better SAM.gov parsing
+  // Extract full description - Enhanced with better filtering to exclude contact info and footers
   function extractDescription(text, html) {
+    // Patterns that indicate we should STOP extracting (footer/navigation)
+    const stopPatterns = [
+      /contact\s+information/i,
+      /primary\s+point\s+of\s+contact/i,
+      /alternative\s+point\s+of\s+contact/i,
+      /contracting\s+office\s+address/i,
+      /attachments\/links/i,
+      /links\s*link/i,
+      /updated\s+date/i,
+      /feedback/i,
+      /one\s+question/i,
+      /survey/i,
+      /our\s+website/i,
+      /about\s+this\s+site/i,
+      /our\s+community/i,
+      /release\s+notes/i,
+      /system\s+alerts/i,
+      /our\s+partners/i,
+      /policies/i,
+      /terms\s+of\s+use/i,
+      /privacy\s+policy/i,
+      /freedom\s+of\s+information/i,
+      /accessibility/i,
+      /customer\s+service/i,
+      /help/i,
+      /check\s+entity\s+status/i,
+      /federal\s+service\s+desk/i,
+      /external\s+resources/i,
+      /warning/i,
+      /this\s+is\s+a\s+u\.s\./i,
+      /general\s+services\s+administration/i,
+      /for\s+official\s+use\s+only/i,
+      /controlled\s+unclassified\s+information/i,
+      /sam\.gov\s+an\s+official\s+website/i,
+      /create\s+post/i,
+      /save\s+idea/i,
+    ]
+    
+    // Clean text function that removes footer/navigation content
+    function cleanDescription(descText) {
+      if (!descText) return ''
+      
+      let cleaned = descText.trim()
+      
+      // Find where to stop (first occurrence of stop pattern)
+      let stopIndex = cleaned.length
+      for (const pattern of stopPatterns) {
+        const match = cleaned.match(pattern)
+        if (match && match.index !== undefined && match.index < stopIndex) {
+          stopIndex = match.index
+        }
+      }
+      
+      // Cut off at stop point
+      if (stopIndex < cleaned.length) {
+        cleaned = cleaned.substring(0, stopIndex).trim()
+      }
+      
+      // Remove common UI elements
+      cleaned = cleaned.replace(/\b(Back to top|Print|Share|Download|View all|See more)\b/gi, '')
+      
+      // Remove email patterns (these should be in POC section, not description)
+      cleaned = cleaned.replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, '')
+      
+      // Remove phone patterns
+      cleaned = cleaned.replace(/(?:phone|tel|telephone)[:\s]+[\d\s\-\(\)\.]+/gi, '')
+      
+      // Remove address patterns
+      cleaned = cleaned.replace(/\d+\s+[a-z\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|way|circle|cir|lane|ln)[^.!?]*/gi, '')
+      cleaned = cleaned.replace(/[A-Z]{2}\s+\d{5}(?:-\d{4})?/g, '') // ZIP codes
+      
+      // Remove excessive whitespace
+      cleaned = cleaned.replace(/\s+/g, ' ').trim()
+      
+      // Remove trailing punctuation/whitespace issues
+      cleaned = cleaned.replace(/\s+[\.;:,]+$/g, '')
+      
+      return cleaned
+    }
     // First try HTML structure with better SAM.gov selectors
     if (html && typeof document !== 'undefined') {
       try {
@@ -627,19 +706,16 @@
               const linkCount = el.querySelectorAll('a').length
               if (linkCount > elText.length / 50) continue // Too many links relative to text
               
+              // Skip if contains stop patterns
+              if (stopPatterns.some(pattern => pattern.test(elText))) continue
+              
               // Check if it looks like a description (has sentences, not just keywords)
               const sentences = elText.match(/[^.!?]+[.!?]+/g) || []
-              if (sentences.length >= 3) {
-                // Clean up the text
-                let cleaned = elText.trim()
-                // Remove excessive whitespace
-                cleaned = cleaned.replace(/\s+/g, ' ')
-                // Remove common UI elements
-                cleaned = cleaned.replace(/\b(Back to top|Print|Share|Download|View all|See more)\b/gi, '')
-                
-                if (cleaned.length >= 200) {
+              if (sentences.length >= 2) {
+                const cleaned = cleanDescription(elText)
+                if (cleaned.length >= 100) {
                   console.log('[MacTech Scraper] Found description via selector:', selector)
-                  return cleaned.substring(0, 8000)
+                  return cleaned.substring(0, 5000)
                 }
               }
             }
@@ -667,11 +743,17 @@
             
             if (contentEl) {
               const contentText = contentEl.textContent?.trim() || ''
-              if (contentText.length >= 200 && contentText.length < 15000) {
+              // Stop if we hit contact info
+              if (stopPatterns.some(pattern => pattern.test(contentText))) continue
+              
+              if (contentText.length >= 100 && contentText.length < 10000) {
                 const sentences = contentText.match(/[^.!?]+[.!?]+/g) || []
-                if (sentences.length >= 2) {
-                  console.log('[MacTech Scraper] Found description via label pattern')
-                  return contentText.replace(/\s+/g, ' ').substring(0, 8000)
+                if (sentences.length >= 1) {
+                  const cleaned = cleanDescription(contentText)
+                  if (cleaned.length >= 100) {
+                    console.log('[MacTech Scraper] Found description via label pattern')
+                    return cleaned.substring(0, 5000)
+                  }
                 }
               }
             }
@@ -713,31 +795,24 @@
       }
     }
     
-    // Look for description sections in text with better patterns
+    // Look for description sections in text with better patterns (stop before contact info)
     const descPatterns = [
-      // SAM.gov common patterns
-      /(?:description|summary|overview|background|purpose|objective|scope)[:\s\n]+([^]{300,5000})/i,
-      /(?:statement of work|sow|performance work statement|pws|scope of work)[:\s\n]+([^]{300,5000})/i,
-      /(?:this\s+(?:opportunity|contract|solicitation|procurement|acquisition))([^]{300,5000})/i,
-      /(?:the\s+(?:government|agency|contracting officer))([^]{300,5000})/i,
-      // Look for paragraphs that start with common description phrases
-      /(?:the\s+purpose|this\s+opportunity|the\s+objective|the\s+goal)[^]{200,4000}/i,
+      // Look for text that starts with description-like content but stops before contact info
+      /(?:description|summary|overview|background|purpose|objective|scope|statement)[:\s\n]+([^]{100,3000}?)(?=\s*(?:contact\s+information|primary\s+point|attachments|links|feedback|our\s+website|warning|this\s+is\s+a\s+u\.s\.))/is,
+      /(?:this\s+(?:opportunity|contract|solicitation|procurement|acquisition|amendment|change))([^]{100,3000}?)(?=\s*(?:contact\s+information|primary\s+point|attachments|links|feedback|our\s+website|warning|this\s+is\s+a\s+u\.s\.))/is,
+      /(?:the\s+(?:government|agency|contracting officer|purpose|objective|goal))([^]{100,3000}?)(?=\s*(?:contact\s+information|primary\s+point|attachments|links|feedback|our\s+website|warning|this\s+is\s+a\s+u\.s\.))/is,
     ]
     
     for (const pattern of descPatterns) {
       const match = text.match(pattern)
       if (match && match[1]) {
-        let desc = match[1].trim()
-        // Clean up
-        desc = desc.replace(/\s+/g, ' ')
-        // Remove common UI noise
-        desc = desc.replace(/\b(Back to top|Print|Share|Download|View all|See more|Contact|POC|Point of Contact)\b.*$/gi, '')
-        
-        // Validate it's a real description (has multiple sentences)
-        const sentences = desc.match(/[^.!?]+[.!?]+/g) || []
-        if (sentences.length >= 2 && desc.length >= 200) {
-          console.log('[MacTech Scraper] Found description via text pattern')
-          return desc.substring(0, 8000)
+        const cleaned = cleanDescription(match[1])
+        if (cleaned.length >= 100) {
+          const sentences = cleaned.match(/[^.!?]+[.!?]+/g) || []
+          if (sentences.length >= 1) {
+            console.log('[MacTech Scraper] Found description via text pattern')
+            return cleaned.substring(0, 5000)
+          }
         }
       }
     }
@@ -784,10 +859,26 @@
       }
     }
     
-    // Final fallback: first 8000 chars, but cleaned
-    const cleaned = text.replace(/\s+/g, ' ').trim()
-    console.log('[MacTech Scraper] Using fallback description extraction')
-    return cleaned.substring(0, 8000)
+    // Fallback: extract text up to first stop pattern
+    const cleaned = cleanDescription(text)
+    if (cleaned.length >= 100) {
+      // Take first substantial paragraph
+      const paragraphs = cleaned.split(/\.\s+/).filter(p => {
+        const trimmed = p.trim()
+        return trimmed.length > 50 && trimmed.length < 2000
+      })
+      
+      if (paragraphs.length > 0) {
+        const firstPara = paragraphs[0].trim()
+        if (firstPara.length >= 100) {
+          console.log('[MacTech Scraper] Found description via cleaned text fallback')
+          return firstPara.substring(0, 5000)
+        }
+      }
+    }
+    
+    console.log('[MacTech Scraper] No description found')
+    return null
   }
 
   // Extract requirements
