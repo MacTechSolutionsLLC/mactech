@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create ticket
-    const data = validateInput(ticketSchema, body)
-    const ticket = await ticketRoutingService.createTicket(data)
+    const parsed = ticketSchema.parse(body) // parse() applies defaults
+    const ticket = await ticketRoutingService.createTicket(parsed)
     return NextResponse.json({ success: true, data: ticket }, { status: 201 })
   } catch (error) {
     logger.error('Error in ticket routing API', error as Error)

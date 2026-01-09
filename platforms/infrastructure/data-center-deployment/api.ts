@@ -14,7 +14,7 @@ const logger = createLogger('data-center-deployment-api')
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const data = validateInput(deploymentSchema, body)
+    const data = deploymentSchema.parse(body) // parse() applies defaults
     const deployment = await deploymentService.createDeployment(data)
     return NextResponse.json({ success: true, data: deployment }, { status: 201 })
   } catch (error) {

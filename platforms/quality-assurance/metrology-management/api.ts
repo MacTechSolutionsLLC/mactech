@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create project
-    const data = validateInput(metrologyProjectSchema, body)
-    const project = await metrologyManagementService.createProject(data)
+    const parsed = metrologyProjectSchema.parse(body) // parse() applies defaults
+    const project = await metrologyManagementService.createProject(parsed)
     return NextResponse.json({ success: true, data: project }, { status: 201 })
   } catch (error) {
     logger.error('Error in metrology management API', error as Error)

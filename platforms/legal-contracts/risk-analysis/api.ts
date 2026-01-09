@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Analyze risk
-    const data = validateInput(riskAnalysisSchema, body)
-    const analysis = await riskAnalysisService.analyzeRisk(data)
+    const parsed = riskAnalysisSchema.parse(body) // parse() applies defaults
+    const analysis = await riskAnalysisService.analyzeRisk(parsed)
     return NextResponse.json({ success: true, data: analysis }, { status: 201 })
   } catch (error) {
     logger.error('Error in risk analysis API', error as Error)

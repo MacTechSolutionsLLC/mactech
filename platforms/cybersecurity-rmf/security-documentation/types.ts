@@ -5,7 +5,6 @@ export const documentGenerationSchema = z.object({
   title: z.string().min(1).max(500),
   systemId: z.string().uuid().optional(),
   template: z.string().optional(),
-  content: z.record(z.any()).optional(),
   metadata: z.record(z.any()).optional(),
 })
 
