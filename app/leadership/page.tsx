@@ -1,6 +1,39 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
+type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
+
+const pillarInfo = {
+  'Security': {
+    name: 'Security',
+    leader: 'Patrick Caruso',
+    description: 'Cybersecurity & RMF expertise',
+    color: 'bg-red-50 border-red-200 text-red-900',
+    badgeColor: 'bg-red-100 text-red-800 border-red-300'
+  },
+  'Infrastructure': {
+    name: 'Infrastructure',
+    leader: 'James Adams',
+    description: 'Data center, storage, networking, deployment',
+    color: 'bg-blue-50 border-blue-200 text-blue-900',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300'
+  },
+  'Quality': {
+    name: 'Quality',
+    leader: 'Brian MacDonald',
+    description: 'ISO compliance, metrology, audit readiness',
+    color: 'bg-green-50 border-green-200 text-green-900',
+    badgeColor: 'bg-green-100 text-green-800 border-green-300'
+  },
+  'Governance': {
+    name: 'Governance',
+    leader: 'John Milso',
+    description: 'Legal, contracts, risk analysis, corporate governance',
+    color: 'bg-purple-50 border-purple-200 text-purple-900',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-300'
+  }
+}
+
 export default function LeadershipPage() {
   return (
     <div className="bg-white">
@@ -8,9 +41,39 @@ export default function LeadershipPage() {
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-4xl mx-auto">
           <h1 className="heading-hero mb-6">Leadership</h1>
-          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed">
+          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed mb-8">
             Senior practitioners with proven track records in DoD and federal programs.
           </p>
+          
+          {/* Pillar System Introduction */}
+          <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-6 mb-6">
+            <h2 className="heading-3 mb-4">Our Four Pillars of Expertise</h2>
+            <p className="text-body-sm text-neutral-700 mb-4 leading-relaxed">
+              MacTech's leadership is organized into four pillars, each representing a core domain of expertise 
+              and led by a senior practitioner with deep experience in that area.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className={`p-4 rounded border ${pillarInfo.Security.color}`}>
+                <h3 className="text-body-sm font-semibold mb-1">{pillarInfo.Security.name}</h3>
+                <p className="text-body-xs text-neutral-700">{pillarInfo.Security.description}</p>
+              </div>
+              <div className={`p-4 rounded border ${pillarInfo.Infrastructure.color}`}>
+                <h3 className="text-body-sm font-semibold mb-1">{pillarInfo.Infrastructure.name}</h3>
+                <p className="text-body-xs text-neutral-700">{pillarInfo.Infrastructure.description}</p>
+              </div>
+              <div className={`p-4 rounded border ${pillarInfo.Quality.color}`}>
+                <h3 className="text-body-sm font-semibold mb-1">{pillarInfo.Quality.name}</h3>
+                <p className="text-body-xs text-neutral-700">{pillarInfo.Quality.description}</p>
+              </div>
+              <div className={`p-4 rounded border ${pillarInfo.Governance.color}`}>
+                <h3 className="text-body-sm font-semibold mb-1">{pillarInfo.Governance.name}</h3>
+                <p className="text-body-xs text-neutral-700">{pillarInfo.Governance.description}</p>
+              </div>
+            </div>
+            <p className="text-body-sm text-neutral-600 mt-4 italic">
+              Each pillar leader oversees the development and delivery of tools, platforms, and capabilities in their domain.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -32,9 +95,17 @@ export default function LeadershipPage() {
                 </div>
               </div>
               <div className="md:col-span-8">
-                <h2 className="heading-2 mb-2">Brian MacDonald</h2>
-                <p className="text-body-sm text-accent-700 font-medium mb-6 uppercase tracking-wide">
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                  <h2 className="heading-2 mb-0">Brian MacDonald</h2>
+                  <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Quality.badgeColor}`}>
+                    {pillarInfo.Quality.name} Pillar
+                  </span>
+                </div>
+                <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
                   Managing Member, Compliance & Operations
+                </p>
+                <p className="text-body-sm text-neutral-600 mb-6">
+                  {pillarInfo.Quality.description}
                 </p>
                 <div className="prose prose-neutral max-w-none">
                   <p className="text-body text-neutral-700 mb-6 leading-relaxed">
@@ -79,7 +150,17 @@ export default function LeadershipPage() {
                       </li>
                     </ul>
                   </div>
-                  <p className="text-body-sm text-neutral-600 italic">
+                  <div className={`mt-6 p-4 rounded border ${pillarInfo.Quality.color}`}>
+                    <p className="text-body-sm font-semibold mb-2">Quality Pillar Tools & Capabilities</p>
+                    <p className="text-body-sm text-neutral-700 mb-3">
+                      Brian leads the Quality pillar, overseeing tools and platforms for ISO compliance, metrology management, 
+                      audit readiness, and process documentation.
+                    </p>
+                    <Link href="/showcase" className="text-body-sm font-medium text-accent-700 hover:text-accent-800">
+                      View Quality Pillar Tools →
+                    </Link>
+                  </div>
+                  <p className="text-body-sm text-neutral-600 italic mt-6">
                     Available for proposals as key personnel. Security clearance status available upon request.
                   </p>
                 </div>
@@ -105,9 +186,17 @@ export default function LeadershipPage() {
                 </div>
               </div>
               <div className="md:col-span-8">
-                <h2 className="heading-2 mb-2">Patrick Caruso</h2>
-                <p className="text-body-sm text-accent-700 font-medium mb-6 uppercase tracking-wide">
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                  <h2 className="heading-2 mb-0">Patrick Caruso</h2>
+                  <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Security.badgeColor}`}>
+                    {pillarInfo.Security.name} Pillar
+                  </span>
+                </div>
+                <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
                   Director of Cyber Assurance (Key Personnel)
+                </p>
+                <p className="text-body-sm text-neutral-600 mb-6">
+                  {pillarInfo.Security.description}
                 </p>
                 <div className="prose prose-neutral max-w-none">
                   <p className="text-body text-neutral-700 mb-6 leading-relaxed">
@@ -159,7 +248,17 @@ export default function LeadershipPage() {
                       </li>
                     </ul>
                   </div>
-                  <p className="text-body-sm text-neutral-600 italic">
+                  <div className={`mt-6 p-4 rounded border ${pillarInfo.Security.color}`}>
+                    <p className="text-body-sm font-semibold mb-2">Security Pillar Tools & Capabilities</p>
+                    <p className="text-body-sm text-neutral-700 mb-3">
+                      Patrick leads the Security pillar, overseeing tools and platforms for RMF management, STIG compliance, 
+                      security architecture, vulnerability management, and authorization processes.
+                    </p>
+                    <Link href="/showcase" className="text-body-sm font-medium text-accent-700 hover:text-accent-800">
+                      View Security Pillar Tools →
+                    </Link>
+                  </div>
+                  <p className="text-body-sm text-neutral-600 italic mt-6">
                     Available for proposals as key personnel. Security clearance status available upon request.
                   </p>
                 </div>
@@ -185,9 +284,17 @@ export default function LeadershipPage() {
                 </div>
               </div>
               <div className="md:col-span-8">
-                <h2 className="heading-2 mb-2">James Adams</h2>
-                <p className="text-body-sm text-accent-700 font-medium mb-6 uppercase tracking-wide">
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                  <h2 className="heading-2 mb-0">James Adams</h2>
+                  <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Infrastructure.badgeColor}`}>
+                    {pillarInfo.Infrastructure.name} Pillar
+                  </span>
+                </div>
+                <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
                   Director of Infrastructure & Systems Engineering (Key Personnel)
+                </p>
+                <p className="text-body-sm text-neutral-600 mb-6">
+                  {pillarInfo.Infrastructure.description}
                 </p>
                 <div className="prose prose-neutral max-w-none">
                   <p className="text-body text-neutral-700 mb-6 leading-relaxed">
@@ -238,7 +345,17 @@ export default function LeadershipPage() {
                       </li>
                     </ul>
                   </div>
-                  <p className="text-body-sm text-neutral-600 italic">
+                  <div className={`mt-6 p-4 rounded border ${pillarInfo.Infrastructure.color}`}>
+                    <p className="text-body-sm font-semibold mb-2">Infrastructure Pillar Tools & Capabilities</p>
+                    <p className="text-body-sm text-neutral-700 mb-3">
+                      James leads the Infrastructure pillar, overseeing tools and platforms for data center deployment, 
+                      infrastructure health monitoring, network configuration, and performance optimization.
+                    </p>
+                    <Link href="/showcase" className="text-body-sm font-medium text-accent-700 hover:text-accent-800">
+                      View Infrastructure Pillar Tools →
+                    </Link>
+                  </div>
+                  <p className="text-body-sm text-neutral-600 italic mt-6">
                     Available for proposals as key personnel. Security clearance status available upon request.
                   </p>
                 </div>
@@ -264,9 +381,17 @@ export default function LeadershipPage() {
                 </div>
               </div>
               <div className="md:col-span-8">
-                <h2 className="heading-2 mb-2">John Milso</h2>
-                <p className="text-body-sm text-accent-700 font-medium mb-6 uppercase tracking-wide">
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                  <h2 className="heading-2 mb-0">John Milso</h2>
+                  <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Governance.badgeColor}`}>
+                    {pillarInfo.Governance.name} Pillar
+                  </span>
+                </div>
+                <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
                   Director of Legal, Contracts & Risk Advisory (Key Personnel)
+                </p>
+                <p className="text-body-sm text-neutral-600 mb-6">
+                  {pillarInfo.Governance.description}
                 </p>
                 <div className="prose prose-neutral max-w-none">
                   <p className="text-body text-neutral-700 mb-6 leading-relaxed">
@@ -318,7 +443,17 @@ export default function LeadershipPage() {
                       </li>
                     </ul>
                   </div>
-                  <p className="text-body-sm text-neutral-600 italic">
+                  <div className={`mt-6 p-4 rounded border ${pillarInfo.Governance.color}`}>
+                    <p className="text-body-sm font-semibold mb-2">Governance Pillar Tools & Capabilities</p>
+                    <p className="text-body-sm text-neutral-700 mb-3">
+                      John leads the Governance pillar, overseeing tools and platforms for contract management, 
+                      legal document generation, risk analysis, and corporate governance.
+                    </p>
+                    <Link href="/showcase" className="text-body-sm font-medium text-accent-700 hover:text-accent-800">
+                      View Governance Pillar Tools →
+                    </Link>
+                  </div>
+                  <p className="text-body-sm text-neutral-600 italic mt-6">
                     Available for proposals as key personnel. Licensed in Massachusetts and Rhode Island.
                   </p>
                 </div>

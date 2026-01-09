@@ -3,10 +3,13 @@
 import Link from 'next/link'
 import { useState, useCallback } from 'react'
 
+type Pillar = 'Governance' | 'Infrastructure' | 'Quality' | 'Security'
+
 interface Tool {
   id: string
   name: string
   category: string
+  pillar: Pillar
   status: 'available' | 'coming-soon' | 'in-development'
   description: string
   features: string[]
@@ -26,6 +29,7 @@ const tools: Tool[] = [
     id: 'stig-generator',
     name: 'STIG Generator',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated generation of Ansible hardening playbooks, checker playbooks, and Certification Test Procedure (CTP) documents from DISA STIG XCCDF XML files.',
     features: [
@@ -53,6 +57,7 @@ const tools: Tool[] = [
     id: 'rmf-artifact-generator',
     name: 'RMF Artifact Generator',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Automated generation of RMF Step 1-6 documentation including System Security Plans (SSP), Risk Assessment Reports (RAR), POA&Ms, and Continuous Monitoring Strategies from system inventories and templates.',
     features: [
@@ -80,6 +85,7 @@ const tools: Tool[] = [
     id: 'control-validator',
     name: 'Control Implementation Validator',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Automated validation tool that assesses NIST 800-53 control implementations against evidence artifacts, identifying gaps before Security Control Assessments (SCA).',
     features: [
@@ -103,6 +109,7 @@ const tools: Tool[] = [
     id: 'infrastructure-scanner',
     name: 'Infrastructure Compliance Scanner',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Pre-deployment compliance scanning for Infrastructure-as-Code (Terraform, Ansible, CloudFormation) that identifies STIG, NIST, and DoD policy violations before infrastructure is provisioned.',
     features: [
@@ -129,6 +136,7 @@ const tools: Tool[] = [
     id: 'network-config-generator',
     name: 'Network Security Configuration Generator',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'coming-soon',
     description: 'Automated generation of compliant network security configurations including firewall rules, ACLs, and routing policies aligned with DoD network security requirements.',
     features: [
@@ -152,6 +160,7 @@ const tools: Tool[] = [
     id: 'ato-dashboard',
     name: 'ATO Readiness Dashboard',
     category: 'Assessment & Readiness',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Web-based dashboard providing real-time visibility into RMF step completion, artifact status, and authorization readiness metrics for program offices and ISSOs.',
     features: [
@@ -179,6 +188,7 @@ const tools: Tool[] = [
     id: 'conmon-platform',
     name: 'Continuous Monitoring Automation Platform',
     category: 'Assessment & Readiness',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Automated collection, analysis, and reporting of security control evidence for Continuous Monitoring programs, reducing manual effort and ensuring consistent evidence quality.',
     features: [
@@ -206,6 +216,7 @@ const tools: Tool[] = [
     id: 'sca-toolkit',
     name: 'SCA Preparation Toolkit',
     category: 'Assessment & Readiness',
+    pillar: 'Security',
     status: 'in-development',
     description: 'Comprehensive toolkit for Security Control Assessment preparation including automated evidence collection, control mapping, gap analysis, and assessment readiness scoring.',
     features: [
@@ -232,6 +243,7 @@ const tools: Tool[] = [
     id: 'process-doc-generator',
     name: 'Process Documentation Generator',
     category: 'Automation & Compliance',
+    pillar: 'Quality',
     status: 'coming-soon',
     description: 'Automated generation of ISO-compliant process documentation including procedures, work instructions, and quality management system documentation from templates and workflow inputs.',
     features: [
@@ -259,6 +271,7 @@ const tools: Tool[] = [
     id: 'audit-evidence-collector',
     name: 'Audit Evidence Collector',
     category: 'Automation & Compliance',
+    pillar: 'Quality',
     status: 'coming-soon',
     description: 'Automated collection and organization of evidence artifacts for ISO, accreditation, and compliance audits, eliminating last-minute evidence gathering.',
     features: [
@@ -282,6 +295,7 @@ const tools: Tool[] = [
     id: 'compliant-templates',
     name: 'Compliant Infrastructure Templates',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'in-development',
     description: 'Pre-built, STIG-compliant infrastructure templates for Terraform and Ansible covering common DoD architectures including web applications, databases, and cloud environments.',
     features: [
@@ -309,6 +323,7 @@ const tools: Tool[] = [
     id: 'rmf-workflow-platform',
     name: 'RMF Workflow Automation Platform',
     category: 'Infrastructure & Engineering',
+    pillar: 'Security',
     status: 'coming-soon',
     description: 'End-to-end platform managing the complete RMF lifecycle (Steps 1-6) with automated workflows, artifact generation, progress tracking, and collaboration tools.',
     features: [
@@ -338,6 +353,7 @@ const tools: Tool[] = [
     id: 'data-center-deployment',
     name: 'Data Center Deployment Automation',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'available',
     description: 'Automated infrastructure provisioning templates for common DoD architectures with storage array configuration automation, VMWare host attachment, and pre-deployment STIG compliance checking.',
     features: [
@@ -365,6 +381,7 @@ const tools: Tool[] = [
     id: 'infrastructure-health-monitoring',
     name: 'Infrastructure Health Monitoring & Predictive Analytics',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'available',
     description: 'Real-time infrastructure health dashboards with predictive failure analysis, automated ticket generation, and ML-based anomaly detection.',
     features: [
@@ -392,6 +409,7 @@ const tools: Tool[] = [
     id: 'network-config-automation',
     name: 'Network Configuration Automation',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'available',
     description: 'Automated network topology generation, firewall rule generation, and network compliance checking aligned with DISA Network STIGs.',
     features: [
@@ -420,6 +438,7 @@ const tools: Tool[] = [
     id: 'iso-compliance-platform',
     name: 'ISO 17025/9001 Compliance Automation',
     category: 'Quality Assurance',
+    pillar: 'Quality',
     status: 'available',
     description: 'Automated ISO compliance program management with gap analysis, audit readiness scoring, and SOP generation aligned with ISO 17025 and ISO 9001 requirements.',
     features: [
@@ -448,6 +467,7 @@ const tools: Tool[] = [
     id: 'sop-automation-module',
     name: 'SOP Development & Technical Writing Automation',
     category: 'Quality Assurance',
+    pillar: 'Quality',
     status: 'available',
     description: 'Automated SOP generation from templates with consistency checking, version control, and review workflows aligned with ISO requirements.',
     features: [
@@ -475,6 +495,7 @@ const tools: Tool[] = [
     id: 'metrology-management',
     name: 'Laboratory & Metrology Management',
     category: 'Quality Assurance',
+    pillar: 'Quality',
     status: 'available',
     description: 'Metrology project tracking for 5,000+ projects with calibration schedule automation, measurement uncertainty analysis, and traceability chain documentation.',
     features: [
@@ -502,6 +523,7 @@ const tools: Tool[] = [
     id: 'audit-readiness-platform',
     name: 'Regulatory Audit Readiness & Documentation',
     category: 'Quality Assurance',
+    pillar: 'Quality',
     status: 'available',
     description: 'Automated audit evidence collection with readiness scoring across DLA, ISO, FDA standards. Includes pre-audit gap analysis and automated audit response generation.',
     features: [
@@ -530,6 +552,7 @@ const tools: Tool[] = [
     id: 'contract-management-platform',
     name: 'Contract Management & Analysis',
     category: 'Legal & Contracts',
+    pillar: 'Governance',
     status: 'available',
     description: 'Complete contract lifecycle management with risk analysis, obligation tracking, and automated compliance monitoring for vendor and subcontractor agreements.',
     features: [
@@ -557,6 +580,7 @@ const tools: Tool[] = [
     id: 'legal-document-generation',
     name: 'Legal Document Generation & Review',
     category: 'Legal & Contracts',
+    pillar: 'Governance',
     status: 'available',
     description: 'Automated generation of legal documents including NDAs, MSAs, SOWs, and licenses with AI-powered risk review and document comparison capabilities.',
     features: [
@@ -584,6 +608,7 @@ const tools: Tool[] = [
     id: 'contract-risk-analysis',
     name: 'Contract Risk Analysis & Mitigation',
     category: 'Legal & Contracts',
+    pillar: 'Governance',
     status: 'available',
     description: 'Automated contract risk assessment with dispute prediction, liability analysis, and risk mitigation recommendations for vendor and subcontractor agreements.',
     features: [
@@ -611,6 +636,7 @@ const tools: Tool[] = [
     id: 'rmf-requirements-management',
     name: 'RMF Requirements Management & Traceability',
     category: 'Cybersecurity & RMF',
+    pillar: 'Security',
     status: 'available',
     description: 'Complete RMF requirements tracking with BOE planning, control adjudication, and full traceability from requirements to implementation and evidence.',
     features: [
@@ -638,6 +664,7 @@ const tools: Tool[] = [
     id: 'security-architecture',
     name: 'Security Architecture & Baseline Controls',
     category: 'Cybersecurity & RMF',
+    pillar: 'Security',
     status: 'available',
     description: 'Security baseline management with architecture review automation, control implementation validation, and security zone configuration aligned with NIST 800-53.',
     features: [
@@ -664,6 +691,7 @@ const tools: Tool[] = [
     id: 'vulnerability-compliance',
     name: 'Vulnerability Management & Compliance Scanning',
     category: 'Cybersecurity & RMF',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated CVE analysis, vulnerability scanning integration (HBSS/EVSS/STIG), and remediation tracking with compliance validation.',
     features: [
@@ -691,6 +719,7 @@ const tools: Tool[] = [
     id: 'security-documentation',
     name: 'Security Documentation & CDRL Automation',
     category: 'Cybersecurity & RMF',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated generation of security documentation including CDRLs, work instructions, integration plans, and BOE documents with version control and approval workflows.',
     features: [
@@ -718,6 +747,7 @@ const tools: Tool[] = [
     id: 'cybersecurity-team-leadership',
     name: 'Cybersecurity Team Leadership & Performance',
     category: 'Cybersecurity & RMF',
+    pillar: 'Security',
     status: 'available',
     description: 'Team management platform for cybersecurity professionals with performance reviews, development planning, workload analysis, and skill gap identification.',
     features: [
@@ -746,6 +776,7 @@ const tools: Tool[] = [
     id: 'stig-compliance-validation',
     name: 'STIG Compliance Validation',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated STIG compliance validation with remediation playbook generation, compliance scoring, and gap analysis for RHEL, Windows, and Cisco systems.',
     features: [
@@ -772,6 +803,7 @@ const tools: Tool[] = [
     id: 'evidence-collection',
     name: 'Security Control Evidence Collection & Validation',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated evidence collection, quality validation, and gap identification for security control assessments with evidence package generation.',
     features: [
@@ -798,6 +830,7 @@ const tools: Tool[] = [
     id: 'rmf-artifacts',
     name: 'RMF Artifact Generation & Quality Assurance',
     category: 'Automation & Compliance',
+    pillar: 'Security',
     status: 'available',
     description: 'Automated generation of RMF artifacts (SSP, RAR, POA&M, CONMON) with quality validation, completeness checking, and standard DoD format export.',
     features: [
@@ -826,6 +859,7 @@ const tools: Tool[] = [
     id: 'ticket-routing-platform',
     name: 'Intelligent Ticket Routing & Resolution',
     category: 'Support & Operations',
+    pillar: 'Infrastructure',
     status: 'available',
     description: 'AI-powered ticket routing with intelligent engineer assignment, solution generation, and automated resolution workflows for technical support teams.',
     features: [
@@ -853,6 +887,7 @@ const tools: Tool[] = [
     id: 'knowledge-base-automation',
     name: 'Knowledge Base & Documentation Automation',
     category: 'Support & Operations',
+    pillar: 'Infrastructure',
     status: 'available',
     description: 'Automated knowledge base management with intelligent search, Q&A capabilities, and auto-generation of articles from resolved tickets.',
     features: [
@@ -880,6 +915,7 @@ const tools: Tool[] = [
     id: 'contract-risk-analyzer',
     name: 'Contract Risk Analyzer',
     category: 'Automation & Compliance',
+    pillar: 'Governance',
     status: 'coming-soon',
     description: 'Automated analysis tool that identifies contractual risks and alignment gaps in scopes of work, vendor agreements, and delivery models for regulated programs.',
     features: [
@@ -903,6 +939,7 @@ const tools: Tool[] = [
     id: 'iso-compliance-tracker',
     name: 'ISO Compliance Tracker',
     category: 'Assessment & Readiness',
+    pillar: 'Quality',
     status: 'in-development',
     description: 'Automated tracking and monitoring of ISO 9001 and ISO 17025 compliance status across organizational processes, identifying gaps and generating compliance reports for audits.',
     features: [
@@ -926,6 +963,7 @@ const tools: Tool[] = [
     id: 'quality-management-builder',
     name: 'Quality Management System Builder',
     category: 'Automation & Compliance',
+    pillar: 'Quality',
     status: 'in-development',
     description: 'Interactive tool for building complete Quality Management Systems (QMS) aligned with ISO 9001 and ISO 17025 requirements, generating procedures, work instructions, and quality manuals.',
     features: [
@@ -954,6 +992,7 @@ const tools: Tool[] = [
     id: 'audit-readiness-scorecard',
     name: 'Audit Readiness Scorecard',
     category: 'Assessment & Readiness',
+    pillar: 'Quality',
     status: 'in-development',
     description: 'Automated scoring and assessment of audit readiness across ISO, accreditation, and compliance audits, identifying high-risk areas and generating readiness reports for leadership.',
     features: [
@@ -977,6 +1016,7 @@ const tools: Tool[] = [
     id: 'infrastructure-performance-optimizer',
     name: 'Infrastructure Performance Optimizer',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'in-development',
     description: 'Automated analysis and optimization of infrastructure performance metrics, identifying bottlenecks, capacity issues, and optimization opportunities across data center and cloud environments.',
     features: [
@@ -1000,6 +1040,7 @@ const tools: Tool[] = [
     id: 'disaster-recovery-planner',
     name: 'Disaster Recovery Planner',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'in-development',
     description: 'Automated generation of disaster recovery plans from infrastructure inventory, mapping dependencies, recovery priorities, and creating RTO/RPO-aligned recovery procedures.',
     features: [
@@ -1023,6 +1064,7 @@ const tools: Tool[] = [
     id: 'infrastructure-cost-optimizer',
     name: 'Infrastructure Cost Optimizer',
     category: 'Infrastructure & Engineering',
+    pillar: 'Infrastructure',
     status: 'in-development',
     description: 'Automated analysis of infrastructure costs across on-premises and cloud environments, identifying optimization opportunities, cost trends, and providing cloud migration cost projections.',
     features: [
@@ -1046,6 +1088,7 @@ const tools: Tool[] = [
     id: 'vendor-risk-assessor',
     name: 'Vendor Risk Assessment Tool',
     category: 'Automation & Compliance',
+    pillar: 'Governance',
     status: 'in-development',
     description: 'Automated assessment of vendor and subcontractor risk profiles, evaluating contract compliance, performance, and identifying risk areas in vendor relationships for regulated programs.',
     features: [
@@ -1069,6 +1112,7 @@ const tools: Tool[] = [
     id: 'governance-structure-builder',
     name: 'Governance Structure Builder',
     category: 'Automation & Compliance',
+    pillar: 'Governance',
     status: 'in-development',
     description: 'Interactive tool for designing governance frameworks for complex programs, mapping decision-making authority, approval workflows, and identifying governance gaps and conflicts.',
     features: [
@@ -1092,6 +1136,7 @@ const tools: Tool[] = [
     id: 'contract-obligation-tracker',
     name: 'Contract Obligation Tracker',
     category: 'Automation & Compliance',
+    pillar: 'Governance',
     status: 'in-development',
     description: 'Automated tracking of contractual obligations across multiple contracts, mapping obligations to deliverables and milestones, with alerts for upcoming obligations and deadlines.',
     features: [
@@ -1113,6 +1158,13 @@ const tools: Tool[] = [
   }
 ]
 
+const pillars: Pillar[] = [
+  'Security',
+  'Infrastructure',
+  'Quality',
+  'Governance'
+]
+
 const categories = [
   'Automation & Compliance',
   'Assessment & Readiness',
@@ -1122,6 +1174,33 @@ const categories = [
   'Legal & Contracts',
   'Support & Operations'
 ]
+
+const pillarInfo = {
+  'Security': {
+    name: 'Security',
+    leader: 'Patrick Caruso',
+    description: 'Cybersecurity & RMF expertise',
+    color: 'bg-red-50 border-red-200 text-red-900'
+  },
+  'Infrastructure': {
+    name: 'Infrastructure',
+    leader: 'James Adams',
+    description: 'Data center, storage, networking, deployment',
+    color: 'bg-blue-50 border-blue-200 text-blue-900'
+  },
+  'Quality': {
+    name: 'Quality',
+    leader: 'Brian MacDonald',
+    description: 'ISO compliance, metrology, audit readiness',
+    color: 'bg-green-50 border-green-200 text-green-900'
+  },
+  'Governance': {
+    name: 'Governance',
+    leader: 'John Milso',
+    description: 'Legal, contracts, risk analysis, corporate governance',
+    color: 'bg-purple-50 border-purple-200 text-purple-900'
+  }
+}
 
 const statusLabels = {
   'available': 'Available Now',
@@ -1137,7 +1216,8 @@ const statusColors = {
 
 export default function ShowcasePage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
-  const [activeTab, setActiveTab] = useState<string>(categories[0])
+  const [activeTab, setActiveTab] = useState<string>(pillars[0])
+  const [viewMode, setViewMode] = useState<'pillar' | 'category'>('pillar')
 
   const toggleItem = useCallback((id: string, event?: React.MouseEvent) => {
     if (event) {
@@ -1155,13 +1235,15 @@ export default function ShowcasePage() {
     })
   }, [])
 
-  const handleTabChange = useCallback((category: string) => {
-    setActiveTab(category)
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab)
     // Clear expanded items when switching tabs
     setExpandedItems(new Set())
   }, [])
 
-  const activeTools = tools.filter(tool => tool.category === activeTab)
+  const activeTools = viewMode === 'pillar' 
+    ? tools.filter(tool => tool.pillar === activeTab)
+    : tools.filter(tool => tool.category === activeTab)
 
   return (
     <div className="bg-white">
@@ -1234,21 +1316,90 @@ export default function ShowcasePage() {
       {/* Tabs */}
       <section className="section-container bg-white border-b border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categories.map((category) => (
+          {/* View Mode Toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex gap-2">
               <button
-                key={category}
-                onClick={() => handleTabChange(category)}
-                className={`px-6 py-3 text-body-sm font-medium transition-all duration-gentle ${
-                  activeTab === category
-                    ? 'bg-accent-700 text-white border border-accent-700'
-                    : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50'
+                onClick={() => {
+                  setViewMode('pillar')
+                  setActiveTab(pillars[0])
+                }}
+                className={`px-4 py-2 text-body-sm font-medium transition-all ${
+                  viewMode === 'pillar'
+                    ? 'bg-accent-700 text-white'
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                 }`}
               >
-                {category}
+                By Pillar
               </button>
-            ))}
+              <button
+                onClick={() => {
+                  setViewMode('category')
+                  setActiveTab(categories[0])
+                }}
+                className={`px-4 py-2 text-body-sm font-medium transition-all ${
+                  viewMode === 'category'
+                    ? 'bg-accent-700 text-white'
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                }`}
+              >
+                By Category
+              </button>
+            </div>
           </div>
+
+          {/* Pillar/Category Tabs */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {viewMode === 'pillar' ? (
+              pillars.map((pillar) => {
+                const info = pillarInfo[pillar]
+                return (
+                  <button
+                    key={pillar}
+                    onClick={() => handleTabChange(pillar)}
+                    className={`px-6 py-3 text-body-sm font-medium transition-all duration-gentle text-left ${
+                      activeTab === pillar
+                        ? `${info.color} border-2`
+                        : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50'
+                    }`}
+                  >
+                    <div className="font-semibold">{info.name}</div>
+                    <div className="text-body-xs opacity-75">{info.leader}</div>
+                  </button>
+                )
+              })
+            ) : (
+              categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleTabChange(category)}
+                  className={`px-6 py-3 text-body-sm font-medium transition-all duration-gentle ${
+                    activeTab === category
+                      ? 'bg-accent-700 text-white border border-accent-700'
+                      : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))
+            )}
+          </div>
+
+          {/* Pillar Header (when viewing by pillar) */}
+          {viewMode === 'pillar' && activeTools.length > 0 && (
+            <div className={`mb-8 p-6 rounded-lg border-2 ${pillarInfo[activeTab as Pillar].color}`}>
+              <h2 className="heading-2 mb-2">{pillarInfo[activeTab as Pillar].name} Pillar</h2>
+              <p className="text-body-lg mb-2">
+                <strong>Leader:</strong> {pillarInfo[activeTab as Pillar].leader}
+              </p>
+              <p className="text-body text-neutral-700">
+                {pillarInfo[activeTab as Pillar].description}
+              </p>
+              <p className="text-body-sm text-neutral-600 mt-2">
+                {activeTools.length} {activeTools.length === 1 ? 'tool' : 'tools'} in this pillar
+              </p>
+            </div>
+          )}
 
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
@@ -1278,6 +1429,11 @@ export default function ShowcasePage() {
                             <span className={`text-body-sm font-medium px-3 py-1 rounded border flex-shrink-0 ${statusColors[tool.status]}`}>
                               {statusLabels[tool.status]}
                             </span>
+                            {viewMode === 'category' && (
+                              <span className={`text-body-xs font-medium px-2 py-1 rounded border flex-shrink-0 ${pillarInfo[tool.pillar].color}`}>
+                                {tool.pillar}
+                              </span>
+                            )}
                             {/* Deliverable badges */}
                             {tool.deliverables && (
                               <div className="flex gap-2 flex-wrap">
