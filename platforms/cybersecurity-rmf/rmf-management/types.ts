@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const rmfRequirementSchema = z.object({
+  systemId: z.string().uuid(),
   controlId: z.string(),
   title: z.string(),
   description: z.string(),
