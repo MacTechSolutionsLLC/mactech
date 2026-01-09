@@ -80,6 +80,13 @@
       keywords: extractKeywords(textContent, title),
       sowAttachmentUrl: findSOWAttachment(),
       sowAttachmentType: findSOWAttachmentType(),
+      pointsOfContact: extractPointsOfContact(textContent, htmlContent),
+      description: extractDescription(textContent),
+      requirements: extractRequirements(textContent),
+      deadline: extractDeadline(textContent),
+      estimatedValue: extractEstimatedValue(textContent),
+      periodOfPerformance: extractPeriodOfPerformance(textContent),
+      placeOfPerformance: extractPlaceOfPerformance(textContent),
     }
     
     return data
@@ -227,6 +234,176 @@
     if (url.match(/\.xlsx?$/i)) return 'XLSX'
     
     return 'HTML'
+  }
+
+  // Extract points of contact
+  function extractPointsOfContact(text, html) {
+    const contacts = []
+    const textLower = text.toLowerCase()
+    
+    // Extract emails
+    const emailPattern = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
+    const emails = [...text.matchAll(emailPattern)]
+    
+    emails.forEach((emailMatch) => {
+      const email = emailMatch[1]
+      const emailLower = email.toLowerCase()
+      
+      // Skip common non-POC emails
+      if (emailLower.includes('noreply') || emailLower.includes('no-reply') || 
+          emailLower.includes('donotreply') || emailLower.includes('automated') ||
+          emailLower.includes('system') || emailLower.includes('notification')) {
+        return
+      }
+      
+      // Look for name before email (within 100 chars)
+      const emailIndex = text.indexOf(email)
+      const beforeText = text.substring(Math.max(0, emailIndex - 100), emailIndex)
+      const nameMatch = beforeText.match(/(?:contact|poc|officer|manager|specialist|representative)[:\s]+([a-z\s]{2,50})/i)
+      const name = nameMatch ? nameMatch[1].trim() : null
+      
+      // Look for phone near email
+      const afterText = text.substring(emailIndex, emailIndex + 200)
+      const phoneMatch = afterText.match(/(?:phone|tel|telephone)[:\s]+([\d\s\-\(\)\.]+)/i)
+      const phone = phoneMatch ? phoneMatch[1].trim() : null
+      
+      // Determine role
+      let role = 'Contact'
+      if (beforeText.toLowerCase().includes('contracting')) role = 'Contracting Officer'
+      else if (beforeText.toLowerCase().includes('technical')) role = 'Technical POC'
+      else if (beforeText.toLowerCase().includes('program')) role = 'Program Manager'
+      
+      if (name || email) {
+        contacts.push({
+          name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          email: email,
+          phone: phone || null,
+          role: role
+        })
+      }
+    })
+    
+    return contacts.slice(0, 5) // Limit to 5 contacts
+  }
+
+  // Extract full description
+  function extractDescription(text) {
+    // Look for description sections
+    const descPatterns = [
+      /(?:description|summary|overview|background)[:\s]+([^]{200,2000})/i,
+      /(?:statement of work|sow|scope)[:\s]+([^]{200,2000})/i,
+    ]
+    
+    for (const pattern of descPatterns) {
+      const match = text.match(pattern)
+      if (match && match[1]) {
+        return match[1].trim().substring(0, 5000)
+      }
+    }
+    
+    // Fallback: use first substantial paragraph
+    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 100)
+    if (paragraphs.length > 0) {
+      return paragraphs[0].trim().substring(0, 5000)
+    }
+    
+    return text.substring(0, 5000)
+  }
+
+  // Extract requirements
+  function extractRequirements(text) {
+    const requirements = []
+    
+    // Common requirement patterns
+    const reqPatterns = [
+      /(?:requirement|must|shall|should)[:\s]+([^.\n]{20,500})/gi,
+      /(?:experience|qualification|skill)[\s]*(?:required|needed|desired)[:\s]+([^.\n]{20,500})/gi,
+      /(?:minimum|required)[\s]+(?:years?|years of)[\s]+(?:experience|experience in)[:\s]+([^.\n]{20,500})/gi,
+    ]
+    
+    reqPatterns.forEach(pattern => {
+      const matches = [...text.matchAll(pattern)]
+      matches.forEach(match => {
+        if (match[1] && match[1].trim().length > 10) {
+          const req = match[1].trim().substring(0, 500)
+          if (!requirements.some(r => r.toLowerCase().includes(req.toLowerCase().substring(0, 50)))) {
+            requirements.push(req)
+          }
+        }
+      })
+    })
+    
+    return requirements.slice(0, 20) // Limit to 20 requirements
+  }
+
+  // Extract deadline
+  function extractDeadline(text) {
+    const deadlinePatterns = [
+      /(?:deadline|due date|closing date|response date|submission deadline)[:\s]+([\d\/\-]+(?:\s+[\d:]+)?)/gi,
+      /(?:submit|response)[\s]*(?:by|before|on)[:\s]+([\d\/\-]+(?:\s+[\d:]+)?)/gi,
+      /(?:closes?|closing)[\s]+(?:on|at)[:\s]+([\d\/\-]+(?:\s+[\d:]+)?)/gi,
+    ]
+    
+    for (const pattern of deadlinePatterns) {
+      const match = text.match(pattern)
+      if (match && match[1]) {
+        return match[1].trim()
+      }
+    }
+    
+    return null
+  }
+
+  // Extract estimated value
+  function extractEstimatedValue(text) {
+    const valuePatterns = [
+      /\$[\d,]+(?:\s*(?:million|thousand|k|m|b))?/gi,
+      /(?:estimated|estimated value|budget|contract value)[:\s]+(\$?[\d,]+(?:\s*(?:million|thousand|k|m|b))?)/gi,
+    ]
+    
+    for (const pattern of valuePatterns) {
+      const match = text.match(pattern)
+      if (match) {
+        return match[0].trim()
+      }
+    }
+    
+    return null
+  }
+
+  // Extract period of performance
+  function extractPeriodOfPerformance(text) {
+    const popPatterns = [
+      /(?:period of performance|pop)[:\s]+([^.\n]{10,200})/gi,
+      /(?:performance period|contract period)[:\s]+([^.\n]{10,200})/gi,
+      /(?:start date|begin)[:\s]+([\d\/\-]+)[\s]+(?:to|through|end)[:\s]+([\d\/\-]+)/gi,
+    ]
+    
+    for (const pattern of popPatterns) {
+      const match = text.match(pattern)
+      if (match) {
+        return match[1] ? match[1].trim() : match[0].trim()
+      }
+    }
+    
+    return null
+  }
+
+  // Extract place of performance
+  function extractPlaceOfPerformance(text) {
+    const popPatterns = [
+      /(?:place of performance|pop|location)[:\s]+([^.\n]{10,200})/gi,
+      /(?:work will be performed|performance location)[:\s]+([^.\n]{10,200})/gi,
+    ]
+    
+    for (const pattern of popPatterns) {
+      const match = text.match(pattern)
+      if (match && match[1]) {
+        return match[1].trim().substring(0, 500)
+      }
+    }
+    
+    return null
   }
 
   // Inject scrape button

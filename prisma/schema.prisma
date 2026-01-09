@@ -113,5 +113,14 @@ model GovernmentContractDiscovery {
   dismissed_at        DateTime?
   dismissed_by        String?
   dismissal_reason    String?
+  
+  // Additional contract details
+  points_of_contact   String?  // JSON array of POC objects: [{name, email, phone, role}]
+  description         String?  // Full contract description
+  requirements        String?  // JSON array of requirements
+  deadline            String?  // Response deadline/date
+  estimated_value     String?  // Contract value estimate
+  period_of_performance String? // POP dates
+  place_of_performance String? // Location/place of performance
 }
 

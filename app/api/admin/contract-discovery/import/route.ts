@@ -38,6 +38,13 @@ export async function POST(request: NextRequest) {
       keywords,
       sowAttachmentUrl,
       sowAttachmentType,
+      pointsOfContact,
+      description,
+      requirements,
+      deadline,
+      estimatedValue,
+      periodOfPerformance,
+      placeOfPerformance,
     } = body
 
     if (!url || !title) {
@@ -79,6 +86,13 @@ export async function POST(request: NextRequest) {
       scraped_text_content: textContent?.substring(0, 50000) || null,
       sow_attachment_url: sowAttachmentUrl || null,
       sow_attachment_type: sowAttachmentType || null,
+      points_of_contact: pointsOfContact ? JSON.stringify(Array.isArray(pointsOfContact) ? pointsOfContact : []) : null,
+      description: description || null,
+      requirements: requirements ? JSON.stringify(Array.isArray(requirements) ? requirements : []) : null,
+      deadline: deadline || null,
+      estimated_value: estimatedValue || null,
+      period_of_performance: periodOfPerformance || null,
+      place_of_performance: placeOfPerformance || null,
       updated_at: new Date(),
     }
 

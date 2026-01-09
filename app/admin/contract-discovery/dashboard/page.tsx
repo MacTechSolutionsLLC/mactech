@@ -279,9 +279,12 @@ export default function ContractDashboardPage() {
                       >
                         <td className="px-4 py-3">
                           <div className="max-w-md">
-                            <p className="text-body-sm font-medium text-neutral-900 mb-1">
+                            <Link
+                              href={`/admin/contract-discovery/${contract.id}`}
+                              className="text-body-sm font-medium text-accent-700 hover:text-accent-900 mb-1 block"
+                            >
                               {contract.title}
-                            </p>
+                            </Link>
                             <div className="flex flex-wrap gap-2 mb-2">
                               {contract.set_aside.slice(0, 2).map((sa, idx) => (
                                 <span
