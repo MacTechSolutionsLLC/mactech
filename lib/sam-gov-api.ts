@@ -368,11 +368,30 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
   }
   
   // Calculate relevance score
-  let relevanceScore = 50 // Base score
+  let relevanceScore = 30 // Base score
   
-  if (setAside.length > 0) relevanceScore += 20
-  if (detectedKeywords.length > 3) relevanceScore += 15
+  // VetCert set-aside boost
+  if (setAside.length > 0) relevanceScore += 30
   if (opportunity.typeOfSetAside === 'SDVOSB' || opportunity.typeOfSetAside === 'VOSB') relevanceScore += 25
+  
+  // Keyword relevance boost
+  if (detectedKeywords.length > 0) relevanceScore += detectedKeywords.length * 5
+  if (detectedKeywords.length > 3) relevanceScore += 15
+  
+  // Service category match boost
+  if (detectedServiceCategory !== 'general') relevanceScore += 20
+  
+  // Penalize irrelevant NAICS codes (hardware, manufacturing, etc.)
+  const irrelevantNaics = ['325920', '237990', '339112', '332912', '322230', '333996', '236220', '562910', '325120', '311991', '334514', '336413', '332510', '541380', '332911', '336412', '336611', '335931', '332999', '333998', '332994', '333618', '334417', '334220']
+  if (naicsCodes.some(code => irrelevantNaics.includes(code))) {
+    relevanceScore -= 40 // Heavy penalty for irrelevant NAICS
+  }
+  
+  // Boost for cybersecurity NAICS codes
+  const cyberNaics = ['541512', '541519', '541511']
+  if (naicsCodes.some(code => cyberNaics.includes(code))) {
+    relevanceScore += 30
+  }
   
   return {
     title: opportunity.title,

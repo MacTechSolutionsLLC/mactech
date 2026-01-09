@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { searchSamGov, transformSamGovResult } from '@/lib/sam-gov-api'
 import { DiscoveryResult } from '@/lib/contract-discovery'
+import { parseTemplateQuery, buildSamGovKeywordString } from '@/lib/sam-gov-search-helper'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -57,18 +58,58 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Parse template query if provided to extract proper parameters
+    let searchParams: {
+      keywords?: string
+      serviceCategory?: 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
+      setAside?: string[]
+      naicsCodes?: string[]
+    } = {
+      keywords: body.keywords,
+      serviceCategory: body.service_category,
+      setAside: body.set_aside,
+      naicsCodes: body.naics_codes,
+    }
+    
+    // If a query is provided (from template), parse it to extract parameters
+    if (body.query && !body.keywords) {
+      const parsed = parseTemplateQuery(body.query)
+      console.log(`[${requestId}] Parsed template query:`, {
+        extractedKeywords: parsed.keywords,
+        extractedSetAside: parsed.setAside,
+        extractedNaics: parsed.naicsCodes,
+        serviceCategory: parsed.serviceCategory,
+      })
+      
+      // Use parsed parameters, but allow explicit overrides
+      searchParams = {
+        keywords: buildSamGovKeywordString(parsed.keywords || [], parsed.serviceCategory),
+        serviceCategory: body.service_category || parsed.serviceCategory,
+        setAside: body.set_aside || parsed.setAside,
+        naicsCodes: body.naics_codes || parsed.naicsCodes,
+      }
+    } else if (body.keywords) {
+      // If keywords are provided directly, use them
+      searchParams.keywords = body.keywords
+    }
+    
     // Call SAM.gov API
     let samGovResults
     try {
       const samApiStartTime = Date.now()
-      console.log(`[${requestId}] Calling SAM.gov API at ${new Date().toISOString()}`)
+      console.log(`[${requestId}] Calling SAM.gov API at ${new Date().toISOString()}`, {
+        keywords: searchParams.keywords,
+        serviceCategory: searchParams.serviceCategory,
+        setAside: searchParams.setAside,
+        naicsCodes: searchParams.naicsCodes,
+      })
       
       samGovResults = await searchSamGov({
-        keywords: body.keywords || body.query,
-        serviceCategory: body.service_category,
+        keywords: searchParams.keywords,
+        serviceCategory: searchParams.serviceCategory,
         dateRange: body.filters?.date_range || 'past_month',
-        setAside: body.set_aside,
-        naicsCodes: body.naics_codes,
+        setAside: searchParams.setAside,
+        naicsCodes: searchParams.naicsCodes,
         limit: body.num_results || 25,
         offset: 0,
       })
@@ -111,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform SAM.gov results to DiscoveryResult format
-    const processedResults = samGovResults.opportunitiesData
+    let processedResults = samGovResults.opportunitiesData
       .map((opportunity) => {
         try {
           return transformSamGovResult(opportunity)
@@ -125,7 +166,43 @@ export async function POST(request: NextRequest) {
       })
       .filter((result): result is DiscoveryResult => result !== null)
     
-    console.log(`[${requestId}] Processed ${processedResults.length} results from SAM.gov`)
+    // Filter results based on search criteria
+    const isVetCertSearch = searchParams.setAside && searchParams.setAside.length > 0
+    const isCybersecuritySearch = searchParams.serviceCategory === 'cybersecurity' || 
+                                   searchParams.keywords?.toUpperCase().includes('RMF') ||
+                                   searchParams.keywords?.toUpperCase().includes('ATO') ||
+                                   searchParams.keywords?.toUpperCase().includes('CYBERSECURITY')
+    
+    if (isVetCertSearch || isCybersecuritySearch) {
+      processedResults = processedResults.filter(result => {
+        // For VetCert searches, require set-aside match
+        if (isVetCertSearch) {
+          const hasSetAside = result.set_aside && result.set_aside.length > 0
+          if (!hasSetAside) return false
+        }
+        
+        // For cybersecurity searches, require relevant keywords or NAICS
+        if (isCybersecuritySearch) {
+          const hasCyberKeywords = result.detected_keywords && result.detected_keywords.some(kw => 
+            ['RMF', 'ATO', 'ISSO', 'ISSM', 'STIG', 'NIST', 'Cybersecurity'].includes(kw)
+          )
+          const hasCyberNaics = result.naics_codes && result.naics_codes.some(code => 
+            ['541512', '541519', '541511'].includes(code)
+          )
+          
+          // Must have either relevant keywords or NAICS, and minimum relevance score
+          if (!hasCyberKeywords && !hasCyberNaics) return false
+          if ((result.relevance_score || 0) < 50) return false // Filter low relevance
+        }
+        
+        return true
+      })
+    }
+    
+    // Sort by relevance score (highest first)
+    processedResults.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0))
+    
+    console.log(`[${requestId}] Processed ${processedResults.length} results from SAM.gov (filtered from ${samGovResults.opportunitiesData.length})`)
 
     // Store results in database
     let dbAvailable = false
