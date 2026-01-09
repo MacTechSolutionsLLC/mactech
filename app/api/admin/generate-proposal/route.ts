@@ -24,7 +24,9 @@ async function ensureDirectories() {
   }
 }
 
-async function extractTextFromFile(file: { arrayBuffer: () => Promise<ArrayBuffer>; name: string }): Promise<string> {
+type FileLike = { arrayBuffer: () => Promise<ArrayBuffer>; name: string }
+
+async function extractTextFromFile(file: FileLike): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer())
   const extension = file.name.split('.').pop()?.toLowerCase()
 
