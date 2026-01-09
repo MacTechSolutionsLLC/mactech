@@ -1387,7 +1387,7 @@ export default function ShowcasePage() {
           {/* Pillar Header (when viewing by pillar) */}
           {viewMode === 'pillar' && activeTools.length > 0 && (
             <div className={`mb-8 p-6 rounded-lg border-2 ${pillarInfo[activeTab as Pillar].color}`}>
-              <h2 className="heading-2 mb-2">{pillarInfo[activeTab as Pillar].name} Module</h2>
+              <h2 className="heading-2 mb-2">{pillarInfo[activeTab as Pillar].name} Modules</h2>
               <p className="text-body text-neutral-700">
                 {pillarInfo[activeTab as Pillar].description}
               </p>
