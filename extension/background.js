@@ -49,7 +49,11 @@ async function sendContractToAPI(contractData) {
     }
   } catch (error) {
     console.error('[MacTech Scraper] API error:', error)
-    throw error
+    // Provide more detailed error information
+    const errorMessage = error.message || 'Failed to import contract'
+    const errorDetails = error.stack || error.toString()
+    console.error('[MacTech Scraper] Error details:', errorDetails)
+    throw new Error(`${errorMessage}. Details: ${errorDetails.substring(0, 200)}`)
   }
 }
 
@@ -63,9 +67,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
+        console.error('[MacTech Scraper] Error in message handler:', error)
         sendResponse({
           success: false,
           error: error.message || 'Failed to import contract',
+          details: error.toString(),
         })
       })
     

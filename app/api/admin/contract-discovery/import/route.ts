@@ -110,10 +110,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error importing contract:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     return NextResponse.json(
       {
         error: 'Failed to import contract',
-        details: error.message,
+        details: error.message || 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { 
         status: 500,
