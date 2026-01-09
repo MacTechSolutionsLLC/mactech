@@ -8,6 +8,8 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, Ta
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
 
 // Ensure uploads directory exists
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads')

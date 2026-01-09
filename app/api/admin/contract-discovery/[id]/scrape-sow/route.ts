@@ -3,6 +3,9 @@ import { scrapeSOWAttachment, saveScrapedSOW } from '@/lib/contract-scraper'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
 
 /**
  * Scrape SOW attachment document
