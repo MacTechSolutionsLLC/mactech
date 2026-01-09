@@ -1038,7 +1038,66 @@
       button.textContent = '⏳ Scraping...'
 
       try {
-        const contractData = extractContractData()
+        // Get basic data first
+        const url = window.location.href
+        const htmlContent = document.documentElement.outerHTML
+        
+        // Send HTML to AI parser first
+        button.textContent = '🤖 Parsing with AI...'
+        
+        const apiUrl = await getApiUrl()
+        const parseResponse = await fetch(`${apiUrl}/api/admin/contract-discovery/parse-html`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            htmlContent: htmlContent.substring(0, 200000), // Limit HTML size
+            url: url,
+          }),
+        })
+
+        if (!parseResponse.ok) {
+          const errorData = await parseResponse.json().catch(() => ({}))
+          throw new Error(errorData.error || 'AI parsing failed')
+        }
+
+        const parseData = await parseResponse.json()
+        if (!parseData.success || !parseData.data) {
+          throw new Error('AI parsing returned invalid data')
+        }
+
+        // Merge AI-parsed data with basic extraction
+        const aiData = parseData.data
+        const basicData = extractContractData()
+        
+        // Combine: prefer AI data, fallback to basic extraction
+        const contractData = {
+          url,
+          title: aiData.title || basicData.title,
+          htmlContent: htmlContent.substring(0, 100000),
+          textContent: basicData.textContent,
+          snippet: basicData.snippet,
+          domain: basicData.domain,
+          documentType: aiData.contractType || basicData.documentType,
+          noticeId: aiData.noticeId || basicData.noticeId,
+          solicitationNumber: aiData.solicitationNumber || basicData.solicitationNumber,
+          agency: aiData.agency || basicData.agency,
+          naicsCodes: aiData.naicsCodes || basicData.naicsCodes,
+          setAside: aiData.setAside || basicData.setAside,
+          keywords: aiData.keywords || basicData.keywords,
+          sowAttachmentUrl: aiData.sowAttachmentUrl || basicData.sowAttachmentUrl,
+          sowAttachmentType: aiData.sowAttachmentType || basicData.sowAttachmentType,
+          pointsOfContact: aiData.pointsOfContact || basicData.pointsOfContact,
+          description: aiData.description || basicData.description,
+          requirements: aiData.requirements || basicData.requirements,
+          deadline: aiData.deadline || aiData.responseDeadline || basicData.deadline,
+          estimatedValue: aiData.estimatedValue || basicData.estimatedValue,
+          periodOfPerformance: aiData.periodOfPerformance || basicData.periodOfPerformance,
+          placeOfPerformance: aiData.placeOfPerformance || basicData.placeOfPerformance,
+        }
+        
+        button.textContent = '📤 Uploading...'
         
         // Send to background script for API call
         chrome.runtime.sendMessage(
@@ -1083,6 +1142,16 @@
         isProcessing = false
       }
     })
+
+    // Helper function to get API URL
+    async function getApiUrl() {
+      return new Promise((resolve) => {
+        chrome.storage.sync.get(['mactechApiUrl'], (data) => {
+          const defaultUrl = 'http://localhost:3000'
+          resolve(data.mactechApiUrl || defaultUrl)
+        })
+      })
+    }
 
     document.body.appendChild(button)
     
