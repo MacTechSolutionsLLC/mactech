@@ -48,10 +48,10 @@ model GovernmentContractDiscovery {
   notice_id           String?
   solicitation_number String?
   agency              String?
-  naics_codes         String   @default("[]") // JSON array as string for SQLite
-  set_aside           String   @default("[]") // JSON array as string for SQLite
-  location_mentions   String   @default("[]") // JSON array as string for SQLite
-  detected_keywords   String   @default("[]") // JSON array as string for SQLite
+  naics_codes         String   @default("[]") // JSON array as string
+  set_aside           String   @default("[]") // JSON array as string
+  location_mentions   String   @default("[]") // JSON array as string
+  detected_keywords   String   @default("[]") // JSON array as string
   relevance_score     Int      @default(0)
   ingestion_status    String   @default("discovered")
   verified            Boolean  @default(false)
@@ -82,6 +82,31 @@ model GovernmentContractDiscovery {
   analysis_summary    String?  // AI/heuristic analysis of the contract
   analysis_confidence Float?   // Confidence score 0-1
   analysis_keywords   String   @default("[]") // Additional keywords from analysis
+  
+  // AI Parsing fields
+  aiParsedData        String?  // JSON string of parsed contract data
+  aiParsedAt          DateTime?
+  
+  // AI Analysis fields
+  aiSummary           String?  // AI-generated executive summary
+  aiKeyRequirements   String?  // JSON array of key requirements
+  aiKeywords          String?  // JSON array of AI-detected keywords
+  aiStrengths         String?  // JSON array of strengths/advantages
+  aiConcerns          String?  // JSON array of concerns/challenges
+  aiFitScore          Float?   // 0-100 fit score for MacTech capabilities
+  aiServiceCategory   String?  // cybersecurity, infrastructure, compliance, contracts, general
+  aiRecommendedActions String? // JSON array of recommended actions
+  aiAnalysisGeneratedAt DateTime?
+  
+  // AI Award Likelihood fields
+  aiAwardLikelihood   Float?   // 0-100 award probability score
+  aiAwardConfidence   String?  // HIGH, MEDIUM, LOW
+  aiAwardReasoning    String?  // Explanation of the score
+  aiAwardStrengths    String?  // JSON array of award strengths
+  aiAwardConcerns     String?  // JSON array of award concerns
+  aiAwardRiskFactors  String?  // JSON array of risk factors
+  aiAwardRecommendations String? // JSON array of recommendations
+  aiAwardLikelihoodGeneratedAt DateTime?
   
   // Dismissal fields
   dismissed           Boolean  @default(false)
