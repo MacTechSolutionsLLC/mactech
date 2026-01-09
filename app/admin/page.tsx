@@ -27,7 +27,7 @@ export default function AdminPage() {
     setResult(null)
 
     const formData = new FormData()
-    formData.append('sow', file)
+    formData.append('sow', file as Blob)
 
     try {
       const response = await fetch('/api/admin/generate-proposal', {
