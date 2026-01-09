@@ -17,6 +17,11 @@ SMTP_TO=contact@mactechsolutions.com
 # OpenAI API (for AI Chatbot)
 OPENAI_API_KEY=your-openai-api-key-here
 
+# SerpAPI (for Contract Discovery)
+SERPAPI_KEY=your-serpapi-key-here
+# Alternative variable name (also supported):
+# SERP_API_KEY=your-serpapi-key-here
+
 # App
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
@@ -28,4 +33,5 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - The `DATABASE_URL` for SQLite is relative to the `prisma/` directory
 - For PostgreSQL, use: `DATABASE_URL="postgresql://user:password@localhost:5432/mactech"`
 - The OpenAI API key is required for the AI chatbot feature. Get your key from https://platform.openai.com/api-keys
+- The SerpAPI key is required for the Contract Discovery feature. Get your key from https://serpapi.com/manage-api-key
 

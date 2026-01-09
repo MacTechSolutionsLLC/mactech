@@ -46,8 +46,13 @@ export async function POST(request: NextRequest) {
     // Validate SerpAPI key (support both SERPAPI_KEY and SERP_API_KEY)
     const serpApiKey = process.env.SERPAPI_KEY || process.env.SERP_API_KEY
     if (!serpApiKey) {
+      console.error('SerpAPI key missing. Check environment variables SERPAPI_KEY or SERP_API_KEY')
       return NextResponse.json(
-        { error: 'SerpAPI key not configured. Please set SERPAPI_KEY or SERP_API_KEY environment variable.' },
+        { 
+          error: 'SerpAPI key not configured',
+          message: 'Please set SERPAPI_KEY or SERP_API_KEY environment variable. Get your key from https://serpapi.com/manage-api-key',
+          details: 'The Contract Discovery feature requires a SerpAPI key to search for government contract opportunities.'
+        },
         { status: 500 }
       )
     }

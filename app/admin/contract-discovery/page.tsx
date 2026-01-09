@@ -165,7 +165,8 @@ export default function ContractDiscoveryPage() {
 
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Search failed'
-        throw new Error(errorMessage)
+        const fullMessage = data.details ? `${errorMessage}. ${data.details}` : errorMessage
+        throw new Error(fullMessage)
       }
 
       if (data.warnings && data.warnings.length > 0) {
@@ -181,7 +182,14 @@ export default function ContractDiscoveryPage() {
         setError(null)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      
+      // Check if it's a SerpAPI key error
+      if (errorMessage.includes('SerpAPI key') || errorMessage.includes('SERPAPI_KEY')) {
+        setError('SerpAPI key not configured. Please set the SERPAPI_KEY environment variable. Get your key from https://serpapi.com/manage-api-key')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsSearching(false)
     }
@@ -307,7 +315,21 @@ export default function ContractDiscoveryPage() {
             {/* Error Display */}
             {error && (
               <div className="mt-6 bg-red-50 border border-red-200 p-4 rounded-sm">
-                <p className="text-body-sm text-red-800">{error}</p>
+                <p className="text-body-sm text-red-800 font-semibold mb-2">Error</p>
+                <p className="text-body-sm text-red-700 mb-2">{error}</p>
+                {error.includes('SerpAPI key') && (
+                  <div className="mt-3 pt-3 border-t border-red-200">
+                    <p className="text-body-xs text-red-600 mb-2">
+                      <strong>Setup Instructions:</strong>
+                    </p>
+                    <ol className="text-body-xs text-red-600 list-decimal list-inside space-y-1">
+                      <li>Get your SerpAPI key from <a href="https://serpapi.com/manage-api-key" target="_blank" rel="noopener noreferrer" className="underline">serpapi.com/manage-api-key</a></li>
+                      <li>Add <code className="bg-red-100 px-1 rounded">SERPAPI_KEY=your-key-here</code> to your environment variables</li>
+                      <li>For Railway: Add it in the Variables section of your project settings</li>
+                      <li>Restart your application after adding the key</li>
+                    </ol>
+                  </div>
+                )}
               </div>
             )}
 
