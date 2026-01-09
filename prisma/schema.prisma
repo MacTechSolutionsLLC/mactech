@@ -64,5 +64,29 @@ model GovernmentContractDiscovery {
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
   discovered_by       String?
+  
+  // Scraping fields
+  scraped             Boolean  @default(false)
+  scraped_at          DateTime?
+  scraped_html_content String?  // Full HTML content of opportunity page
+  scraped_text_content String? // Extracted text from HTML
+  
+  // SOW attachment fields
+  sow_attachment_url  String?  // URL to the SOW attachment
+  sow_attachment_type String?  // PDF, DOCX, etc.
+  sow_attachment_content String? // Extracted text from SOW document
+  sow_scraped         Boolean  @default(false)
+  sow_scraped_at      DateTime?
+  
+  // Analysis fields
+  analysis_summary    String?  // AI/heuristic analysis of the contract
+  analysis_confidence Float?   // Confidence score 0-1
+  analysis_keywords   String   @default("[]") // Additional keywords from analysis
+  
+  // Dismissal fields
+  dismissed           Boolean  @default(false)
+  dismissed_at        DateTime?
+  dismissed_by        String?
+  dismissal_reason    String?
 }
 

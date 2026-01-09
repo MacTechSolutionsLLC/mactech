@@ -25,6 +25,16 @@ interface DiscoveryResult {
   ingestion_status: IngestionStatus
   verified: boolean
   created_at: string
+  // Scraping fields
+  scraped?: boolean
+  scraped_at?: string
+  sow_attachment_url?: string
+  sow_attachment_type?: string
+  sow_scraped?: boolean
+  analysis_summary?: string
+  analysis_confidence?: number
+  analysis_keywords?: string[]
+  dismissed?: boolean
 }
 
 type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
@@ -306,6 +316,8 @@ export default function ContractDiscoveryPage() {
   const [vetcertOnly, setVetcertOnly] = useState(false)
   const [pillarFilter, setPillarFilter] = useState<'all' | Pillar>('all')
   const [copiedQuery, setCopiedQuery] = useState(false)
+  const [scrapingIds, setScrapingIds] = useState<Set<string>>(new Set())
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   const handleSearch = async (template: SearchTemplate) => {
     const searchId = `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -451,6 +463,136 @@ export default function ContractDiscoveryPage() {
     fetch(`/api/admin/contract-discovery/${id}/download`, {
       method: 'POST',
     }).catch(err => console.error('Error marking as viewed:', err))
+  }
+
+  const handleScrape = async (result: DiscoveryResult) => {
+    setScrapingIds(prev => new Set(prev).add(result.id))
+    try {
+      const response = await fetch(`/api/admin/contract-discovery/${result.id}/scrape`, {
+        method: 'POST',
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        // Update the result in state
+        setResults(prev => prev.map(r => 
+          r.id === result.id 
+            ? { 
+                ...r, 
+                scraped: true, 
+                scraped_at: new Date().toISOString(),
+                sow_attachment_url: data.sowAttachmentUrl,
+                sow_attachment_type: data.sowAttachmentType,
+                analysis_summary: data.analysis?.summary,
+                analysis_confidence: data.analysis?.confidence,
+                analysis_keywords: data.analysis?.keywords || [],
+              }
+            : r
+        ))
+      } else {
+        setError(data.error || 'Failed to scrape contract')
+      }
+    } catch (err) {
+      console.error('Error scraping contract:', err)
+      setError('Failed to scrape contract')
+    } finally {
+      setScrapingIds(prev => {
+        const next = new Set(prev)
+        next.delete(result.id)
+        return next
+      })
+    }
+  }
+
+  const handleScrapeSOW = async (result: DiscoveryResult) => {
+    if (!result.sow_attachment_url) return
+    
+    setScrapingIds(prev => new Set(prev).add(`${result.id}-sow`))
+    try {
+      const response = await fetch(`/api/admin/contract-discovery/${result.id}/scrape-sow`, {
+        method: 'POST',
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        setResults(prev => prev.map(r => 
+          r.id === result.id 
+            ? { ...r, sow_scraped: true }
+            : r
+        ))
+      } else {
+        setError(data.error || 'Failed to scrape SOW')
+      }
+    } catch (err) {
+      console.error('Error scraping SOW:', err)
+      setError('Failed to scrape SOW')
+    } finally {
+      setScrapingIds(prev => {
+        const next = new Set(prev)
+        next.delete(`${result.id}-sow`)
+        return next
+      })
+    }
+  }
+
+  const handleAdd = async (result: DiscoveryResult) => {
+    try {
+      const response = await fetch(`/api/admin/contract-discovery/${result.id}/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verifiedBy: 'admin' }),
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        setResults(prev => prev.map(r => 
+          r.id === result.id 
+            ? { ...r, verified: true, ingestion_status: 'verified', dismissed: false }
+            : r
+        ))
+      } else {
+        setError(data.error || 'Failed to add contract')
+      }
+    } catch (err) {
+      console.error('Error adding contract:', err)
+      setError('Failed to add contract')
+    }
+  }
+
+  const handleDismiss = async (result: DiscoveryResult) => {
+    try {
+      const response = await fetch(`/api/admin/contract-discovery/${result.id}/dismiss`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dismissedBy: 'admin', reason: 'Not relevant' }),
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        setResults(prev => prev.map(r => 
+          r.id === result.id 
+            ? { ...r, dismissed: true, ingestion_status: 'ignored' }
+            : r
+        ))
+      } else {
+        setError(data.error || 'Failed to dismiss contract')
+      }
+    } catch (err) {
+      console.error('Error dismissing contract:', err)
+      setError('Failed to dismiss contract')
+    }
+  }
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
   }
 
   const filteredTemplates = SEARCH_TEMPLATES.filter(t => {
@@ -723,8 +865,9 @@ export default function ContractDiscoveryPage() {
                     {results
                       .sort((a, b) => b.relevance_score - a.relevance_score)
                       .map((result) => (
-                        <tr key={result.id} className="hover:bg-neutral-50">
-                          <td className="px-4 py-3">
+                        <>
+                          <tr key={result.id} className={`hover:bg-neutral-50 ${result.dismissed ? 'opacity-50' : ''} ${result.verified ? 'bg-green-50' : ''}`}>
+                            <td className="px-4 py-3">
                             <div className="max-w-md">
                               <p className="text-body-sm font-medium text-neutral-900 mb-1 line-clamp-2">
                                 {result.title}
@@ -788,14 +931,124 @@ export default function ContractDiscoveryPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <button
-                              onClick={() => handleOpenOpportunity(result.url, result.id)}
-                              className="btn-primary text-body-sm px-4 py-2"
-                            >
-                              View on SAM.gov
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => handleOpenOpportunity(result.url, result.id)}
+                                className="btn-secondary text-body-sm px-3 py-1.5"
+                              >
+                                View
+                              </button>
+                              {!result.scraped ? (
+                                <button
+                                  onClick={() => handleScrape(result)}
+                                  disabled={scrapingIds.has(result.id)}
+                                  className="btn-primary text-body-sm px-3 py-1.5 disabled:opacity-50"
+                                >
+                                  {scrapingIds.has(result.id) ? 'Scraping...' : 'Scrape'}
+                                </button>
+                              ) : (
+                                <>
+                                  {result.sow_attachment_url && !result.sow_scraped && (
+                                    <button
+                                      onClick={() => handleScrapeSOW(result)}
+                                      disabled={scrapingIds.has(`${result.id}-sow`)}
+                                      className="btn-primary text-body-sm px-3 py-1.5 disabled:opacity-50"
+                                    >
+                                      {scrapingIds.has(`${result.id}-sow`) ? 'Scraping SOW...' : 'Scrape SOW'}
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => toggleExpand(result.id)}
+                                    className="btn-secondary text-body-sm px-3 py-1.5"
+                                  >
+                                    {expandedIds.has(result.id) ? 'Hide Analysis' : 'Show Analysis'}
+                                  </button>
+                                </>
+                              )}
+                              <div className="flex gap-1">
+                                {!result.dismissed && (
+                                  <button
+                                    onClick={() => handleAdd(result)}
+                                    disabled={result.verified}
+                                    className="text-body-xs px-2 py-1 bg-green-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {result.verified ? '✓ Added' : 'Add'}
+                                  </button>
+                                )}
+                                {!result.verified && (
+                                  <button
+                                    onClick={() => handleDismiss(result)}
+                                    disabled={result.dismissed}
+                                    className="text-body-xs px-2 py-1 bg-red-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {result.dismissed ? 'Dismissed' : 'Dismiss'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </td>
                         </tr>
+                        {expandedIds.has(result.id) && result.scraped && (
+                          <tr key={`${result.id}-expanded`}>
+                            <td colSpan={4} className="px-4 py-4 bg-neutral-50">
+                              <div className="space-y-4">
+                                {result.analysis_summary && (
+                                  <div>
+                                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Analysis Summary</h4>
+                                    <p className="text-body-sm text-neutral-700">{result.analysis_summary}</p>
+                                    {result.analysis_confidence && (
+                                      <p className="text-body-xs text-neutral-500 mt-1">
+                                        Confidence: {(result.analysis_confidence * 100).toFixed(0)}%
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                                {result.analysis_keywords && result.analysis_keywords.length > 0 && (
+                                  <div>
+                                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Analysis Keywords</h4>
+                                    <div className="flex flex-wrap gap-1">
+                                      {result.analysis_keywords.map((kw, idx) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 text-body-xs rounded"
+                                        >
+                                          {kw}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                {result.sow_attachment_url && (
+                                  <div>
+                                    <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">SOW Attachment</h4>
+                                    <a
+                                      href={result.sow_attachment_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-body-sm text-accent-700 hover:text-accent-800 underline"
+                                    >
+                                      {result.sow_attachment_url}
+                                    </a>
+                                    {result.sow_attachment_type && (
+                                      <span className="text-body-xs text-neutral-500 ml-2">
+                                        ({result.sow_attachment_type})
+                                      </span>
+                                    )}
+                                    {result.sow_scraped && (
+                                      <span className="text-body-xs text-green-600 ml-2">✓ Scraped</span>
+                                    )}
+                                  </div>
+                                )}
+                                {result.scraped_at && (
+                                  <p className="text-body-xs text-neutral-500">
+                                    Scraped: {new Date(result.scraped_at).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                       ))}
                   </tbody>
                 </table>
