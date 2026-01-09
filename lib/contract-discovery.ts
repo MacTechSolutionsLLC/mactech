@@ -181,37 +181,42 @@ const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
 /**
  * Build Google search query from search request
  * Focused on SAM.gov opportunity listings (HTML pages, not PDFs)
- * Simplified for better SerpAPI compatibility
  */
 export function buildSearchQuery(request: SearchRequest): string {
   let query = ''
 
   // Focus on SAM.gov only - opportunity listings (HTML pages)
+  // Exclude PDFs to get the actual opportunity page, not attached documents
   const sites = request.filters?.site || ['sam.gov']
   query += `site:${sites[0]} `
   
-  // Simplified: Just exclude PDFs (too many exclusions can cause issues)
-  query += `-filetype:pdf `
+  // Exclude PDFs and common file types to focus on opportunity listing pages
+  query += `-filetype:pdf -filetype:doc -filetype:docx -filetype:xls -filetype:xlsx `
 
-  // Simplified opportunity keywords - use fewer terms for better compatibility
-  query += `"contract opportunity" OR solicitation OR notice `
+  // Target SAM.gov opportunity pages - look for contract opportunity keywords
+  const opportunityKeywords = [
+    'contract opportunity',
+    'solicitation',
+    'notice',
+    'opportunity',
+    'procurement'
+  ]
+  query += `(${opportunityKeywords.join(' OR ')}) `
 
-  // Service category keywords - simplified, limit to 3 most important
+  // Service category keywords
   if (request.service_category && request.service_category !== 'general') {
     const keywords = SERVICE_KEYWORDS[request.service_category]
     if (keywords.length > 0) {
-      // Use top 3 keywords without parentheses for simpler query
-      const topKeywords = keywords.slice(0, 3)
-      query += topKeywords.join(' OR ') + ' '
+      query += `(${keywords.slice(0, 5).join(' OR ')}) `
     }
   }
 
-  // Custom keywords - simplified
+  // Custom keywords
   if (request.keywords) {
-    // Split by comma and use first 3 keywords
-    const keywordList = request.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0).slice(0, 3)
+    // Split by comma or space and add as quoted terms
+    const keywordList = request.keywords.split(/[,\s]+/).filter(k => k.trim().length > 0)
     if (keywordList.length > 0) {
-      query += keywordList.join(' OR ') + ' '
+      query += `(${keywordList.map(k => `"${k.trim()}"`).join(' OR ')}) `
     }
   }
 
@@ -241,16 +246,14 @@ export function buildSearchQuery(request: SearchRequest): string {
     query += `(${agencyQueries.join(' OR ')}) `
   }
 
-  // NAICS codes - simplified
+  // NAICS codes
   if (request.naics_codes && request.naics_codes.length > 0) {
-    // Use first NAICS code only to keep query simple
-    query += `NAICS ${request.naics_codes[0]} `
+    query += `(${request.naics_codes.map(n => `"NAICS ${n}"`).join(' OR ')}) `
   }
 
-  // Set-aside - simplified
+  // Set-aside
   if (request.set_aside && request.set_aside.length > 0) {
-    // Use first set-aside term only
-    query += `${request.set_aside[0]} `
+    query += `(${request.set_aside.map(s => `"${s}"`).join(' OR ')}) `
   }
   
   // PSC codes (if we add PSC code support to SearchRequest in the future)
