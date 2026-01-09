@@ -119,6 +119,30 @@ function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { f
 }
 
 /**
+ * Clean Google search syntax from keywords for SAM.gov API
+ */
+function cleanGoogleSyntax(keywords: string): string {
+  // Remove Google-specific operators
+  let cleaned = keywords
+    .replace(/site:\S+/gi, '') // Remove site: operators
+    .replace(/-filetype:\S+/gi, '') // Remove -filetype: operators
+    .replace(/filetype:\S+/gi, '') // Remove filetype: operators
+    .replace(/\(/g, ' ') // Remove parentheses
+    .replace(/\)/g, ' ')
+    .replace(/"/g, '') // Remove quotes
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim()
+  
+  // Remove common Google operators
+  const operators = ['OR', 'AND', 'NOT']
+  operators.forEach(op => {
+    cleaned = cleaned.replace(new RegExp(`\\b${op}\\b`, 'gi'), ' ')
+  })
+  
+  return cleaned.replace(/\s+/g, ' ').trim()
+}
+
+/**
  * Build keyword query from search request
  */
 function buildKeywordQuery(
@@ -127,6 +151,9 @@ function buildKeywordQuery(
   customKeywords?: string
 ): string {
   const keywordParts: string[] = []
+  
+  // Clean Google syntax from keywords if present
+  let cleanedKeywords = keywords ? cleanGoogleSyntax(keywords) : undefined
   
   // Add service category keywords
   if (serviceCategory) {
@@ -148,9 +175,9 @@ function buildKeywordQuery(
     keywordParts.push(customKeywords)
   }
   
-  // Add explicit keywords
-  if (keywords) {
-    keywordParts.push(keywords)
+  // Add explicit keywords (cleaned)
+  if (cleanedKeywords) {
+    keywordParts.push(cleanedKeywords)
   }
   
   return keywordParts.join(' ')
@@ -228,19 +255,44 @@ export async function searchSamGov(params: {
     apiUrl.searchParams.append('naicsCode', params.naicsCodes[0])
   }
   
-  console.log(`[SAM.gov API] Searching: ${apiUrl.toString()}`)
+  // Get API key from environment (optional but recommended)
+  const apiKey = process.env.SAM_GOV_API_KEY || process.env.SAM_API_KEY
+  
+  // Add API key to query params if available
+  if (apiKey) {
+    apiUrl.searchParams.append('api_key', apiKey)
+  }
+  
+  console.log(`[SAM.gov API] Searching: ${apiUrl.toString().replace(/api_key=[^&]+/, 'api_key=***')}`)
   
   try {
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+      'User-Agent': 'MacTech Contract Discovery/1.0',
+    }
+    
+    // Some SAM.gov endpoints also accept API key in headers
+    if (apiKey) {
+      headers['X-Api-Key'] = apiKey
+    }
+    
     const response = await fetch(apiUrl.toString(), {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'MacTech Contract Discovery/1.0',
-      },
+      headers,
     })
     
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`SAM.gov API error: ${response.status} ${response.statusText} - ${errorText}`)
+      
+      // Provide helpful error message for missing/invalid API key
+      if (response.status === 401) {
+        throw new Error(
+          `SAM.gov API requires an API key. ` +
+          `Please register at https://api.sam.gov/ and set SAM_GOV_API_KEY environment variable. ` +
+          `Error: ${errorText.substring(0, 200)}`
+        )
+      }
+      
+      throw new Error(`SAM.gov API error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`)
     }
     
     const data: SamGovApiResponse = await response.json()

@@ -83,10 +83,26 @@ export async function POST(request: NextRequest) {
         error: samError,
         message: samError instanceof Error ? samError.message : 'Unknown SAM.gov API error',
       })
+      
+      const errorMessage = samError instanceof Error ? samError.message : 'Unknown SAM.gov API error'
+      
+      // Check if it's an API key error
+      if (errorMessage.includes('API key') || errorMessage.includes('401')) {
+        return NextResponse.json(
+          { 
+            error: 'SAM.gov API key required',
+            message: errorMessage,
+            details: 'Please register for a free API key at https://api.sam.gov/ and set the SAM_GOV_API_KEY environment variable.',
+            requestId,
+          },
+          { status: 500 }
+        )
+      }
+      
       return NextResponse.json(
         { 
           error: 'SAM.gov API request failed',
-          message: samError instanceof Error ? samError.message : 'Unknown SAM.gov API error',
+          message: errorMessage,
           details: process.env.NODE_ENV === 'development' ? String(samError) : undefined,
           requestId,
         },
