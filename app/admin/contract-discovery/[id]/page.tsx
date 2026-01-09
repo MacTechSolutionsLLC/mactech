@@ -31,6 +31,8 @@ interface Contract {
   place_of_performance?: string
   scraped: boolean
   scraped_at?: string
+  scraped_text_content?: string
+  scraped_html_content?: string
   sow_attachment_url?: string
   sow_attachment_type?: string
   aiSummary?: string
@@ -55,6 +57,7 @@ export default function ContractDetailPage() {
     if (contractId) {
       loadContract()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contractId])
 
   const loadContract = async () => {
