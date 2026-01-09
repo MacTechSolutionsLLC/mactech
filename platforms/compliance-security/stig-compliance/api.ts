@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create validation
-    const data = validateInput(stigValidationSchema, body)
-    const validation = await stigComplianceService.createValidation(data)
+    const parsed = stigValidationSchema.parse(body) // parse() applies defaults
+    const validation = await stigComplianceService.createValidation(parsed)
     return NextResponse.json({ success: true, data: validation }, { status: 201 })
   } catch (error) {
     logger.error('Error in STIG compliance API', error as Error)

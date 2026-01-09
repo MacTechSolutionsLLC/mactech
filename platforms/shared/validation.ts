@@ -24,6 +24,15 @@ export const searchSchema = z.object({
 })
 
 export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
+  // parse() applies defaults, so the returned type will have all defaults applied
+  return schema.parse(data)
+}
+
+// Helper to ensure defaults are applied for optional fields with defaults
+export function validateInputWithDefaults<T extends z.ZodTypeAny>(
+  schema: T,
+  data: unknown
+): z.infer<T> {
   return schema.parse(data)
 }
 
