@@ -5,25 +5,15 @@
   "description": "Scrape contract opportunity pages and import to MacTech platform when SAM.gov API limits are reached",
   "permissions": ["storage", "activeTab"],
   "host_permissions": [
-    "https://sam.gov/*",
-    "https://*.sam.gov/*",
-    "https://www.google.com/*",
-    "https://*.google.com/*",
-    "http://localhost/*",
-    "https://*.railway.app/*",
-    "https://*.vercel.app/*"
+    "https://*/*",
+    "http://*/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://sam.gov/*",
-        "https://*.sam.gov/*",
-        "https://www.google.com/*",
-        "https://*.google.com/*"
-      ],
+      "matches": ["<all_urls>"],
       "js": ["contentScript.js"],
       "run_at": "document_idle"
     }

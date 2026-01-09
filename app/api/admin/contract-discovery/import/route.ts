@@ -3,6 +3,14 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
+// CORS headers for browser extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Credentials': 'true',
+}
+
 /**
  * Import contract from extension scraping
  * POST /api/admin/contract-discovery/import
@@ -35,7 +43,10 @@ export async function POST(request: NextRequest) {
     if (!url || !title) {
       return NextResponse.json(
         { error: 'URL and title are required' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: corsHeaders,
+        }
       )
     }
 
@@ -94,6 +105,8 @@ export async function POST(request: NextRequest) {
         scraped: contract.scraped,
       },
       message: existing ? 'Contract updated successfully' : 'Contract imported successfully',
+    }, {
+      headers: corsHeaders,
     })
   } catch (error: any) {
     console.error('Error importing contract:', error)
@@ -102,8 +115,19 @@ export async function POST(request: NextRequest) {
         error: 'Failed to import contract',
         details: error.message,
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: corsHeaders,
+      }
     )
   }
+}
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  })
 }
 

@@ -237,15 +237,20 @@
       return
     }
 
-    // Only show button on contract pages or Google search
-    if (!isContractPage() && !window.location.hostname.includes('google.com')) {
-      return
-    }
+    // Always show button on all pages - user can click if it's a contract page
+    // We'll validate on the backend anyway
 
     const button = document.createElement('button')
     button.id = 'mactech-scrape-btn'
     button.textContent = '📄 Scrape Contract'
     button.title = 'Scrape this contract page and import to MacTech'
+    
+    // Position it above the vetted button if it exists
+    const vettedBtn = document.getElementById('profile-json-floating-btn')
+    if (vettedBtn) {
+      // Position MacTech button above vetted button
+      button.style.bottom = '80px' // Above the vetted button
+    }
 
     Object.assign(button.style, {
       position: 'fixed',
@@ -332,6 +337,10 @@
     })
 
     document.body.appendChild(button)
+    
+    // Debug logging
+    console.log('[MacTech Scraper] Button injected on:', window.location.href)
+    console.log('[MacTech Scraper] Is contract page:', isContractPage())
   }
 
   // Show toast notification
