@@ -292,6 +292,27 @@ export async function searchSamGov(params: {
         )
       }
       
+      // Handle rate limiting (429)
+      if (response.status === 429) {
+        let nextAccessTime: string | null = null
+        try {
+          const errorJson = JSON.parse(errorText)
+          nextAccessTime = errorJson.nextAccessTime || errorJson.description?.match(/after (.+?)(?:\s|$)/)?.[1] || null
+        } catch {
+          // If JSON parsing fails, try to extract from text
+          const timeMatch = errorText.match(/after (.+?)(?:\s|UTC|$)/i)
+          if (timeMatch) {
+            nextAccessTime = timeMatch[1]
+          }
+        }
+        
+        const rateLimitMessage = nextAccessTime 
+          ? `SAM.gov API rate limit exceeded. You can try again after ${nextAccessTime}. The free tier has daily request limits.`
+          : `SAM.gov API rate limit exceeded. The free tier has daily request limits. Please try again later.`
+        
+        throw new Error(rateLimitMessage)
+      }
+      
       throw new Error(`SAM.gov API error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`)
     }
     

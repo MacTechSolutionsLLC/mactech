@@ -140,6 +140,19 @@ export async function POST(request: NextRequest) {
         )
       }
       
+      // Check if it's a rate limit error
+      if (errorMessage.includes('rate limit') || errorMessage.includes('429') || errorMessage.includes('quota')) {
+        return NextResponse.json(
+          { 
+            error: 'SAM.gov API rate limit exceeded',
+            message: errorMessage,
+            details: 'The SAM.gov API free tier has daily request limits. You can try again later or upgrade your API key for higher limits.',
+            requestId,
+          },
+          { status: 429 }
+        )
+      }
+      
       return NextResponse.json(
         { 
           error: 'SAM.gov API request failed',

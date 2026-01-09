@@ -403,6 +403,12 @@ export default function ContractDiscoveryPage() {
           details: data.details,
           requestId: data.requestId,
         })
+        
+        // Special handling for rate limit errors
+        if (response.status === 429 || errorMessage.includes('rate limit')) {
+          throw new Error(`Rate limit exceeded: ${fullMessage}. Please try again later.`)
+        }
+        
         throw new Error(fullMessage)
       }
 
@@ -640,6 +646,22 @@ export default function ContractDiscoveryPage() {
                 Select a pre-configured search template to find contract opportunities on SAM.gov. 
                 All searches target opportunity listing pages (not PDF attachments).
               </p>
+              
+              {/* Rate Limit Notice */}
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-sm mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="text-blue-600 text-xl flex-shrink-0 mt-0.5">ℹ️</div>
+                  <div className="flex-1">
+                    <p className="text-body-sm font-semibold text-blue-900 mb-1">
+                      API Rate Limits
+                    </p>
+                    <p className="text-body-sm text-blue-800">
+                      The SAM.gov API free tier has daily request limits. If you see a rate limit error, 
+                      please wait and try again later. Consider spacing out your searches to avoid hitting limits.
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               {/* Date Range */}
               <div className="mb-6">
