@@ -330,7 +330,7 @@ This document outlines modules, platforms, programs, and templates that an AI en
 
 ## 5. TICKET & INCIDENT MANAGEMENT AUTOMATION
 
-### 3.1 Intelligent Ticket Routing & Resolution Platform
+### 5.1 Intelligent Ticket Routing & Resolution Platform
 **Based on:** Technical support experience, helpdesk operations, escalated ticket handling
 
 **Capabilities:**
@@ -347,7 +347,7 @@ This document outlines modules, platforms, programs, and templates that an AI en
 - Intelligent escalation recommendations
 - Chatbot for initial ticket triage
 
-### 3.2 Knowledge Base & Documentation Automation Module
+### 5.2 Knowledge Base & Documentation Automation Module
 **Based on:** Training experience, documentation creation, process documentation
 
 **Capabilities:**
