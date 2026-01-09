@@ -39,7 +39,9 @@ async function sendContractToAPI(contractData) {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`)
+      const errorMsg = data.error || `HTTP ${response.status}: ${response.statusText}`
+      const details = data.details ? ` - ${data.details}` : ''
+      throw new Error(`${errorMsg}${details}`)
     }
 
     return {
