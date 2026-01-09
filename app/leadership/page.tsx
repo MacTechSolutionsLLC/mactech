@@ -98,7 +98,7 @@ export default function LeadershipPage() {
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                   <h2 className="heading-2 mb-0">Brian MacDonald</h2>
                   <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Quality.badgeColor}`}>
-                    {pillarInfo.Quality.name} Pillar
+                    {pillarInfo.Quality.name}
                   </span>
                 </div>
                 <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
@@ -189,7 +189,7 @@ export default function LeadershipPage() {
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                   <h2 className="heading-2 mb-0">Patrick Caruso</h2>
                   <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Security.badgeColor}`}>
-                    {pillarInfo.Security.name} Pillar
+                    {pillarInfo.Security.name}
                   </span>
                 </div>
                 <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
@@ -287,7 +287,7 @@ export default function LeadershipPage() {
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                   <h2 className="heading-2 mb-0">James Adams</h2>
                   <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Infrastructure.badgeColor}`}>
-                    {pillarInfo.Infrastructure.name} Pillar
+                    {pillarInfo.Infrastructure.name}
                   </span>
                 </div>
                 <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">
@@ -384,7 +384,7 @@ export default function LeadershipPage() {
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                   <h2 className="heading-2 mb-0">John Milso</h2>
                   <span className={`text-body-sm font-semibold px-4 py-1.5 rounded border ${pillarInfo.Governance.badgeColor}`}>
-                    {pillarInfo.Governance.name} Pillar
+                    {pillarInfo.Governance.name}
                   </span>
                 </div>
                 <p className="text-body-sm text-accent-700 font-medium mb-2 uppercase tracking-wide">

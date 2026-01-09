@@ -1364,7 +1364,6 @@ export default function ShowcasePage() {
                     }`}
                   >
                     <div className="font-semibold">{info.name}</div>
-                    <div className="text-body-xs opacity-75">{info.leader}</div>
                   </button>
                 )
               })
@@ -1389,9 +1388,6 @@ export default function ShowcasePage() {
           {viewMode === 'pillar' && activeTools.length > 0 && (
             <div className={`mb-8 p-6 rounded-lg border-2 ${pillarInfo[activeTab as Pillar].color}`}>
               <h2 className="heading-2 mb-2">{pillarInfo[activeTab as Pillar].name} Pillar</h2>
-              <p className="text-body-lg mb-2">
-                <strong>Leader:</strong> {pillarInfo[activeTab as Pillar].leader}
-              </p>
               <p className="text-body text-neutral-700">
                 {pillarInfo[activeTab as Pillar].description}
               </p>
