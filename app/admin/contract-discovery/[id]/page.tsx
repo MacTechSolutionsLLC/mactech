@@ -210,14 +210,27 @@ export default function ContractDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Description */}
-              {contract.description && (
+              {contract.description ? (
                 <div className="card p-6">
                   <h2 className="heading-3 mb-4">Description</h2>
                   <p className="text-body text-neutral-700 leading-relaxed whitespace-pre-wrap">
                     {contract.description}
                   </p>
                 </div>
-              )}
+              ) : contract.scraped_text_content ? (
+                <div className="card p-6">
+                  <h2 className="heading-3 mb-4">Description</h2>
+                  <p className="text-body-sm text-neutral-600 mb-2">
+                    Full scraped content (description extraction pending):
+                  </p>
+                  <div className="bg-neutral-50 border border-neutral-200 rounded p-4 max-h-96 overflow-y-auto">
+                    <pre className="text-body-xs text-neutral-700 whitespace-pre-wrap font-sans">
+                      {contract.scraped_text_content.substring(0, 2000)}
+                      {contract.scraped_text_content.length > 2000 && '...'}
+                    </pre>
+                  </div>
+                </div>
+              ) : null}
 
               {/* AI Summary */}
               {contract.aiSummary && (
@@ -415,37 +428,50 @@ export default function ContractDetailPage() {
               </div>
 
               {/* Points of Contact */}
-              {pointsOfContact.length > 0 && (
+              {pointsOfContact.length > 0 ? (
                 <div className="card p-6">
                   <h2 className="heading-3 mb-4">Points of Contact</h2>
                   <div className="space-y-4">
                     {pointsOfContact.map((poc, idx) => (
                       <div key={idx} className="border-b border-neutral-200 pb-4 last:border-0 last:pb-0">
-                        {poc.name && (
-                          <p className="text-body-sm font-semibold text-neutral-900 mb-1">{poc.name}</p>
-                        )}
-                        {poc.role && (
-                          <p className="text-body-xs text-neutral-600 mb-2">{poc.role}</p>
-                        )}
-                        {poc.email && (
-                          <a
-                            href={`mailto:${poc.email}`}
-                            className="text-body-sm text-accent-700 hover:text-accent-900 block mb-1"
-                          >
-                            {poc.email}
-                          </a>
-                        )}
-                        {poc.phone && (
-                          <a
-                            href={`tel:${poc.phone}`}
-                            className="text-body-sm text-neutral-700 block"
-                          >
-                            {poc.phone}
-                          </a>
-                        )}
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            {poc.name && (
+                              <p className="text-body-sm font-semibold text-neutral-900 mb-1">{poc.name}</p>
+                            )}
+                            {poc.role && (
+                              <p className="text-body-xs text-neutral-600 mb-2">{poc.role}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          {poc.email && (
+                            <a
+                              href={`mailto:${poc.email}`}
+                              className="text-body-sm text-accent-700 hover:text-accent-900 block flex items-center gap-2"
+                            >
+                              <span>✉</span>
+                              <span>{poc.email}</span>
+                            </a>
+                          )}
+                          {poc.phone && (
+                            <a
+                              href={`tel:${poc.phone.replace(/\D/g, '')}`}
+                              className="text-body-sm text-neutral-700 block flex items-center gap-2"
+                            >
+                              <span>📞</span>
+                              <span>{poc.phone}</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
+                </div>
+              ) : (
+                <div className="card p-6">
+                  <h2 className="heading-3 mb-4">Points of Contact</h2>
+                  <p className="text-body-sm text-neutral-600">No contact information found. Try scraping the page again or check the original page.</p>
                 </div>
               )}
 

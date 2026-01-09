@@ -46,7 +46,14 @@
   function extractContractData() {
     const url = window.location.href
     const hostname = window.location.hostname.toLowerCase()
-    const title = document.title || ''
+    
+    // Try to get better title from page content first
+    let title = document.title || ''
+    const h1Title = document.querySelector('h1')?.textContent?.trim()
+    if (h1Title && h1Title.length > 10) {
+      title = h1Title
+    }
+    title = title.replace(/\s*-\s*SAM\.gov\s*$/i, '').trim() || 'Contract Opportunity'
     
     // Remove scripts and styles for text extraction
     const clone = document.cloneNode(true)
@@ -66,7 +73,7 @@
     // Try to extract structured data
     const data = {
       url,
-      title: title.replace(/\s*-\s*SAM\.gov\s*$/i, '').trim() || 'Contract Opportunity',
+      title: title,
       htmlContent,
       textContent,
       snippet,
@@ -81,13 +88,20 @@
       sowAttachmentUrl: findSOWAttachment(),
       sowAttachmentType: findSOWAttachmentType(),
       pointsOfContact: extractPointsOfContact(textContent, htmlContent),
-      description: extractDescription(textContent),
+      description: extractDescription(textContent, htmlContent),
       requirements: extractRequirements(textContent),
       deadline: extractDeadline(textContent),
       estimatedValue: extractEstimatedValue(textContent),
       periodOfPerformance: extractPeriodOfPerformance(textContent),
       placeOfPerformance: extractPlaceOfPerformance(textContent),
     }
+    
+    console.log('[MacTech Scraper] Extracted data:', {
+      title: data.title,
+      pocCount: data.pointsOfContact?.length || 0,
+      hasDescription: !!data.description,
+      requirementsCount: data.requirements?.length || 0
+    })
     
     return data
   }
@@ -236,77 +250,294 @@
     return 'HTML'
   }
 
-  // Extract points of contact
+  // Extract points of contact - Enhanced version
   function extractPointsOfContact(text, html) {
     const contacts = []
-    const textLower = text.toLowerCase()
+    const seenEmails = new Set()
     
-    // Extract emails
+    // First, try to parse HTML structure for better extraction
+    if (html) {
+      try {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, 'text/html')
+        
+        // Look for contact sections, tables, or divs with contact info
+        const contactSelectors = [
+          '[class*="contact"]',
+          '[id*="contact"]',
+          '[class*="poc"]',
+          '[id*="poc"]',
+          '[class*="officer"]',
+          'table',
+          'dl', // definition lists often used for contact info
+        ]
+        
+        contactSelectors.forEach(selector => {
+          try {
+            const elements = doc.querySelectorAll(selector)
+            elements.forEach(el => {
+              const elText = el.textContent || ''
+              const elHtml = el.innerHTML || ''
+              
+              // Extract email from this element
+              const emailPattern = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
+              const emailMatches = [...elText.matchAll(emailPattern)]
+              
+              emailMatches.forEach(emailMatch => {
+                const email = emailMatch[1].toLowerCase()
+                
+                // Skip non-POC emails
+                if (email.includes('noreply') || email.includes('no-reply') || 
+                    email.includes('donotreply') || email.includes('automated') ||
+                    email.includes('system') || email.includes('notification') ||
+                    email.includes('example') || email.includes('test')) {
+                  return
+                }
+                
+                if (seenEmails.has(email)) return
+                seenEmails.add(email)
+                
+                // Extract name - look for patterns like "Name: John Doe" or "John Doe, Email:"
+                let name = null
+                const namePatterns = [
+                  /(?:name|contact|poc|officer|manager|specialist|representative|primary contact)[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i,
+                  /([A-Z][a-z]+\s+[A-Z][a-z]+)(?:\s*[,;]|\s+email|\s+@)/i,
+                  /([A-Z][a-z]+\s+[A-Z]\.?\s+[A-Z][a-z]+)/, // First Last Middle
+                ]
+                
+                for (const pattern of namePatterns) {
+                  const nameMatch = elText.match(pattern)
+                  if (nameMatch && nameMatch[1]) {
+                    name = nameMatch[1].trim()
+                    // Validate name (should be 2-4 words, each 2+ chars)
+                    const nameParts = name.split(/\s+/)
+                    if (nameParts.length >= 2 && nameParts.length <= 4 && 
+                        nameParts.every(p => p.length >= 2)) {
+                      break
+                    } else {
+                      name = null
+                    }
+                  }
+                }
+                
+                // Extract phone - look for phone patterns
+                let phone = null
+                const phonePatterns = [
+                  /(?:phone|tel|telephone|call)[:\s]+([\d\s\-\(\)\.]+)/i,
+                  /(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/,
+                  /(\d{3}[-.\s]\d{3}[-.\s]\d{4})/,
+                ]
+                
+                for (const pattern of phonePatterns) {
+                  const phoneMatch = elText.match(pattern)
+                  if (phoneMatch && phoneMatch[1]) {
+                    const phoneStr = phoneMatch[1].trim()
+                    // Validate phone (should have at least 10 digits)
+                    const digits = phoneStr.replace(/\D/g, '')
+                    if (digits.length >= 10) {
+                      phone = phoneStr
+                      break
+                    }
+                  }
+                }
+                
+                // Determine role
+                let role = 'Contact'
+                const roleText = elText.toLowerCase()
+                if (roleText.includes('contracting officer') || roleText.includes('co')) {
+                  role = 'Contracting Officer'
+                } else if (roleText.includes('technical') || roleText.includes('tech')) {
+                  role = 'Technical POC'
+                } else if (roleText.includes('program manager') || roleText.includes('pm')) {
+                  role = 'Program Manager'
+                } else if (roleText.includes('project manager')) {
+                  role = 'Project Manager'
+                } else if (roleText.includes('contract specialist')) {
+                  role = 'Contract Specialist'
+                }
+                
+                contacts.push({
+                  name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                  email: email,
+                  phone: phone,
+                  role: role
+                })
+              })
+            })
+          } catch (e) {
+            console.warn('[MacTech Scraper] Error parsing contact selector:', selector, e)
+          }
+        })
+      } catch (e) {
+        console.warn('[MacTech Scraper] Error parsing HTML for contacts:', e)
+      }
+    }
+    
+    // Fallback: extract from plain text
     const emailPattern = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
     const emails = [...text.matchAll(emailPattern)]
     
     emails.forEach((emailMatch) => {
-      const email = emailMatch[1]
-      const emailLower = email.toLowerCase()
+      const email = emailMatch[1].toLowerCase()
       
-      // Skip common non-POC emails
-      if (emailLower.includes('noreply') || emailLower.includes('no-reply') || 
-          emailLower.includes('donotreply') || emailLower.includes('automated') ||
-          emailLower.includes('system') || emailLower.includes('notification')) {
+      if (seenEmails.has(email)) return
+      
+      // Skip non-POC emails
+      if (email.includes('noreply') || email.includes('no-reply') || 
+          email.includes('donotreply') || email.includes('automated') ||
+          email.includes('system') || email.includes('notification') ||
+          email.includes('example') || email.includes('test')) {
         return
       }
       
-      // Look for name before email (within 100 chars)
+      seenEmails.add(email)
+      
+      // Look for name before email (within 150 chars)
       const emailIndex = text.indexOf(email)
-      const beforeText = text.substring(Math.max(0, emailIndex - 100), emailIndex)
-      const nameMatch = beforeText.match(/(?:contact|poc|officer|manager|specialist|representative)[:\s]+([a-z\s]{2,50})/i)
-      const name = nameMatch ? nameMatch[1].trim() : null
+      const beforeText = text.substring(Math.max(0, emailIndex - 150), emailIndex)
+      const namePatterns = [
+        /(?:name|contact|poc|officer|manager|specialist|representative|primary contact)[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i,
+        /([A-Z][a-z]+\s+[A-Z][a-z]+)(?:\s*[,;]|\s+email|\s+@)/i,
+      ]
+      
+      let name = null
+      for (const pattern of namePatterns) {
+        const nameMatch = beforeText.match(pattern)
+        if (nameMatch && nameMatch[1]) {
+          name = nameMatch[1].trim()
+          break
+        }
+      }
       
       // Look for phone near email
-      const afterText = text.substring(emailIndex, emailIndex + 200)
-      const phoneMatch = afterText.match(/(?:phone|tel|telephone)[:\s]+([\d\s\-\(\)\.]+)/i)
-      const phone = phoneMatch ? phoneMatch[1].trim() : null
+      const contextText = text.substring(Math.max(0, emailIndex - 100), emailIndex + 200)
+      const phonePatterns = [
+        /(?:phone|tel|telephone|call)[:\s]+([\d\s\-\(\)\.]+)/i,
+        /(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/,
+      ]
+      
+      let phone = null
+      for (const pattern of phonePatterns) {
+        const phoneMatch = contextText.match(pattern)
+        if (phoneMatch && phoneMatch[1]) {
+          const phoneStr = phoneMatch[1].trim()
+          const digits = phoneStr.replace(/\D/g, '')
+          if (digits.length >= 10) {
+            phone = phoneStr
+            break
+          }
+        }
+      }
       
       // Determine role
       let role = 'Contact'
-      if (beforeText.toLowerCase().includes('contracting')) role = 'Contracting Officer'
-      else if (beforeText.toLowerCase().includes('technical')) role = 'Technical POC'
-      else if (beforeText.toLowerCase().includes('program')) role = 'Program Manager'
+      const roleText = beforeText.toLowerCase()
+      if (roleText.includes('contracting')) role = 'Contracting Officer'
+      else if (roleText.includes('technical')) role = 'Technical POC'
+      else if (roleText.includes('program')) role = 'Program Manager'
       
-      if (name || email) {
-        contacts.push({
-          name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          email: email,
-          phone: phone || null,
-          role: role
-        })
-      }
+      contacts.push({
+        name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        email: email,
+        phone: phone,
+        role: role
+      })
     })
     
-    return contacts.slice(0, 5) // Limit to 5 contacts
+    // Remove duplicates and limit
+    const uniqueContacts = []
+    const emailSet = new Set()
+    for (const contact of contacts) {
+      if (!emailSet.has(contact.email)) {
+        emailSet.add(contact.email)
+        uniqueContacts.push(contact)
+      }
+    }
+    
+    return uniqueContacts.slice(0, 10) // Increased limit to 10 contacts
   }
 
-  // Extract full description
-  function extractDescription(text) {
-    // Look for description sections
+  // Extract full description - Enhanced version
+  function extractDescription(text, html) {
+    // First try HTML structure
+    if (html) {
+      try {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, 'text/html')
+        
+        // Look for description sections in HTML
+        const descSelectors = [
+          '[class*="description"]',
+          '[id*="description"]',
+          '[class*="summary"]',
+          '[id*="summary"]',
+          '[class*="overview"]',
+          '[id*="overview"]',
+          '[class*="background"]',
+          '[id*="background"]',
+          '[class*="scope"]',
+          '[class*="statement"]',
+          'article',
+          'main',
+        ]
+        
+        for (const selector of descSelectors) {
+          try {
+            const elements = doc.querySelectorAll(selector)
+            for (const el of elements) {
+              const elText = el.textContent || ''
+              // Skip if too short or too long
+              if (elText.length < 200 || elText.length > 10000) continue
+              
+              // Check if it looks like a description (has sentences, not just keywords)
+              const sentences = elText.match(/[^.!?]+[.!?]+/g) || []
+              if (sentences.length >= 2) {
+                return elText.trim().substring(0, 5000)
+              }
+            }
+          } catch (e) {
+            // Continue to next selector
+          }
+        }
+      } catch (e) {
+        console.warn('[MacTech Scraper] Error parsing HTML for description:', e)
+      }
+    }
+    
+    // Look for description sections in text
     const descPatterns = [
-      /(?:description|summary|overview|background)[:\s]+([^]{200,2000})/i,
-      /(?:statement of work|sow|scope)[:\s]+([^]{200,2000})/i,
+      /(?:description|summary|overview|background|purpose|objective)[:\s]+([^]{200,3000})/i,
+      /(?:statement of work|sow|scope of work|scope)[:\s]+([^]{200,3000})/i,
+      /(?:this\s+(?:opportunity|contract|solicitation|procurement))([^]{200,3000})/i,
     ]
     
     for (const pattern of descPatterns) {
       const match = text.match(pattern)
       if (match && match[1]) {
-        return match[1].trim().substring(0, 5000)
+        const desc = match[1].trim()
+        // Validate it's a real description (has multiple sentences)
+        const sentences = desc.match(/[^.!?]+[.!?]+/g) || []
+        if (sentences.length >= 2) {
+          return desc.substring(0, 5000)
+        }
       }
     }
     
-    // Fallback: use first substantial paragraph
-    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 100)
+    // Fallback: use first substantial paragraphs
+    const paragraphs = text.split(/\n\n+/).filter(p => {
+      const trimmed = p.trim()
+      return trimmed.length > 150 && trimmed.length < 2000
+    })
+    
     if (paragraphs.length > 0) {
-      return paragraphs[0].trim().substring(0, 5000)
+      // Take first 2-3 paragraphs
+      const combined = paragraphs.slice(0, 3).join('\n\n').trim()
+      if (combined.length >= 200) {
+        return combined.substring(0, 5000)
+      }
     }
     
+    // Last resort: first 5000 chars of text
     return text.substring(0, 5000)
   }
 
