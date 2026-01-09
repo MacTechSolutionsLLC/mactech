@@ -181,42 +181,37 @@ const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
 /**
  * Build Google search query from search request
  * Focused on SAM.gov opportunity listings (HTML pages, not PDFs)
+ * Simplified for better SerpAPI compatibility
  */
 export function buildSearchQuery(request: SearchRequest): string {
   let query = ''
 
   // Focus on SAM.gov only - opportunity listings (HTML pages)
-  // Exclude PDFs to get the actual opportunity page, not attached documents
   const sites = request.filters?.site || ['sam.gov']
   query += `site:${sites[0]} `
   
-  // Exclude PDFs and common file types to focus on opportunity listing pages
-  query += `-filetype:pdf -filetype:doc -filetype:docx -filetype:xls -filetype:xlsx `
+  // Simplified: Just exclude PDFs (too many exclusions can cause issues)
+  query += `-filetype:pdf `
 
-  // Target SAM.gov opportunity pages - look for contract opportunity keywords
-  const opportunityKeywords = [
-    'contract opportunity',
-    'solicitation',
-    'notice',
-    'opportunity',
-    'procurement'
-  ]
-  query += `(${opportunityKeywords.join(' OR ')}) `
+  // Simplified opportunity keywords - use fewer terms for better compatibility
+  query += `"contract opportunity" OR solicitation OR notice `
 
-  // Service category keywords
+  // Service category keywords - simplified, limit to 3 most important
   if (request.service_category && request.service_category !== 'general') {
     const keywords = SERVICE_KEYWORDS[request.service_category]
     if (keywords.length > 0) {
-      query += `(${keywords.slice(0, 5).join(' OR ')}) `
+      // Use top 3 keywords without parentheses for simpler query
+      const topKeywords = keywords.slice(0, 3)
+      query += topKeywords.join(' OR ') + ' '
     }
   }
 
-  // Custom keywords
+  // Custom keywords - simplified
   if (request.keywords) {
-    // Split by comma or space and add as quoted terms
-    const keywordList = request.keywords.split(/[,\s]+/).filter(k => k.trim().length > 0)
+    // Split by comma and use first 3 keywords
+    const keywordList = request.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0).slice(0, 3)
     if (keywordList.length > 0) {
-      query += `(${keywordList.map(k => `"${k.trim()}"`).join(' OR ')}) `
+      query += keywordList.join(' OR ') + ' '
     }
   }
 
@@ -246,14 +241,16 @@ export function buildSearchQuery(request: SearchRequest): string {
     query += `(${agencyQueries.join(' OR ')}) `
   }
 
-  // NAICS codes
+  // NAICS codes - simplified
   if (request.naics_codes && request.naics_codes.length > 0) {
-    query += `(${request.naics_codes.map(n => `"NAICS ${n}"`).join(' OR ')}) `
+    // Use first NAICS code only to keep query simple
+    query += `NAICS ${request.naics_codes[0]} `
   }
 
-  // Set-aside
+  // Set-aside - simplified
   if (request.set_aside && request.set_aside.length > 0) {
-    query += `(${request.set_aside.map(s => `"${s}"`).join(' OR ')}) `
+    // Use first set-aside term only
+    query += `${request.set_aside[0]} `
   }
   
   // PSC codes (if we add PSC code support to SearchRequest in the future)

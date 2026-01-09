@@ -150,14 +150,73 @@ export async function POST(request: NextRequest) {
     // Check for SerpAPI errors in response
     if (results.error) {
       console.error('SerpAPI returned error:', results.error)
-      return NextResponse.json(
-        { 
-          error: 'SerpAPI error',
-          message: results.error,
-          details: results
-        },
-        { status: 500 }
-      )
+      console.error('Query that failed:', googleQuery)
+      
+      // If error is about no results, try a simplified fallback query
+      if (results.error.includes("hasn't returned any results") || results.error.includes("no results")) {
+        console.log('Attempting simplified fallback query...')
+        
+        // Create a simplified version: just site and main keywords
+        const simplifiedQuery = googleQuery
+          .replace(/\([^)]*\)/g, '') // Remove parentheses groups
+          .replace(/OR/gi, '') // Remove OR operators
+          .replace(/\s+/g, ' ') // Normalize whitespace
+          .trim()
+          .split(' ')
+          .slice(0, 8) // Limit to first 8 terms
+          .join(' ')
+        
+        console.log('Simplified query:', simplifiedQuery)
+        
+        try {
+          const fallbackResults = await getJson({
+            engine: 'google',
+            q: simplifiedQuery,
+            api_key: serpApiKey,
+            num: body.num_results || 20,
+            tbs: serpApiParams.tbs,
+          })
+          
+          if (!fallbackResults.error && fallbackResults.organic_results) {
+            console.log('Fallback query succeeded with', fallbackResults.organic_results.length, 'results')
+            results = fallbackResults
+          } else {
+            // Fallback also failed, return original error
+            return NextResponse.json(
+              { 
+                error: 'SerpAPI error',
+                message: results.error,
+                query: googleQuery,
+                simplifiedQuery: simplifiedQuery,
+                details: 'The search query may be too complex. Try simplifying your search terms.'
+              },
+              { status: 500 }
+            )
+          }
+        } catch (fallbackError) {
+          // Fallback also failed
+          return NextResponse.json(
+            { 
+              error: 'SerpAPI error',
+              message: results.error,
+              query: googleQuery,
+              details: 'Both original and simplified queries failed. The search terms may need adjustment.'
+            },
+            { status: 500 }
+          )
+        }
+      } else {
+        // Other error, return as-is
+        return NextResponse.json(
+          { 
+            error: 'SerpAPI error',
+            message: results.error,
+            query: googleQuery,
+            details: results
+          },
+          { status: 500 }
+        )
+      }
     }
 
     // Process results
