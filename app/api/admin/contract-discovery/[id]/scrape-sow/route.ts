@@ -1,3 +1,6 @@
+// Import polyfill first to ensure File is available in Node.js
+import '@/lib/polyfills/file-polyfill'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { scrapeSOWAttachment, saveScrapedSOW } from '@/lib/contract-scraper'
 import { prisma } from '@/lib/prisma'
