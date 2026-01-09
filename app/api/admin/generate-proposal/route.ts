@@ -1,3 +1,6 @@
+// Import polyfill first to ensure File is available in Node.js
+import '@/lib/polyfills/file-polyfill'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
@@ -6,10 +9,12 @@ import { existsSync } from 'fs'
 import mammoth from 'mammoth'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType } from 'docx'
 
+// Prevent static analysis - ensure this route is never statically generated
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
+export const dynamicParams = true
 
 // Ensure uploads directory exists
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads')

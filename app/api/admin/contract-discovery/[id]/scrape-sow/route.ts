@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { scrapeSOWAttachment, saveScrapedSOW } from '@/lib/contract-scraper'
 import { prisma } from '@/lib/prisma'
 
+// Prevent static analysis - ensure this route is never statically generated
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
+export const dynamicParams = true
 
 /**
  * Scrape SOW attachment document
