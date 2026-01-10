@@ -326,7 +326,7 @@ export default function ContractDiscoveryPage() {
   const [samGovSetAside, setSamGovSetAside] = useState<string[]>([])
   const [samGovNaicsCodes, setSamGovNaicsCodes] = useState<string[]>([])
   const [samGovPscCodes, setSamGovPscCodes] = useState<string[]>([])
-  const [samGovUseTargetCodes, setSamGovUseTargetCodes] = useState(true)
+  const [samGovUseTargetCodes, setSamGovUseTargetCodes] = useState(false)
 
   const handleSamGovSearch = async () => {
     const searchId = `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -965,11 +965,11 @@ export default function ContractDiscoveryPage() {
                           className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
                         />
                         <span className="text-body-sm font-medium text-neutral-900">
-                          Use default target NAICS and PSC codes
+                          Use default target NAICS and PSC codes (optional - may reduce results)
                         </span>
                       </label>
                       <p className="text-body-xs text-neutral-500 mt-1 ml-7">
-                        When enabled, uses recommended IT/cybersecurity codes if no specific codes are provided
+                        When enabled, filters by recommended IT/cybersecurity codes. Leave unchecked for broader search results.
                       </p>
                     </div>
                     
@@ -1080,9 +1080,10 @@ export default function ContractDiscoveryPage() {
               )}
             </div>
 
-            {/* Search Templates Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTemplates.map((template, idx) => {
+            {/* Search Templates Grid - Only for Google Search Tab */}
+            {activeTab === 'google' && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredTemplates.map((template, idx) => {
                 const pillarColors = {
                   Security: 'bg-red-100 text-red-800 border-red-300',
                   Infrastructure: 'bg-blue-100 text-blue-800 border-blue-300',
@@ -1132,7 +1133,8 @@ export default function ContractDiscoveryPage() {
                   </button>
                 )
               })}
-            </div>
+              </div>
+            )}
 
             {/* Error Display */}
             {error && (

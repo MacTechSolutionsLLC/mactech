@@ -210,8 +210,9 @@ function buildKeywordQuery(
   // Clean Google syntax from keywords if present
   let cleanedKeywords = keywords ? cleanGoogleSyntax(keywords) : undefined
   
-  // Add service category keywords
-  if (serviceCategory) {
+  // Only add service category keywords if no explicit keywords provided
+  // This makes searches less restrictive when user provides specific keywords
+  if (serviceCategory && !cleanedKeywords) {
     const categoryKeywords: Record<ServiceCategory, string[]> = {
       cybersecurity: ['RMF', 'ATO', 'cybersecurity', 'ISSO', 'ISSM', 'STIG', 'NIST 800-53'],
       infrastructure: ['data center', 'infrastructure', 'cloud', 'network'],
@@ -230,7 +231,7 @@ function buildKeywordQuery(
     keywordParts.push(customKeywords)
   }
   
-  // Add explicit keywords (cleaned)
+  // Add explicit keywords (cleaned) - prioritize user-provided keywords
   if (cleanedKeywords) {
     keywordParts.push(cleanedKeywords)
   }
@@ -273,7 +274,7 @@ export async function searchSamGov(params: {
 }): Promise<SamGovApiResponse> {
   const { from, to } = getDateRange(params.dateRange)
   
-  // Use target codes if requested and no specific codes provided
+  // Use target codes ONLY if explicitly requested - default to empty for broader searches
   const naicsCodes = params.useTargetCodes && (!params.naicsCodes || params.naicsCodes.length === 0)
     ? TARGET_NAICS_CODES
     : (params.naicsCodes || [])
@@ -282,11 +283,11 @@ export async function searchSamGov(params: {
     ? TARGET_PSC_CODES
     : (params.pscCodes || [])
   
-  // Build keyword query
-  const keyword = buildKeywordQuery(
-    params.keywords,
-    params.serviceCategory
-  )
+  // Build keyword query - prioritize explicit keywords over service category
+  // Only add service category keywords if no explicit keywords provided
+  const keyword = params.keywords && params.keywords.trim().length > 0
+    ? buildKeywordQuery(params.keywords, undefined) // Use only explicit keywords
+    : buildKeywordQuery(undefined, params.serviceCategory) // Fall back to category keywords if no explicit keywords
   
   // Normalize set-aside types (SDVOSB, VOSB)
   const setAsideTypes = (params.setAside || [])
@@ -439,14 +440,15 @@ export async function searchSamGov(params: {
   }
   
   // Single combination - make single API call
+  // Only include NAICS/PSC filters if explicitly provided (not using target codes by default)
   return searchSamGovSingle({
     keywords: params.keywords,
     serviceCategory: params.serviceCategory,
     dateRange: params.dateRange,
     setAside: setAsideTypes.length > 0 ? [setAsideTypes[0]] : undefined,
-    naicsCodes: naicsCodes.length > 0 ? [naicsCodes[0]] : [],
-    pscCodes: pscCodes.length > 0 ? [pscCodes[0]] : [],
-    limit: params.limit || 25,
+    naicsCodes: naicsCodes.length > 0 ? [naicsCodes[0]] : undefined, // Only filter if codes provided
+    pscCodes: pscCodes.length > 0 ? [pscCodes[0]] : undefined, // Only filter if codes provided
+    limit: params.limit || 30, // Increase default to 30
     offset: params.offset || 0,
     keyword,
     from,
@@ -527,12 +529,12 @@ async function searchSamGovSingle(params: {
     }
   }
   
-  // Add NAICS code filter
+  // Add NAICS code filter - only if explicitly provided
   if (params.naicsCodes && params.naicsCodes.length > 0) {
     apiUrl.searchParams.append('naicsCode', params.naicsCodes[0])
   }
   
-  // Add PSC code filter (classificationCode)
+  // Add PSC code filter (classificationCode) - only if explicitly provided
   if (params.pscCodes && params.pscCodes.length > 0) {
     apiUrl.searchParams.append('classificationCode', params.pscCodes[0])
   }
