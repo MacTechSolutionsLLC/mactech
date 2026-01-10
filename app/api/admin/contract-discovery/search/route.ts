@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         setAside: searchParams.setAside,
         naicsCodes: searchParams.naicsCodes,
         pscCodes: searchParams.pscCodes,
-        useTargetCodes: body.use_target_codes !== false, // Default to true to use target codes
+        useTargetCodes: body.use_target_codes === true, // Default to false - only use if explicitly requested
         limit: body.num_results || 30,
         offset: 0,
       })
