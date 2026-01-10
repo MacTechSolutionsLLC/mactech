@@ -1076,6 +1076,8 @@ export default function ContractDiscoveryPage() {
                   </span>
                 </label>
               </div>
+                </>
+              )}
             </div>
 
             {/* Search Templates Grid */}
@@ -1153,48 +1155,46 @@ export default function ContractDiscoveryPage() {
               </div>
             )}
 
-                  {/* Search Query Display - Only for Google Search */}
-                  {activeTab === 'google' && searchQuery && (
-                    <div className="mt-6 bg-neutral-50 border-2 border-accent-500 p-4 rounded-sm">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <p className="text-body-sm font-semibold text-neutral-900">Google Search Query:</p>
-                        <button
-                          onClick={() => copyQueryToClipboard(searchQuery)}
-                          className="flex items-center gap-2 px-4 py-2 bg-accent-700 text-white text-body-sm font-medium rounded-sm hover:bg-accent-800 transition-colors flex-shrink-0"
-                        >
-                          {copiedQuery ? (
-                            <>
-                              <span>✓</span>
-                              <span>Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>📋</span>
-                              <span>Copy Query</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div className="bg-white border border-neutral-300 p-3 rounded-sm mb-3">
-                        <p className="text-body-sm text-neutral-700 font-mono break-all">{searchQuery}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <a
-                          href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-body-sm font-medium text-accent-700 hover:text-accent-800 underline"
-                        >
-                          🔍 Search on Google →
-                        </a>
-                        <p className="text-body-xs text-neutral-600">
-                          Copy the query above and paste it into Google Search, or click the link to search directly.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+            {/* Search Query Display - Only for Google Search */}
+            {activeTab === 'google' && searchQuery && (
+              <div className="mt-6 bg-neutral-50 border-2 border-accent-500 p-4 rounded-sm">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <p className="text-body-sm font-semibold text-neutral-900">Google Search Query:</p>
+                  <button
+                    onClick={() => copyQueryToClipboard(searchQuery)}
+                    className="flex items-center gap-2 px-4 py-2 bg-accent-700 text-white text-body-sm font-medium rounded-sm hover:bg-accent-800 transition-colors flex-shrink-0"
+                  >
+                    {copiedQuery ? (
+                      <>
+                        <span>✓</span>
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>📋</span>
+                        <span>Copy Query</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="bg-white border border-neutral-300 p-3 rounded-sm mb-3">
+                  <p className="text-body-sm text-neutral-700 font-mono break-all">{searchQuery}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-body-sm font-medium text-accent-700 hover:text-accent-800 underline"
+                  >
+                    🔍 Search on Google →
+                  </a>
+                  <p className="text-body-xs text-neutral-600">
+                    Copy the query above and paste it into Google Search, or click the link to search directly.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
