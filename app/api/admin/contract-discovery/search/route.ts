@@ -60,23 +60,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse template query if provided to extract proper parameters
+    // Determine search method: Google query template vs direct SAM.gov API parameters
     let searchParams: {
       keywords?: string
       serviceCategory?: 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
       setAside?: string[]
       naicsCodes?: string[]
       pscCodes?: string[]
-    } = {
-      keywords: body.keywords,
-      serviceCategory: body.service_category,
-      setAside: body.set_aside,
-      naicsCodes: body.naics_codes,
-      pscCodes: body.psc_codes,
     }
     
-    // If a query is provided (from template), parse it to extract parameters
+    // If a query is provided (from Google search template), parse it to extract parameters
     if (body.query && !body.keywords) {
+      console.log(`[${requestId}] Using Google search template parsing mode`)
       const parsed = parseTemplateQuery(body.query)
       console.log(`[${requestId}] Parsed template query:`, {
         extractedKeywords: parsed.keywords,
@@ -93,9 +88,16 @@ export async function POST(request: NextRequest) {
         naicsCodes: body.naics_codes || parsed.naicsCodes,
         pscCodes: body.psc_codes,
       }
-    } else if (body.keywords) {
-      // If keywords are provided directly, use them
-      searchParams.keywords = body.keywords
+    } else {
+      // Direct SAM.gov API parameters - use them directly without parsing
+      console.log(`[${requestId}] Using direct SAM.gov API parameters mode`)
+      searchParams = {
+        keywords: body.keywords,
+        serviceCategory: body.service_category,
+        setAside: body.set_aside,
+        naicsCodes: body.naics_codes,
+        pscCodes: body.psc_codes,
+      }
     }
     
     // Call SAM.gov API
@@ -267,11 +269,25 @@ export async function POST(request: NextRequest) {
                     relevance_score: result.relevance_score || 0,
                     google_query: `SAM.gov API search: ${body.keywords || body.query || 'general'}`,
                     service_category: result.detected_service_category || body.service_category || null,
+                    // Update description and contact info if available
+                    description: result.description || result.snippet || existing.description,
+                    scraped_text_content: result.api_data?.description || result.description || existing.scraped_text_content,
+                    points_of_contact: result.points_of_contact && result.points_of_contact.length > 0
+                      ? JSON.stringify(result.points_of_contact)
+                      : existing.points_of_contact,
+                    deadline: result.deadline || existing.deadline,
+                    place_of_performance: result.place_of_performance || existing.place_of_performance,
+                    // Update SOW attachment info if available
+                    sow_attachment_url: result.sow_attachment_url || existing.sow_attachment_url,
+                    sow_attachment_type: result.sow_attachment_type || existing.sow_attachment_type,
                     updated_at: new Date(),
                   },
                 })
                 return { ...result, id: updated.id }
               } else {
+                // Store API data if available (for SAM.gov API results)
+                const apiDataJson = result.api_data ? JSON.stringify(result.api_data) : null
+                
                 const created = await prisma.governmentContractDiscovery.create({
                   data: {
                     title: result.title,
@@ -291,6 +307,19 @@ export async function POST(request: NextRequest) {
                     service_category: result.detected_service_category || body.service_category || null,
                     ingestion_status: 'discovered',
                     verified: false,
+                    // Store SOW attachment info from API if available
+                    sow_attachment_url: result.sow_attachment_url || null,
+                    sow_attachment_type: result.sow_attachment_type || null,
+                    // Store full description from API
+                    description: result.description || result.snippet || null,
+                    scraped_text_content: result.api_data?.description || result.description || null,
+                    // Store contact information
+                    points_of_contact: result.points_of_contact && result.points_of_contact.length > 0
+                      ? JSON.stringify(result.points_of_contact)
+                      : null,
+                    // Store deadline and other details
+                    deadline: result.deadline || null,
+                    place_of_performance: result.place_of_performance || null,
                   },
                 })
                 return { ...result, id: created.id }

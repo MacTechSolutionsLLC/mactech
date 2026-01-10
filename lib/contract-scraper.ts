@@ -33,10 +33,49 @@ export interface ContractAnalysis {
 
 /**
  * Scrape a contract opportunity page from SAM.gov
+ * 
+ * For contracts from SAM.gov API, we should use the API data directly.
+ * This function is primarily for contracts discovered via web scraping or
+ * when we need to refresh/update data from the HTML page.
  */
-export async function scrapeContractPage(url: string): Promise<ScrapeResult> {
+export async function scrapeContractPage(
+  url: string,
+  apiData?: {
+    description?: string
+    links?: Array<{ rel?: string; href?: string; type?: string }>
+    additionalInfoLink?: string
+    title?: string
+  }
+): Promise<ScrapeResult> {
   try {
-    console.log(`[Scraper] Fetching contract page: ${url}`)
+    console.log(`[Scraper] Processing contract: ${url}`, {
+      hasApiData: !!apiData,
+      hasDescription: !!apiData?.description,
+      hasLinks: !!apiData?.links,
+    })
+    
+    // If we have API data, use it directly instead of scraping
+    if (apiData) {
+      const textContent = apiData.description || ''
+      
+      // Extract SOW attachment from API links
+      const sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
+      
+      // Analyze using API data (includes contact info extraction)
+      const analysis = analyzeContractFromApiData(apiData, sowAttachment)
+      
+      return {
+        success: true,
+        htmlContent: undefined, // Don't store HTML if we have API data
+        textContent: textContent.substring(0, 50000),
+        sowAttachmentUrl: sowAttachment?.url,
+        sowAttachmentType: sowAttachment?.type,
+        analysis,
+      }
+    }
+    
+    // Fallback to HTML scraping if no API data provided
+    console.log(`[Scraper] No API data provided, scraping HTML page: ${url}`)
     
     // Fetch the HTML page
     const response = await fetch(url, {
@@ -81,6 +120,281 @@ export async function scrapeContractPage(url: string): Promise<ScrapeResult> {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     }
+  }
+}
+
+/**
+ * Find SOW attachment from SAM.gov API links array
+ */
+function findSOWFromApiLinks(
+  links: Array<{ rel?: string; href?: string; type?: string }>,
+  additionalInfoLink?: string
+): { url: string; type: string } | null {
+  const sowKeywords = [
+    'statement of work',
+    'sow',
+    'pws', // Performance Work Statement
+    'work statement',
+    'scope of work',
+    'statement of objectives',
+    'soo',
+    'attachment',
+    'document',
+  ]
+
+  // Check all links for SOW indicators
+  const potentialLinks: Array<{ url: string; type: string; score: number }> = []
+
+  links.forEach(link => {
+    if (!link.href) return
+
+    const href = link.href.toLowerCase()
+    const rel = (link.rel || '').toLowerCase()
+    const type = (link.type || '').toLowerCase()
+
+    let score = 0
+
+    // Check if link text/rel/type suggests SOW
+    const linkText = `${rel} ${type} ${href}`.toLowerCase()
+    sowKeywords.forEach(keyword => {
+      if (linkText.includes(keyword)) {
+        score += 10
+      }
+    })
+
+    // Check file extension
+    let fileType = 'unknown'
+    if (href.match(/\.pdf$/i)) {
+      fileType = 'PDF'
+      score += 5
+    } else if (href.match(/\.docx?$/i)) {
+      fileType = 'DOCX'
+      score += 4
+    } else if (href.match(/\.xlsx?$/i)) {
+      fileType = 'XLSX'
+      score += 3
+    }
+
+    // Prefer links with "attachment" or "document" in rel/type
+    if (rel.includes('attachment') || rel.includes('document')) {
+      score += 5
+    }
+
+    if (score > 0) {
+      potentialLinks.push({
+        url: link.href,
+        type: fileType,
+        score,
+      })
+    }
+  })
+
+  // Also check additionalInfoLink
+  if (additionalInfoLink) {
+    const href = additionalInfoLink.toLowerCase()
+    let score = 3 // Base score for additional info link
+    
+    sowKeywords.forEach(keyword => {
+      if (href.includes(keyword)) {
+        score += 5
+      }
+    })
+
+    let fileType = 'unknown'
+    if (href.match(/\.pdf$/i)) {
+      fileType = 'PDF'
+      score += 3
+    } else if (href.match(/\.docx?$/i)) {
+      fileType = 'DOCX'
+      score += 2
+    }
+
+    potentialLinks.push({
+      url: additionalInfoLink,
+      type: fileType,
+      score,
+    })
+  }
+
+  // Sort by score and return best match
+  potentialLinks.sort((a, b) => b.score - a.score)
+  
+  const bestMatch = potentialLinks[0]
+  if (bestMatch && bestMatch.score > 5) {
+    console.log(`[Scraper] Found SOW attachment from API links: ${bestMatch.url} (score: ${bestMatch.score})`)
+    return {
+      url: bestMatch.url,
+      type: bestMatch.type,
+    }
+  }
+
+  console.log(`[Scraper] No SOW attachment found in API links (checked ${potentialLinks.length} links)`)
+  return null
+}
+
+/**
+ * Analyze contract from API data (more efficient than HTML scraping)
+ */
+function analyzeContractFromApiData(
+  apiData: {
+    description?: string
+    title?: string
+    links?: Array<{ rel?: string; href?: string; type?: string }>
+    pointOfContact?: Array<{
+      type?: string
+      email?: string
+      phone?: string
+      fax?: string
+      fullName?: string
+      title?: string
+    }>
+    placeOfPerformance?: {
+      streetAddress?: string
+      city?: string
+      state?: string
+      zip?: string
+      country?: string
+    }
+    responseDeadLine?: string
+    postedDate?: string
+  },
+  sowAttachment: { url: string; type: string } | null
+): ContractAnalysis {
+  const text = `${apiData.title || ''} ${apiData.description || ''}`.toLowerCase()
+  const keywords: string[] = []
+  const requirements: string[] = []
+  const skills: string[] = []
+
+  // Extract keywords (same patterns as HTML analysis)
+  const keywordPatterns = [
+    { pattern: /rmf|risk management framework/gi, keyword: 'RMF' },
+    { pattern: /ato|authorization to operate/gi, keyword: 'ATO' },
+    { pattern: /isso|information system security officer/gi, keyword: 'ISSO' },
+    { pattern: /issm|information system security manager/gi, keyword: 'ISSM' },
+    { pattern: /stig|security technical implementation guide/gi, keyword: 'STIG' },
+    { pattern: /nist\s*800-53/gi, keyword: 'NIST 800-53' },
+    { pattern: /cybersecurity/gi, keyword: 'Cybersecurity' },
+    { pattern: /audit\s*readiness/gi, keyword: 'Audit Readiness' },
+    { pattern: /compliance/gi, keyword: 'Compliance' },
+    { pattern: /data\s*center/gi, keyword: 'Data Center' },
+    { pattern: /infrastructure/gi, keyword: 'Infrastructure' },
+    { pattern: /cloud/gi, keyword: 'Cloud' },
+    { pattern: /sdvosb|service-disabled veteran/gi, keyword: 'SDVOSB' },
+    { pattern: /vosb|veteran-owned/gi, keyword: 'VOSB' },
+  ]
+
+  keywordPatterns.forEach(({ pattern, keyword }) => {
+    if (pattern.test(text)) {
+      keywords.push(keyword)
+    }
+  })
+
+  // Extract requirements
+  const requirementPatterns = [
+    /(?:requirement|must|shall|should)\s*[:\-]?\s*([^.\n]{20,200})/gi,
+    /(?:experience|qualification|skill)\s*(?:required|needed|desired)\s*[:\-]?\s*([^.\n]{20,200})/gi,
+  ]
+
+  requirementPatterns.forEach(pattern => {
+    const matches = text.matchAll(pattern)
+    for (const match of matches) {
+      if (match[1] && match[1].trim().length > 10) {
+        requirements.push(match[1].trim().substring(0, 200))
+      }
+    }
+  })
+
+  // Extract skills
+  const skillKeywords = [
+    'python', 'java', 'javascript', 'typescript', 'sql',
+    'aws', 'azure', 'gcp', 'cloud',
+    'ansible', 'terraform', 'kubernetes', 'docker',
+    'linux', 'windows', 'networking',
+    'security', 'compliance', 'audit',
+  ]
+
+  skillKeywords.forEach(skill => {
+    if (text.includes(skill)) {
+      skills.push(skill)
+    }
+  })
+
+  // Extract estimated value
+  let estimatedValue: string | undefined
+  const valuePatterns = [
+    /\$[\d,]+(?:\s*(?:million|thousand|k|m))?/gi,
+    /estimated\s*(?:value|amount|budget)\s*[:\-]?\s*\$?[\d,]+/gi,
+  ]
+
+  valuePatterns.forEach(pattern => {
+    const match = text.match(pattern)
+    if (match && !estimatedValue) {
+      estimatedValue = match[0]
+    }
+  })
+
+  // Extract deadline - prefer API data over text parsing
+  let deadline: string | undefined = apiData.responseDeadLine
+  if (!deadline) {
+    const deadlinePatterns = [
+      /(?:deadline|due\s*date|closing\s*date|response\s*date)\s*[:\-]?\s*([\d\/\-]+)/gi,
+      /(?:submit|response)\s*(?:by|before|on)\s*([\d\/\-]+)/gi,
+    ]
+
+    deadlinePatterns.forEach(pattern => {
+      const match = text.match(pattern)
+      if (match && !deadline) {
+        deadline = match[1]
+      }
+    })
+  }
+
+  // Generate summary
+  const summaryParts: string[] = []
+  
+  if (keywords.length > 0) {
+    summaryParts.push(`Keywords: ${keywords.slice(0, 5).join(', ')}`)
+  }
+  
+  if (sowAttachment) {
+    summaryParts.push(`SOW attachment found (${sowAttachment.type})`)
+  } else {
+    summaryParts.push('No SOW attachment detected')
+  }
+
+  if (estimatedValue) {
+    summaryParts.push(`Estimated value: ${estimatedValue}`)
+  }
+
+  if (deadline) {
+    summaryParts.push(`Deadline: ${deadline}`)
+  }
+
+  if (requirements.length > 0) {
+    summaryParts.push(`${requirements.length} requirements identified`)
+  }
+
+  const summary = summaryParts.join('. ') || 'Contract opportunity identified'
+
+  // Calculate confidence (higher for API data since it's more reliable)
+  let confidence = 0.7 // Higher base confidence for API data
+  if (sowAttachment) confidence += 0.2
+  if (keywords.length > 3) confidence += 0.1
+  if (estimatedValue) confidence += 0.05
+  if (deadline) confidence += 0.05
+  confidence = Math.min(confidence, 1.0)
+
+  return {
+    summary,
+    confidence,
+    keywords: [...new Set(keywords)],
+    sowFound: !!sowAttachment,
+    sowUrl: sowAttachment?.url,
+    sowType: sowAttachment?.type,
+    estimatedValue,
+    deadline,
+    requirements: requirements.slice(0, 10),
+    skills: [...new Set(skills)],
   }
 }
 

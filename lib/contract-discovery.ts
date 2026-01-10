@@ -59,6 +59,51 @@ export interface DiscoveryResult {
   detected_keywords?: string[]
   relevance_score?: number
   detected_service_category?: ServiceCategory
+  // API data fields (for SAM.gov API results)
+  sow_attachment_url?: string
+  sow_attachment_type?: string
+  api_data?: {
+    description?: string
+    links?: Array<{ rel?: string; href?: string; type?: string }>
+    additionalInfoLink?: string
+    title?: string
+    pointOfContact?: Array<{
+      type?: string
+      email?: string
+      phone?: string
+      fax?: string
+      fullName?: string
+      title?: string
+    }>
+    placeOfPerformance?: {
+      streetAddress?: string
+      city?: string
+      state?: string
+      zip?: string
+      country?: string
+    }
+    responseDeadLine?: string
+    postedDate?: string
+    organizationType?: string
+    officeAddress?: {
+      streetAddress?: string
+      city?: string
+      state?: string
+      zip?: string
+      country?: string
+    }
+  }
+  // Additional contract details
+  description?: string
+  points_of_contact?: Array<{
+    name: string
+    email: string
+    phone: string
+    role: string
+  }>
+  deadline?: string
+  place_of_performance?: string
+  posted_date?: string
 }
 
 /**

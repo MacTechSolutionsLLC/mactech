@@ -126,6 +126,17 @@ export interface SamGovOpportunity {
     href?: string
     type?: string
   }>
+  // Additional fields that may be in API response
+  attachments?: Array<{
+    url?: string
+    name?: string
+    type?: string
+  }>
+  resources?: Array<{
+    url?: string
+    title?: string
+    type?: string
+  }>
 }
 
 export interface SamGovApiResponse {
@@ -277,50 +288,113 @@ export async function searchSamGov(params: {
     params.serviceCategory
   )
   
-  // If multiple NAICS codes or multiple PSC codes, make multiple API calls and combine results
-  const needsMultipleCalls = naicsCodes.length > 1 || (naicsCodes.length > 0 && pscCodes.length > 1)
+  // Normalize set-aside types (SDVOSB, VOSB)
+  const setAsideTypes = (params.setAside || [])
+    .map(sa => {
+      if (sa.includes('SDVOSB') || sa.includes('Service-Disabled Veteran')) return 'SDVOSB'
+      if (sa.includes('VOSB') || sa.includes('Veteran-Owned')) return 'VOSB'
+      return sa
+    })
+    .filter((sa, index, arr) => arr.indexOf(sa) === index) // Remove duplicates
+  
+  // If multiple NAICS codes, multiple PSC codes, or multiple set-aside types, make multiple API calls and combine results
+  const needsMultipleCalls = naicsCodes.length > 1 || 
+                             (naicsCodes.length > 0 && pscCodes.length > 1) ||
+                             setAsideTypes.length > 1
   
   if (needsMultipleCalls) {
     const results: SamGovOpportunity[] = []
     const seenNoticeIds = new Set<string>()
     let totalRecords = 0
     
-    // Generate all combinations of NAICS and PSC codes
-    const codeCombinations: Array<{ naics?: string; psc?: string }> = []
+    // Generate all combinations of NAICS, PSC codes, and set-aside types
+    const searchCombinations: Array<{ naics?: string; psc?: string; setAside?: string }> = []
     
-    if (naicsCodes.length > 0 && pscCodes.length > 0) {
-      // Combine each NAICS with each PSC
-      for (const naicsCode of naicsCodes) {
-        for (const pscCode of pscCodes) {
-          codeCombinations.push({ naics: naicsCode, psc: pscCode })
+    // If we have multiple set-aside types, we need to search for each separately
+    if (setAsideTypes.length > 1) {
+      // For each set-aside type, create combinations with NAICS and PSC codes
+      for (const setAsideType of setAsideTypes) {
+        if (naicsCodes.length > 0 && pscCodes.length > 0) {
+          // Combine each NAICS with each PSC for this set-aside
+          for (const naicsCode of naicsCodes) {
+            for (const pscCode of pscCodes) {
+              searchCombinations.push({ naics: naicsCode, psc: pscCode, setAside: setAsideType })
+            }
+          }
+        } else if (naicsCodes.length > 1) {
+          // Multiple NAICS codes, use first PSC code for each
+          for (const naicsCode of naicsCodes) {
+            searchCombinations.push({ 
+              naics: naicsCode, 
+              psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
+              setAside: setAsideType
+            })
+          }
+        } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
+          // Multiple PSC codes, use first NAICS code for each
+          for (const pscCode of pscCodes) {
+            searchCombinations.push({ 
+              naics: naicsCodes[0], 
+              psc: pscCode,
+              setAside: setAsideType
+            })
+          }
+        } else {
+          // Just set-aside type variation
+          searchCombinations.push({ 
+            naics: naicsCodes.length > 0 ? naicsCodes[0] : undefined,
+            psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
+            setAside: setAsideType
+          })
         }
       }
-    } else if (naicsCodes.length > 1) {
-      // Multiple NAICS codes, use first PSC code for each
-      for (const naicsCode of naicsCodes) {
-        codeCombinations.push({ 
-          naics: naicsCode, 
-          psc: pscCodes.length > 0 ? pscCodes[0] : undefined 
-        })
-      }
-    } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
-      // Multiple PSC codes, use first NAICS code for each
-      for (const pscCode of pscCodes) {
-        codeCombinations.push({ 
-          naics: naicsCodes[0], 
-          psc: pscCode 
+    } else {
+      // Single set-aside type (or none), generate combinations of NAICS and PSC codes
+      const setAsideType = setAsideTypes.length > 0 ? setAsideTypes[0] : undefined
+      
+      if (naicsCodes.length > 0 && pscCodes.length > 0) {
+        // Combine each NAICS with each PSC
+        for (const naicsCode of naicsCodes) {
+          for (const pscCode of pscCodes) {
+            searchCombinations.push({ naics: naicsCode, psc: pscCode, setAside: setAsideType })
+          }
+        }
+      } else if (naicsCodes.length > 1) {
+        // Multiple NAICS codes, use first PSC code for each
+        for (const naicsCode of naicsCodes) {
+          searchCombinations.push({ 
+            naics: naicsCode, 
+            psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
+            setAside: setAsideType
+          })
+        }
+      } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
+        // Multiple PSC codes, use first NAICS code for each
+        for (const pscCode of pscCodes) {
+          searchCombinations.push({ 
+            naics: naicsCodes[0], 
+            psc: pscCode,
+            setAside: setAsideType
+          })
+        }
+      } else {
+        // Single combination
+        searchCombinations.push({ 
+          naics: naicsCodes.length > 0 ? naicsCodes[0] : undefined,
+          psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
+          setAside: setAsideType
         })
       }
     }
     
     // Make API calls for each combination
-    for (const combo of codeCombinations) {
+    for (const combo of searchCombinations) {
       try {
         const singleResult = await searchSamGovSingle({
           keywords: params.keywords,
           serviceCategory: params.serviceCategory,
           dateRange: params.dateRange,
-          setAside: params.setAside,
+          setAside: combo.setAside ? [combo.setAside] : undefined,
           naicsCodes: combo.naics ? [combo.naics] : [],
           pscCodes: combo.psc ? [combo.psc] : [],
           limit: params.limit || 25,
@@ -340,7 +414,7 @@ export async function searchSamGov(params: {
         
         totalRecords += singleResult.totalRecords
       } catch (error) {
-        const comboStr = `${combo.naics || 'no-NAICS'}-${combo.psc || 'no-PSC'}`
+        const comboStr = `${combo.setAside || 'no-setAside'}-${combo.naics || 'no-NAICS'}-${combo.psc || 'no-PSC'}`
         console.error(`[SAM.gov API] Error searching combination ${comboStr}:`, error)
         // Continue with other combinations
       }
@@ -364,12 +438,12 @@ export async function searchSamGov(params: {
     }
   }
   
-  // Single NAICS code and single/no PSC code - make single API call
+  // Single combination - make single API call
   return searchSamGovSingle({
     keywords: params.keywords,
     serviceCategory: params.serviceCategory,
     dateRange: params.dateRange,
-    setAside: params.setAside,
+    setAside: setAsideTypes.length > 0 ? [setAsideTypes[0]] : undefined,
     naicsCodes: naicsCodes.length > 0 ? [naicsCodes[0]] : [],
     pscCodes: pscCodes.length > 0 ? [pscCodes[0]] : [],
     limit: params.limit || 25,
@@ -663,6 +737,75 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
     relevanceScore += 25
   }
   
+  // Extract SOW attachment URL from API links if available
+  let sowAttachmentUrl: string | undefined
+  let sowAttachmentType: string | undefined
+  
+  if (opportunity.links && opportunity.links.length > 0) {
+    // Look for SOW-related links
+    const sowKeywords = ['sow', 'statement of work', 'pws', 'work statement', 'attachment', 'document']
+    const sowLink = opportunity.links.find(link => {
+      const href = (link.href || '').toLowerCase()
+      const rel = (link.rel || '').toLowerCase()
+      const type = (link.type || '').toLowerCase()
+      const combined = `${href} ${rel} ${type}`
+      return sowKeywords.some(keyword => combined.includes(keyword)) ||
+             /\.(pdf|docx?)$/i.test(href)
+    })
+    
+    if (sowLink?.href) {
+      sowAttachmentUrl = sowLink.href
+      // Determine type from extension
+      if (sowLink.href.match(/\.pdf$/i)) {
+        sowAttachmentType = 'PDF'
+      } else if (sowLink.href.match(/\.docx?$/i)) {
+        sowAttachmentType = 'DOCX'
+      } else if (sowLink.href.match(/\.xlsx?$/i)) {
+        sowAttachmentType = 'XLSX'
+      } else {
+        sowAttachmentType = 'HTML'
+      }
+    }
+  }
+  
+  // Also check additionalInfoLink and attachments
+  if (!sowAttachmentUrl && opportunity.additionalInfoLink) {
+    if (/\.(pdf|docx?)$/i.test(opportunity.additionalInfoLink)) {
+      sowAttachmentUrl = opportunity.additionalInfoLink
+      sowAttachmentType = opportunity.additionalInfoLink.match(/\.pdf$/i) ? 'PDF' : 'DOCX'
+    }
+  }
+  
+  if (!sowAttachmentUrl && opportunity.attachments && opportunity.attachments.length > 0) {
+    const sowAttachment = opportunity.attachments.find(att => {
+      const name = (att.name || '').toLowerCase()
+      return name.includes('sow') || name.includes('statement of work') || name.includes('pws')
+    })
+    if (sowAttachment?.url) {
+      sowAttachmentUrl = sowAttachment.url
+      sowAttachmentType = sowAttachment.type || 'PDF'
+    }
+  }
+
+  // Extract points of contact
+  const pointsOfContact = opportunity.pointOfContact?.map(poc => ({
+    name: poc.fullName || '',
+    email: poc.email || '',
+    phone: poc.phone || '',
+    role: poc.type || poc.title || '',
+  })).filter(poc => poc.name || poc.email || poc.phone) || []
+
+  // Extract place of performance
+  const placeOfPerformance = opportunity.placeOfPerformance
+    ? `${opportunity.placeOfPerformance.streetAddress || ''} ${opportunity.placeOfPerformance.city || ''} ${opportunity.placeOfPerformance.state || ''} ${opportunity.placeOfPerformance.zip || ''}`.trim()
+    : undefined
+
+  // Extract deadline
+  const deadline = opportunity.responseDeadLine || undefined
+
+  // Extract posted date
+  const postedDate = opportunity.postedDate || undefined
+
   return {
     title: opportunity.title,
     url,
@@ -680,6 +823,27 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
     detected_keywords: [...new Set(detectedKeywords)],
     relevance_score: relevanceScore,
     detected_service_category: detectedServiceCategory,
+    // Store API data for scraper to use
+    sow_attachment_url: sowAttachmentUrl,
+    sow_attachment_type: sowAttachmentType,
+    api_data: {
+      description: opportunity.description,
+      links: opportunity.links,
+      additionalInfoLink: opportunity.additionalInfoLink,
+      title: opportunity.title,
+      pointOfContact: opportunity.pointOfContact,
+      placeOfPerformance: opportunity.placeOfPerformance,
+      responseDeadLine: opportunity.responseDeadLine,
+      postedDate: opportunity.postedDate,
+      organizationType: opportunity.organizationType,
+      officeAddress: opportunity.officeAddress,
+    },
+    // Additional contract details
+    description: opportunity.description,
+    points_of_contact: pointsOfContact,
+    deadline: deadline,
+    place_of_performance: placeOfPerformance,
+    posted_date: postedDate,
   }
 }
 
