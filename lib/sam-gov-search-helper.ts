@@ -5,6 +5,7 @@
  */
 
 import { ServiceCategory } from './contract-discovery'
+import { TARGET_NAICS_CODES, TARGET_PSC_CODES } from './sam-gov-api'
 
 export interface TemplateSearchParams {
   keywords?: string[]
@@ -99,17 +100,23 @@ export function extractServiceCategoryFromQuery(query: string): ServiceCategory 
 
 /**
  * Get NAICS codes for service category
+ * Uses target NAICS codes as defaults
  */
 export function getNaicsCodesForCategory(category: ServiceCategory): string[] {
-  const naicsMapping: Record<ServiceCategory, string[]> = {
-    cybersecurity: ['541512', '541519', '541511'], // Computer systems design, other computer services, custom programming
-    infrastructure: ['541330', '541511', '518210'], // Engineering, programming, data processing
-    compliance: ['541211', '541219', '541690'], // Accounting, auditing, consulting
-    contracts: ['541611', '541612'], // Management consulting
-    general: [],
+  // For most categories, use target NAICS codes
+  if (category === 'cybersecurity' || category === 'infrastructure' || category === 'compliance') {
+    return TARGET_NAICS_CODES
   }
   
-  return naicsMapping[category] || []
+  const naicsMapping: Record<ServiceCategory, string[]> = {
+    cybersecurity: TARGET_NAICS_CODES,
+    infrastructure: TARGET_NAICS_CODES,
+    compliance: TARGET_NAICS_CODES,
+    contracts: ['541611', '541612'], // Management consulting
+    general: TARGET_NAICS_CODES, // Use target codes as default
+  }
+  
+  return naicsMapping[category] || TARGET_NAICS_CODES
 }
 
 /**

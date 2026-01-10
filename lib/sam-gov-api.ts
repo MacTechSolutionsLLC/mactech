@@ -4,6 +4,19 @@
  * Uses the official SAM.gov Opportunities API v2
  * Documentation: https://open.gsa.gov/api/opportunities-api/
  * Endpoint: https://api.sam.gov/prod/opportunities/v2/search
+ * 
+ * Also incorporates patterns from SAM.gov Entity Management API
+ * Documentation: https://open.gsa.gov/api/entity-api/
+ * 
+ * Updated based on SAM.gov API documentation patterns
+ * Supports enhanced filtering with NAICS codes, PSC codes, and additional parameters
+ * 
+ * API Key Rate Limits (from Entity API patterns):
+ * - Non-federal user (no role): 10 requests/day
+ * - Non-federal user (with role): 1,000 requests/day
+ * - Federal user: 1,000 requests/day
+ * - Non-federal system: 1,000 requests/day
+ * - Federal system: 10,000 requests/day
  */
 
 import { DiscoveryResult, ServiceCategory } from './contract-discovery'
@@ -17,8 +30,39 @@ export interface SamGovSearchParams {
   noticeType?: string // 'PRESOL', 'COMBINE', 'SRCSGT', 'SNOTE', 'SSALE', 'AWARD', 'JA', 'ITB', 'PRESOL', 'COMBINE', 'SRCSGT', 'SNOTE', 'SSALE', 'AWARD', 'JA', 'ITB'
   setAside?: string // 'SBA', '8A', 'HUBZONE', 'WOSB', 'EDWOSB', 'SDVOSB', 'VOSB', etc.
   naicsCode?: string
+  classificationCode?: string // PSC code
   organizationType?: string
+  // Additional parameters based on SAM.gov API documentation
+  deptind?: string // Department/Independent Agency code
+  officeAddress?: string // Office address filter
+  placeOfPerformance?: string // Place of performance filter
+  active?: boolean // Filter for active opportunities only
+  awardAmountFrom?: number // Minimum award amount
+  awardAmountTo?: number // Maximum award amount
+  responseDeadlineFrom?: string // MM/DD/YYYY - Response deadline from
+  responseDeadlineTo?: string // MM/DD/YYYY - Response deadline to
 }
+
+/**
+ * Target NAICS codes for IT/cybersecurity services
+ */
+export const TARGET_NAICS_CODES = [
+  '541512', // Computer Systems Design Services
+  '541519', // Other Computer Related Services
+  '541511', // Custom Computer Programming Services
+  '541330', // Engineering Services
+  '541690', // Other Scientific and Technical Consulting Services
+]
+
+/**
+ * Target PSC codes for IT/cybersecurity services
+ */
+export const TARGET_PSC_CODES = [
+  'D310', // IT & Telecom: Cyber Security and Data Backup
+  'D307', // IT & Telecom: IT Strategy and Architecture
+  'D399', // IT & Telecom: Other IT and Telecommunications
+  'R499', // Support: Professional: Other
+]
 
 export interface SamGovOpportunity {
   noticeId: string
@@ -203,6 +247,7 @@ function mapSetAside(setAside?: string): string[] {
 
 /**
  * Search SAM.gov for contract opportunities
+ * Supports multiple NAICS codes by making multiple API calls if needed
  */
 export async function searchSamGov(params: {
   keywords?: string
@@ -210,13 +255,161 @@ export async function searchSamGov(params: {
   dateRange?: 'past_week' | 'past_month' | 'past_year'
   setAside?: string[]
   naicsCodes?: string[]
+  pscCodes?: string[]
   limit?: number
   offset?: number
+  useTargetCodes?: boolean // If true, use TARGET_NAICS_CODES and TARGET_PSC_CODES as defaults
 }): Promise<SamGovApiResponse> {
   const { from, to } = getDateRange(params.dateRange)
   
+  // Use target codes if requested and no specific codes provided
+  const naicsCodes = params.useTargetCodes && (!params.naicsCodes || params.naicsCodes.length === 0)
+    ? TARGET_NAICS_CODES
+    : (params.naicsCodes || [])
+  
+  const pscCodes = params.useTargetCodes && (!params.pscCodes || params.pscCodes.length === 0)
+    ? TARGET_PSC_CODES
+    : (params.pscCodes || [])
+  
   // Build keyword query
   const keyword = buildKeywordQuery(
+    params.keywords,
+    params.serviceCategory
+  )
+  
+  // If multiple NAICS codes or multiple PSC codes, make multiple API calls and combine results
+  const needsMultipleCalls = naicsCodes.length > 1 || (naicsCodes.length > 0 && pscCodes.length > 1)
+  
+  if (needsMultipleCalls) {
+    const results: SamGovOpportunity[] = []
+    const seenNoticeIds = new Set<string>()
+    let totalRecords = 0
+    
+    // Generate all combinations of NAICS and PSC codes
+    const codeCombinations: Array<{ naics?: string; psc?: string }> = []
+    
+    if (naicsCodes.length > 0 && pscCodes.length > 0) {
+      // Combine each NAICS with each PSC
+      for (const naicsCode of naicsCodes) {
+        for (const pscCode of pscCodes) {
+          codeCombinations.push({ naics: naicsCode, psc: pscCode })
+        }
+      }
+    } else if (naicsCodes.length > 1) {
+      // Multiple NAICS codes, use first PSC code for each
+      for (const naicsCode of naicsCodes) {
+        codeCombinations.push({ 
+          naics: naicsCode, 
+          psc: pscCodes.length > 0 ? pscCodes[0] : undefined 
+        })
+      }
+    } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
+      // Multiple PSC codes, use first NAICS code for each
+      for (const pscCode of pscCodes) {
+        codeCombinations.push({ 
+          naics: naicsCodes[0], 
+          psc: pscCode 
+        })
+      }
+    }
+    
+    // Make API calls for each combination
+    for (const combo of codeCombinations) {
+      try {
+        const singleResult = await searchSamGovSingle({
+          keywords: params.keywords,
+          serviceCategory: params.serviceCategory,
+          dateRange: params.dateRange,
+          setAside: params.setAside,
+          naicsCodes: combo.naics ? [combo.naics] : [],
+          pscCodes: combo.psc ? [combo.psc] : [],
+          limit: params.limit || 25,
+          offset: params.offset || 0,
+          keyword,
+          from,
+          to,
+        })
+        
+        // Deduplicate by noticeId
+        singleResult.opportunitiesData.forEach(opp => {
+          if (!seenNoticeIds.has(opp.noticeId)) {
+            seenNoticeIds.add(opp.noticeId)
+            results.push(opp)
+          }
+        })
+        
+        totalRecords += singleResult.totalRecords
+      } catch (error) {
+        const comboStr = `${combo.naics || 'no-NAICS'}-${combo.psc || 'no-PSC'}`
+        console.error(`[SAM.gov API] Error searching combination ${comboStr}:`, error)
+        // Continue with other combinations
+      }
+    }
+    
+    // Sort by postedDate (newest first) and limit results
+    results.sort((a, b) => {
+      const dateA = new Date(a.postedDate).getTime()
+      const dateB = new Date(b.postedDate).getTime()
+      return dateB - dateA
+    })
+    
+    const limit = params.limit || 25
+    const limitedResults = results.slice(0, limit)
+    
+    return {
+      totalRecords: Math.max(totalRecords, limitedResults.length),
+      limit,
+      offset: params.offset || 0,
+      opportunitiesData: limitedResults,
+    }
+  }
+  
+  // Single NAICS code and single/no PSC code - make single API call
+  return searchSamGovSingle({
+    keywords: params.keywords,
+    serviceCategory: params.serviceCategory,
+    dateRange: params.dateRange,
+    setAside: params.setAside,
+    naicsCodes: naicsCodes.length > 0 ? [naicsCodes[0]] : [],
+    pscCodes: pscCodes.length > 0 ? [pscCodes[0]] : [],
+    limit: params.limit || 25,
+    offset: params.offset || 0,
+    keyword,
+    from,
+    to,
+  })
+}
+
+/**
+ * Internal function to make a single SAM.gov API call
+ */
+async function searchSamGovSingle(params: {
+  keywords?: string
+  serviceCategory?: ServiceCategory
+  dateRange?: 'past_week' | 'past_month' | 'past_year'
+  setAside?: string[]
+  naicsCodes?: string[]
+  pscCodes?: string[]
+  limit?: number
+  offset?: number
+  keyword?: string
+  from?: string
+  to?: string
+  active?: boolean
+  // Additional optional parameters
+  deptind?: string
+  officeAddress?: string
+  placeOfPerformance?: string
+  awardAmountFrom?: number
+  awardAmountTo?: number
+  responseDeadlineFrom?: string
+  responseDeadlineTo?: string
+}): Promise<SamGovApiResponse> {
+  const { from, to } = params.from && params.to 
+    ? { from: params.from, to: params.to }
+    : getDateRange(params.dateRange)
+  
+  const keyword = params.keyword || buildKeywordQuery(
     params.keywords,
     params.serviceCategory
   )
@@ -225,8 +418,18 @@ export async function searchSamGov(params: {
   const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
   
   // Add query parameters
+  // Note: SAM.gov APIs support AND (&), OR (~), NOT (!) operators in some contexts
+  // For keyword searches, we use simple space-separated terms
   if (keyword) {
-    apiUrl.searchParams.append('keyword', keyword)
+    // Clean keyword to remove special characters that might break API
+    // Entity API docs note: & | { } ^ \ are not allowed in parameter values
+    const cleanedKeyword = keyword
+      .replace(/[&|{}^\\]/g, ' ') // Remove disallowed characters
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim()
+    if (cleanedKeyword) {
+      apiUrl.searchParams.append('keyword', cleanedKeyword)
+    }
   }
   
   apiUrl.searchParams.append('postedFrom', from)
@@ -255,10 +458,49 @@ export async function searchSamGov(params: {
     apiUrl.searchParams.append('naicsCode', params.naicsCodes[0])
   }
   
+  // Add PSC code filter (classificationCode)
+  if (params.pscCodes && params.pscCodes.length > 0) {
+    apiUrl.searchParams.append('classificationCode', params.pscCodes[0])
+  }
+  
+  // Add additional optional filters if provided
+  // Note: These parameters may vary by API version - adjust based on actual SAM.gov API documentation
+  if (params.active !== undefined) {
+    apiUrl.searchParams.append('active', String(params.active))
+  }
+  
+  if (params.deptind) {
+    apiUrl.searchParams.append('deptind', params.deptind)
+  }
+  
+  if (params.officeAddress) {
+    apiUrl.searchParams.append('officeAddress', params.officeAddress)
+  }
+  
+  if (params.placeOfPerformance) {
+    apiUrl.searchParams.append('placeOfPerformance', params.placeOfPerformance)
+  }
+  
+  if (params.awardAmountFrom !== undefined) {
+    apiUrl.searchParams.append('awardAmountFrom', String(params.awardAmountFrom))
+  }
+  
+  if (params.awardAmountTo !== undefined) {
+    apiUrl.searchParams.append('awardAmountTo', String(params.awardAmountTo))
+  }
+  
+  if (params.responseDeadlineFrom) {
+    apiUrl.searchParams.append('responseDeadlineFrom', params.responseDeadlineFrom)
+  }
+  
+  if (params.responseDeadlineTo) {
+    apiUrl.searchParams.append('responseDeadlineTo', params.responseDeadlineTo)
+  }
+  
   // Get API key from environment (optional but recommended)
   const apiKey = process.env.SAM_GOV_API_KEY || process.env.SAM_API_KEY
   
-  // Add API key to query params if available
+  // Add API key to query params (Opportunities API pattern)
   if (apiKey) {
     apiUrl.searchParams.append('api_key', apiKey)
   }
@@ -271,9 +513,12 @@ export async function searchSamGov(params: {
       'User-Agent': 'MacTech Contract Discovery/1.0',
     }
     
-    // Some SAM.gov endpoints also accept API key in headers
+    // SAM.gov APIs support API key in headers (Entity API pattern uses x-api-key)
+    // Opportunities API may accept both query param and header
     if (apiKey) {
+      // Try both header formats for compatibility
       headers['X-Api-Key'] = apiKey
+      headers['x-api-key'] = apiKey // Entity API uses lowercase
     }
     
     const response = await fetch(apiUrl.toString(), {
@@ -408,10 +653,14 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
     relevanceScore -= 40 // Heavy penalty for irrelevant NAICS
   }
   
-  // Boost for cybersecurity NAICS codes
-  const cyberNaics = ['541512', '541519', '541511']
-  if (naicsCodes.some(code => cyberNaics.includes(code))) {
+  // Boost for target NAICS codes
+  if (naicsCodes.some(code => TARGET_NAICS_CODES.includes(code))) {
     relevanceScore += 30
+  }
+  
+  // Boost for target PSC codes
+  if (opportunity.classificationCode && TARGET_PSC_CODES.includes(opportunity.classificationCode)) {
+    relevanceScore += 25
   }
   
   return {

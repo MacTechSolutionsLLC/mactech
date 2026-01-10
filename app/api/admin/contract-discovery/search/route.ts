@@ -19,6 +19,7 @@ interface SearchRequestBody {
   location?: string
   agency?: string[]
   naics_codes?: string[]
+  psc_codes?: string[]
   document_types?: ('SOW' | 'PWS' | 'RFQ' | 'RFP' | 'Sources Sought' | 'Other')[]
   keywords?: string
   num_results?: number
@@ -28,6 +29,7 @@ interface SearchRequestBody {
     date_range?: 'past_week' | 'past_month' | 'past_year'
   }
   set_aside?: string[]
+  use_target_codes?: boolean // If true, use target NAICS and PSC codes as defaults
 }
 
 export async function POST(request: NextRequest) {
@@ -64,11 +66,13 @@ export async function POST(request: NextRequest) {
       serviceCategory?: 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
       setAside?: string[]
       naicsCodes?: string[]
+      pscCodes?: string[]
     } = {
       keywords: body.keywords,
       serviceCategory: body.service_category,
       setAside: body.set_aside,
       naicsCodes: body.naics_codes,
+      pscCodes: body.psc_codes,
     }
     
     // If a query is provided (from template), parse it to extract parameters
@@ -87,6 +91,7 @@ export async function POST(request: NextRequest) {
         serviceCategory: body.service_category || parsed.serviceCategory,
         setAside: body.set_aside || parsed.setAside,
         naicsCodes: body.naics_codes || parsed.naicsCodes,
+        pscCodes: body.psc_codes,
       }
     } else if (body.keywords) {
       // If keywords are provided directly, use them
@@ -102,6 +107,8 @@ export async function POST(request: NextRequest) {
         serviceCategory: searchParams.serviceCategory,
         setAside: searchParams.setAside,
         naicsCodes: searchParams.naicsCodes,
+        pscCodes: searchParams.pscCodes,
+        useTargetCodes: body.use_target_codes !== false, // Default to true
       })
       
       samGovResults = await searchSamGov({
@@ -110,6 +117,8 @@ export async function POST(request: NextRequest) {
         dateRange: body.filters?.date_range || 'past_month',
         setAside: searchParams.setAside,
         naicsCodes: searchParams.naicsCodes,
+        pscCodes: searchParams.pscCodes,
+        useTargetCodes: body.use_target_codes !== false, // Default to true to use target codes
         limit: body.num_results || 25,
         offset: 0,
       })

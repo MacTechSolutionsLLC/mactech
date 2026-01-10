@@ -118,6 +118,7 @@ export const RMF_CYBER_PSC_CODES = [
   'D310', // IT & Telecom: Cyber Security and Data Backup
   'D307', // IT & Telecom: IT Strategy and Architecture
   'D399', // IT & Telecom: Other IT and Telecommunications
+  'R499', // Support: Professional: Other
 ]
 
 /**
