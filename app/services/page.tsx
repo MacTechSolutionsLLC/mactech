@@ -85,7 +85,7 @@ export default function ServicesPage() {
                 }`}
               >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Security.badgeColor}`}>
-                  {pillarInfo.Security.name}
+                  {pillarInfo.Security.name} Pillar
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Cybersecurity & RMF Services</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Security.description}</p>
@@ -100,7 +100,7 @@ export default function ServicesPage() {
                 }`}
               >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Infrastructure.badgeColor}`}>
-                  {pillarInfo.Infrastructure.name}
+                  {pillarInfo.Infrastructure.name} Pillar
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Infrastructure & Platform Engineering</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Infrastructure.description}</p>
@@ -115,7 +115,7 @@ export default function ServicesPage() {
                 }`}
               >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Quality.badgeColor}`}>
-                  {pillarInfo.Quality.name}
+                  {pillarInfo.Quality.name} Pillar
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Quality & Compliance Consulting</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Quality.description}</p>
@@ -130,7 +130,7 @@ export default function ServicesPage() {
                 }`}
               >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Governance.badgeColor}`}>
-                  {pillarInfo.Governance.name}
+                  {pillarInfo.Governance.name} Pillar
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Contracts & Risk Alignment</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Governance.description}</p>
