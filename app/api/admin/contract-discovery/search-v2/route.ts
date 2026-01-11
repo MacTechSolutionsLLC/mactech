@@ -308,6 +308,8 @@ export async function POST(request: NextRequest) {
         duplicates: duplicates.length,
         unique: storedResults.length,
       },
+      // Include error if present (even when success is true, in case of partial failures)
+      error: searchResponse.error || undefined,
     })
   } catch (error) {
     logger.error('Unhandled error in unified search', {

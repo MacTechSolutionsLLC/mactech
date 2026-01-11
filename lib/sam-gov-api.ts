@@ -311,6 +311,10 @@ export async function searchSamGov(params: {
   const seenNoticeIds = new Set<string>()
   let totalRecords = 0
   
+  // Track failed searches to determine if we should throw errors
+  const failedSearches: Array<{ setAside: string | undefined; error: Error }> = []
+  let successfulSearches = 0
+  
   // If no set-aside types specified, make one call without set-aside filter
   const setAsidesToSearch = setAsideTypes.length > 0 ? setAsideTypes : [undefined]
   
@@ -357,10 +361,37 @@ export async function searchSamGov(params: {
       })
       
       totalRecords += singleResult.totalRecords
+      successfulSearches++
     } catch (error) {
-      console.error(`[SAM.gov API] Error searching set-aside ${setAsideType || 'none'}:`, error)
-      // Continue with other set-aside types
+      const errorObj = error instanceof Error ? error : new Error(String(error))
+      const isRateLimit = errorObj.message.includes('rate limit') || errorObj.message.includes('429')
+      
+      console.error(`[SAM.gov API] Error searching set-aside ${setAsideType || 'none'}:`, errorObj.message)
+      
+      failedSearches.push({
+        setAside: setAsideType,
+        error: errorObj,
+      })
+      
+      // If this is a rate limit error and we have no successful searches yet, continue to check others
+      // We'll throw if ALL searches fail with rate limits
     }
+  }
+  
+  // If all searches failed, throw the error (especially if it's a rate limit)
+  if (successfulSearches === 0 && failedSearches.length > 0) {
+    const firstError = failedSearches[0].error
+    const allRateLimits = failedSearches.every(f => 
+      f.error.message.includes('rate limit') || f.error.message.includes('429')
+    )
+    
+    // If all failures are rate limits, throw the rate limit error
+    if (allRateLimits) {
+      throw firstError
+    }
+    
+    // Otherwise throw the first error
+    throw firstError
   }
   
   // Sort by postedDate (newest first) and limit results

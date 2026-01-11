@@ -130,8 +130,14 @@ export default function ContractDiscoveryPage() {
       
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Search failed'
+        // Format rate limit errors to be more user-friendly
         if (response.status === 429 || errorMessage.includes('rate limit')) {
-          throw new Error(`Rate limit exceeded: ${errorMessage}. Please try again later.`)
+          // If error message already includes "try again after", use it as-is
+          // Otherwise, add a generic message
+          const rateLimitMsg = errorMessage.includes('try again after') || errorMessage.includes('after')
+            ? errorMessage // Already includes timing info
+            : `Rate limit exceeded: ${errorMessage}. Please try again later.`
+          throw new Error(rateLimitMsg)
         }
         throw new Error(errorMessage)
       }
@@ -142,11 +148,21 @@ export default function ContractDiscoveryPage() {
         setSearchStats(data.stats || null)
         setGeneratedGoogleQuery(data.googleQuery || null)
         
-        if (data.results && data.results.length === 0) {
+        // Check if there's an error message even when success is true
+        // This handles cases where searches failed but the response still indicates success
+        if (data.error) {
+          // Format rate limit errors to be user-friendly
+          const errorMsg = data.error.includes('rate limit') && !data.error.includes('try again after')
+            ? `${data.error} Please try again later.`
+            : data.error
+          setError(errorMsg)
+        } else if (data.results && data.results.length === 0) {
           setError('No results found. Try different keywords or adjust the date range.')
+        } else {
+          setError(null)
         }
       } else {
-        throw new Error(data.error || 'Search failed')
+        throw new Error(data.error || data.message || 'Search failed')
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
