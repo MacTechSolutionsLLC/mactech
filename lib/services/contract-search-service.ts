@@ -76,6 +76,10 @@ async function executeSamGovSearch(
       rateLimit.windowMs
     )
     
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:73',message:'Internal rate limit check',data:{rateLimitKey,allowed:limitCheck.allowed,maxRequests:rateLimit.maxRequests,windowMs:rateLimit.windowMs,requestId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
     if (!limitCheck.allowed) {
       throw new RateLimitError(
         `SAM.gov API rate limit exceeded. Try again in ${Math.ceil((limitCheck.resetAt - Date.now()) / 1000)} seconds.`,
@@ -110,12 +114,34 @@ async function executeSamGovSearch(
         initialDelayMs: 1000,
         maxDelayMs: 10000,
         retryableErrors: (error) => {
-          // Retry on rate limits, network errors, timeouts
-          return error.message.includes('rate limit') ||
-                 error.message.includes('timeout') ||
-                 error.message.includes('network') ||
-                 error.message.includes('429') ||
-                 error.message.includes('503')
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:116',message:'Checking if error is retryable',data:{errorMessage:error.message,errorMessageLower:error.message.toLowerCase()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+          // DO NOT retry on rate limits - fail fast to avoid wasting API quota
+          // Retry only on network errors, timeouts, and server errors (not 429)
+          const errorMsg = error.message.toLowerCase()
+          const isRateLimit = errorMsg.includes('rate limit') || 
+                             errorMsg.includes('429') ||
+                             errorMsg.includes('daily request limits') ||
+                             errorMsg.includes('rate limit exceeded')
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:125',message:'Retry decision',data:{isRateLimit,willRetry:!isRateLimit && (errorMsg.includes('timeout') || errorMsg.includes('network') || errorMsg.includes('503') || errorMsg.includes('502') || errorMsg.includes('500'))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+          
+          if (isRateLimit) {
+            return false // Never retry rate limit errors
+          }
+          
+          // Retry on network errors, timeouts, and server errors
+          return errorMsg.includes('timeout') ||
+                 errorMsg.includes('network') ||
+                 errorMsg.includes('econnreset') ||
+                 errorMsg.includes('etimedout') ||
+                 errorMsg.includes('enotfound') ||
+                 errorMsg.includes('503') ||
+                 errorMsg.includes('502') ||
+                 errorMsg.includes('500')
         },
       }
     )
@@ -165,8 +191,15 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     let cached = false
     let apiResponse: SamGovApiResponse | null = null
     
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:168',message:'Checking cache before API call',data:{cacheKey,useCache,requestId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
     if (useCache) {
       const cachedResult = await cache.get<SamGovApiResponse>(cacheKey)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:172',message:'Cache lookup result',data:{cacheKey,hasCachedResult:!!cachedResult,requestId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       if (cachedResult) {
         logger.debug('Cache hit', { requestId, cacheKey })
         apiResponse = cachedResult
@@ -176,7 +209,13 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     
     // Execute search if not cached
     if (!apiResponse) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:178',message:'Executing API search (not cached)',data:{requestId,query:samGov.keyword},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       apiResponse = await executeSamGovSearch(samGov, request.limit || 30, requestId)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:181',message:'API search completed',data:{requestId,success:!!apiResponse,totalRecords:apiResponse?.totalRecords},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       
       // Cache result (5 minute TTL)
       if (useCache && apiResponse) {

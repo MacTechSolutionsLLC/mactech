@@ -540,6 +540,9 @@ async function searchSamGovSingle(params: {
       
       // Handle rate limiting (429)
       if (response.status === 429) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'sam-gov-api.ts:542',message:'Rate limit 429 error received',data:{status:429,errorText:errorText.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
         let nextAccessTime: string | null = null
         try {
           const errorJson = JSON.parse(errorText)
@@ -551,6 +554,10 @@ async function searchSamGovSingle(params: {
             nextAccessTime = timeMatch[1]
           }
         }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'sam-gov-api.ts:555',message:'Throwing rate limit error (should NOT be retried)',data:{nextAccessTime,rateLimitMessage:`SAM.gov API rate limit exceeded. You can try again after ${nextAccessTime || 'later'}. The free tier has daily request limits.`},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
         
         const rateLimitMessage = nextAccessTime 
           ? `SAM.gov API rate limit exceeded. You can try again after ${nextAccessTime}. The free tier has daily request limits.`
