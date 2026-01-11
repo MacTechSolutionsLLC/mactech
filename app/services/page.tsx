@@ -1,4 +1,7 @@
+"use client"
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
 
@@ -38,6 +41,8 @@ const pillarInfo = {
 }
 
 export default function ServicesPage() {
+  const [selectedPillar, setSelectedPillar] = useState<Pillar | null>(null)
+
   return (
     <div className="bg-white">
       {/* Header - Editorial */}
@@ -71,38 +76,66 @@ export default function ServicesPage() {
               This structure ensures that every service offering is backed by proven leadership and specialized knowledge.
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className={`p-4 rounded-lg border ${pillarInfo.Security.color}`}>
+              <button
+                onClick={() => setSelectedPillar(selectedPillar === 'Security' ? null : 'Security')}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                  selectedPillar === 'Security' 
+                    ? `${pillarInfo.Security.color} border-red-400 shadow-lg ring-2 ring-red-300` 
+                    : `${pillarInfo.Security.color} hover:border-red-300`
+                }`}
+              >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Security.badgeColor}`}>
                   {pillarInfo.Security.name}
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Cybersecurity & RMF Services</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Security.description}</p>
                 <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Security.leader}</p>
-              </div>
-              <div className={`p-4 rounded-lg border ${pillarInfo.Infrastructure.color}`}>
+              </button>
+              <button
+                onClick={() => setSelectedPillar(selectedPillar === 'Infrastructure' ? null : 'Infrastructure')}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                  selectedPillar === 'Infrastructure' 
+                    ? `${pillarInfo.Infrastructure.color} border-blue-400 shadow-lg ring-2 ring-blue-300` 
+                    : `${pillarInfo.Infrastructure.color} hover:border-blue-300`
+                }`}
+              >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Infrastructure.badgeColor}`}>
                   {pillarInfo.Infrastructure.name}
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Infrastructure & Platform Engineering</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Infrastructure.description}</p>
                 <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Infrastructure.leader}</p>
-              </div>
-              <div className={`p-4 rounded-lg border ${pillarInfo.Quality.color}`}>
+              </button>
+              <button
+                onClick={() => setSelectedPillar(selectedPillar === 'Quality' ? null : 'Quality')}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                  selectedPillar === 'Quality' 
+                    ? `${pillarInfo.Quality.color} border-green-400 shadow-lg ring-2 ring-green-300` 
+                    : `${pillarInfo.Quality.color} hover:border-green-300`
+                }`}
+              >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Quality.badgeColor}`}>
                   {pillarInfo.Quality.name}
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Quality & Compliance Consulting</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Quality.description}</p>
                 <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Quality.leader}</p>
-              </div>
-              <div className={`p-4 rounded-lg border ${pillarInfo.Governance.color}`}>
+              </button>
+              <button
+                onClick={() => setSelectedPillar(selectedPillar === 'Governance' ? null : 'Governance')}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                  selectedPillar === 'Governance' 
+                    ? `${pillarInfo.Governance.color} border-purple-400 shadow-lg ring-2 ring-purple-300` 
+                    : `${pillarInfo.Governance.color} hover:border-purple-300`
+                }`}
+              >
                 <div className={`inline-block px-3 py-1 rounded-full text-body-xs font-semibold mb-2 ${pillarInfo.Governance.badgeColor}`}>
                   {pillarInfo.Governance.name}
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Contracts & Risk Alignment</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Governance.description}</p>
                 <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Governance.leader}</p>
-              </div>
+              </button>
             </div>
             <div className="text-center">
               <Link href="/leadership" className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center gap-1">
@@ -117,13 +150,14 @@ export default function ServicesPage() {
       </section>
 
       {/* Cybersecurity & RMF Services */}
+      {(selectedPillar === null || selectedPillar === 'Security') && (
       <section className={`section-container ${pillarInfo.Security.color} border-b border-red-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
               <div className={`h-px w-16 ${pillarInfo.Security.accentColor}`}></div>
               <div className={`px-3 py-1 rounded-full text-body-xs font-semibold ${pillarInfo.Security.badgeColor}`}>
-                {pillarInfo.Security.name} Pillar
+                {pillarInfo.Security.name}
               </div>
             </div>
             <h2 className="heading-2 mb-4">Cybersecurity & RMF Services</h2>
@@ -323,15 +357,17 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Infrastructure & Platform Engineering */}
+      {(selectedPillar === null || selectedPillar === 'Infrastructure') && (
       <section className={`section-container ${pillarInfo.Infrastructure.color} border-y border-blue-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
               <div className={`h-px w-16 ${pillarInfo.Infrastructure.accentColor}`}></div>
               <div className={`px-3 py-1 rounded-full text-body-xs font-semibold ${pillarInfo.Infrastructure.badgeColor}`}>
-                {pillarInfo.Infrastructure.name} Pillar
+                {pillarInfo.Infrastructure.name}
               </div>
             </div>
             <h2 className="heading-2 mb-4">Infrastructure & Platform Engineering</h2>
@@ -510,15 +546,17 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Quality & Compliance Consulting */}
+      {(selectedPillar === null || selectedPillar === 'Quality') && (
       <section className={`section-container ${pillarInfo.Quality.color} border-b border-green-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
               <div className={`h-px w-16 ${pillarInfo.Quality.accentColor}`}></div>
               <div className={`px-3 py-1 rounded-full text-body-xs font-semibold ${pillarInfo.Quality.badgeColor}`}>
-                {pillarInfo.Quality.name} Pillar
+                {pillarInfo.Quality.name}
               </div>
             </div>
             <h2 className="heading-2 mb-4">Quality & Compliance Consulting</h2>
@@ -691,15 +729,17 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Contracts & Risk Alignment */}
+      {(selectedPillar === null || selectedPillar === 'Governance') && (
       <section className={`section-container ${pillarInfo.Governance.color} border-y border-purple-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
               <div className={`h-px w-16 ${pillarInfo.Governance.accentColor}`}></div>
               <div className={`px-3 py-1 rounded-full text-body-xs font-semibold ${pillarInfo.Governance.badgeColor}`}>
-                {pillarInfo.Governance.name} Pillar
+                {pillarInfo.Governance.name}
               </div>
             </div>
             <h2 className="heading-2 mb-4">Contracts & Risk Alignment</h2>
@@ -828,6 +868,7 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA - Restrained */}
       <section className="section-container bg-accent-900 text-white">
