@@ -51,273 +51,6 @@ interface GoogleQuery {
 
 type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
 
-interface SearchTemplate {
-  name: string
-  description: string
-  query: string
-  keywords: string
-  category: 'vetcert' | 'rmf' | 'general'
-  pillar?: Pillar
-}
-
-const SEARCH_TEMPLATES: SearchTemplate[] = [
-  // Security Pillar - Patrick Caruso
-  {
-    name: 'Security: VetCert SDVOSB Set-Asides (Cyber/RMF)',
-    description: 'SBA-certified SDVOSB set-aside opportunities for cybersecurity and RMF',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53" OR "ISSO" OR "ISSM")',
-    keywords: 'VetCert, SDVOSB, RMF, cybersecurity',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VetCert SDVOSB Sole Source (Cyber/RMF)',
-    description: 'SBA-certified SDVOSB sole source opportunities for cybersecurity and RMF',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Sole Source" OR "SDVOSB Sole Source") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53" OR "ISSO" OR "ISSM")',
-    keywords: 'VetCert, SDVOSB, sole source, RMF',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VA Veterans First VOSB (Cyber/RMF)',
-    description: 'VA-specific veteran-owned set-aside opportunities for cybersecurity',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Veteran-Owned Small Business Set Aside, Department of Veterans Affairs" OR "VOSB Set Aside, Department of Veterans Affairs") ("RMF" OR "cybersecurity" OR "ATO" OR "NIST 800-53")',
-    keywords: 'VA, VOSB, Veterans First, RMF',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VetCert RMF Roles (ISSO/ISSM/ISSE)',
-    description: 'VetCert-eligible opportunities requiring ISSO, ISSM, or ISSE roles',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran" OR "veteran-owned") ("ISSO" OR "ISSM" OR "ISSE" OR "Information System Security Officer" OR "Information System Security Manager")',
-    keywords: 'ISSO, ISSM, ISSE, VetCert, RMF roles',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VetCert eMASS & ATO Support',
-    description: 'VetCert-eligible opportunities for eMASS and ATO support services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("eMASS" OR "ATO" OR "Authorization to Operate" OR "SSP" OR "System Security Plan")',
-    keywords: 'eMASS, ATO, SSP, VetCert',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VetCert NIST 800-53 & Control Assessment',
-    description: 'VetCert-eligible opportunities for NIST 800-53 compliance and control assessment',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("NIST 800-53" OR "security control assessment" OR "SCA" OR "control assessment" OR "continuous monitoring")',
-    keywords: 'NIST 800-53, SCA, control assessment, VetCert',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: RMF & ATO Services',
-    description: 'Risk Management Framework and Authorization to Operate contracts',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("RMF" OR "Risk Management Framework" OR "ATO" OR "Authorization to Operate" OR "STIG")',
-    keywords: 'RMF, ATO, STIG',
-    category: 'rmf',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: Cybersecurity & STIG Compliance',
-    description: 'STIG compliance and cybersecurity assessment contracts',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("STIG" OR "Security Technical Implementation Guide" OR "cybersecurity assessment" OR "security control assessment")',
-    keywords: 'STIG, cybersecurity, assessment',
-    category: 'rmf',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: NIST 800-53 Compliance',
-    description: 'NIST 800-53 security control implementation and assessment',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("NIST 800-53" OR "security controls" OR "control assessment" OR "SCA")',
-    keywords: 'NIST, security controls, SCA',
-    category: 'rmf',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: DoD Cybersecurity',
-    description: 'Department of Defense cybersecurity and RMF contracts',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Department of Defense" OR "DoD" OR "Air Force" OR "Navy" OR "Army") ("RMF" OR "ATO" OR "cybersecurity" OR "STIG")',
-    keywords: 'DoD, military, cybersecurity',
-    category: 'rmf',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: Continuous Monitoring',
-    description: 'ConMon and continuous monitoring services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Continuous Monitoring" OR "ConMon" OR "continuous assessment" OR "security monitoring")',
-    keywords: 'ConMon, monitoring, assessment',
-    category: 'rmf',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: GSA HACS VetCert Opportunities',
-    description: 'GSA MAS HACS SIN opportunities for VetCert-eligible businesses',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("54151HACS" OR "HACS" OR "Highly Adaptive Cybersecurity Services") ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran" OR "veteran-owned") ("RMF" OR "ATO" OR "cybersecurity")',
-    keywords: 'GSA HACS, 54151HACS, VetCert, RMF',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  {
-    name: 'Security: VetCert Cyber NAICS (541512/541519/541511)',
-    description: 'VetCert-eligible opportunities with cyber/RMF NAICS codes',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("SDVOSB" OR "VOSB" OR "Service-Disabled Veteran") ("NAICS 541512" OR "NAICS 541519" OR "NAICS 541511") ("RMF" OR "cybersecurity" OR "ATO")',
-    keywords: 'NAICS 541512, NAICS 541519, NAICS 541511, VetCert',
-    category: 'vetcert',
-    pillar: 'Security',
-  },
-  
-  // Infrastructure Pillar - James Adams
-  {
-    name: 'Infrastructure: Data Center Services (VetCert)',
-    description: 'VetCert-eligible data center architecture, design, and deployment opportunities',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("data center" OR "datacenter" OR "data center architecture" OR "data center design" OR "data center deployment")',
-    keywords: 'VetCert, SDVOSB, VOSB, data center, architecture, deployment',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Storage & Backup Solutions (VetCert)',
-    description: 'VetCert-eligible storage systems, backup, and data management contracts',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("storage" OR "backup" OR "data storage" OR "backup solutions" OR "storage systems" OR "SAN" OR "NAS")',
-    keywords: 'VetCert, SDVOSB, VOSB, storage, backup, SAN, NAS',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Network Architecture & Configuration (VetCert)',
-    description: 'VetCert-eligible network design, configuration, and security infrastructure',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("network architecture" OR "network design" OR "network configuration" OR "network infrastructure" OR "routing" OR "switching")',
-    keywords: 'VetCert, SDVOSB, VOSB, network, architecture, configuration',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Virtualization & Cloud Platforms (VetCert)',
-    description: 'VetCert-eligible virtualization, cloud migration, and platform services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("virtualization" OR "cloud migration" OR "cloud platform" OR "VMware" OR "Hyper-V" OR "virtual infrastructure")',
-    keywords: 'VetCert, SDVOSB, VOSB, virtualization, cloud, VMware',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Infrastructure as Code (IaC) (VetCert)',
-    description: 'VetCert-eligible infrastructure automation, IaC, and deployment optimization',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("Infrastructure as Code" OR "IaC" OR "infrastructure automation" OR "deployment automation" OR "Ansible" OR "Terraform")',
-    keywords: 'VetCert, SDVOSB, VOSB, IaC, automation, Ansible, Terraform',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Performance Optimization & Capacity Planning (VetCert)',
-    description: 'VetCert-eligible system performance, optimization, and capacity planning services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("performance optimization" OR "capacity planning" OR "system performance" OR "performance tuning" OR "resource optimization")',
-    keywords: 'VetCert, SDVOSB, VOSB, performance, optimization, capacity planning',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  {
-    name: 'Infrastructure: Health Monitoring & Observability (VetCert)',
-    description: 'VetCert-eligible infrastructure monitoring, health checks, and observability platforms',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("infrastructure monitoring" OR "health monitoring" OR "system monitoring" OR "observability" OR "infrastructure health")',
-    keywords: 'VetCert, SDVOSB, VOSB, monitoring, observability, health checks',
-    category: 'vetcert',
-    pillar: 'Infrastructure',
-  },
-  
-  // Quality Pillar - Brian MacDonald
-  {
-    name: 'Quality: ISO Compliance & Certification (VetCert)',
-    description: 'VetCert-eligible ISO 9001, ISO 17025, and quality management system opportunities',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("ISO 9001" OR "ISO 17025" OR "ISO compliance" OR "quality management system" OR "QMS" OR "ISO certification")',
-    keywords: 'VetCert, SDVOSB, VOSB, ISO, QMS, compliance, certification',
-    category: 'vetcert',
-    pillar: 'Quality',
-  },
-  {
-    name: 'Quality: Audit Readiness & Compliance (VetCert)',
-    description: 'VetCert-eligible audit readiness, compliance assessment, and audit support services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("audit readiness" OR "audit support" OR "compliance assessment" OR "internal audit" OR "external audit" OR "audit preparation")',
-    keywords: 'VetCert, SDVOSB, VOSB, audit, readiness, compliance',
-    category: 'vetcert',
-    pillar: 'Quality',
-  },
-  {
-    name: 'Quality: Metrology & Calibration Services (VetCert)',
-    description: 'VetCert-eligible metrology management, calibration, and measurement services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("metrology" OR "calibration" OR "measurement services" OR "calibration services" OR "metrology management")',
-    keywords: 'VetCert, SDVOSB, VOSB, metrology, calibration, measurement',
-    category: 'vetcert',
-    pillar: 'Quality',
-  },
-  {
-    name: 'Quality: Process Documentation & SOP Automation (VetCert)',
-    description: 'VetCert-eligible standard operating procedures, process documentation, and automation',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("SOP" OR "standard operating procedure" OR "process documentation" OR "procedure automation" OR "process standardization")',
-    keywords: 'VetCert, SDVOSB, VOSB, SOP, documentation, process automation',
-    category: 'vetcert',
-    pillar: 'Quality',
-  },
-  {
-    name: 'Quality: Quality Assurance & Testing (VetCert)',
-    description: 'VetCert-eligible QA services, testing, and quality control opportunities',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("quality assurance" OR "QA" OR "quality control" OR "testing services" OR "quality testing")',
-    keywords: 'VetCert, SDVOSB, VOSB, QA, quality assurance, testing',
-    category: 'vetcert',
-    pillar: 'Quality',
-  },
-  
-  // Governance Pillar - John Milso
-  {
-    name: 'Governance: Contract Management & Administration (VetCert)',
-    description: 'VetCert-eligible contract management, administration, and contract lifecycle services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("contract management" OR "contract administration" OR "contract lifecycle" OR "contract support")',
-    keywords: 'VetCert, SDVOSB, VOSB, contract management, administration, lifecycle',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-  {
-    name: 'Governance: Legal Document Generation (VetCert)',
-    description: 'VetCert-eligible legal document generation, contract drafting, and document automation',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("legal document" OR "contract drafting" OR "document generation" OR "legal document automation" OR "contract templates")',
-    keywords: 'VetCert, SDVOSB, VOSB, legal documents, contract drafting, automation',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-  {
-    name: 'Governance: Risk Analysis & Assessment (VetCert)',
-    description: 'VetCert-eligible risk analysis, risk assessment, and risk management services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("risk analysis" OR "risk assessment" OR "risk management" OR "risk identification" OR "risk mitigation")',
-    keywords: 'VetCert, SDVOSB, VOSB, risk analysis, assessment, management',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-  {
-    name: 'Governance: Corporate Governance & Compliance (VetCert)',
-    description: 'VetCert-eligible corporate governance, compliance, and regulatory advisory services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("corporate governance" OR "governance advisory" OR "regulatory compliance" OR "compliance advisory")',
-    keywords: 'VetCert, SDVOSB, VOSB, corporate governance, compliance, advisory',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-  {
-    name: 'Governance: Due Diligence & M&A Support (VetCert)',
-    description: 'VetCert-eligible due diligence, M&A support, and transactional legal services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("due diligence" OR "M&A" OR "mergers and acquisitions" OR "transactional support" OR "acquisition support")',
-    keywords: 'VetCert, SDVOSB, VOSB, due diligence, M&A, transactional',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-  {
-    name: 'Governance: Litigation Support (VetCert)',
-    description: 'VetCert-eligible litigation support, legal research, and case management services',
-    query: 'site:sam.gov -filetype:pdf (contract opportunity OR solicitation OR notice) ("Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside" OR "SDVOSB Set-Aside" OR "SBA certified SDVOSB" OR "VOSB Set Aside, Department of Veterans Affairs") ("litigation support" OR "legal research" OR "case management" OR "legal support services")',
-    keywords: 'VetCert, SDVOSB, VOSB, litigation, legal research, case management',
-    category: 'vetcert',
-    pillar: 'Governance',
-  },
-]
-
 export default function ContractDiscoveryPage() {
   // Unified search state
   const [keywords, setKeywords] = useState('')
@@ -354,9 +87,8 @@ export default function ContractDiscoveryPage() {
     duration: number
   } | null>(null)
   
-  // Google query generator state (separate from search)
+  // Google query from API response
   const [generatedGoogleQuery, setGeneratedGoogleQuery] = useState<GoogleQuery | null>(null)
-  const [isGeneratingGoogleQuery, setIsGeneratingGoogleQuery] = useState(false)
   
   // UI state
   const [copiedQuery, setCopiedQuery] = useState(false)
@@ -408,6 +140,7 @@ export default function ContractDiscoveryPage() {
         setResults(data.results || [])
         setApiCallDetails(data.apiCallDetails || null)
         setSearchStats(data.stats || null)
+        setGeneratedGoogleQuery(data.googleQuery || null)
         
         if (data.results && data.results.length === 0) {
           setError('No results found. Try different keywords or adjust the date range.')
@@ -423,46 +156,6 @@ export default function ContractDiscoveryPage() {
     }
   }
 
-  const handleGenerateGoogleQuery = async () => {
-    if (!keywords.trim()) {
-      setError('Please enter keywords first')
-      return
-    }
-    
-    setIsGeneratingGoogleQuery(true)
-    setError(null)
-    
-    try {
-      // Call API endpoint to generate Google query (client-side generation)
-      const response = await fetch('/api/admin/contract-discovery/generate-google-query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          keywords: keywords.trim(),
-          service_category: serviceCategory,
-          date_range: dateRange,
-          location: location.trim() || undefined,
-          naics_codes: naicsCodes.trim() ? naicsCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
-          psc_codes: pscCodes.trim() ? pscCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
-        }),
-      })
-      
-      const data = await response.json()
-      
-      if (data.success && data.googleQuery) {
-        setGeneratedGoogleQuery(data.googleQuery)
-      } else {
-        throw new Error(data.error || 'Failed to generate Google query')
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to generate Google query'
-      setError(errorMessage)
-    } finally {
-      setIsGeneratingGoogleQuery(false)
-    }
-  }
 
   const handleOpenOpportunity = (url: string, id: string) => {
     window.open(url, '_blank')
@@ -804,21 +497,6 @@ export default function ContractDiscoveryPage() {
                       </>
                     ) : (
                       'Search Contracts'
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={handleGenerateGoogleQuery}
-                    disabled={isGeneratingGoogleQuery || !keywords.trim()}
-                    className="w-full btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGeneratingGoogleQuery ? (
-                      <>
-                        <span className="inline-block animate-spin mr-2">⏳</span>
-                        Generating...
-                      </>
-                    ) : (
-                      '🔍 Generate Google Query'
                     )}
                   </button>
                 </div>

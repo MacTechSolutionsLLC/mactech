@@ -3,6 +3,7 @@ import { searchContracts, SearchRequest } from '@/lib/services/contract-search-s
 import { validateContractResult, detectDuplicates } from '@/lib/services/contract-validator'
 import { prisma } from '@/lib/prisma'
 import { createLogger } from '@/lib/services/contract-metrics'
+import { buildGoogleQuery } from '@/lib/services/vetcert-query-builder'
 
 const logger = createLogger('SearchAPIv2')
 
@@ -74,6 +75,18 @@ export async function POST(request: NextRequest) {
       limit: body.limit || 30,
       useCache: body.use_cache !== false,
     }
+    
+    // Build Google query using the same parameters
+    const parsedKeywords = body.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
+    const googleQuery = buildGoogleQuery({
+      keywords: parsedKeywords,
+      serviceCategory: body.service_category || 'cybersecurity',
+      location: body.location,
+      agency: body.agency,
+      dateRange: body.date_range || 'past_month',
+      naicsCodes: body.naics_codes,
+      pscCodes: body.psc_codes,
+    })
     
     // Execute search
     const searchResponse = await searchContracts(searchRequest)
@@ -281,6 +294,7 @@ export async function POST(request: NextRequest) {
       })),
       apiCallDetails: searchResponse.apiCallDetails,
       samGovQuery: searchResponse.samGovQuery,
+      googleQuery: googleQuery, // Include Google query in response
       totalRecords: searchResponse.totalRecords,
       resultsCount: storedResults.length,
       cached: searchResponse.cached,
