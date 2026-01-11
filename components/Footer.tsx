@@ -14,7 +14,7 @@ export default function Footer() {
                 alt="MacTech Solutions"
                 width={1800}
                 height={360}
-                className="h-60 w-auto brightness-0 invert"
+                className="h-12 w-auto brightness-0 invert"
               />
             </Link>
             <p className="text-body-sm text-neutral-400 max-w-md leading-relaxed">

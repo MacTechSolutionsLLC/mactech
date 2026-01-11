@@ -38,7 +38,7 @@ export default function CapabilitiesPage() {
               MacTech Solutions LLC
             </h1>
             <p className="text-lg text-neutral-700 font-semibold mb-4 print:text-base">
-              Service-Disabled Veteran-Owned Small Business (SDVOSB)
+              Service-Disabled Veteran-Owned Small Business (SDVOSB) (Pending)
             </p>
             <div className="h-px w-24 bg-accent-700 mx-auto"></div>
           </div>
@@ -157,7 +157,7 @@ export default function CapabilitiesPage() {
                   Business Certifications
                 </h3>
                 <ul className="space-y-1 print:space-y-0.5">
-                  <li className="text-body text-neutral-700 print:text-sm">• Service-Disabled Veteran-Owned Small Business (SDVOSB)</li>
+                  <li className="text-body text-neutral-700 print:text-sm">• Service-Disabled Veteran-Owned Small Business (SDVOSB) (Pending)</li>
                   <li className="text-body text-neutral-700 print:text-sm">• GSA HACS (Highly Adaptive Cybersecurity Services) eligible</li>
                 </ul>
               </div>
@@ -284,7 +284,7 @@ export default function CapabilitiesPage() {
             </div>
 
             <ul className="space-y-2 print:space-y-1">
-              <li className="text-body text-neutral-700 print:text-sm">• <strong>Veteran-Owned Business:</strong> SDVOSB status with deep understanding of mission-critical operations and federal contracting requirements</li>
+              <li className="text-body text-neutral-700 print:text-sm">• <strong>Veteran-Owned Business:</strong> SDVOSB (Pending) status with deep understanding of mission-critical operations and federal contracting requirements</li>
               <li className="text-body text-neutral-700 print:text-sm">• <strong>Senior Practitioners Only:</strong> Decades of combined experience—no junior consultants learning on your project</li>
               <li className="text-body text-neutral-700 print:text-sm">• <strong>Automation-Enhanced Delivery:</strong> Proprietary automation tools that accelerate delivery, reduce manual effort, and ensure consistency</li>
               <li className="text-body text-neutral-700 print:text-sm">• <strong>Four Pillars of Expertise:</strong> Organized structure ensuring every service is backed by specialized leadership and proven track records</li>

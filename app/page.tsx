@@ -303,7 +303,7 @@ export default function HomePage() {
               <div>
                 <h3 className="heading-3 mb-2">Veteran-Owned</h3>
                 <p className="text-body text-neutral-700 leading-relaxed">
-                  SDVOSB (pending) status. We understand mission-critical operations and the unique 
+                  SDVOSB (Pending) status. We understand mission-critical operations and the unique 
                   requirements of federal contracting.
                 </p>
               </div>

@@ -47,7 +47,7 @@ export default function Navigation() {
               alt="MacTech Solutions"
               width={1800}
               height={360}
-              className="h-60 w-auto transition-opacity duration-gentle group-hover:opacity-80"
+              className="h-10 w-auto transition-opacity duration-gentle group-hover:opacity-80"
               priority
             />
           </Link>
