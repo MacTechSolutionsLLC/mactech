@@ -423,6 +423,46 @@ export default function ContractDiscoveryPage() {
     }
   }
 
+  const handleGenerateGoogleQuery = async () => {
+    if (!keywords.trim()) {
+      setError('Please enter keywords first')
+      return
+    }
+    
+    setIsGeneratingGoogleQuery(true)
+    setError(null)
+    
+    try {
+      // Call API endpoint to generate Google query (client-side generation)
+      const response = await fetch('/api/admin/contract-discovery/generate-google-query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          keywords: keywords.trim(),
+          service_category: serviceCategory,
+          date_range: dateRange,
+          location: location.trim() || undefined,
+          naics_codes: naicsCodes.trim() ? naicsCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+          psc_codes: pscCodes.trim() ? pscCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+        }),
+      })
+      
+      const data = await response.json()
+      
+      if (data.success && data.googleQuery) {
+        setGeneratedGoogleQuery(data.googleQuery)
+      } else {
+        throw new Error(data.error || 'Failed to generate Google query')
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate Google query'
+      setError(errorMessage)
+    } finally {
+      setIsGeneratingGoogleQuery(false)
+    }
+  }
 
   const handleOpenOpportunity = (url: string, id: string) => {
     window.open(url, '_blank')
