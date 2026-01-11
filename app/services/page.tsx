@@ -78,7 +78,7 @@ export default function ServicesPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Security' ? null : 'Security')}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                className={`h-full p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md flex flex-col ${
                   selectedPillar === 'Security' 
                     ? `${pillarInfo.Security.color} border-red-400 shadow-lg ring-2 ring-red-300` 
                     : `${pillarInfo.Security.color} hover:border-red-300`
@@ -92,7 +92,7 @@ export default function ServicesPage() {
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Infrastructure' ? null : 'Infrastructure')}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                className={`h-full p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md flex flex-col ${
                   selectedPillar === 'Infrastructure' 
                     ? `${pillarInfo.Infrastructure.color} border-blue-400 shadow-lg ring-2 ring-blue-300` 
                     : `${pillarInfo.Infrastructure.color} hover:border-blue-300`
@@ -106,7 +106,7 @@ export default function ServicesPage() {
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Quality' ? null : 'Quality')}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                className={`h-full p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md flex flex-col ${
                   selectedPillar === 'Quality' 
                     ? `${pillarInfo.Quality.color} border-green-400 shadow-lg ring-2 ring-green-300` 
                     : `${pillarInfo.Quality.color} hover:border-green-300`
@@ -120,7 +120,7 @@ export default function ServicesPage() {
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Governance' ? null : 'Governance')}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md ${
+                className={`h-full p-4 rounded-lg border transition-all duration-200 cursor-pointer text-left hover:shadow-md flex flex-col ${
                   selectedPillar === 'Governance' 
                     ? `${pillarInfo.Governance.color} border-purple-400 shadow-lg ring-2 ring-purple-300` 
                     : `${pillarInfo.Governance.color} hover:border-purple-300`
@@ -357,7 +357,7 @@ export default function ServicesPage() {
 
       {/* Infrastructure & Platform Engineering */}
       {(selectedPillar === null || selectedPillar === 'Infrastructure') && (
-      <section className={`section-container ${pillarInfo.Infrastructure.color} border-y border-blue-200`}>
+      <section className={`section-container ${pillarInfo.Infrastructure.color} border-b border-blue-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
@@ -729,7 +729,7 @@ export default function ServicesPage() {
 
       {/* Contracts & Risk Alignment */}
       {(selectedPillar === null || selectedPillar === 'Governance') && (
-      <section className={`section-container ${pillarInfo.Governance.color} border-y border-purple-200`}>
+      <section className={`section-container ${pillarInfo.Governance.color} border-b border-purple-200`}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-4">
