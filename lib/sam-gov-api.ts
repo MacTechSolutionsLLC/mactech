@@ -659,15 +659,8 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
     relevanceScore -= 40 // Heavy penalty for irrelevant NAICS
   }
   
-  // Boost for target NAICS codes (additional boost beyond client-side boost)
-  if (naicsCodes.some(code => TARGET_NAICS_CODES.includes(code))) {
-    relevanceScore += 10 // Reduced from 30 since we already boost in search
-  }
-  
-  // Boost for target PSC codes (additional boost beyond client-side boost)
-  if (opportunity.classificationCode && TARGET_PSC_CODES.includes(opportunity.classificationCode)) {
-    relevanceScore += 10 // Reduced from 25 since we already boost in search
-  }
+  // Note: NAICS/PSC code boosting is now only applied if codes were explicitly provided
+  // in the search query (handled in searchSamGov function via _relevanceBoost)
   
   // Extract SOW attachment URL from API links if available
   let sowAttachmentUrl: string | undefined
