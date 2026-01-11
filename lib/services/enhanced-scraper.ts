@@ -110,12 +110,12 @@ export async function enhancedScrape(
           }
         )
         
-        if (sowResult.success && sowResult.data) {
+        if (sowResult.success && sowResult.data?.content) {
           sowContent = sowResult.data.content
           sowScraped = true
           logger.debug('SOW extracted successfully', {
             scrapeId,
-            contentLength: sowContent.length,
+            contentLength: sowResult.data.content.length,
           })
         } else {
           logger.warn('SOW extraction failed', {
