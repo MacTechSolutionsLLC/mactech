@@ -142,3 +142,55 @@
   }
 }
 
+/* Print styles for capabilities statement */
+@media print {
+  /* Hide navigation and non-essential elements */
+  nav,
+  .no-print,
+  footer,
+  button:not(.print-keep) {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: letter;
+    margin: 0.75in;
+  }
+
+  /* Ensure proper page breaks */
+  .capabilities-statement section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .capabilities-statement h2 {
+    page-break-after: avoid;
+    break-after: avoid;
+    margin-top: 1rem;
+  }
+
+  /* Optimize text for print */
+  .capabilities-statement {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Remove links styling in print */
+  .capabilities-statement a {
+    color: #000 !important;
+    text-decoration: none;
+  }
+
+  /* Ensure proper spacing */
+  .capabilities-statement {
+    padding: 0;
+  }
+
+  /* Print-friendly colors */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+

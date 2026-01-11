@@ -24,6 +24,7 @@ export default function Navigation() {
     { href: '/showcase', label: 'Showcase' },
     { href: '/readiness', label: 'Assessment' },
     { href: '/leadership', label: 'Leadership' },
+    { href: '/capabilities', label: 'Capabilities' },
     { href: '/contact', label: 'Contact' },
   ]
 
