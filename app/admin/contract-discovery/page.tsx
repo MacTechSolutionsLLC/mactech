@@ -35,6 +35,18 @@ interface DiscoveryResult {
   analysis_confidence?: number
   analysis_keywords?: string[]
   dismissed?: boolean
+  validation?: {
+    valid: boolean
+    score: number
+    errors: string[]
+    warnings: string[]
+    completeness: number
+  }
+}
+
+interface GoogleQuery {
+  query: string
+  description: string
 }
 
 type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
@@ -307,309 +319,95 @@ const SEARCH_TEMPLATES: SearchTemplate[] = [
 ]
 
 export default function ContractDiscoveryPage() {
-  const [activeTab, setActiveTab] = useState<'google' | 'samgov'>('samgov')
-  const [selectedTemplate, setSelectedTemplate] = useState<SearchTemplate | null>(null)
+  // Unified search state
+  const [keywords, setKeywords] = useState('')
+  const [serviceCategory, setServiceCategory] = useState<ServiceCategory>('cybersecurity')
+  const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_month')
+  const [location, setLocation] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [naicsCodes, setNaicsCodes] = useState('')
+  const [pscCodes, setPscCodes] = useState('')
+  
+  // Results state
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState<DiscoveryResult[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [googleQuery, setGoogleQuery] = useState<GoogleQuery | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_month')
-  const [vetcertOnly, setVetcertOnly] = useState(false)
-  const [pillarFilter, setPillarFilter] = useState<'all' | Pillar>('all')
+  const [searchStats, setSearchStats] = useState<{
+    total: number
+    valid: number
+    invalid: number
+    duplicates: number
+    unique: number
+    cached: boolean
+    duration: number
+  } | null>(null)
+  
+  // UI state
   const [copiedQuery, setCopiedQuery] = useState(false)
   const [scrapingIds, setScrapingIds] = useState<Set<string>>(new Set())
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
-  
-  // SAM.gov API search form state
-  const [samGovKeywords, setSamGovKeywords] = useState('')
-  const [samGovServiceCategory, setSamGovServiceCategory] = useState<ServiceCategory>('cybersecurity')
-  const [samGovSetAside, setSamGovSetAside] = useState<string[]>([])
-  const [samGovNaicsCodes, setSamGovNaicsCodes] = useState<string[]>([])
-  const [samGovPscCodes, setSamGovPscCodes] = useState<string[]>([])
-  const [samGovUseTargetCodes, setSamGovUseTargetCodes] = useState(false)
 
-  const handleSamGovSearch = async () => {
-    const searchId = `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    console.log(`[${searchId}] Frontend: SAM.gov API Search started`, {
-      keywords: samGovKeywords,
-      serviceCategory: samGovServiceCategory,
-      setAside: samGovSetAside,
-      naicsCodes: samGovNaicsCodes,
-      pscCodes: samGovPscCodes,
-      dateRange,
-      timestamp: new Date().toISOString(),
-    })
+  const handleUnifiedSearch = async () => {
+    if (!keywords.trim()) {
+      setError('Please enter keywords for the search')
+      return
+    }
     
     setIsSearching(true)
     setError(null)
     setResults([])
-    setSelectedTemplate(null)
-    setSearchQuery('')
-
+    setGoogleQuery(null)
+    setSearchStats(null)
+    
     try {
       const requestBody = {
-        keywords: samGovKeywords || undefined,
-        service_category: samGovServiceCategory,
-        set_aside: samGovSetAside.length > 0 ? samGovSetAside : undefined,
-        naics_codes: samGovNaicsCodes.length > 0 ? samGovNaicsCodes : undefined,
-        psc_codes: samGovPscCodes.length > 0 ? samGovPscCodes : undefined,
-        use_target_codes: samGovUseTargetCodes,
-        num_results: 30,
-        filters: {
-          date_range: dateRange,
-        },
+        keywords: keywords.trim(),
+        service_category: serviceCategory,
+        date_range: dateRange,
+        location: location.trim() || undefined,
+        naics_codes: naicsCodes.trim() ? naicsCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+        psc_codes: pscCodes.trim() ? pscCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+        limit: 30,
       }
       
-      console.log(`[${searchId}] Frontend: Sending API request`, {
-        url: '/api/admin/contract-discovery/search',
-        method: 'POST',
-        body: requestBody,
-      })
-      
-      const requestStartTime = Date.now()
-      const response = await fetch('/api/admin/contract-discovery/search', {
+      const response = await fetch('/api/admin/contract-discovery/search-v2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
       })
-
-      const requestDuration = Date.now() - requestStartTime
-      console.log(`[${searchId}] Frontend: API response received (${requestDuration}ms)`, {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-      })
-
-      let data: any
-      try {
-        data = await response.json()
-        console.log(`[${searchId}] Frontend: Response data parsed`, {
-          success: data.success,
-          resultsCount: data.results_count || 0,
-          hasResults: !!data.results && data.results.length > 0,
-          resultsLength: data.results?.length || 0,
-          hasError: !!data.error,
-          error: data.error,
-          hasWarnings: !!data.warnings && data.warnings.length > 0,
-          warnings: data.warnings,
-          requestId: data.requestId,
-          query: data.query,
-        })
-      } catch (parseError) {
-        console.error(`[${searchId}] Frontend: Failed to parse response JSON`, {
-          error: parseError,
-          status: response.status,
-          statusText: response.statusText,
-        })
-        const text = await response.text()
-        console.error(`[${searchId}] Frontend: Response text (first 500 chars):`, text.substring(0, 500))
-        throw new Error(`Failed to parse response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
-      }
-
+      
+      const data = await response.json()
+      
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Search failed'
-        const fullMessage = data.details ? `${errorMessage}. ${data.details}` : errorMessage
-        console.error(`[${searchId}] Frontend: API returned error`, {
-          status: response.status,
-          error: data.error,
-          message: data.message,
-          details: data.details,
-          requestId: data.requestId,
-        })
-        
-        // Special handling for rate limit errors
         if (response.status === 429 || errorMessage.includes('rate limit')) {
-          throw new Error(`Rate limit exceeded: ${fullMessage}. Please try again later.`)
+          throw new Error(`Rate limit exceeded: ${errorMessage}. Please try again later.`)
         }
+        throw new Error(errorMessage)
+      }
+      
+      if (data.success) {
+        setResults(data.results || [])
+        setGoogleQuery(data.googleQuery || null)
+        setSearchStats(data.stats || null)
         
-        throw new Error(fullMessage)
-      }
-
-      if (data.warnings && data.warnings.length > 0) {
-        console.warn(`[${searchId}] Frontend: API warnings`, data.warnings)
-        setError(`Note: ${data.warnings[0]}. Results are still available.`)
-      }
-
-      console.log(`[${searchId}] Frontend: Setting results`, {
-        resultsCount: data.results?.length || 0,
-        sampleResult: data.results?.[0] ? {
-          title: data.results[0].title,
-          url: data.results[0].url,
-          relevanceScore: data.results[0].relevance_score,
-        } : null,
-      })
-      
-      setResults(data.results || [])
-      setSearchQuery(data.query || 'SAM.gov API Search')
-      
-      if (data.results && data.results.length === 0) {
-        console.warn(`[${searchId}] Frontend: No results returned`, {
-          query: data.query,
-          requestId: data.requestId,
-        })
-        setError('No results found. Try a different search template or adjust the date range.')
+        if (data.results && data.results.length === 0) {
+          setError('No results found. Try different keywords or adjust the date range.')
+        }
       } else {
-        setError(null)
-        console.log(`[${searchId}] Frontend: Search completed successfully`, {
-          resultsCount: data.results?.length || 0,
-        })
+        throw new Error(data.error || 'Search failed')
       }
     } catch (err) {
-      console.error(`[${searchId}] Frontend: Search error`, {
-        error: err,
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-        name: err instanceof Error ? err.name : undefined,
-      })
-      
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
     } finally {
       setIsSearching(false)
-      console.log(`[${searchId}] Frontend: Search finished`)
     }
   }
 
-  const handleSearch = async (template: SearchTemplate) => {
-    const searchId = `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    console.log(`[${searchId}] Frontend: Google Search started`, {
-      template: template.name,
-      query: template.query,
-      dateRange,
-      timestamp: new Date().toISOString(),
-    })
-    
-    setIsSearching(true)
-    setError(null)
-    setResults([])
-    setSelectedTemplate(template)
-    setSearchQuery(template.query)
-
-    try {
-      const requestBody = {
-        query: template.query,
-        num_results: 30,
-        filters: {
-          site: ['sam.gov'],
-          date_range: dateRange,
-        },
-      }
-      
-      console.log(`[${searchId}] Frontend: Sending API request`, {
-        url: '/api/admin/contract-discovery/search',
-        method: 'POST',
-        body: requestBody,
-      })
-      
-      const requestStartTime = Date.now()
-      const response = await fetch('/api/admin/contract-discovery/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      const requestDuration = Date.now() - requestStartTime
-      console.log(`[${searchId}] Frontend: API response received (${requestDuration}ms)`, {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-      })
-
-      let data: any
-      try {
-        data = await response.json()
-        console.log(`[${searchId}] Frontend: Response data parsed`, {
-          success: data.success,
-          resultsCount: data.results_count || 0,
-          hasResults: !!data.results && data.results.length > 0,
-          resultsLength: data.results?.length || 0,
-          hasError: !!data.error,
-          error: data.error,
-          hasWarnings: !!data.warnings && data.warnings.length > 0,
-          warnings: data.warnings,
-          requestId: data.requestId,
-          query: data.query,
-        })
-      } catch (parseError) {
-        console.error(`[${searchId}] Frontend: Failed to parse response JSON`, {
-          error: parseError,
-          status: response.status,
-          statusText: response.statusText,
-        })
-        const text = await response.text()
-        console.error(`[${searchId}] Frontend: Response text (first 500 chars):`, text.substring(0, 500))
-        throw new Error(`Failed to parse response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
-      }
-
-      if (!response.ok) {
-        const errorMessage = data.error || data.message || 'Search failed'
-        const fullMessage = data.details ? `${errorMessage}. ${data.details}` : errorMessage
-        console.error(`[${searchId}] Frontend: API returned error`, {
-          status: response.status,
-          error: data.error,
-          message: data.message,
-          details: data.details,
-          requestId: data.requestId,
-        })
-        
-        // Special handling for rate limit errors
-        if (response.status === 429 || errorMessage.includes('rate limit')) {
-          throw new Error(`Rate limit exceeded: ${fullMessage}. Please try again later.`)
-        }
-        
-        throw new Error(fullMessage)
-      }
-
-      if (data.warnings && data.warnings.length > 0) {
-        console.warn(`[${searchId}] Frontend: API warnings`, data.warnings)
-        setError(`Note: ${data.warnings[0]}. Results are still available.`)
-      }
-
-      console.log(`[${searchId}] Frontend: Setting results`, {
-        resultsCount: data.results?.length || 0,
-        sampleResult: data.results?.[0] ? {
-          title: data.results[0].title,
-          url: data.results[0].url,
-          relevanceScore: data.results[0].relevance_score,
-        } : null,
-      })
-      
-      setResults(data.results || [])
-      setSearchQuery(data.query || template.query)
-      
-      if (data.results && data.results.length === 0) {
-        console.warn(`[${searchId}] Frontend: No results returned`, {
-          query: data.query,
-          requestId: data.requestId,
-        })
-        setError('No results found. Try a different search template or adjust the date range.')
-      } else {
-        setError(null)
-        console.log(`[${searchId}] Frontend: Search completed successfully`, {
-          resultsCount: data.results?.length || 0,
-        })
-      }
-    } catch (err) {
-      console.error(`[${searchId}] Frontend: Search error`, {
-        error: err,
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-        name: err instanceof Error ? err.name : undefined,
-      })
-      
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      setError(errorMessage)
-    } finally {
-      setIsSearching(false)
-      console.log(`[${searchId}] Frontend: Search finished`)
-    }
-  }
 
   const handleOpenOpportunity = (url: string, id: string) => {
     window.open(url, '_blank')
@@ -749,11 +547,6 @@ export default function ContractDiscoveryPage() {
     })
   }
 
-  const filteredTemplates = SEARCH_TEMPLATES.filter(t => {
-    const matchesVetcert = !vetcertOnly || t.category === 'vetcert'
-    const matchesPillar = pillarFilter === 'all' || t.pillar === pillarFilter
-    return matchesVetcert && matchesPillar
-  })
 
   const copyQueryToClipboard = async (query: string) => {
     try {
@@ -774,7 +567,7 @@ export default function ContractDiscoveryPage() {
             <div>
               <h1 className="heading-hero mb-2">Contract Opportunity Discovery</h1>
               <p className="text-body text-neutral-600">
-                Find VetCert-eligible and RMF opportunities on SAM.gov
+                Find VetCert-eligible opportunities on SAM.gov (All searches automatically filter for SDVOSB/VOSB)
               </p>
             </div>
             <div className="flex gap-4">
@@ -789,226 +582,178 @@ export default function ContractDiscoveryPage() {
         </div>
       </section>
 
-      {/* Quick Search Section */}
+      {/* Unified Search Section */}
       <section className="section-container bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="card p-8 lg:p-12">
             <div className="mb-6">
-              <h2 className="heading-2 mb-4">Contract Discovery</h2>
+              <h2 className="heading-2 mb-4">VetCert Contract Discovery</h2>
               
-              {/* Tabs */}
-              <div className="flex gap-2 mb-6 border-b border-neutral-200">
+              <p className="text-body-sm text-neutral-600 mb-6">
+                Enter comma-separated keywords to search for VetCert-eligible contract opportunities. 
+                All searches automatically include SDVOSB and VOSB set-asides.
+              </p>
+              
+              {/* VetCert Notice */}
+              <div className="bg-green-50 border border-green-200 p-4 rounded-sm mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="text-green-600 text-xl flex-shrink-0 mt-0.5">✓</div>
+                  <div className="flex-1">
+                    <p className="text-body-sm font-semibold text-green-900 mb-1">
+                      VetCert-Focused Search
+                    </p>
+                    <p className="text-body-sm text-green-800">
+                      All searches automatically filter for Service-Disabled Veteran-Owned Small Business (SDVOSB) 
+                      and Veteran-Owned Small Business (VOSB) opportunities. NAICS and PSC codes are optimized for 
+                      cyber/RMF opportunities by default.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Unified Search Form */}
+              <div className="space-y-6">
+                {/* Keywords Input */}
+                <div>
+                  <label htmlFor="keywords" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                    Keywords <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="keywords"
+                    type="text"
+                    value={keywords}
+                    onChange={(e) => setKeywords(e.target.value)}
+                    placeholder="e.g., RMF, ATO, ISSO, cybersecurity, NIST 800-53"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !isSearching) {
+                        handleUnifiedSearch()
+                      }
+                    }}
+                  />
+                  <p className="text-body-xs text-neutral-500 mt-1">
+                    Enter comma-separated keywords. All searches automatically include VetCert set-asides (SDVOSB/VOSB).
+                  </p>
+                </div>
+                    
+                {/* Service Category */}
+                <div>
+                  <label htmlFor="service-category" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                    Service Category
+                  </label>
+                  <select
+                    id="service-category"
+                    value={serviceCategory}
+                    onChange={(e) => setServiceCategory(e.target.value as ServiceCategory)}
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                  >
+                    <option value="cybersecurity">Cybersecurity</option>
+                    <option value="infrastructure">Infrastructure</option>
+                    <option value="compliance">Compliance</option>
+                    <option value="contracts">Contracts</option>
+                    <option value="general">General</option>
+                  </select>
+                </div>
+                
+                {/* Date Range */}
+                <div>
+                  <label htmlFor="date-range" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                    Date Range
+                  </label>
+                  <select
+                    id="date-range"
+                    value={dateRange}
+                    onChange={(e) => setDateRange(e.target.value as 'past_week' | 'past_month' | 'past_year')}
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                  >
+                    <option value="past_week">Past Week</option>
+                    <option value="past_month">Past Month (Recommended)</option>
+                    <option value="past_year">Past Year</option>
+                  </select>
+                </div>
+                
+                {/* Advanced Filters */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="text-body-sm font-medium text-accent-700 hover:text-accent-800"
+                  >
+                    {showAdvanced ? '▼' : '▶'} Advanced Filters
+                  </button>
+                  
+                  {showAdvanced && (
+                    <div className="mt-4 space-y-4 pl-4 border-l-2 border-neutral-200">
+                      <div>
+                        <label htmlFor="location" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                          Location
+                        </label>
+                        <input
+                          id="location"
+                          type="text"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          placeholder="e.g., Virginia, Washington DC"
+                          className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="naics-codes" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                          NAICS Codes (comma-separated, optional)
+                        </label>
+                        <input
+                          id="naics-codes"
+                          type="text"
+                          value={naicsCodes}
+                          onChange={(e) => setNaicsCodes(e.target.value)}
+                          placeholder="e.g., 541512, 541519, 541511"
+                          className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        />
+                        <p className="text-body-xs text-neutral-500 mt-1">
+                          Leave empty to use default cyber/RMF codes (541512, 541519, 541511)
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="psc-codes" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                          PSC Codes (comma-separated, optional)
+                        </label>
+                        <input
+                          id="psc-codes"
+                          type="text"
+                          value={pscCodes}
+                          onChange={(e) => setPscCodes(e.target.value)}
+                          placeholder="e.g., D310, D307, D399"
+                          className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        />
+                        <p className="text-body-xs text-neutral-500 mt-1">
+                          Leave empty to use default IT/cyber codes (D310, D307, D399)
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Search Button */}
                 <button
-                  onClick={() => setActiveTab('samgov')}
-                  className={`px-6 py-3 text-body-sm font-medium border-b-2 transition-colors ${
-                    activeTab === 'samgov'
-                      ? 'border-accent-700 text-accent-700'
-                      : 'border-transparent text-neutral-600 hover:text-neutral-900'
-                  }`}
+                  onClick={handleUnifiedSearch}
+                  disabled={isSearching || !keywords.trim()}
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SAM.gov API Search
-                </button>
-                <button
-                  onClick={() => setActiveTab('google')}
-                  className={`px-6 py-3 text-body-sm font-medium border-b-2 transition-colors ${
-                    activeTab === 'google'
-                      ? 'border-accent-700 text-accent-700'
-                      : 'border-transparent text-neutral-600 hover:text-neutral-900'
-                  }`}
-                >
-                  Google Search Templates
+                  {isSearching ? (
+                    <>
+                      <span className="inline-block animate-spin mr-2">⏳</span>
+                      Searching...
+                    </>
+                  ) : (
+                    'Search Contracts'
+                  )}
                 </button>
               </div>
               
-              {activeTab === 'samgov' ? (
-                <>
-                  <p className="text-body-sm text-neutral-600 mb-6">
-                    Use the official SAM.gov API to search for contract opportunities. This method uses proper API parameters
-                    and is more reliable than Google search templates.
-                  </p>
-                  
-                  {/* SAM.gov API Search Form */}
-                  <div className="space-y-6">
-                    {/* Keywords */}
-                    <div>
-                      <label htmlFor="samgov-keywords" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        Keywords
-                      </label>
-                      <input
-                        id="samgov-keywords"
-                        type="text"
-                        value={samGovKeywords}
-                        onChange={(e) => setSamGovKeywords(e.target.value)}
-                        placeholder="e.g., RMF, ATO, cybersecurity, ISSO, ISSM"
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                      />
-                      <p className="text-body-xs text-neutral-500 mt-1">
-                        Enter keywords related to the contract opportunity (optional)
-                      </p>
-                    </div>
-                    
-                    {/* Service Category */}
-                    <div>
-                      <label htmlFor="samgov-service-category" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        Service Category
-                      </label>
-                      <select
-                        id="samgov-service-category"
-                        value={samGovServiceCategory}
-                        onChange={(e) => setSamGovServiceCategory(e.target.value as ServiceCategory)}
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                      >
-                        <option value="cybersecurity">Cybersecurity</option>
-                        <option value="infrastructure">Infrastructure</option>
-                        <option value="compliance">Compliance</option>
-                        <option value="contracts">Contracts</option>
-                        <option value="general">General</option>
-                      </select>
-                    </div>
-                    
-                    {/* Set-Aside */}
-                    <div>
-                      <label className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        Set-Aside Type (for disabled veterans)
-                      </label>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={samGovSetAside.includes('SDVOSB')}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSamGovSetAside([...samGovSetAside, 'SDVOSB'])
-                              } else {
-                                setSamGovSetAside(samGovSetAside.filter(sa => sa !== 'SDVOSB'))
-                              }
-                            }}
-                            className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
-                          />
-                          <span className="text-body-sm text-neutral-900">
-                            SDVOSB (Service-Disabled Veteran-Owned Small Business)
-                          </span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={samGovSetAside.includes('VOSB')}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSamGovSetAside([...samGovSetAside, 'VOSB'])
-                              } else {
-                                setSamGovSetAside(samGovSetAside.filter(sa => sa !== 'VOSB'))
-                              }
-                            }}
-                            className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
-                          />
-                          <span className="text-body-sm text-neutral-900">
-                            VOSB (Veteran-Owned Small Business - VA Veterans First)
-                          </span>
-                        </label>
-                      </div>
-                      <p className="text-body-xs text-neutral-500 mt-1">
-                        Select set-aside types to find opportunities specifically for disabled veterans. 
-                        Results will include both set-aside and sole source opportunities for the selected types.
-                      </p>
-                    </div>
-                    
-                    {/* NAICS Codes */}
-                    <div>
-                      <label htmlFor="samgov-naics" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        NAICS Codes (comma-separated)
-                      </label>
-                      <input
-                        id="samgov-naics"
-                        type="text"
-                        value={samGovNaicsCodes.join(', ')}
-                        onChange={(e) => {
-                          const codes = e.target.value.split(',').map(c => c.trim()).filter(c => c.length > 0)
-                          setSamGovNaicsCodes(codes)
-                        }}
-                        placeholder="e.g., 541512, 541519, 541511"
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                      />
-                      <p className="text-body-xs text-neutral-500 mt-1">
-                        Leave empty to use default target codes (recommended)
-                      </p>
-                    </div>
-                    
-                    {/* PSC Codes */}
-                    <div>
-                      <label htmlFor="samgov-psc" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        PSC Codes (comma-separated)
-                      </label>
-                      <input
-                        id="samgov-psc"
-                        type="text"
-                        value={samGovPscCodes.join(', ')}
-                        onChange={(e) => {
-                          const codes = e.target.value.split(',').map(c => c.trim()).filter(c => c.length > 0)
-                          setSamGovPscCodes(codes)
-                        }}
-                        placeholder="e.g., D310, D307, D399"
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                      />
-                      <p className="text-body-xs text-neutral-500 mt-1">
-                        Leave empty to use default target codes (recommended)
-                      </p>
-                    </div>
-                    
-                    {/* Use Target Codes */}
-                    <div>
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={samGovUseTargetCodes}
-                          onChange={(e) => setSamGovUseTargetCodes(e.target.checked)}
-                          className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
-                        />
-                        <span className="text-body-sm font-medium text-neutral-900">
-                          Use default target NAICS and PSC codes (optional - may reduce results)
-                        </span>
-                      </label>
-                      <p className="text-body-xs text-neutral-500 mt-1 ml-7">
-                        When enabled, filters by recommended IT/cybersecurity codes. Leave unchecked for broader search results.
-                      </p>
-                    </div>
-                    
-                    {/* Date Range */}
-                    <div>
-                      <label htmlFor="samgov-date-range" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        Date Range
-                      </label>
-                      <select
-                        id="samgov-date-range"
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value as 'past_week' | 'past_month' | 'past_year')}
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                      >
-                        <option value="past_week">Past Week</option>
-                        <option value="past_month">Past Month (Recommended)</option>
-                        <option value="past_year">Past Year</option>
-                      </select>
-                    </div>
-                    
-                    {/* Search Button */}
-                    <button
-                      onClick={handleSamGovSearch}
-                      disabled={isSearching}
-                      className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSearching ? 'Searching...' : 'Search SAM.gov API'}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-body-sm text-neutral-600 mb-6">
-                    Select a pre-configured Google search template to find contract opportunities on SAM.gov. 
-                    All searches target opportunity listing pages (not PDF attachments).
-                  </p>
-              
               {/* Rate Limit Notice */}
-              <div className="bg-blue-50 border border-blue-200 p-4 rounded-sm mb-6">
+              <div className="mt-6 bg-blue-50 border border-blue-200 p-4 rounded-sm">
                 <div className="flex items-start gap-3">
                   <div className="text-blue-600 text-xl flex-shrink-0 mt-0.5">ℹ️</div>
                   <div className="flex-1">
@@ -1017,124 +762,12 @@ export default function ContractDiscoveryPage() {
                     </p>
                     <p className="text-body-sm text-blue-800">
                       The SAM.gov API free tier has daily request limits. If you see a rate limit error, 
-                      please wait and try again later. Consider spacing out your searches to avoid hitting limits.
+                      please wait and try again later. Searches are cached for 5 minutes to reduce API calls.
                     </p>
                   </div>
                 </div>
               </div>
-              
-                  {/* Date Range */}
-                  <div className="mb-6">
-                    <label htmlFor="date-range" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                      Date Range
-                    </label>
-                    <select
-                      id="date-range"
-                      value={dateRange}
-                      onChange={(e) => setDateRange(e.target.value as 'past_week' | 'past_month' | 'past_year')}
-                      className="px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                    >
-                      <option value="past_week">Past Week</option>
-                      <option value="past_month">Past Month (Recommended)</option>
-                      <option value="past_year">Past Year</option>
-                    </select>
-                  </div>
-
-              {/* Pillar Filter */}
-              <div className="mb-4">
-                <label className="block text-body-sm font-medium text-neutral-900 mb-2">
-                  Filter by Pillar
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {(['all', 'Security', 'Infrastructure', 'Quality', 'Governance'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setPillarFilter(filter)}
-                      className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
-                        pillarFilter === filter
-                          ? 'bg-accent-700 text-white'
-                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                      }`}
-                    >
-                      {filter === 'all' ? 'All Pillars' : filter}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* VetCert Only Checkbox */}
-              <div className="mb-6">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={vetcertOnly}
-                    onChange={(e) => setVetcertOnly(e.target.checked)}
-                    className="w-4 h-4 text-accent-700 border-neutral-300 rounded focus:ring-2 focus:ring-accent-500"
-                  />
-                  <span className="text-body-sm font-medium text-neutral-900">
-                    VetCert only
-                  </span>
-                </label>
-              </div>
-                </>
-              )}
             </div>
-
-            {/* Search Templates Grid - Only for Google Search Tab */}
-            {activeTab === 'google' && (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredTemplates.map((template, idx) => {
-                const pillarColors = {
-                  Security: 'bg-red-100 text-red-800 border-red-300',
-                  Infrastructure: 'bg-blue-100 text-blue-800 border-blue-300',
-                  Quality: 'bg-green-100 text-green-800 border-green-300',
-                  Governance: 'bg-purple-100 text-purple-800 border-purple-300',
-                }
-                
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleSearch(template)}
-                    disabled={isSearching}
-                    className={`text-left p-4 border-2 rounded-sm transition-all ${
-                      selectedTemplate?.name === template.name
-                        ? 'border-accent-700 bg-accent-50'
-                        : 'border-neutral-200 bg-white hover:border-accent-500 hover:bg-accent-50'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    <div className="flex items-start justify-between mb-2 gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-body-sm font-semibold text-neutral-900 mb-1">
-                          {template.name}
-                        </h3>
-                        {template.pillar && (
-                          <span className={`inline-block px-2 py-0.5 text-body-xs font-medium rounded border ${pillarColors[template.pillar]}`}>
-                            {template.pillar}
-                          </span>
-                        )}
-                      </div>
-                      {isSearching && selectedTemplate?.name === template.name && (
-                        <div className="animate-spin h-4 w-4 border-2 border-accent-700 border-t-transparent rounded-full flex-shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-body-xs text-neutral-600 mb-3">
-                      {template.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {template.keywords.split(', ').slice(0, 3).map((kw, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 bg-neutral-100 text-neutral-700 text-body-xs rounded"
-                        >
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </button>
-                )
-              })}
-              </div>
-            )}
 
             {/* Error Display */}
             {error && (
@@ -1157,13 +790,16 @@ export default function ContractDiscoveryPage() {
               </div>
             )}
 
-            {/* Search Query Display - Only for Google Search */}
-            {activeTab === 'google' && searchQuery && (
+            {/* Google Query Display */}
+            {googleQuery && (
               <div className="mt-6 bg-neutral-50 border-2 border-accent-500 p-4 rounded-sm">
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <p className="text-body-sm font-semibold text-neutral-900">Google Search Query:</p>
+                  <div>
+                    <p className="text-body-sm font-semibold text-neutral-900 mb-1">Google Search Query</p>
+                    <p className="text-body-xs text-neutral-600">{googleQuery.description}</p>
+                  </div>
                   <button
-                    onClick={() => copyQueryToClipboard(searchQuery)}
+                    onClick={() => copyQueryToClipboard(googleQuery.query)}
                     className="flex items-center gap-2 px-4 py-2 bg-accent-700 text-white text-body-sm font-medium rounded-sm hover:bg-accent-800 transition-colors flex-shrink-0"
                   >
                     {copiedQuery ? (
@@ -1180,11 +816,11 @@ export default function ContractDiscoveryPage() {
                   </button>
                 </div>
                 <div className="bg-white border border-neutral-300 p-3 rounded-sm mb-3">
-                  <p className="text-body-sm text-neutral-700 font-mono break-all">{searchQuery}</p>
+                  <p className="text-body-sm text-neutral-700 font-mono break-all">{googleQuery.query}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <a
-                    href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(googleQuery.query)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-body-sm font-medium text-accent-700 hover:text-accent-800 underline"
@@ -1192,9 +828,18 @@ export default function ContractDiscoveryPage() {
                     🔍 Search on Google →
                   </a>
                   <p className="text-body-xs text-neutral-600">
-                    Copy the query above and paste it into Google Search, or click the link to search directly.
+                    Use this query to search manually on Google if needed.
                   </p>
                 </div>
+              </div>
+            )}
+            
+            {/* Search Stats */}
+            {searchStats && (
+              <div className="mt-4 text-body-xs text-neutral-600">
+                Found {searchStats.unique} unique results ({searchStats.valid} valid, {searchStats.duplicates} duplicates filtered)
+                {searchStats.cached && <span className="ml-2 text-green-600">(cached)</span>}
+                {searchStats.duration > 0 && <span className="ml-2">in {searchStats.duration}ms</span>}
               </div>
             )}
           </div>
