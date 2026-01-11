@@ -93,15 +93,15 @@ export function buildSamGovQuery(params: VetCertQueryParams): SamGovQuery {
   const setAside = params.setAside || [VETCERT_SET_ASIDE_CODES.SDVOSB, VETCERT_SET_ASIDE_CODES.VOSB]
   
   // NAICS/PSC codes are used for client-side ranking/filtering only
-  // Don't automatically include all target codes - only use if explicitly provided
+  // Only use codes if explicitly provided by user - no defaults
   // This allows keyword-based search to be broader and more flexible
   const naicsCodes = params.naicsCodes && params.naicsCodes.length > 0
     ? params.naicsCodes
-    : [] // Empty by default - rely on keyword search
+    : [] // Empty by default - rely on keyword search only
   
   const pscCodes = params.pscCodes && params.pscCodes.length > 0
     ? params.pscCodes
-    : [] // Empty by default - rely on keyword search
+    : [] // Empty by default - rely on keyword search only
   
   // Build keyword string from provided keywords and service category
   const keywordParts: string[] = []

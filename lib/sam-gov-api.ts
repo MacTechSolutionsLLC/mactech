@@ -301,11 +301,11 @@ export async function searchSamGov(params: {
   
   // KEYWORD-FIRST APPROACH: Make 1-2 API calls (one per set-aside type)
   // Use keywords only - no NAICS/PSC filters in API call
-  // NAICS/PSC codes will be used for client-side ranking/filtering
+  // NAICS/PSC codes will be used for client-side ranking/filtering ONLY if explicitly provided
   
-  // Determine which codes to use for ranking (use target codes if none provided)
-  const rankingNaicsCodes = naicsCodes.length > 0 ? naicsCodes : TARGET_NAICS_CODES
-  const rankingPscCodes = pscCodes.length > 0 ? pscCodes : TARGET_PSC_CODES
+  // Only use codes for ranking if explicitly provided by user
+  const rankingNaicsCodes = naicsCodes.length > 0 ? naicsCodes : []
+  const rankingPscCodes = pscCodes.length > 0 ? pscCodes : []
   
   const results: SamGovOpportunity[] = []
   const seenNoticeIds = new Set<string>()
