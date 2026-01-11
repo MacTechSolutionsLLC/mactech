@@ -367,6 +367,8 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
       offset: 0,
     }
     
+    const { from, to } = getDateRange(request.dateRange)
+    
     return {
       success: false,
       results: [],
@@ -375,6 +377,17 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
         setAside: [],
         naicsCodes: [],
         pscCodes: [],
+      },
+      apiCallDetails: {
+        keyword: undefined,
+        setAside: [],
+        dateRange: request.dateRange || 'past_month',
+        postedFrom: from,
+        postedTo: to,
+        limit: request.limit || 30,
+        offset: 0,
+        naicsCodes: request.naicsCodes,
+        pscCodes: request.pscCodes,
       },
       totalRecords: 0,
       cached: false,

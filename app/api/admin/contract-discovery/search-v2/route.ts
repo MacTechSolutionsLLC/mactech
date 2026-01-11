@@ -181,6 +181,7 @@ export async function POST(request: NextRequest) {
                 const updated = await prisma.governmentContractDiscovery.update({
                   where: { url: result.url },
                   data: {
+                    google_query: googleQuery.query, // Update Google query
                     title: result.title,
                     snippet: result.snippet || null,
                     domain: result.domain,
@@ -211,6 +212,7 @@ export async function POST(request: NextRequest) {
                 // Create new record
                 const created = await prisma.governmentContractDiscovery.create({
                   data: {
+                    google_query: googleQuery.query, // Add Google query from generated query
                     title: result.title,
                     url: result.url,
                     domain: result.domain,
