@@ -89,7 +89,6 @@ export default function ServicesPage() {
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Cybersecurity & RMF Services</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Security.description}</p>
-                <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Security.leader}</p>
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Infrastructure' ? null : 'Infrastructure')}
@@ -104,7 +103,6 @@ export default function ServicesPage() {
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Infrastructure & Platform Engineering</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Infrastructure.description}</p>
-                <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Infrastructure.leader}</p>
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Quality' ? null : 'Quality')}
@@ -119,7 +117,6 @@ export default function ServicesPage() {
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Quality & Compliance Consulting</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Quality.description}</p>
-                <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Quality.leader}</p>
               </button>
               <button
                 onClick={() => setSelectedPillar(selectedPillar === 'Governance' ? null : 'Governance')}
@@ -134,7 +131,6 @@ export default function ServicesPage() {
                 </div>
                 <h3 className="text-body-sm font-semibold mb-1">Contracts & Risk Alignment</h3>
                 <p className="text-body-xs text-neutral-700 mb-2">{pillarInfo.Governance.description}</p>
-                <p className="text-body-xs text-neutral-600">Led by {pillarInfo.Governance.leader}</p>
               </button>
             </div>
             <div className="text-center">
