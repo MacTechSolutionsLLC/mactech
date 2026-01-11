@@ -144,32 +144,52 @@ export function buildGoogleQuery(params: VetCertQueryParams): GoogleQuery {
   // Contract opportunity keywords
   query += '(contract opportunity OR solicitation OR notice) '
   
-  // VetCert set-aside terms (use quoted phrases for exact matches)
-  const vetCertTerms = VETCERT_GOOGLE_TERMS.map(term => `"${term}"`).join(' OR ')
-  query += `(${vetCertTerms}) `
+  // Build combined keyword group: user keywords + VetCert terms + service category keywords
+  // This prioritizes user keywords while still including VetCert filtering
+  const keywordParts: string[] = []
   
-  // User-provided keywords
+  // Add user-provided keywords first (highest priority)
   if (params.keywords && params.keywords.length > 0) {
-    const keywordQueries = params.keywords.map(kw => `"${kw.trim()}"`).join(' OR ')
-    query += `(${keywordQueries}) `
+    params.keywords.forEach(kw => {
+      const trimmed = kw.trim()
+      if (trimmed.length > 0) {
+        keywordParts.push(`"${trimmed}"`)
+      }
+    })
   }
   
-  // Service category keywords
+  // Add service category keywords only if not already covered by user keywords
   if (params.serviceCategory && params.serviceCategory !== 'general') {
     const categoryKeywords = SERVICE_KEYWORDS[params.serviceCategory]
-    if (categoryKeywords.length > 0) {
-      const topKeywords = categoryKeywords.slice(0, 5).map(kw => `"${kw}"`).join(' OR ')
-      query += `(${topKeywords}) `
-    }
+    const userKeywordsLower = (params.keywords || []).map(k => k.toLowerCase().trim())
+    
+    // Only add category keywords that aren't already in user keywords
+    categoryKeywords.forEach(catKw => {
+      const catKwLower = catKw.toLowerCase()
+      const alreadyIncluded = userKeywordsLower.some(uk => 
+        uk === catKwLower || 
+        uk.includes(catKwLower) || 
+        catKwLower.includes(uk)
+      )
+      
+      if (!alreadyIncluded) {
+        keywordParts.push(`"${catKw}"`)
+      }
+    })
   }
   
-  // NAICS codes
-  const naicsCodes = params.naicsCodes && params.naicsCodes.length > 0
-    ? params.naicsCodes
-    : TARGET_NAICS_CODES
+  // Add VetCert set-aside terms (integrated with keywords, not separate)
+  const vetCertTerms = VETCERT_GOOGLE_TERMS.map(term => `"${term}"`)
+  keywordParts.push(...vetCertTerms)
   
-  if (naicsCodes.length > 0) {
-    const naicsQueries = naicsCodes.map(code => `"NAICS ${code}"`).join(' OR ')
+  // Combine all keywords in a single OR group
+  if (keywordParts.length > 0) {
+    query += `(${keywordParts.join(' OR ')}) `
+  }
+  
+  // NAICS codes - only if explicitly provided by user (no defaults)
+  if (params.naicsCodes && params.naicsCodes.length > 0) {
+    const naicsQueries = params.naicsCodes.map(code => `"NAICS ${code}"`).join(' OR ')
     query += `(${naicsQueries}) `
   }
   
