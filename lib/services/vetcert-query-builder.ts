@@ -288,3 +288,45 @@ export function buildDualQueries(
   }
 }
 
+/**
+ * Build only SAM.gov API query (no Google query)
+ * Used when Google query generation is separated from API workflow
+ */
+export function buildSamGovQueryOnly(
+  keywords: string,
+  options: {
+    serviceCategory?: ServiceCategory
+    location?: string
+    agency?: string[]
+    dateRange?: 'past_week' | 'past_month' | 'past_year'
+    naicsCodes?: string[]
+    pscCodes?: string[]
+  } = {}
+): {
+  samGov: SamGovQuery
+  parsedKeywords: string[]
+} {
+  // Parse and expand keywords
+  const parsedKeywords = parseKeywords(keywords)
+  const expandedKeywords = expandKeywords(parsedKeywords)
+  
+  // Build query params
+  const params: VetCertQueryParams = {
+    keywords: expandedKeywords,
+    serviceCategory: options.serviceCategory || 'cybersecurity',
+    location: options.location,
+    agency: options.agency,
+    dateRange: options.dateRange || 'past_month',
+    naicsCodes: options.naicsCodes,
+    pscCodes: options.pscCodes,
+  }
+  
+  // Build only SAM.gov query
+  const samGov = buildSamGovQuery(params)
+  
+  return {
+    samGov,
+    parsedKeywords: expandedKeywords,
+  }
+}
+

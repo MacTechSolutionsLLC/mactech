@@ -4,8 +4,32 @@
  */
 
 import { searchSamGov, transformSamGovResult, SamGovApiResponse } from '../sam-gov-api'
+
+// Helper to get date range (duplicated from sam-gov-api for use here)
+function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { from: string; to: string } {
+  const today = new Date()
+  const to = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  
+  let from: Date
+  switch (dateRange) {
+    case 'past_week':
+      from = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      break
+    case 'past_month':
+      from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+      break
+    case 'past_year':
+      from = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+      break
+    default:
+      from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000) // Default to past month
+  }
+  
+  const fromStr = from.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  return { from: fromStr, to }
+}
 import { DiscoveryResult, ServiceCategory } from '../contract-discovery'
-import { buildDualQueries, SamGovQuery, GoogleQuery } from './vetcert-query-builder'
+import { buildSamGovQueryOnly, SamGovQuery, GoogleQuery } from './vetcert-query-builder'
 import { retry, CircuitBreaker } from '../utils/retry'
 import { getCache, generateCacheKey } from '../utils/cache'
 import { getRateLimiter, getSamGovRateLimit, RateLimitError } from '../utils/rate-limiter'
@@ -32,11 +56,24 @@ export interface SearchRequest {
   useCache?: boolean
 }
 
+export interface ApiCallDetails {
+  keyword: string | undefined
+  setAside: string[]
+  dateRange: string
+  postedFrom: string
+  postedTo: string
+  limit: number
+  offset: number
+  naicsCodes?: string[]
+  pscCodes?: string[]
+  apiUrl?: string // The actual API URL that would be called
+}
+
 export interface SearchResponse {
   success: boolean
   results: DiscoveryResult[]
-  googleQuery: GoogleQuery
   samGovQuery: SamGovQuery
+  apiCallDetails: ApiCallDetails
   totalRecords: number
   cached: boolean
   duration: number
@@ -168,8 +205,8 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
   })
   
   try {
-    // Build dual queries (SAM.gov API + Google)
-    const { samGov, google, parsedKeywords } = buildDualQueries(request.keywords, {
+    // Build SAM.gov API query only (Google query generation moved to separate button)
+    const { samGov, parsedKeywords } = buildSamGovQueryOnly(request.keywords, {
       serviceCategory: request.serviceCategory,
       location: request.location,
       agency: request.agency,
@@ -178,10 +215,9 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
       pscCodes: request.pscCodes,
     })
     
-    logger.debug('Built queries', {
+    logger.debug('Built SAM.gov query', {
       requestId,
       samGovKeywords: samGov.keyword,
-      googleQueryLength: google.query.length,
       parsedKeywords,
     })
     
@@ -261,11 +297,39 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
       cached,
     })
     
+    // Build API call details for display
+    const { from, to } = getDateRange(samGov.dateRange || 'past_month')
+    const apiCallDetails: ApiCallDetails = {
+      keyword: samGov.keyword,
+      setAside: samGov.setAside || [],
+      dateRange: samGov.dateRange || 'past_month',
+      postedFrom: from,
+      postedTo: to,
+      limit: request.limit || 30,
+      offset: 0,
+      naicsCodes: samGov.naicsCodes,
+      pscCodes: samGov.pscCodes,
+    }
+    
+    // Build API URL for display (without API key)
+    const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
+    if (apiCallDetails.keyword) {
+      apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
+    }
+    if (apiCallDetails.setAside.length > 0) {
+      apiCallDetails.setAside.forEach(sa => apiUrl.searchParams.append('setAside', sa))
+    }
+    apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
+    apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
+    apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
+    apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
+    apiCallDetails.apiUrl = apiUrl.toString()
+    
     return {
       success: true,
       results,
-      googleQuery: google,
       samGovQuery: samGov,
+      apiCallDetails,
       totalRecords: apiResponse.totalRecords,
       cached,
       duration,
@@ -292,13 +356,20 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
       timestamp: Date.now(),
     })
     
+    // Build empty API call details for error case
+    const emptyApiCallDetails: ApiCallDetails = {
+      keyword: undefined,
+      setAside: [],
+      dateRange: request.dateRange || 'past_month',
+      postedFrom: '',
+      postedTo: '',
+      limit: request.limit || 30,
+      offset: 0,
+    }
+    
     return {
       success: false,
       results: [],
-      googleQuery: {
-        query: '',
-        description: 'Query generation failed',
-      },
       samGovQuery: {
         keyword: undefined,
         setAside: [],

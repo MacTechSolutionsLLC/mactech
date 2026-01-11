@@ -331,7 +331,18 @@ export default function ContractDiscoveryPage() {
   // Results state
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState<DiscoveryResult[]>([])
-  const [googleQuery, setGoogleQuery] = useState<GoogleQuery | null>(null)
+  const [apiCallDetails, setApiCallDetails] = useState<{
+    keyword: string | undefined
+    setAside: string[]
+    dateRange: string
+    postedFrom: string
+    postedTo: string
+    limit: number
+    offset: number
+    naicsCodes?: string[]
+    pscCodes?: string[]
+    apiUrl?: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [searchStats, setSearchStats] = useState<{
     total: number
@@ -342,6 +353,10 @@ export default function ContractDiscoveryPage() {
     cached: boolean
     duration: number
   } | null>(null)
+  
+  // Google query generator state (separate from search)
+  const [generatedGoogleQuery, setGeneratedGoogleQuery] = useState<GoogleQuery | null>(null)
+  const [isGeneratingGoogleQuery, setIsGeneratingGoogleQuery] = useState(false)
   
   // UI state
   const [copiedQuery, setCopiedQuery] = useState(false)
@@ -357,7 +372,7 @@ export default function ContractDiscoveryPage() {
     setIsSearching(true)
     setError(null)
     setResults([])
-    setGoogleQuery(null)
+    setApiCallDetails(null)
     setSearchStats(null)
     
     try {
@@ -391,7 +406,7 @@ export default function ContractDiscoveryPage() {
       
       if (data.success) {
         setResults(data.results || [])
-        setGoogleQuery(data.googleQuery || null)
+        setApiCallDetails(data.apiCallDetails || null)
         setSearchStats(data.stats || null)
         
         if (data.results && data.results.length === 0) {
@@ -735,21 +750,38 @@ export default function ContractDiscoveryPage() {
                   )}
                 </div>
                 
-                {/* Search Button */}
-                <button
-                  onClick={handleUnifiedSearch}
-                  disabled={isSearching || !keywords.trim()}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSearching ? (
-                    <>
-                      <span className="inline-block animate-spin mr-2">⏳</span>
-                      Searching...
-                    </>
-                  ) : (
-                    'Search Contracts'
-                  )}
-                </button>
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <button
+                    onClick={handleUnifiedSearch}
+                    disabled={isSearching || !keywords.trim()}
+                    className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSearching ? (
+                      <>
+                        <span className="inline-block animate-spin mr-2">⏳</span>
+                        Searching...
+                      </>
+                    ) : (
+                      'Search Contracts'
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={handleGenerateGoogleQuery}
+                    disabled={isGeneratingGoogleQuery || !keywords.trim()}
+                    className="w-full btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingGoogleQuery ? (
+                      <>
+                        <span className="inline-block animate-spin mr-2">⏳</span>
+                        Generating...
+                      </>
+                    ) : (
+                      '🔍 Generate Google Query'
+                    )}
+                  </button>
+                </div>
               </div>
               
               {/* Rate Limit Notice */}
@@ -790,16 +822,74 @@ export default function ContractDiscoveryPage() {
               </div>
             )}
 
-            {/* Google Query Display */}
-            {googleQuery && (
+            {/* API Call Details Display */}
+            {apiCallDetails && (
+              <div className="mt-6 bg-blue-50 border-2 border-blue-300 p-4 rounded-sm">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <p className="text-body-sm font-semibold text-neutral-900 mb-1">SAM.gov API Call Details</p>
+                    <p className="text-body-xs text-neutral-600">Review the actual query parameters sent to SAM.gov API</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-neutral-300 p-4 rounded-sm space-y-2">
+                  <div>
+                    <span className="text-body-xs font-semibold text-neutral-700">Keyword:</span>
+                    <p className="text-body-sm text-neutral-900 font-mono mt-1">{apiCallDetails.keyword || '(none)'}</p>
+                  </div>
+                  <div>
+                    <span className="text-body-xs font-semibold text-neutral-700">Set-Aside:</span>
+                    <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.setAside.join(', ') || '(none)'}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">Date Range:</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.dateRange}</p>
+                    </div>
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">Posted From:</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.postedFrom}</p>
+                    </div>
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">Posted To:</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.postedTo}</p>
+                    </div>
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">Limit:</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.limit}</p>
+                    </div>
+                  </div>
+                  {apiCallDetails.naicsCodes && apiCallDetails.naicsCodes.length > 0 && (
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">NAICS Codes (for ranking):</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.naicsCodes.join(', ')}</p>
+                    </div>
+                  )}
+                  {apiCallDetails.pscCodes && apiCallDetails.pscCodes.length > 0 && (
+                    <div>
+                      <span className="text-body-xs font-semibold text-neutral-700">PSC Codes (for ranking):</span>
+                      <p className="text-body-sm text-neutral-900 mt-1">{apiCallDetails.pscCodes.join(', ')}</p>
+                    </div>
+                  )}
+                  {apiCallDetails.apiUrl && (
+                    <div className="mt-3 pt-3 border-t border-neutral-200">
+                      <span className="text-body-xs font-semibold text-neutral-700">API URL:</span>
+                      <p className="text-body-xs text-neutral-600 font-mono break-all mt-1">{apiCallDetails.apiUrl}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Generated Google Query Display (separate from search) */}
+            {generatedGoogleQuery && (
               <div className="mt-6 bg-neutral-50 border-2 border-accent-500 p-4 rounded-sm">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
-                    <p className="text-body-sm font-semibold text-neutral-900 mb-1">Google Search Query</p>
-                    <p className="text-body-xs text-neutral-600">{googleQuery.description}</p>
+                    <p className="text-body-sm font-semibold text-neutral-900 mb-1">Generated Google Search Query</p>
+                    <p className="text-body-xs text-neutral-600">{generatedGoogleQuery.description}</p>
                   </div>
                   <button
-                    onClick={() => copyQueryToClipboard(googleQuery.query)}
+                    onClick={() => copyQueryToClipboard(generatedGoogleQuery.query)}
                     className="flex items-center gap-2 px-4 py-2 bg-accent-700 text-white text-body-sm font-medium rounded-sm hover:bg-accent-800 transition-colors flex-shrink-0"
                   >
                     {copiedQuery ? (
@@ -816,11 +906,11 @@ export default function ContractDiscoveryPage() {
                   </button>
                 </div>
                 <div className="bg-white border border-neutral-300 p-3 rounded-sm mb-3">
-                  <p className="text-body-sm text-neutral-700 font-mono break-all">{googleQuery.query}</p>
+                  <p className="text-body-sm text-neutral-700 font-mono break-all">{generatedGoogleQuery.query}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <a
-                    href={`https://www.google.com/search?q=${encodeURIComponent(googleQuery.query)}`}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(generatedGoogleQuery.query)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-body-sm font-medium text-accent-700 hover:text-accent-800 underline"
