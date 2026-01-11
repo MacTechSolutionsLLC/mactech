@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       logger.error('Search failed', {
         requestId,
         error: searchResponse.error,
+        googleQuery: googleQuery.query,
       })
       
       return NextResponse.json(
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
           error: 'Search failed',
           message: searchResponse.error || 'Unknown error',
           requestId,
+          googleQuery: googleQuery, // Include Google query even on error
         },
         { status: 500 }
       )

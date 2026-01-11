@@ -128,6 +128,11 @@ export default function ContractDiscoveryPage() {
       
       const data = await response.json()
       
+      // Set Google query if provided, even on error
+      if (data.googleQuery) {
+        setGeneratedGoogleQuery(data.googleQuery)
+      }
+      
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Search failed'
         // Format rate limit errors to be more user-friendly
@@ -167,6 +172,7 @@ export default function ContractDiscoveryPage() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
+      // Note: Google query may already be set from the response above
     } finally {
       setIsSearching(false)
     }
