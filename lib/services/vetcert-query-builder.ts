@@ -85,20 +85,23 @@ const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
 
 /**
  * Build SAM.gov API query with VetCert defaults
+ * KEYWORD-FIRST APPROACH: NAICS/PSC codes are used for client-side ranking only
+ * They are NOT sent as filters to the API to avoid excessive API calls
  */
 export function buildSamGovQuery(params: VetCertQueryParams): SamGovQuery {
   // Always include VetCert set-asides (SDVOSB and VOSB)
   const setAside = params.setAside || [VETCERT_SET_ASIDE_CODES.SDVOSB, VETCERT_SET_ASIDE_CODES.VOSB]
   
-  // Use target NAICS codes if not provided (cyber/RMF focused)
+  // NAICS/PSC codes are used for client-side ranking/filtering only
+  // Don't automatically include all target codes - only use if explicitly provided
+  // This allows keyword-based search to be broader and more flexible
   const naicsCodes = params.naicsCodes && params.naicsCodes.length > 0
     ? params.naicsCodes
-    : TARGET_NAICS_CODES
+    : [] // Empty by default - rely on keyword search
   
-  // Use target PSC codes if not provided (IT/cyber focused)
   const pscCodes = params.pscCodes && params.pscCodes.length > 0
     ? params.pscCodes
-    : TARGET_PSC_CODES
+    : [] // Empty by default - rely on keyword search
   
   // Build keyword string from provided keywords and service category
   const keywordParts: string[] = []

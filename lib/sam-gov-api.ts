@@ -80,6 +80,7 @@ export interface SamGovOpportunity {
   naicsCodes?: string[]
   classificationCode?: string
   active?: boolean
+  _relevanceBoost?: number // Internal field for client-side relevance boosting
   award?: {
     awardDate?: string
     awardAmount?: number
@@ -298,162 +299,86 @@ export async function searchSamGov(params: {
     })
     .filter((sa, index, arr) => arr.indexOf(sa) === index) // Remove duplicates
   
-  // If multiple NAICS codes, multiple PSC codes, or multiple set-aside types, make multiple API calls and combine results
-  const needsMultipleCalls = naicsCodes.length > 1 || 
-                             (naicsCodes.length > 0 && pscCodes.length > 1) ||
-                             setAsideTypes.length > 1
+  // KEYWORD-FIRST APPROACH: Make 1-2 API calls (one per set-aside type)
+  // Use keywords only - no NAICS/PSC filters in API call
+  // NAICS/PSC codes will be used for client-side ranking/filtering
   
-  if (needsMultipleCalls) {
-    const results: SamGovOpportunity[] = []
-    const seenNoticeIds = new Set<string>()
-    let totalRecords = 0
-    
-    // Generate all combinations of NAICS, PSC codes, and set-aside types
-    const searchCombinations: Array<{ naics?: string; psc?: string; setAside?: string }> = []
-    
-    // If we have multiple set-aside types, we need to search for each separately
-    if (setAsideTypes.length > 1) {
-      // For each set-aside type, create combinations with NAICS and PSC codes
-      for (const setAsideType of setAsideTypes) {
-        if (naicsCodes.length > 0 && pscCodes.length > 0) {
-          // Combine each NAICS with each PSC for this set-aside
-          for (const naicsCode of naicsCodes) {
-            for (const pscCode of pscCodes) {
-              searchCombinations.push({ naics: naicsCode, psc: pscCode, setAside: setAsideType })
+  // Determine which codes to use for ranking (use target codes if none provided)
+  const rankingNaicsCodes = naicsCodes.length > 0 ? naicsCodes : TARGET_NAICS_CODES
+  const rankingPscCodes = pscCodes.length > 0 ? pscCodes : TARGET_PSC_CODES
+  
+  const results: SamGovOpportunity[] = []
+  const seenNoticeIds = new Set<string>()
+  let totalRecords = 0
+  
+  // If no set-aside types specified, make one call without set-aside filter
+  const setAsidesToSearch = setAsideTypes.length > 0 ? setAsideTypes : [undefined]
+  
+  for (const setAsideType of setAsidesToSearch) {
+    try {
+      // Make API call with keywords only - no NAICS/PSC filters
+      // This leverages SAM.gov's full-text search which is more flexible
+      const singleResult = await searchSamGovSingle({
+        keywords: params.keywords,
+        serviceCategory: params.serviceCategory,
+        dateRange: params.dateRange,
+        setAside: setAsideType ? [setAsideType] : undefined,
+        naicsCodes: undefined, // Don't filter by NAICS in API call
+        pscCodes: undefined, // Don't filter by PSC in API call
+        limit: params.limit || 30,
+        offset: params.offset || 0,
+        keyword,
+        from,
+        to,
+      })
+      
+      // Deduplicate by noticeId and apply NAICS/PSC relevance boosting
+      singleResult.opportunitiesData.forEach(opp => {
+        if (!seenNoticeIds.has(opp.noticeId)) {
+          seenNoticeIds.add(opp.noticeId)
+          
+          // Boost relevance for matching NAICS codes (client-side ranking)
+          if (rankingNaicsCodes.length > 0 && opp.naicsCode) {
+            if (rankingNaicsCodes.includes(opp.naicsCode)) {
+              // Mark as high relevance - will be used in transformSamGovResult
+              opp._relevanceBoost = (opp._relevanceBoost || 0) + 20
             }
           }
-        } else if (naicsCodes.length > 1) {
-          // Multiple NAICS codes, use first PSC code for each
-          for (const naicsCode of naicsCodes) {
-            searchCombinations.push({ 
-              naics: naicsCode, 
-              psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
-              setAside: setAsideType
-            })
+          
+          // Boost relevance for matching PSC codes (client-side ranking)
+          if (rankingPscCodes.length > 0 && opp.classificationCode) {
+            if (rankingPscCodes.includes(opp.classificationCode)) {
+              opp._relevanceBoost = (opp._relevanceBoost || 0) + 15
+            }
           }
-        } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
-          // Multiple PSC codes, use first NAICS code for each
-          for (const pscCode of pscCodes) {
-            searchCombinations.push({ 
-              naics: naicsCodes[0], 
-              psc: pscCode,
-              setAside: setAsideType
-            })
-          }
-        } else {
-          // Just set-aside type variation
-          searchCombinations.push({ 
-            naics: naicsCodes.length > 0 ? naicsCodes[0] : undefined,
-            psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
-            setAside: setAsideType
-          })
+          
+          results.push(opp)
         }
-      }
-    } else {
-      // Single set-aside type (or none), generate combinations of NAICS and PSC codes
-      const setAsideType = setAsideTypes.length > 0 ? setAsideTypes[0] : undefined
+      })
       
-      if (naicsCodes.length > 0 && pscCodes.length > 0) {
-        // Combine each NAICS with each PSC
-        for (const naicsCode of naicsCodes) {
-          for (const pscCode of pscCodes) {
-            searchCombinations.push({ naics: naicsCode, psc: pscCode, setAside: setAsideType })
-          }
-        }
-      } else if (naicsCodes.length > 1) {
-        // Multiple NAICS codes, use first PSC code for each
-        for (const naicsCode of naicsCodes) {
-          searchCombinations.push({ 
-            naics: naicsCode, 
-            psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
-            setAside: setAsideType
-          })
-        }
-      } else if (pscCodes.length > 1 && naicsCodes.length > 0) {
-        // Multiple PSC codes, use first NAICS code for each
-        for (const pscCode of pscCodes) {
-          searchCombinations.push({ 
-            naics: naicsCodes[0], 
-            psc: pscCode,
-            setAside: setAsideType
-          })
-        }
-      } else {
-        // Single combination
-        searchCombinations.push({ 
-          naics: naicsCodes.length > 0 ? naicsCodes[0] : undefined,
-          psc: pscCodes.length > 0 ? pscCodes[0] : undefined,
-          setAside: setAsideType
-        })
-      }
-    }
-    
-    // Make API calls for each combination
-    for (const combo of searchCombinations) {
-      try {
-        const singleResult = await searchSamGovSingle({
-          keywords: params.keywords,
-          serviceCategory: params.serviceCategory,
-          dateRange: params.dateRange,
-          setAside: combo.setAside ? [combo.setAside] : undefined,
-          naicsCodes: combo.naics ? [combo.naics] : [],
-          pscCodes: combo.psc ? [combo.psc] : [],
-          limit: params.limit || 25,
-          offset: params.offset || 0,
-          keyword,
-          from,
-          to,
-        })
-        
-        // Deduplicate by noticeId
-        singleResult.opportunitiesData.forEach(opp => {
-          if (!seenNoticeIds.has(opp.noticeId)) {
-            seenNoticeIds.add(opp.noticeId)
-            results.push(opp)
-          }
-        })
-        
-        totalRecords += singleResult.totalRecords
-      } catch (error) {
-        const comboStr = `${combo.setAside || 'no-setAside'}-${combo.naics || 'no-NAICS'}-${combo.psc || 'no-PSC'}`
-        console.error(`[SAM.gov API] Error searching combination ${comboStr}:`, error)
-        // Continue with other combinations
-      }
-    }
-    
-    // Sort by postedDate (newest first) and limit results
-    results.sort((a, b) => {
-      const dateA = new Date(a.postedDate).getTime()
-      const dateB = new Date(b.postedDate).getTime()
-      return dateB - dateA
-    })
-    
-    const limit = params.limit || 25
-    const limitedResults = results.slice(0, limit)
-    
-    return {
-      totalRecords: Math.max(totalRecords, limitedResults.length),
-      limit,
-      offset: params.offset || 0,
-      opportunitiesData: limitedResults,
+      totalRecords += singleResult.totalRecords
+    } catch (error) {
+      console.error(`[SAM.gov API] Error searching set-aside ${setAsideType || 'none'}:`, error)
+      // Continue with other set-aside types
     }
   }
   
-  // Single combination - make single API call
-  // Only include NAICS/PSC filters if explicitly provided (not using target codes by default)
-  return searchSamGovSingle({
-    keywords: params.keywords,
-    serviceCategory: params.serviceCategory,
-    dateRange: params.dateRange,
-    setAside: setAsideTypes.length > 0 ? [setAsideTypes[0]] : undefined,
-    naicsCodes: naicsCodes.length > 0 ? [naicsCodes[0]] : undefined, // Only filter if codes provided
-    pscCodes: pscCodes.length > 0 ? [pscCodes[0]] : undefined, // Only filter if codes provided
-    limit: params.limit || 30, // Increase default to 30
-    offset: params.offset || 0,
-    keyword,
-    from,
-    to,
+  // Sort by postedDate (newest first) and limit results
+  results.sort((a, b) => {
+    const dateA = new Date(a.postedDate).getTime()
+    const dateB = new Date(b.postedDate).getTime()
+    return dateB - dateA
   })
+  
+  const limit = params.limit || 30
+  const limitedResults = results.slice(0, limit)
+  
+  return {
+    totalRecords: Math.max(totalRecords, limitedResults.length),
+    limit,
+    offset: params.offset || 0,
+    opportunitiesData: limitedResults,
+  }
 }
 
 /**
@@ -712,6 +637,11 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
   // Calculate relevance score
   let relevanceScore = 30 // Base score
   
+  // Apply client-side relevance boost from NAICS/PSC matching (set during search)
+  if (opportunity._relevanceBoost) {
+    relevanceScore += opportunity._relevanceBoost
+  }
+  
   // VetCert set-aside boost
   if (setAside.length > 0) relevanceScore += 30
   if (opportunity.typeOfSetAside === 'SDVOSB' || opportunity.typeOfSetAside === 'VOSB') relevanceScore += 25
@@ -729,14 +659,14 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
     relevanceScore -= 40 // Heavy penalty for irrelevant NAICS
   }
   
-  // Boost for target NAICS codes
+  // Boost for target NAICS codes (additional boost beyond client-side boost)
   if (naicsCodes.some(code => TARGET_NAICS_CODES.includes(code))) {
-    relevanceScore += 30
+    relevanceScore += 10 // Reduced from 30 since we already boost in search
   }
   
-  // Boost for target PSC codes
+  // Boost for target PSC codes (additional boost beyond client-side boost)
   if (opportunity.classificationCode && TARGET_PSC_CODES.includes(opportunity.classificationCode)) {
-    relevanceScore += 25
+    relevanceScore += 10 // Reduced from 25 since we already boost in search
   }
   
   // Extract SOW attachment URL from API links if available
