@@ -265,6 +265,24 @@ export default function CapabilitiesPage() {
             <h2 className="text-xl font-semibold text-neutral-900 mb-4 print:text-lg print:mb-3">
               Differentiators
             </h2>
+            
+            {/* Featured Differentiator - Highlighted */}
+            <div className="bg-accent-50 border-2 border-accent-700 p-6 mb-6 print:p-4 print:mb-4 print:border print:border-neutral-900">
+              <h3 className="text-lg font-bold text-neutral-900 mb-3 print:text-base print:mb-2">
+                Our Unique Approach: Integrated Excellence
+              </h3>
+              <p className="text-body-lg text-neutral-900 font-semibold mb-2 print:text-base">
+                Cybersecurity Built into Infrastructure • Governance Built into Execution
+              </p>
+              <p className="text-body text-neutral-700 leading-relaxed print:text-sm">
+                Unlike traditional providers who treat cybersecurity and governance as separate add-ons, 
+                MacTech integrates these critical capabilities directly into infrastructure design and 
+                operational execution. Our infrastructure solutions are security-hardened from the ground up, 
+                and our governance practices are embedded in every project delivery—eliminating the gaps, 
+                delays, and rework that plague traditional approaches.
+              </p>
+            </div>
+
             <ul className="space-y-2 print:space-y-1">
               <li className="text-body text-neutral-700 print:text-sm">• <strong>Veteran-Owned Business:</strong> SDVOSB status with deep understanding of mission-critical operations and federal contracting requirements</li>
               <li className="text-body text-neutral-700 print:text-sm">• <strong>Senior Practitioners Only:</strong> Decades of combined experience—no junior consultants learning on your project</li>

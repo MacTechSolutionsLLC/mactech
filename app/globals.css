@@ -192,5 +192,11 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /* Ensure highlighted differentiator box is visible in print */
+  .capabilities-statement .bg-accent-50 {
+    background-color: #f0f4f8 !important;
+    border: 2px solid #000 !important;
+  }
 }
 
