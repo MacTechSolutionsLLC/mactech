@@ -292,31 +292,6 @@ export default function CapabilitiesPage() {
             </ul>
           </section>
 
-          {/* Contact Information */}
-          <section className="mb-8 print:mb-6">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-4 print:text-lg print:mb-3">
-              Contact Information
-            </h2>
-            <div className="space-y-2 print:space-y-1">
-              <p className="text-body text-neutral-700 print:text-sm">
-                <strong>MacTech Solutions LLC</strong>
-              </p>
-              <p className="text-body text-neutral-700 print:text-sm">
-                Website: <a href="https://mactech-solutions.com" className="text-accent-700 print:text-neutral-900 print:no-underline">mactech-solutions.com</a>
-              </p>
-              <p className="text-body text-neutral-700 print:text-sm">
-                Email: <a href="mailto:contact@mactech-solutions.com" className="text-accent-700 print:text-neutral-900 print:no-underline">contact@mactech-solutions.com</a>
-              </p>
-            </div>
-          </section>
-
-          {/* Footer Note */}
-          <div className="mt-12 pt-6 border-t border-neutral-200 print:mt-8 print:pt-4">
-            <p className="text-body-sm text-neutral-600 text-center italic print:text-xs">
-              This capabilities statement is current as of {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}. 
-              For the most current information, please visit our website or contact us directly.
-            </p>
-          </div>
         </div>
       </div>
     </>
