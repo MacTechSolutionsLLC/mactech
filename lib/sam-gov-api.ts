@@ -336,8 +336,8 @@ export async function searchSamGov(params: {
   // For other searches, use codes only for client-side ranking if explicitly provided
   
   // Use codes for ranking (always available for client-side filtering)
-  const rankingNaicsCodes = apiNaicsCodes.length > 0 ? apiNaicsCodes : []
-  const rankingPscCodes = apiPscCodes.length > 0 ? apiPscCodes : []
+  const rankingNaicsCodes = naicsCodes.length > 0 ? naicsCodes : []
+  const rankingPscCodes = pscCodes.length > 0 ? pscCodes : []
   
   const results: SamGovOpportunity[] = []
   const seenNoticeIds = new Set<string>()
