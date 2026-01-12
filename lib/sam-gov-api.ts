@@ -199,6 +199,60 @@ function cleanGoogleSyntax(keywords: string): string {
 }
 
 /**
+ * Detect if a search is cybersecurity-focused based on keywords or service category
+ */
+function isCybersecuritySearch(keywords?: string, serviceCategory?: ServiceCategory): boolean {
+  if (serviceCategory === 'cybersecurity') return true
+  
+  if (!keywords) return false
+  
+  const upperKeywords = keywords.toUpperCase()
+  const cyberTerms = [
+    'ATO', 'AUTHORIZATION TO OPERATE',
+    'RMF', 'RISK MANAGEMENT FRAMEWORK',
+    'CYBERSECURITY', 'CYBER SECURITY',
+    'STIG', 'SECURITY TECHNICAL IMPLEMENTATION GUIDE',
+    'NIST', 'NIST 800-53',
+    'ISSO', 'ISSM', 'ISSE',
+    'SCA', 'SECURITY CONTROL ASSESSMENT',
+    'CONMON', 'CONTINUOUS MONITORING',
+    'POA&M', 'PLAN OF ACTION',
+    'SSP', 'SYSTEM SECURITY PLAN',
+    'CMMC', 'EMMASS', 'XACTA'
+  ]
+  
+  return cyberTerms.some(term => upperKeywords.includes(term))
+}
+
+/**
+ * Expand ambiguous abbreviations to full terms for better matching
+ */
+function expandKeywords(keywords: string): string {
+  const expansions: Record<string, string> = {
+    'ATO': 'Authorization to Operate',
+    'RMF': 'Risk Management Framework',
+    'STIG': 'Security Technical Implementation Guide',
+    'SCA': 'Security Control Assessment',
+    'ConMon': 'Continuous Monitoring',
+    'POA&M': 'Plan of Action and Milestones',
+    'SSP': 'System Security Plan',
+    'RAR': 'Risk Assessment Report',
+  }
+  
+  let expanded = keywords
+  const upperKeywords = keywords.toUpperCase()
+  
+  // Add expansions for common abbreviations
+  for (const [abbr, full] of Object.entries(expansions)) {
+    if (upperKeywords.includes(abbr.toUpperCase()) && !upperKeywords.includes(full.toUpperCase())) {
+      expanded += ` ${full}`
+    }
+  }
+  
+  return expanded
+}
+
+/**
  * Build keyword query from search request
  */
 function buildKeywordQuery(
@@ -210,6 +264,11 @@ function buildKeywordQuery(
   
   // Clean Google syntax from keywords if present
   let cleanedKeywords = keywords ? cleanGoogleSyntax(keywords) : undefined
+  
+  // Expand abbreviations for better matching
+  if (cleanedKeywords) {
+    cleanedKeywords = expandKeywords(cleanedKeywords)
+  }
   
   // Only add service category keywords if no explicit keywords provided
   // This makes searches less restrictive when user provides specific keywords
@@ -232,7 +291,7 @@ function buildKeywordQuery(
     keywordParts.push(customKeywords)
   }
   
-  // Add explicit keywords (cleaned) - prioritize user-provided keywords
+  // Add explicit keywords (cleaned and expanded) - prioritize user-provided keywords
   if (cleanedKeywords) {
     keywordParts.push(cleanedKeywords)
   }
@@ -290,6 +349,19 @@ export async function searchSamGov(params: {
     ? buildKeywordQuery(params.keywords, undefined) // Use only explicit keywords
     : buildKeywordQuery(undefined, params.serviceCategory) // Fall back to category keywords if no explicit keywords
   
+  // Detect if this is a cybersecurity search
+  const isCyberSearch = isCybersecuritySearch(params.keywords, params.serviceCategory)
+  
+  // For cybersecurity searches, automatically use IT/cybersecurity NAICS and PSC codes as API filters
+  // This prevents matching hardware/manufacturing opportunities
+  const apiNaicsCodes = isCyberSearch && naicsCodes.length === 0
+    ? TARGET_NAICS_CODES
+    : naicsCodes
+  
+  const apiPscCodes = isCyberSearch && pscCodes.length === 0
+    ? TARGET_PSC_CODES
+    : pscCodes
+  
   // Normalize set-aside types (SDVOSB, VOSB)
   const setAsideTypes = (params.setAside || [])
     .map(sa => {
@@ -299,13 +371,12 @@ export async function searchSamGov(params: {
     })
     .filter((sa, index, arr) => arr.indexOf(sa) === index) // Remove duplicates
   
-  // KEYWORD-FIRST APPROACH: Make 1-2 API calls (one per set-aside type)
-  // Use keywords only - no NAICS/PSC filters in API call
-  // NAICS/PSC codes will be used for client-side ranking/filtering ONLY if explicitly provided
+  // For cybersecurity searches, use NAICS/PSC codes as API filters to narrow results
+  // For other searches, use codes only for client-side ranking if explicitly provided
   
-  // Only use codes for ranking if explicitly provided by user
-  const rankingNaicsCodes = naicsCodes.length > 0 ? naicsCodes : []
-  const rankingPscCodes = pscCodes.length > 0 ? pscCodes : []
+  // Use codes for ranking (always available for client-side filtering)
+  const rankingNaicsCodes = apiNaicsCodes.length > 0 ? apiNaicsCodes : []
+  const rankingPscCodes = apiPscCodes.length > 0 ? apiPscCodes : []
   
   const results: SamGovOpportunity[] = []
   const seenNoticeIds = new Set<string>()
@@ -320,15 +391,15 @@ export async function searchSamGov(params: {
   
   for (const setAsideType of setAsidesToSearch) {
     try {
-      // Make API call with keywords only - no NAICS/PSC filters
-      // This leverages SAM.gov's full-text search which is more flexible
+      // For cybersecurity searches, use NAICS/PSC filters in API call to narrow results
+      // For other searches, use keywords only for broader matching
       const singleResult = await searchSamGovSingle({
         keywords: params.keywords,
         serviceCategory: params.serviceCategory,
         dateRange: params.dateRange,
         setAside: setAsideType ? [setAsideType] : undefined,
-        naicsCodes: undefined, // Don't filter by NAICS in API call
-        pscCodes: undefined, // Don't filter by PSC in API call
+        naicsCodes: isCyberSearch ? apiNaicsCodes : undefined, // Use NAICS filter for cybersecurity searches
+        pscCodes: isCyberSearch ? apiPscCodes : undefined, // Use PSC filter for cybersecurity searches
         limit: params.limit || 30,
         offset: params.offset || 0,
         keyword,
@@ -336,9 +407,30 @@ export async function searchSamGov(params: {
         to,
       })
       
-      // Deduplicate by noticeId and apply NAICS/PSC relevance boosting
+      // Deduplicate by noticeId, filter irrelevant results, and apply NAICS/PSC relevance boosting
+      const irrelevantNaics = [
+        '325920', '237990', '339112', '332912', '322230', '333996', '236220', '562910', 
+        '325120', '311991', '334514', '336413', '332510', '541380', '332911', '336412', 
+        '336611', '335931', '332999', '333998', '332994', '333618', '334417', '334220',
+        '333611', '333612', '333613', '333519', '333914', '332722', '335314', '339991',
+        '336390', '336360', '334290', '336320', '332119', '326122', '335999'
+      ]
+      
       singleResult.opportunitiesData.forEach(opp => {
         if (!seenNoticeIds.has(opp.noticeId)) {
+          // For cybersecurity searches, filter out results with irrelevant NAICS codes
+          if (isCyberSearch) {
+            const oppNaicsCodes = [
+              opp.naicsCode,
+              ...(opp.naicsCodes || [])
+            ].filter(Boolean) as string[]
+            
+            // Skip if any NAICS code is in the irrelevant list
+            if (oppNaicsCodes.some(code => irrelevantNaics.includes(code))) {
+              return // Skip this result
+            }
+          }
+          
           seenNoticeIds.add(opp.noticeId)
           
           // Boost relevance for matching NAICS codes (client-side ranking)
@@ -691,10 +783,28 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
   // Service category match boost
   if (detectedServiceCategory !== 'general') relevanceScore += 20
   
-  // Penalize irrelevant NAICS codes (hardware, manufacturing, etc.)
-  const irrelevantNaics = ['325920', '237990', '339112', '332912', '322230', '333996', '236220', '562910', '325120', '311991', '334514', '336413', '332510', '541380', '332911', '336412', '336611', '335931', '332999', '333998', '332994', '333618', '334417', '334220']
-  if (naicsCodes.some(code => irrelevantNaics.includes(code))) {
-    relevanceScore -= 40 // Heavy penalty for irrelevant NAICS
+  // Penalize and filter out irrelevant NAICS codes (hardware, manufacturing, etc.)
+  // Expanded list of manufacturing/hardware NAICS codes that are NOT IT/cybersecurity services
+  const irrelevantNaics = [
+    '325920', '237990', '339112', '332912', '322230', '333996', '236220', '562910', 
+    '325120', '311991', '334514', '336413', '332510', '541380', '332911', '336412', 
+    '336611', '335931', '332999', '333998', '332994', '333618', '334417', '334220',
+    '333611', '333612', '333613', '333519', '333914', '332722', '335314', '339991',
+    '336390', '336360', '334290', '336320', '332119', '326122', '335999', '333611',
+    '336413', '332510', '332999', '333996', '334417', '334220', '333998', '332994'
+  ]
+  
+  const hasIrrelevantNaics = naicsCodes.some(code => irrelevantNaics.includes(code))
+  if (hasIrrelevantNaics) {
+    relevanceScore -= 100 // Very heavy penalty - should filter out these results
+  }
+  
+  // For cybersecurity searches, require minimum relevance score
+  const isCyberSearch = detectedServiceCategory === 'cybersecurity' || 
+                       detectedKeywords.some(kw => ['RMF', 'ATO', 'STIG', 'NIST', 'ISSO', 'ISSM'].includes(kw))
+  
+  if (isCyberSearch && hasIrrelevantNaics) {
+    relevanceScore -= 50 // Additional penalty for cybersecurity searches with irrelevant NAICS
   }
   
   // Note: NAICS/PSC code boosting is now only applied if codes were explicitly provided
