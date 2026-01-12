@@ -199,32 +199,6 @@ function cleanGoogleSyntax(keywords: string): string {
 }
 
 /**
- * Detect if a search is cybersecurity-focused based on keywords or service category
- */
-function isCybersecuritySearch(keywords?: string, serviceCategory?: ServiceCategory): boolean {
-  if (serviceCategory === 'cybersecurity') return true
-  
-  if (!keywords) return false
-  
-  const upperKeywords = keywords.toUpperCase()
-  const cyberTerms = [
-    'ATO', 'AUTHORIZATION TO OPERATE',
-    'RMF', 'RISK MANAGEMENT FRAMEWORK',
-    'CYBERSECURITY', 'CYBER SECURITY',
-    'STIG', 'SECURITY TECHNICAL IMPLEMENTATION GUIDE',
-    'NIST', 'NIST 800-53',
-    'ISSO', 'ISSM', 'ISSE',
-    'SCA', 'SECURITY CONTROL ASSESSMENT',
-    'CONMON', 'CONTINUOUS MONITORING',
-    'POA&M', 'PLAN OF ACTION',
-    'SSP', 'SYSTEM SECURITY PLAN',
-    'CMMC', 'EMMASS', 'XACTA'
-  ]
-  
-  return cyberTerms.some(term => upperKeywords.includes(term))
-}
-
-/**
  * Expand ambiguous abbreviations to full terms for better matching
  */
 function expandKeywords(keywords: string): string {
@@ -343,24 +317,11 @@ export async function searchSamGov(params: {
     ? TARGET_PSC_CODES
     : (params.pscCodes || [])
   
-  // Detect if this is a cybersecurity search (before building keyword query)
-  const isCyberSearch = isCybersecuritySearch(params.keywords, params.serviceCategory)
-  
   // Build keyword query - prioritize explicit keywords over service category
   // Only add service category keywords if no explicit keywords provided
   const keyword = params.keywords && params.keywords.trim().length > 0
-    ? buildKeywordQuery(params.keywords, undefined, undefined, isCyberSearch) // Use only explicit keywords, pass isCyberSearch flag
-    : buildKeywordQuery(undefined, params.serviceCategory, undefined, isCyberSearch) // Fall back to category keywords if no explicit keywords
-  
-  // For cybersecurity searches, automatically use IT/cybersecurity NAICS and PSC codes as API filters
-  // This prevents matching hardware/manufacturing opportunities
-  const apiNaicsCodes = isCyberSearch && naicsCodes.length === 0
-    ? TARGET_NAICS_CODES
-    : naicsCodes
-  
-  const apiPscCodes = isCyberSearch && pscCodes.length === 0
-    ? TARGET_PSC_CODES
-    : pscCodes
+    ? buildKeywordQuery(params.keywords, undefined) // Use only explicit keywords
+    : buildKeywordQuery(undefined, params.serviceCategory) // Fall back to category keywords if no explicit keywords
   
   // Normalize set-aside types (SDVOSB, VOSB)
   const setAsideTypes = (params.setAside || [])
