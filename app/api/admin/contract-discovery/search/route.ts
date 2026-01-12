@@ -205,32 +205,15 @@ export async function POST(request: NextRequest) {
           if (!hasSetAside) return false
         }
         
-        // For cybersecurity searches, require relevant keywords or NAICS, and filter out irrelevant results
+        // For cybersecurity searches, require relevant keywords in title/description
         if (isCybersecuritySearch) {
-          // Define irrelevant NAICS codes (hardware, manufacturing, etc.)
-          const irrelevantNaics = [
-            '325920', '237990', '339112', '332912', '322230', '333996', '236220', '562910', 
-            '325120', '311991', '334514', '336413', '332510', '541380', '332911', '336412', 
-            '336611', '335931', '332999', '333998', '332994', '333618', '334417', '334220',
-            '333611', '333612', '333613', '333519', '333914', '332722', '335314', '339991',
-            '336390', '336360', '334290', '336320', '332119', '326122', '335999'
-          ]
-          
-          // Filter out results with irrelevant NAICS codes
-          if (result.naics_codes && result.naics_codes.some(code => irrelevantNaics.includes(code))) {
-            return false
-          }
-          
           const hasCyberKeywords = result.detected_keywords && result.detected_keywords.some(kw => 
             ['RMF', 'ATO', 'ISSO', 'ISSM', 'STIG', 'NIST', 'Cybersecurity', 'SCA', 'ConMon', 'POA&M', 'SSP'].includes(kw)
           )
-          const hasCyberNaics = result.naics_codes && result.naics_codes.some(code => 
-            ['541512', '541519', '541511', '541330', '541690'].includes(code)
-          )
           
-          // Must have either relevant keywords or NAICS, and minimum relevance score of 60
-          if (!hasCyberKeywords && !hasCyberNaics) return false
-          if ((result.relevance_score || 0) < 60) return false // Higher threshold for cybersecurity searches
+          // Must have cybersecurity keywords and minimum relevance score
+          if (!hasCyberKeywords) return false
+          if ((result.relevance_score || 0) < 40) return false // Basic threshold
         }
         
         return true
