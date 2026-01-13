@@ -10,8 +10,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (pathname.includes('/uncertainty')) {
-      const { measurements } = body
-      const uncertainty = await metrologyManagementService.calculateUncertainty(measurements)
+      const { measurementId, value } = body
+      if (!measurementId || value === undefined) {
+        return NextResponse.json({ success: false, error: 'measurementId and value required' }, { status: 400 })
+      }
+      const uncertainty = await metrologyManagementService.calculateUncertainty(measurementId, value)
       return NextResponse.json({ success: true, data: uncertainty })
     }
 
