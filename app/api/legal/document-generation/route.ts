@@ -10,8 +10,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (pathname.includes('/review')) {
-      const { documentId } = body
-      const review = await legalDocumentGenerationService.reviewDocument(documentId)
+      const { documentId, reviewer } = body
+      if (!documentId || !reviewer) {
+        return NextResponse.json({ success: false, error: 'documentId and reviewer required' }, { status: 400 })
+      }
+      const review = await legalDocumentGenerationService.reviewDocument(documentId, reviewer)
       return NextResponse.json({ success: true, data: review })
     }
 
