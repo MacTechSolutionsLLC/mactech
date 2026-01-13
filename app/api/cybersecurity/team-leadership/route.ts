@@ -10,13 +10,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (pathname.includes('/review')) {
-      const { teamMemberId } = body
-      const review = await teamLeadershipService.createPerformanceReview(teamMemberId)
+      const { teamMemberId, reviewer, ...reviewData } = body
+      if (!teamMemberId || !reviewer) {
+        return NextResponse.json({ success: false, error: 'teamMemberId and reviewer required' }, { status: 400 })
+      }
+      const review = await teamLeadershipService.createPerformanceReview(teamMemberId, reviewer, reviewData)
       return NextResponse.json({ success: true, data: review })
     }
 
     const data = validateInput(teamMemberSchema, body)
-    const member = await teamLeadershipService.addTeamMember(data)
+    const member = await teamLeadershipService.addMember(data)
     return NextResponse.json({ success: true, data: member }, { status: 201 })
   } catch (error) {
     const { statusCode, message } = handleError(error)
@@ -30,11 +33,11 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id')
 
     if (id) {
-      const member = await teamLeadershipService.getTeamMember(id)
+      const member = await teamLeadershipService.getMember(id)
       return NextResponse.json({ success: true, data: member })
     }
 
-    const members = await teamLeadershipService.listTeamMembers()
+    const members = await teamLeadershipService.listMembers()
     return NextResponse.json({ success: true, data: members })
   } catch (error) {
     const { statusCode, message } = handleError(error)

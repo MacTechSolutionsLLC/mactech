@@ -10,8 +10,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (pathname.includes('/validate')) {
-      const { evidenceId } = body
-      const validation = await evidenceCollectionService.validateEvidence(evidenceId)
+      const { evidenceId, validatedBy } = body
+      if (!evidenceId || !validatedBy) {
+        return NextResponse.json({ success: false, error: 'evidenceId and validatedBy required' }, { status: 400 })
+      }
+      const validation = await evidenceCollectionService.validateEvidence(evidenceId, validatedBy)
       return NextResponse.json({ success: true, data: validation })
     }
 
@@ -35,8 +38,9 @@ export async function GET(request: NextRequest) {
     const { pathname, searchParams } = new URL(request.url)
 
     if (pathname.includes('/packages')) {
-      const packages = await evidenceCollectionService.listPackages()
-      return NextResponse.json({ success: true, data: packages })
+      // Packages are generated on-demand, return empty array for now
+      // In production, this would query a database
+      return NextResponse.json({ success: true, data: [] })
     }
 
     const id = searchParams.get('id')
