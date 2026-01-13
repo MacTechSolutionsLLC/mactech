@@ -1240,6 +1240,7 @@ export default function ShowcasePage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<string>(pillars[0])
   const [viewMode, setViewMode] = useState<'pillar' | 'category'>('pillar')
+  const [statusFilter, setStatusFilter] = useState<'available' | null>(null)
 
   const toggleItem = useCallback((id: string, event?: React.MouseEvent) => {
     if (event) {
@@ -1263,9 +1264,13 @@ export default function ShowcasePage() {
     setExpandedItems(new Set())
   }, [])
 
-  const activeTools = viewMode === 'pillar' 
+  const filteredByViewMode = viewMode === 'pillar' 
     ? tools.filter(tool => tool.pillar === activeTab)
     : tools.filter(tool => tool.category === activeTab)
+  
+  const activeTools = filteredByViewMode.filter(tool => statusFilter === null || tool.status === statusFilter)
+  
+  const availableCount = filteredByViewMode.filter(tool => tool.status === 'available').length
 
   return (
     <div className="bg-white">
@@ -1338,8 +1343,8 @@ export default function ShowcasePage() {
       {/* Tabs */}
       <section className="section-container bg-white border-b border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          {/* View Mode Toggle */}
-          <div className="flex items-center justify-between mb-6">
+          {/* View Mode Toggle and Status Filter */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div className="flex gap-2">
               <button
                 onClick={() => {
@@ -1366,6 +1371,33 @@ export default function ShowcasePage() {
                 }`}
               >
                 By Category
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setStatusFilter(statusFilter === 'available' ? null : 'available')
+                  setExpandedItems(new Set())
+                }}
+                className={`px-4 py-2 text-body-sm font-medium transition-all flex items-center gap-2 ${
+                  statusFilter === 'available'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Available Now
+                {statusFilter === 'available' ? (
+                  <span className="ml-1 text-xs bg-white/20 px-1.5 py-0.5 rounded">
+                    {activeTools.length}
+                  </span>
+                ) : availableCount > 0 && (
+                  <span className="ml-1 text-xs bg-neutral-300 text-neutral-700 px-1.5 py-0.5 rounded">
+                    {availableCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
