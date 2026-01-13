@@ -18,7 +18,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, data: uncertainty })
     }
 
-    const data = validateInput(metrologyProjectSchema, body)
+    const validated = validateInput(metrologyProjectSchema, body)
+    // Ensure priority has a default value
+    const data = {
+      ...validated,
+      priority: validated.priority || 'medium',
+    }
     const project = await metrologyManagementService.createProject(data)
     return NextResponse.json({ success: true, data: project }, { status: 201 })
   } catch (error) {
