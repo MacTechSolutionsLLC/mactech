@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       if (!programId) {
         return NextResponse.json({ success: false, error: 'programId required' }, { status: 400 })
       }
-      const readiness = await isoComplianceService.getReadinessScore(programId)
+      const readiness = await isoComplianceService.getAuditReadiness(programId)
       return NextResponse.json({ success: true, data: readiness })
     }
 
