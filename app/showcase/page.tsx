@@ -16,6 +16,7 @@ interface Tool {
   useCases: string[]
   technicalDetails: string
   integration: string
+  launchUrl?: string
   deliverables?: {
     templates?: string[]
     modules?: string[]
@@ -48,6 +49,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Python CLI application with extensible architecture. Generates idempotent Ansible playbooks with proper tagging, structured CTP CSV documents, and validates command extraction for production readiness.',
     integration: 'Integrates with existing Ansible workflows, supports CI/CD pipelines, and generates artifacts compatible with DoD test management systems.',
+    launchUrl: process.env.NEXT_PUBLIC_STIG_GENERATOR_URL || 'http://localhost:4000',
     deliverables: {
       modules: ['Ansible hardening playbook generator', 'Ansible checker playbook generator', 'CTP document generator'],
       templates: ['STIG parsing templates', 'Ansible playbook templates', 'CTP CSV templates']
@@ -372,6 +374,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Automated infrastructure provisioning with built-in compliance validation. Supports multiple storage arrays, VMWare environments, and network configurations. Includes deployment templates for common DoD architectures.',
     integration: 'Integrates with VMWare vCenter, storage management APIs, network management tools, and compliance scanners. Supports Terraform and Ansible for infrastructure-as-code.',
+    launchUrl: '/tools/data-center-deployment',
     deliverables: {
       modules: ['Deployment automation module', 'Storage configuration module', 'Network validation module'],
       templates: ['Web application stack templates', 'Database infrastructure templates', 'Cloud environment templates']
@@ -400,6 +403,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'ML-powered monitoring platform that predicts failures before they occur. Integrates with major infrastructure management tools and provides automated remediation workflows.',
     integration: 'Integrates with NinjaOne, EPS, ITGlue, WFM, Prometheus, Grafana, and cloud monitoring services. Provides REST API for custom integrations.',
+    launchUrl: '/tools/infrastructure-health-monitoring',
     deliverables: {
       platforms: ['Health Monitoring Platform'],
       modules: ['Predictive analytics module', 'Alerting module', 'Integration adapter modules']
@@ -428,6 +432,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Network topology analyzer that generates security configurations based on network diagrams, security zones, and DoD network security requirements. Validates against DISA Network STIGs.',
     integration: 'Integrates with network management platforms, firewall management tools, and network documentation systems. Supports Cisco, Juniper, and other major vendors.',
+    launchUrl: '/tools/network-config-automation',
     deliverables: {
       modules: ['Topology generator module', 'Firewall rule engine', 'STIG compliance checker'],
       templates: ['Network security templates', 'Firewall rule templates']
@@ -457,6 +462,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive ISO compliance platform that tracks requirements, identifies gaps, and generates audit-ready documentation. Includes automated SOP generation and management review workflows.',
     integration: 'Integrates with quality management systems, document management platforms, and ISO certification management tools. Exports compliance data to audit platforms.',
+    launchUrl: '/tools/iso-compliance-platform',
     deliverables: {
       platforms: ['ISO Compliance Platform'],
       modules: ['Gap analysis module', 'Audit readiness module', 'SOP generator module'],
@@ -486,6 +492,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Template-driven SOP generation system with intelligent requirement mapping. Uses organizational inputs to generate compliant documentation with proper structure and formatting.',
     integration: 'Integrates with document management systems, quality management platforms, and ISO certification tools. Supports export to Word, PDF, and QMS software formats.',
+    launchUrl: '/tools/sop-automation-module',
     deliverables: {
       modules: ['SOP generator module', 'Version control module', 'Review workflow module'],
       templates: ['SOP templates', 'Work instruction templates', 'Procedure templates']
@@ -514,6 +521,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive metrology management platform that automates calibration scheduling, tracks equipment lifecycle, and maintains traceability chains. Includes uncertainty calculation following GUM methodology.',
     integration: 'Integrates with laboratory information systems, calibration management tools, and quality management platforms. Exports data to accreditation systems.',
+    launchUrl: '/tools/metrology-management',
     deliverables: {
       platforms: ['Metrology Management Platform'],
       modules: ['Calibration scheduler module', 'Uncertainty calculator module', 'Traceability tracker module']
@@ -542,6 +550,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive audit readiness platform that collects, validates, and organizes evidence. Uses ML to predict audit questions and generate responses. Tracks readiness scores across multiple standards.',
     integration: 'Integrates with document management systems, quality management platforms, evidence collection tools, and audit management systems. Exports readiness reports to executive dashboards.',
+    launchUrl: '/tools/audit-readiness-platform',
     deliverables: {
       platforms: ['Audit Readiness Platform'],
       modules: ['Evidence collection module', 'Readiness scoring module', 'Response generator module']
@@ -571,6 +580,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive contract management platform that analyzes contracts for risks, tracks obligations, and monitors compliance. Uses AI/NLP to identify risk patterns and generate recommendations.',
     integration: 'Integrates with contract management systems, project management platforms, financial systems, and compliance tools. Exports contract data to reporting and dashboard systems.',
+    launchUrl: '/tools/contract-management-platform',
     deliverables: {
       platforms: ['Contract Management Platform'],
       modules: ['Risk analysis module', 'Obligation tracker module', 'Compliance monitor module']
@@ -599,6 +609,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Template-driven legal document generation system with AI-powered risk analysis. Uses NLP to identify risk patterns, compare documents, and generate recommendations.',
     integration: 'Integrates with contract management systems, document management platforms, and legal review tools. Exports documents to standard formats and legal software.',
+    launchUrl: '/tools/legal-document-generation',
     deliverables: {
       modules: ['Document generator module', 'Risk analyzer module', 'Comparison engine module'],
       templates: ['NDA templates', 'MSA templates', 'SOW templates', 'License agreement templates']
@@ -627,6 +638,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'AI-powered risk analysis engine that evaluates contracts for risks, predicts disputes using ML models, and assesses liability exposure. Generates actionable mitigation recommendations.',
     integration: 'Integrates with contract management systems, vendor management platforms, and risk management tools. Exports risk assessments to procurement and compliance systems.',
+    launchUrl: '/tools/contract-risk-analysis',
     deliverables: {
       modules: ['Risk scoring module', 'Dispute predictor module', 'Liability assessor module']
     }
@@ -655,6 +667,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive RMF requirements management platform that tracks controls from identification through authorization. Includes automated BOE planning and traceability documentation.',
     integration: 'Integrates with eMASS, Xacta, document management systems, and evidence collection tools. Exports traceability data to RMF platforms.',
+    launchUrl: '/tools/rmf-requirements-management',
     deliverables: {
       platforms: ['RMF Requirements Management Platform'],
       modules: ['Requirements tracker module', 'BOE generator module', 'Traceability module']
@@ -683,6 +696,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Security architecture management platform that creates and validates security baselines. Includes automated review workflows and compliance checking against NIST 800-53.',
     integration: 'Integrates with RMF platforms, security tools, and architecture documentation systems. Exports baselines to security management platforms.',
+    launchUrl: '/tools/security-architecture',
     deliverables: {
       modules: ['Baseline manager module', 'Architecture reviewer module', 'Compliance validator module']
     }
@@ -710,6 +724,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Comprehensive vulnerability management platform that integrates with major scanning tools, analyzes CVEs, and tracks remediation. Includes compliance validation and risk scoring.',
     integration: 'Integrates with HBSS, EVSS, Nessus, Qualys, STIG scanners, and ticketing systems. Exports vulnerability data to RMF platforms and SIEMs.',
+    launchUrl: '/tools/vulnerability-compliance',
     deliverables: {
       platforms: ['Vulnerability Management Platform'],
       modules: ['CVE analyzer module', 'Scanner integration module', 'Remediation tracker module']
@@ -738,6 +753,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Template-driven security documentation platform that generates CDRLs, work instructions, and integration plans. Includes version control and automated approval workflows.',
     integration: 'Integrates with document management systems, RMF platforms, and CDRL tracking systems. Exports documents to standard formats.',
+    launchUrl: '/tools/security-documentation',
     deliverables: {
       modules: ['CDRL generator module', 'Work instruction module', 'Document manager module'],
       templates: ['CDRL templates', 'Work instruction templates', 'Integration plan templates']
@@ -766,6 +782,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Team leadership platform that tracks performance, identifies skill gaps, and supports professional development. Includes workload analysis and development planning tools.',
     integration: 'Integrates with HR systems, learning management platforms, and project management tools. Exports performance data to HR and leadership dashboards.',
+    launchUrl: '/tools/cybersecurity-team-leadership',
     deliverables: {
       platforms: ['Team Leadership Platform'],
       modules: ['Performance tracker module', 'Development planner module', 'Workload analyzer module']
@@ -795,6 +812,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'STIG compliance validation platform that scans systems, identifies gaps, and generates remediation playbooks. Integrates with STIG Generator for automated playbook creation.',
     integration: 'Integrates with STIG Generator, vulnerability scanners, configuration management tools, and RMF platforms. Exports compliance data to security management systems.',
+    launchUrl: '/tools/stig-compliance-validation',
     deliverables: {
       modules: ['STIG validator module', 'Playbook generator module', 'Compliance scorer module']
     }
@@ -822,6 +840,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Evidence collection platform that automates gathering, validates quality using ML, and organizes evidence by control. Includes gap analysis and package generation.',
     integration: 'Integrates with document management systems, configuration management tools, log aggregation systems, and RMF platforms. Exports evidence packages to assessment tools.',
+    launchUrl: '/tools/evidence-collection',
     deliverables: {
       modules: ['Evidence collector module', 'Quality validator module', 'Package generator module']
     }
@@ -849,6 +868,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'RMF artifact generation platform that creates compliant documentation from system data. Includes quality validation, completeness checking, and automated formatting.',
     integration: 'Integrates with eMASS, Xacta, document management systems, and RMF platforms. Exports artifacts to standard DoD formats.',
+    launchUrl: '/tools/rmf-artifacts',
     deliverables: {
       modules: ['SSP generator module', 'RAR generator module', 'POA&M generator module', 'CONMON generator module'],
       templates: ['SSP templates', 'RAR templates', 'POA&M templates', 'CONMON templates']
@@ -878,6 +898,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'ML-powered ticket routing platform that analyzes tickets, routes to appropriate engineers, and generates solutions. Includes SLA tracking and performance analytics.',
     integration: 'Integrates with ticketing systems (Jira, ServiceNow), knowledge bases, and support tools. Provides REST API for custom integrations.',
+    launchUrl: '/tools/ticket-routing-platform',
     deliverables: {
       platforms: ['Ticket Routing Platform'],
       modules: ['Routing engine module', 'Solution generator module', 'Analytics module']
@@ -906,6 +927,7 @@ const tools: Tool[] = [
     ],
     technicalDetails: 'Knowledge base platform with AI-powered search, Q&A capabilities, and automated article generation. Includes quality scoring and usage analytics.',
     integration: 'Integrates with ticketing systems, documentation platforms, and support tools. Provides search API for custom applications.',
+    launchUrl: '/tools/knowledge-base-automation',
     deliverables: {
       platforms: ['Knowledge Base Platform'],
       modules: ['Article generator module', 'Search engine module', 'Q&A module']
@@ -1477,6 +1499,25 @@ export default function ShowcasePage() {
                     {/* Expandable Content */}
                     {isExpanded && (
                       <div className="px-6 pb-6 border-t border-neutral-200 pt-6 space-y-6">
+                        {/* Use Tool Button - Show for available tools with launchUrl */}
+                        {tool.status === 'available' && tool.launchUrl && (
+                          <div className="mb-4 pb-4 border-b border-neutral-200">
+                            <a
+                              href={tool.launchUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-primary inline-flex items-center gap-2 w-full sm:w-auto justify-center"
+                            >
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              Use Tool
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </a>
+                          </div>
+                        )}
                         <div>
                           <h4 className="text-body-sm font-semibold text-neutral-900 mb-3 uppercase tracking-wide">
                             Key Features
