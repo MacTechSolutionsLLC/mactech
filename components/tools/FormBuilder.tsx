@@ -113,7 +113,7 @@ export function FormField({
 
 interface FormBuilderProps {
   children: ReactNode
-  onSubmit?: (e: React.FormEvent) => void
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>
   submitLabel?: string
   isLoading?: boolean
 }
