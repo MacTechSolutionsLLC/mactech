@@ -1,16 +1,15 @@
 'use client'
 
-import { use } from 'react'
 import Link from 'next/link'
 import ToolLayout from '@/components/tools/ToolLayout'
 import { getToolComponent } from '@/components/tools/toolRegistry'
 
 interface ToolPageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function ToolPage({ params }: ToolPageProps) {
-  const { id } = use(params)
+  const { id } = params
   const ToolComponent = getToolComponent(id)
 
   if (!ToolComponent) {
