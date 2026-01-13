@@ -7,7 +7,12 @@ import { validateInput } from '@/platforms/shared/validation'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const data = validateInput(riskAnalysisSchema, body)
+    const validated = validateInput(riskAnalysisSchema, body)
+    // Ensure analysisType has a default value
+    const data = {
+      ...validated,
+      analysisType: validated.analysisType || 'full',
+    }
     const analysis = await riskAnalysisService.analyzeRisk(data)
     return NextResponse.json({ success: true, data: analysis }, { status: 201 })
   } catch (error) {
