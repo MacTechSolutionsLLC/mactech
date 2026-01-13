@@ -1,39 +1,77 @@
 import { RMFRequirement, BOEPlan, RMFTraceability, RMFMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('rmf-management')
 
 export class RMFManagementService {
-  private requirements: Map<string, RMFRequirement> = new Map()
-  private boePlans: Map<string, BOEPlan[]> = new Map()
-  private traceability: Map<string, RMFTraceability[]> = new Map()
-
   async createRequirement(data: Omit<RMFRequirement, 'id' | 'createdAt' | 'updatedAt'>): Promise<RMFRequirement> {
     logger.info('Creating RMF requirement', { controlId: data.controlId, systemId: data.systemId })
 
-    const requirement: RMFRequirement = {
-      ...data,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const requirement = await prisma.rMFRequirement.create({
+      data: {
+        systemId: data.systemId,
+        controlId: data.controlId,
+        title: data.title,
+        implementationStatus: data.implementationStatus,
+        traceabilityId: data.traceabilityId || null,
+      },
+    })
 
-    this.requirements.set(requirement.id, requirement)
-    return requirement
+    return {
+      id: requirement.id,
+      systemId: requirement.systemId,
+      controlId: requirement.controlId,
+      title: requirement.title,
+      description: '', // Would come from metadata or control library
+      implementationStatus: requirement.implementationStatus as any,
+      traceabilityId: requirement.traceabilityId || undefined,
+      createdAt: requirement.createdAt.toISOString(),
+      updatedAt: requirement.updatedAt.toISOString(),
+    }
   }
 
   async getRequirement(id: string): Promise<RMFRequirement> {
-    const requirement = this.requirements.get(id)
+    const requirement = await prisma.rMFRequirement.findUnique({
+      where: { id },
+    })
+
     if (!requirement) {
       throw new NotFoundError('RMF Requirement', id)
     }
-    return requirement
+
+    return {
+      id: requirement.id,
+      systemId: requirement.systemId,
+      controlId: requirement.controlId,
+      title: requirement.title,
+      description: '', // Would come from metadata or control library
+      implementationStatus: requirement.implementationStatus as any,
+      traceabilityId: requirement.traceabilityId || undefined,
+      createdAt: requirement.createdAt.toISOString(),
+      updatedAt: requirement.updatedAt.toISOString(),
+    }
   }
 
   async listRequirements(systemId?: string): Promise<RMFRequirement[]> {
-    const all = Array.from(this.requirements.values())
-    return systemId ? all.filter(r => r.systemId === systemId) : all
+    const where = systemId ? { systemId } : {}
+    const requirements = await prisma.rMFRequirement.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return requirements.map(r => ({
+      id: r.id,
+      systemId: r.systemId,
+      controlId: r.controlId,
+      title: r.title,
+      description: '', // Would come from metadata or control library
+      implementationStatus: r.implementationStatus as any,
+      traceabilityId: r.traceabilityId || undefined,
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+    }))
   }
 
   async generateBOEPlan(requirementId: string): Promise<BOEPlan> {
@@ -41,23 +79,27 @@ export class RMFManagementService {
     
     logger.info('Generating BOE plan', { requirementId })
 
-    const boePlan: BOEPlan = {
-      id: crypto.randomUUID(),
-      systemId: requirement.systemId,
-      controlId: requirement.controlId,
-      evidenceType: 'Configuration Documentation',
+    const boePlan = await prisma.bOEPlan.create({
+      data: {
+        systemId: requirement.systemId,
+        controlId: requirement.controlId,
+        evidenceType: 'Configuration Documentation',
+        status: 'pending',
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+    })
+
+    return {
+      id: boePlan.id,
+      systemId: boePlan.systemId,
+      controlId: boePlan.controlId,
+      evidenceType: boePlan.evidenceType,
       evidenceDescription: `Evidence for ${requirement.title}`,
       collectionMethod: 'Automated collection from system',
       responsibleParty: 'System Administrator',
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'pending',
+      dueDate: boePlan.dueDate.toISOString(),
+      status: boePlan.status as any,
     }
-
-    const plans = this.boePlans.get(requirement.systemId) || []
-    plans.push(boePlan)
-    this.boePlans.set(requirement.systemId, plans)
-
-    return boePlan
   }
 
   async getTraceability(systemId: string): Promise<RMFTraceability[]> {
@@ -81,18 +123,32 @@ export class RMFManagementService {
   async adjudicateControl(requirementId: string, status: RMFRequirement['implementationStatus']): Promise<RMFRequirement> {
     const requirement = await this.getRequirement(requirementId)
     
-    requirement.implementationStatus = status
-    requirement.updatedAt = new Date().toISOString()
-    this.requirements.set(requirementId, requirement)
+    const updated = await prisma.rMFRequirement.update({
+      where: { id: requirementId },
+      data: {
+        implementationStatus: status,
+      },
+    })
 
     logger.info('Control adjudicated', { requirementId, status })
-    return requirement
+    
+    return {
+      id: updated.id,
+      systemId: updated.systemId,
+      controlId: updated.controlId,
+      title: updated.title,
+      description: '', // Would come from metadata
+      implementationStatus: updated.implementationStatus as any,
+      traceabilityId: updated.traceabilityId || undefined,
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+    }
   }
 
   async getMetrics(systemId?: string): Promise<RMFMetrics> {
     const requirements = systemId 
       ? await this.listRequirements(systemId)
-      : Array.from(this.requirements.values())
+      : await this.listRequirements()
 
     return {
       totalRequirements: requirements.length,

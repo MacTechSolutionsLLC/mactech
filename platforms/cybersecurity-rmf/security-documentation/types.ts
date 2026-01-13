@@ -14,6 +14,7 @@ export type SecurityDocument = z.infer<typeof documentGenerationSchema> & {
   status: 'draft' | 'review' | 'approved' | 'delivered'
   format: 'word' | 'pdf' | 'html'
   content: string
+  systemName?: string
   createdAt: string
   updatedAt: string
   approvedBy?: string

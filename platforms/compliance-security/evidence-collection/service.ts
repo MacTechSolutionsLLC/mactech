@@ -1,40 +1,84 @@
 import { Evidence, EvidencePackage, EvidenceGap, EvidenceMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('evidence-collection')
 
 export class EvidenceCollectionService {
-  private evidence: Map<string, Evidence> = new Map()
-  private packages: Map<string, EvidencePackage> = new Map()
-
   async collectEvidence(data: Omit<Evidence, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<Evidence> {
     logger.info('Collecting evidence', { controlId: data.controlId, systemId: data.systemId })
 
-    const evidence: Evidence = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'collected',
-      collectedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const evidence = await prisma.evidence.create({
+      data: {
+        controlId: data.controlId,
+        systemId: data.systemId,
+        evidenceType: data.evidenceType,
+        status: 'collected',
+        qualityScore: data.qualityScore || null,
+        collectedAt: new Date(),
+      },
+    })
 
-    this.evidence.set(evidence.id, evidence)
-    return evidence
+    return {
+      id: evidence.id,
+      controlId: evidence.controlId,
+      systemId: evidence.systemId,
+      evidenceType: evidence.evidenceType as any,
+      description: data.description,
+      status: evidence.status as any,
+      qualityScore: evidence.qualityScore || undefined,
+      collectedAt: evidence.collectedAt?.toISOString(),
+      validatedAt: evidence.validatedAt?.toISOString(),
+      createdAt: evidence.createdAt.toISOString(),
+      updatedAt: evidence.updatedAt.toISOString(),
+    }
   }
 
   async getEvidence(id: string): Promise<Evidence> {
-    const evidence = this.evidence.get(id)
+    const evidence = await prisma.evidence.findUnique({
+      where: { id },
+    })
+
     if (!evidence) {
       throw new NotFoundError('Evidence', id)
     }
-    return evidence
+
+    return {
+      id: evidence.id,
+      controlId: evidence.controlId,
+      systemId: evidence.systemId,
+      evidenceType: evidence.evidenceType as any,
+      description: '', // Would come from metadata
+      status: evidence.status as any,
+      qualityScore: evidence.qualityScore || undefined,
+      collectedAt: evidence.collectedAt?.toISOString(),
+      validatedAt: evidence.validatedAt?.toISOString(),
+      createdAt: evidence.createdAt.toISOString(),
+      updatedAt: evidence.updatedAt.toISOString(),
+    }
   }
 
   async listEvidence(systemId?: string): Promise<Evidence[]> {
-    const all = Array.from(this.evidence.values())
-    return systemId ? all.filter(e => e.systemId === systemId) : all
+    const where = systemId ? { systemId } : {}
+    const evidence = await prisma.evidence.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return evidence.map(e => ({
+      id: e.id,
+      controlId: e.controlId,
+      systemId: e.systemId,
+      evidenceType: e.evidenceType as any,
+      description: '', // Would come from metadata
+      status: e.status as any,
+      qualityScore: e.qualityScore || undefined,
+      collectedAt: e.collectedAt?.toISOString(),
+      validatedAt: e.validatedAt?.toISOString(),
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    }))
   }
 
   async validateEvidence(id: string, validatedBy: string): Promise<Evidence> {
@@ -43,15 +87,30 @@ export class EvidenceCollectionService {
     // In production, use ML to validate evidence quality
     const qualityScore = this.calculateQualityScore(evidence)
     
-    evidence.status = qualityScore >= 70 ? 'validated' : 'rejected'
-    evidence.qualityScore = qualityScore
-    evidence.validatedBy = validatedBy
-    evidence.validatedAt = new Date().toISOString()
-    evidence.updatedAt = new Date().toISOString()
-    this.evidence.set(id, evidence)
+    const updated = await prisma.evidence.update({
+      where: { id },
+      data: {
+        status: qualityScore >= 70 ? 'validated' : 'rejected',
+        qualityScore,
+        validatedAt: new Date(),
+      },
+    })
 
     logger.info('Evidence validated', { id, qualityScore })
-    return evidence
+    
+    return {
+      id: updated.id,
+      controlId: updated.controlId,
+      systemId: updated.systemId,
+      evidenceType: updated.evidenceType as any,
+      description: '', // Would come from metadata
+      status: updated.status as any,
+      qualityScore: updated.qualityScore || undefined,
+      collectedAt: updated.collectedAt?.toISOString(),
+      validatedAt: updated.validatedAt?.toISOString(),
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+    }
   }
 
   async identifyGaps(systemId: string, requiredControls: string[]): Promise<EvidenceGap[]> {
@@ -100,14 +159,14 @@ export class EvidenceCollectionService {
       completedAt: validatedEvidence.length > 0 ? new Date().toISOString() : undefined,
     }
 
-    this.packages.set(package_.id, package_)
+    // Store package in database (would need AuditEvidencePackage model)
     return package_
   }
 
   async getMetrics(systemId?: string): Promise<EvidenceMetrics> {
     const allEvidence = systemId 
       ? await this.listEvidence(systemId)
-      : Array.from(this.evidence.values())
+      : await this.listEvidence()
     
     const qualityScores = allEvidence.filter(e => e.qualityScore).map(e => e.qualityScore!)
     const averageScore = qualityScores.length > 0

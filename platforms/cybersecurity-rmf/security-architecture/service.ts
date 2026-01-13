@@ -1,38 +1,71 @@
 import { SecurityBaseline, ArchitectureReview, SecurityArchitectureMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('security-architecture')
 
 export class SecurityArchitectureService {
-  private baselines: Map<string, SecurityBaseline> = new Map()
-  private reviews: Map<string, ArchitectureReview> = new Map()
-
   async createBaseline(data: Omit<SecurityBaseline, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<SecurityBaseline> {
     logger.info('Creating security baseline', { name: data.name })
 
-    const baseline: SecurityBaseline = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const baseline = await prisma.securityBaseline.create({
+      data: {
+        name: data.name,
+        systemType: data.systemType,
+        controls: JSON.stringify(data.controls || []),
+        status: 'draft',
+      },
+    })
 
-    this.baselines.set(baseline.id, baseline)
-    return baseline
+    return {
+      id: baseline.id,
+      name: baseline.name,
+      systemType: baseline.systemType,
+      controls: baseline.controls ? JSON.parse(baseline.controls) : [],
+      status: baseline.status as any,
+      createdAt: baseline.createdAt.toISOString(),
+      updatedAt: baseline.updatedAt.toISOString(),
+      approvedAt: baseline.approvedAt?.toISOString(),
+    }
   }
 
   async getBaseline(id: string): Promise<SecurityBaseline> {
-    const baseline = this.baselines.get(id)
+    const baseline = await prisma.securityBaseline.findUnique({
+      where: { id },
+    })
+
     if (!baseline) {
       throw new NotFoundError('Security Baseline', id)
     }
-    return baseline
+
+    return {
+      id: baseline.id,
+      name: baseline.name,
+      systemType: baseline.systemType,
+      controls: baseline.controls ? JSON.parse(baseline.controls) : [],
+      status: baseline.status as any,
+      createdAt: baseline.createdAt.toISOString(),
+      updatedAt: baseline.updatedAt.toISOString(),
+      approvedAt: baseline.approvedAt?.toISOString(),
+    }
   }
 
   async listBaselines(): Promise<SecurityBaseline[]> {
-    return Array.from(this.baselines.values())
+    const baselines = await prisma.securityBaseline.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return baselines.map(b => ({
+      id: b.id,
+      name: b.name,
+      systemType: b.systemType,
+      controls: b.controls ? JSON.parse(b.controls) : [],
+      status: b.status as any,
+      createdAt: b.createdAt.toISOString(),
+      updatedAt: b.updatedAt.toISOString(),
+      approvedAt: b.approvedAt?.toISOString(),
+    }))
   }
 
   async reviewArchitecture(systemId: string, reviewer: string): Promise<ArchitectureReview> {
@@ -58,7 +91,7 @@ export class SecurityArchitectureService {
       status: 'in-review',
     }
 
-    this.reviews.set(review.id, review)
+    // Store review (would need ArchitectureReview model in Prisma)
     return review
   }
 
@@ -84,16 +117,27 @@ export class SecurityArchitectureService {
   }
 
   async getMetrics(): Promise<SecurityArchitectureMetrics> {
-    const allBaselines = Array.from(this.baselines.values())
+    const allBaselines = await prisma.securityBaseline.findMany()
+    
+    const mappedBaselines = allBaselines.map(b => ({
+      id: b.id,
+      name: b.name,
+      systemType: b.systemType,
+      controls: b.controls ? JSON.parse(b.controls) : [],
+      status: b.status as any,
+      createdAt: b.createdAt.toISOString(),
+      updatedAt: b.updatedAt.toISOString(),
+      approvedAt: b.approvedAt?.toISOString(),
+    }))
     
     return {
-      totalBaselines: allBaselines.length,
-      active: allBaselines.filter(b => b.status === 'active').length,
-      underReview: allBaselines.filter(b => b.status === 'draft').length,
-      averageControlsPerBaseline: allBaselines.length > 0
-        ? allBaselines.reduce((sum, b) => sum + b.controls.length, 0) / allBaselines.length
+      totalBaselines: mappedBaselines.length,
+      active: mappedBaselines.filter(b => b.status === 'active').length,
+      underReview: mappedBaselines.filter(b => b.status === 'draft').length,
+      averageControlsPerBaseline: mappedBaselines.length > 0
+        ? mappedBaselines.reduce((sum, b) => sum + b.controls.length, 0) / mappedBaselines.length
         : 0,
-      bySystemType: this.groupBySystemType(allBaselines),
+      bySystemType: this.groupBySystemType(mappedBaselines),
     }
   }
 

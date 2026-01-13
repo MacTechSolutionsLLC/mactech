@@ -18,6 +18,10 @@ model Deployment {
   storageType   String
   status        String
   systemId      String?
+  vmwareConfig  String?  // JSON
+  networkConfig String?  // JSON
+  compliance    String?  // JSON
+  metadata      String?  // JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   deployedAt    DateTime?
@@ -32,10 +36,39 @@ model SystemHealth {
   systemName    String
   systemType    String
   status        String
+  metrics       String?  // JSON
+  alerts        String?  // JSON
   lastUpdated   DateTime @default(now())
   
   @@index([status])
   @@index([systemType])
+}
+
+model NetworkTopology {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  zones         String   // JSON array
+  requirements  String?  // JSON
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([status])
+}
+
+model FirewallRule {
+  id            String   @id @default(uuid())
+  topologyId    String
+  source        String
+  destination   String
+  port          String
+  protocol      String
+  action        String
+  description   String
+  createdAt     DateTime @default(now())
+  
+  @@index([topologyId])
 }
 
 // Quality Assurance Domain
@@ -61,6 +94,7 @@ model SOP {
   status        String
   content       String
   format        String
+  metadata      String?  // JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   approvedAt    DateTime?
@@ -75,10 +109,56 @@ model MetrologyProject {
   equipmentId   String?
   status        String
   dueDate       DateTime?
+  metadata      String?  // JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
   @@index([equipmentId])
+  @@index([status])
+}
+
+model ComplianceGap {
+  id            String   @id @default(uuid())
+  programId     String
+  requirement   String
+  clause        String
+  currentStatus String
+  remediation   String
+  priority      String?
+  createdAt     DateTime @default(now())
+  
+  @@index([programId])
+}
+
+model AuditReadiness {
+  id            String   @id @default(uuid())
+  systemId      String
+  auditType     String
+  auditDate     DateTime?
+  readinessScore Int
+  readinessLevel String
+  gaps          String   // JSON array
+  strengths     String   // JSON array
+  recommendations String // JSON array
+  metadata      String?  // JSON
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([auditType])
+  @@index([status])
+}
+
+model AuditEvidencePackage {
+  id            String   @id @default(uuid())
+  auditId       String
+  evidence      String   // JSON array
+  status        String
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([auditId])
   @@index([status])
 }
 
@@ -91,6 +171,7 @@ model Contract {
   riskScore     Int?
   startDate     DateTime
   endDate       DateTime?
+  metadata      String?  // JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   signedAt      DateTime?
@@ -99,6 +180,39 @@ model Contract {
   @@index([status])
   @@index([type])
   @@index([expiresAt])
+}
+
+model LegalDocument {
+  id            String   @id @default(uuid())
+  documentType  String
+  title         String
+  parties       String   // JSON array
+  terms         String?  // JSON
+  version       String
+  status        String
+  content       String
+  format        String
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  signedAt      DateTime?
+  
+  @@index([documentType])
+  @@index([status])
+}
+
+model DocumentReview {
+  id            String   @id @default(uuid())
+  documentId    String
+  reviewer      String
+  reviewDate    DateTime @default(now())
+  risks         String   // JSON array
+  status        String
+  createdAt     DateTime @default(now())
+  
+  @@index([documentId])
+  @@index([status])
 }
 
 model ContractObligation {
@@ -150,6 +264,7 @@ model SecurityBaseline {
   id            String   @id @default(uuid())
   name          String
   systemType    String
+  controls      String   // JSON array
   status        String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -159,6 +274,26 @@ model SecurityBaseline {
   @@index([systemType])
 }
 
+model SecurityDocument {
+  id            String   @id @default(uuid())
+  documentType  String
+  systemId      String
+  systemName    String
+  title         String
+  content       String
+  format        String
+  version       String
+  status        String
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([documentType])
+  @@index([status])
+}
+
 model CVEAnalysis {
   id            String   @id @default(uuid())
   softwareName  String
@@ -166,11 +301,27 @@ model CVEAnalysis {
   status        String
   riskLevel     String
   recommendation String
+  cves          String?  // JSON array
   createdAt     DateTime @default(now())
   completedAt   DateTime?
   
   @@index([status])
   @@index([riskLevel])
+}
+
+model VulnerabilityFinding {
+  id            String   @id @default(uuid())
+  scanId        String
+  cveId         String?
+  title         String
+  severity      String
+  status        String
+  remediation   String?
+  createdAt     DateTime @default(now())
+  
+  @@index([scanId])
+  @@index([severity])
+  @@index([status])
 }
 
 model VulnerabilityScan {
@@ -192,6 +343,8 @@ model STIGValidation {
   stigProfile   String
   systemType    String
   status        String
+  results       String?  // JSON
+  remediation   String?  // JSON
   createdAt     DateTime @default(now())
   completedAt   DateTime?
   
@@ -221,8 +374,10 @@ model RMFArtifact {
   artifactType  String
   systemId      String
   systemName    String
+  content       String
   status        String
   qualityScore  Int?
+  metadata      String?  // JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   approvedAt    DateTime?
@@ -288,6 +443,7 @@ model PerformanceReview {
   reviewDate    DateTime @default(now())
   reviewer      String
   overallRating String
+  reviewData    String?  // JSON
   createdAt     DateTime @default(now())
   
   @@index([teamMemberId])

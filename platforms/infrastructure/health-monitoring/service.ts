@@ -1,24 +1,45 @@
 import { SystemHealth, HealthAlert, FailurePrediction, HealthMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('health-monitoring')
 
 export class HealthMonitoringService {
-  private systems: Map<string, SystemHealth> = new Map()
-  private alerts: Map<string, HealthAlert> = new Map()
-  private predictions: Map<string, FailurePrediction> = new Map()
-
   async getSystemHealth(systemId: string): Promise<SystemHealth> {
-    const system = this.systems.get(systemId)
+    const system = await prisma.systemHealth.findUnique({
+      where: { systemId },
+    })
+
     if (!system) {
       throw new NotFoundError('System', systemId)
     }
-    return system
+
+    return {
+      systemId: system.systemId,
+      systemName: system.systemName,
+      systemType: system.systemType as any,
+      status: system.status as any,
+      metrics: system.metrics ? JSON.parse(system.metrics) : undefined,
+      alerts: system.alerts ? JSON.parse(system.alerts) : undefined,
+      lastUpdated: system.lastUpdated.toISOString(),
+    }
   }
 
   async getAllSystems(): Promise<SystemHealth[]> {
-    return Array.from(this.systems.values())
+    const systems = await prisma.systemHealth.findMany({
+      orderBy: { lastUpdated: 'desc' },
+    })
+
+    return systems.map(s => ({
+      systemId: s.systemId,
+      systemName: s.systemName,
+      systemType: s.systemType as any,
+      status: s.status as any,
+      metrics: s.metrics ? JSON.parse(s.metrics) : undefined,
+      alerts: s.alerts ? JSON.parse(s.alerts) : undefined,
+      lastUpdated: s.lastUpdated.toISOString(),
+    }))
   }
 
   async getHealthMetrics(): Promise<HealthMetrics> {
@@ -53,27 +74,31 @@ export class HealthMonitoringService {
   }
 
   async getActiveAlerts(): Promise<HealthAlert[]> {
-    return Array.from(this.alerts.values()).filter(a => !a.resolved)
+    // Alerts would be stored separately or in system health records
+    // For now, return empty array - would need separate Alert model
+    return []
   }
 
   async getPredictions(systemId?: string): Promise<FailurePrediction[]> {
-    const allPredictions = Array.from(this.predictions.values())
-    if (systemId) {
-      return allPredictions.filter(p => p.systemId === systemId)
-    }
-    return allPredictions
+    // Predictions would be stored separately
+    // For now, return empty array - would need separate Prediction model
+    return []
   }
 
   // Mock data initialization for demo
-  initializeMockData() {
+  async initializeMockData() {
+    // Check if mock data already exists
+    const existing = await prisma.systemHealth.findFirst()
+    if (existing) return
+
     // Add some mock systems
-    const mockSystems: SystemHealth[] = [
+    const mockSystems = [
       {
         systemId: 'sys-001',
         systemName: 'Production VxRail Cluster',
         systemType: 'hyperconverged',
         status: 'healthy',
-        metrics: {
+        metrics: JSON.stringify({
           cpu: 45,
           memory: 62,
           disk: {
@@ -81,56 +106,45 @@ export class HealthMonitoringService {
             iops: 1500,
             latency: 2.5,
           },
-        },
-        lastUpdated: new Date().toISOString(),
+        }),
+        alerts: null,
       },
       {
         systemId: 'sys-002',
         systemName: 'Unity Storage Array',
         systemType: 'storage-array',
         status: 'degraded',
-        metrics: {
+        metrics: JSON.stringify({
           disk: {
             usage: 92,
             iops: 2100,
             latency: 5.2,
           },
-        },
-        lastUpdated: new Date().toISOString(),
+        }),
+        alerts: JSON.stringify([{
+          id: 'alert-001',
+          systemId: 'sys-002',
+          severity: 'warning',
+          title: 'High Disk Usage',
+          message: 'Disk usage is at 92%, approaching capacity threshold',
+          timestamp: new Date().toISOString(),
+          acknowledged: false,
+          resolved: false,
+        }]),
       },
     ]
 
-    mockSystems.forEach(system => {
-      this.systems.set(system.systemId, system)
-    })
-
-    // Add mock alerts
-    const mockAlert: HealthAlert = {
-      id: 'alert-001',
-      systemId: 'sys-002',
-      severity: 'warning',
-      title: 'High Disk Usage',
-      message: 'Disk usage is at 92%, approaching capacity threshold',
-      timestamp: new Date().toISOString(),
-      acknowledged: false,
-      resolved: false,
+    for (const system of mockSystems) {
+      await prisma.systemHealth.create({
+        data: system,
+      })
     }
-    this.alerts.set(mockAlert.id, mockAlert)
-
-    // Add mock predictions
-    const mockPrediction: FailurePrediction = {
-      systemId: 'sys-002',
-      component: 'Storage Controller',
-      predictedFailureDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      confidence: 0.75,
-      riskFactors: ['High disk usage', 'Elevated latency', 'Age: 4.5 years'],
-      recommendedActions: ['Schedule maintenance', 'Review capacity planning', 'Consider upgrade'],
-    }
-    this.predictions.set('pred-001', mockPrediction)
   }
 }
 
 export const healthMonitoringService = new HealthMonitoringService()
-// Initialize mock data for demo
-healthMonitoringService.initializeMockData()
+// Initialize mock data for demo (async)
+healthMonitoringService.initializeMockData().catch(err => {
+  logger.error('Failed to initialize mock data', err)
+})
 

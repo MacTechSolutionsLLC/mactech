@@ -1,58 +1,119 @@
 import { KnowledgeArticle, KnowledgeSearchResult, KnowledgeMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('knowledge-base')
 
 export class KnowledgeBaseService {
-  private articles: Map<string, KnowledgeArticle> = new Map()
-
   async createArticle(data: Omit<KnowledgeArticle, 'id' | 'views' | 'helpful' | 'notHelpful' | 'status' | 'createdAt' | 'updatedAt'>): Promise<KnowledgeArticle> {
     logger.info('Creating knowledge article', { title: data.title })
 
-    const article: KnowledgeArticle = {
-      ...data,
-      id: crypto.randomUUID(),
-      views: 0,
-      helpful: 0,
-      notHelpful: 0,
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const article = await prisma.knowledgeArticle.create({
+      data: {
+        title: data.title,
+        content: data.content,
+        category: data.category || null,
+        status: 'draft',
+      },
+    })
 
-    this.articles.set(article.id, article)
-    return article
+    return {
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      category: article.category || undefined,
+      views: article.views,
+      helpful: article.helpful,
+      notHelpful: article.notHelpful,
+      status: article.status as any,
+      createdAt: article.createdAt.toISOString(),
+      updatedAt: article.updatedAt.toISOString(),
+      lastViewedAt: article.lastViewedAt?.toISOString(),
+    }
   }
 
   async getArticle(id: string): Promise<KnowledgeArticle> {
-    const article = this.articles.get(id)
+    const article = await prisma.knowledgeArticle.findUnique({
+      where: { id },
+    })
+
     if (!article) {
       throw new NotFoundError('Knowledge Article', id)
     }
     
     // Track view
-    article.views += 1
-    article.lastViewedAt = new Date().toISOString()
-    article.updatedAt = new Date().toISOString()
-    this.articles.set(id, article)
+    const updated = await prisma.knowledgeArticle.update({
+      where: { id },
+      data: {
+        views: { increment: 1 },
+        lastViewedAt: new Date(),
+      },
+    })
     
-    return article
+    return {
+      id: updated.id,
+      title: updated.title,
+      content: updated.content,
+      category: updated.category || undefined,
+      views: updated.views,
+      helpful: updated.helpful,
+      notHelpful: updated.notHelpful,
+      status: updated.status as any,
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+      lastViewedAt: updated.lastViewedAt?.toISOString(),
+    }
   }
 
   async listArticles(): Promise<KnowledgeArticle[]> {
-    return Array.from(this.articles.values())
+    const articles = await prisma.knowledgeArticle.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return articles.map(a => this.mapToKnowledgeArticle(a))
+  }
+
+  private mapToKnowledgeArticle(dbArticle: any): KnowledgeArticle {
+    return {
+      id: dbArticle.id,
+      title: dbArticle.title,
+      content: dbArticle.content,
+      category: dbArticle.category || undefined,
+      views: dbArticle.views,
+      helpful: dbArticle.helpful,
+      notHelpful: dbArticle.notHelpful,
+      status: dbArticle.status as any,
+      createdAt: dbArticle.createdAt.toISOString(),
+      updatedAt: dbArticle.updatedAt.toISOString(),
+      lastViewedAt: dbArticle.lastViewedAt?.toISOString(),
+    }
   }
 
   async search(query: string): Promise<KnowledgeSearchResult[]> {
     logger.info('Searching knowledge base', { query })
 
-    const allArticles = Array.from(this.articles.values())
+    const allArticles = await prisma.knowledgeArticle.findMany({
+      where: { status: 'published' },
+    })
     const queryLower = query.toLowerCase()
     const queryTerms = queryLower.split(/\s+/)
 
-    const results: KnowledgeSearchResult[] = allArticles
-      .filter(article => article.status === 'published')
+    const mappedArticles = allArticles.map(a => ({
+      id: a.id,
+      title: a.title,
+      content: a.content,
+      category: a.category || undefined,
+      views: a.views,
+      helpful: a.helpful,
+      notHelpful: a.notHelpful,
+      status: a.status as any,
+      createdAt: a.createdAt.toISOString(),
+      updatedAt: a.updatedAt.toISOString(),
+      lastViewedAt: a.lastViewedAt?.toISOString(),
+    }))
+
+    const results: KnowledgeSearchResult[] = mappedArticles
       .map(article => {
         const contentLower = (article.title + ' ' + article.content).toLowerCase()
         const matchedTerms = queryTerms.filter(term => contentLower.includes(term))
@@ -104,7 +165,9 @@ export class KnowledgeBaseService {
   }
 
   async getMetrics(): Promise<KnowledgeMetrics> {
-    const allArticles = Array.from(this.articles.values())
+    const allArticles = await prisma.knowledgeArticle.findMany({
+      where: { status: 'published' },
+    })
     const published = allArticles.filter(a => a.status === 'published')
     
     const totalViews = allArticles.reduce((sum, a) => sum + a.views, 0)
@@ -123,7 +186,7 @@ export class KnowledgeBaseService {
       published: published.length,
       totalViews,
       averageHelpfulness,
-      byCategory: this.groupByCategory(allArticles),
+      byCategory: this.groupByCategory(allArticles.map(a => this.mapToKnowledgeArticle(a))),
       topArticles,
     }
   }

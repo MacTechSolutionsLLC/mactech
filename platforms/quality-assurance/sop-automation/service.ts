@@ -1,43 +1,68 @@
 import { SOP, SOPValidationResult, SOPMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError, ValidationError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('sop-automation')
 
 export class SOPAutomationService {
-  private sops: Map<string, SOP> = new Map()
-
   async generateSOP(data: Omit<SOP, 'id' | 'version' | 'status' | 'createdAt' | 'updatedAt' | 'content' | 'format'>): Promise<SOP> {
     logger.info('Generating SOP', { title: data.title })
 
     // Generate SOP content from requirements
     const content = this.generateContent(data)
 
-    const sop: SOP = {
-      ...data,
-      id: crypto.randomUUID(),
-      version: '1.0',
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      content,
-      format: 'html',
-    }
+    const sop = await prisma.sOP.create({
+      data: {
+        title: data.title,
+        requirement: data.requirement,
+        standard: data.standard || null,
+        version: '1.0',
+        status: 'draft',
+        content,
+        format: 'html',
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
 
-    this.sops.set(sop.id, sop)
-    return sop
+    return this.mapToSOP(sop)
   }
 
   async getSOP(id: string): Promise<SOP> {
-    const sop = this.sops.get(id)
+    const sop = await prisma.sOP.findUnique({
+      where: { id },
+    })
+
     if (!sop) {
       throw new NotFoundError('SOP', id)
     }
-    return sop
+
+    return this.mapToSOP(sop)
   }
 
   async listSOPs(): Promise<SOP[]> {
-    return Array.from(this.sops.values())
+    const sops = await prisma.sOP.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return sops.map(s => this.mapToSOP(s))
+  }
+
+  private mapToSOP(dbSOP: any): SOP {
+    return {
+      id: dbSOP.id,
+      title: dbSOP.title,
+      requirement: dbSOP.requirement,
+      standard: dbSOP.standard || undefined,
+      version: dbSOP.version,
+      status: dbSOP.status as any,
+      content: dbSOP.content,
+      format: dbSOP.format as any,
+      metadata: dbSOP.metadata ? JSON.parse(dbSOP.metadata) : undefined,
+      createdAt: dbSOP.createdAt.toISOString(),
+      updatedAt: dbSOP.updatedAt.toISOString(),
+      approvedAt: dbSOP.approvedAt?.toISOString(),
+    }
   }
 
   async validateSOP(id: string): Promise<SOPValidationResult> {
@@ -95,26 +120,29 @@ export class SOPAutomationService {
       throw new ValidationError('SOP validation failed', { errors: validation.errors })
     }
 
-    sop.status = 'approved'
-    sop.approvedBy = approvedBy
-    sop.approvedAt = new Date().toISOString()
-    sop.updatedAt = new Date().toISOString()
-    this.sops.set(id, sop)
+    const updated = await prisma.sOP.update({
+      where: { id },
+      data: {
+        status: 'approved',
+        approvedAt: new Date(),
+      },
+    })
 
     logger.info('SOP approved', { id, approvedBy })
-    return sop
+    return this.mapToSOP(updated)
   }
 
   async getMetrics(): Promise<SOPMetrics> {
-    const allSOPs = Array.from(this.sops.values())
+    const allSOPs = await prisma.sOP.findMany()
+    const mappedSOPs = allSOPs.map(s => this.mapToSOP(s))
     
     return {
-      total: allSOPs.length,
-      draft: allSOPs.filter(s => s.status === 'draft').length,
-      approved: allSOPs.filter(s => s.status === 'approved').length,
-      inReview: allSOPs.filter(s => s.status === 'review').length,
+      total: mappedSOPs.length,
+      draft: mappedSOPs.filter(s => s.status === 'draft').length,
+      approved: mappedSOPs.filter(s => s.status === 'approved').length,
+      inReview: mappedSOPs.filter(s => s.status === 'review').length,
       averageReviewTime: 5.2, // days - would calculate from historical data
-      byStandard: this.groupByStandard(allSOPs),
+      byStandard: this.groupByStandard(mappedSOPs),
     }
   }
 

@@ -1,13 +1,11 @@
 import { RiskAnalysis, RiskFactor, DisputePrediction, LiabilityAssessment, RiskMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('risk-analysis')
 
 export class RiskAnalysisService {
-  private analyses: Map<string, RiskAnalysis> = new Map()
-  private predictions: Map<string, DisputePrediction> = new Map()
-
   async analyzeRisk(data: Omit<RiskAnalysis, 'id' | 'overallRisk' | 'riskScore' | 'riskFactors' | 'recommendations' | 'createdAt'>): Promise<RiskAnalysis> {
     logger.info('Analyzing contract risk', { contractId: data.contractId })
 
@@ -49,6 +47,10 @@ export class RiskAnalysisService {
       'Add performance metrics and SLAs',
     ]
 
+    // Store analysis - Note: RiskAnalysis model doesn't exist in schema yet
+    // For now, store in contract metadata or create separate storage
+    // In production, would create a RiskAnalysis model in Prisma schema
+
     const analysis: RiskAnalysis = {
       ...data,
       id: crypto.randomUUID(),
@@ -60,16 +62,44 @@ export class RiskAnalysisService {
       completedAt: new Date().toISOString(),
     }
 
-    this.analyses.set(analysis.id, analysis)
+    // Store risk score in contract metadata
+    if (data.contractId) {
+      try {
+        await prisma.contract.update({
+          where: { id: data.contractId },
+          data: {
+            riskScore,
+            metadata: JSON.stringify({ riskAnalysis: analysis }),
+          },
+        })
+      } catch (error) {
+        logger.warn('Could not update contract with risk analysis', { contractId: data.contractId, error })
+      }
+    }
+
     return analysis
   }
 
   async getAnalysis(id: string): Promise<RiskAnalysis> {
-    const analysis = this.analyses.get(id)
-    if (!analysis) {
-      throw new NotFoundError('Risk Analysis', id)
+    // Try to find in contract metadata
+    const contracts = await prisma.contract.findMany({
+      where: {
+        metadata: {
+          contains: id,
+        },
+      },
+    })
+
+    for (const contract of contracts) {
+      if (contract.metadata) {
+        const metadata = JSON.parse(contract.metadata)
+        if (metadata.riskAnalysis && metadata.riskAnalysis.id === id) {
+          return metadata.riskAnalysis
+        }
+      }
     }
-    return analysis
+
+    throw new NotFoundError('Risk Analysis', id)
   }
 
   async predictDispute(contractId: string): Promise<DisputePrediction> {
@@ -103,7 +133,6 @@ export class RiskAnalysisService {
       recommendedActions,
     }
 
-    this.predictions.set(contractId, prediction)
     return prediction
   }
 
@@ -129,19 +158,27 @@ export class RiskAnalysisService {
   }
 
   async getMetrics(): Promise<RiskMetrics> {
-    const allAnalyses = Array.from(this.analyses.values())
-    const allPredictions = Array.from(this.predictions.values())
+    // Get risk scores from contracts
+    const contracts = await prisma.contract.findMany({
+      where: { riskScore: { not: null } },
+    })
+
+    const riskScores = contracts.map(c => c.riskScore!).filter(Boolean)
+    const criticalRisk = contracts.filter(c => (c.riskScore || 0) >= 75).length
+    const highRisk = contracts.filter(c => (c.riskScore || 0) >= 50 && (c.riskScore || 0) < 75).length
+    const mediumRisk = contracts.filter(c => (c.riskScore || 0) >= 25 && (c.riskScore || 0) < 50).length
+    const lowRisk = contracts.filter(c => (c.riskScore || 0) < 25).length
     
     return {
-      totalAnalyses: allAnalyses.length,
-      criticalRisk: allAnalyses.filter(a => a.overallRisk === 'critical').length,
-      highRisk: allAnalyses.filter(a => a.overallRisk === 'high').length,
-      mediumRisk: allAnalyses.filter(a => a.overallRisk === 'medium').length,
-      lowRisk: allAnalyses.filter(a => a.overallRisk === 'low').length,
-      averageRiskScore: allAnalyses.length > 0
-        ? allAnalyses.reduce((sum, a) => sum + a.riskScore, 0) / allAnalyses.length
+      totalAnalyses: contracts.length,
+      criticalRisk,
+      highRisk,
+      mediumRisk,
+      lowRisk,
+      averageRiskScore: riskScores.length > 0
+        ? riskScores.reduce((sum, s) => sum + s, 0) / riskScores.length
         : 0,
-      predictedDisputes: allPredictions.filter(p => p.probability > 0.5).length,
+      predictedDisputes: 0, // Would calculate from predictions
     }
   }
 

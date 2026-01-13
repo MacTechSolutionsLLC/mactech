@@ -1,41 +1,87 @@
 import { RMFArtifact, ArtifactValidationResult, RMFArtifactMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('rmf-artifacts')
 
 export class RMFArtifactService {
-  private artifacts: Map<string, RMFArtifact> = new Map()
-
   async generateArtifact(data: Omit<RMFArtifact, 'id' | 'status' | 'content' | 'createdAt' | 'updatedAt'>): Promise<RMFArtifact> {
     logger.info('Generating RMF artifact', { artifactType: data.artifactType, systemId: data.systemId })
 
     const content = this.generateContent(data)
 
-    const artifact: RMFArtifact = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'draft',
-      content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const artifact = await prisma.rMFArtifact.create({
+      data: {
+        artifactType: data.artifactType,
+        systemId: data.systemId,
+        systemName: data.systemName,
+        status: 'draft',
+        content,
+        qualityScore: data.qualityScore || null,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
 
-    this.artifacts.set(artifact.id, artifact)
-    return artifact
+    return {
+      id: artifact.id,
+      artifactType: artifact.artifactType as any,
+      systemId: artifact.systemId,
+      systemName: artifact.systemName,
+      status: artifact.status as any,
+      content: artifact.content,
+      qualityScore: artifact.qualityScore || undefined,
+      metadata: artifact.metadata ? JSON.parse(artifact.metadata) : undefined,
+      createdAt: artifact.createdAt.toISOString(),
+      updatedAt: artifact.updatedAt.toISOString(),
+      approvedAt: artifact.approvedAt?.toISOString(),
+    }
   }
 
   async getArtifact(id: string): Promise<RMFArtifact> {
-    const artifact = this.artifacts.get(id)
+    const artifact = await prisma.rMFArtifact.findUnique({
+      where: { id },
+    })
+
     if (!artifact) {
       throw new NotFoundError('RMF Artifact', id)
     }
-    return artifact
+
+    return {
+      id: artifact.id,
+      artifactType: artifact.artifactType as any,
+      systemId: artifact.systemId,
+      systemName: artifact.systemName,
+      status: artifact.status as any,
+      content: artifact.content,
+      qualityScore: artifact.qualityScore || undefined,
+      metadata: artifact.metadata ? JSON.parse(artifact.metadata) : undefined,
+      createdAt: artifact.createdAt.toISOString(),
+      updatedAt: artifact.updatedAt.toISOString(),
+      approvedAt: artifact.approvedAt?.toISOString(),
+    }
   }
 
   async listArtifacts(systemId?: string): Promise<RMFArtifact[]> {
-    const all = Array.from(this.artifacts.values())
-    return systemId ? all.filter(a => a.systemId === systemId) : all
+    const where = systemId ? { systemId } : {}
+    const artifacts = await prisma.rMFArtifact.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return artifacts.map(a => ({
+      id: a.id,
+      artifactType: a.artifactType as any,
+      systemId: a.systemId,
+      systemName: a.systemName,
+      status: a.status as any,
+      content: a.content,
+      qualityScore: a.qualityScore || undefined,
+      metadata: a.metadata ? JSON.parse(a.metadata) : undefined,
+      createdAt: a.createdAt.toISOString(),
+      updatedAt: a.updatedAt.toISOString(),
+      approvedAt: a.approvedAt?.toISOString(),
+    }))
   }
 
   async validateArtifact(id: string): Promise<ArtifactValidationResult> {
@@ -65,8 +111,11 @@ export class RMFArtifactService {
     const qualityScore = this.calculateQualityScore(artifact)
     const completenessScore = this.calculateCompleteness(artifact)
 
-    artifact.qualityScore = qualityScore
-    this.artifacts.set(id, artifact)
+    // Update artifact quality score in database
+    await prisma.rMFArtifact.update({
+      where: { id },
+      data: { qualityScore },
+    })
 
     const recommendations = [
       'Add more detail to security control implementations',
@@ -85,7 +134,7 @@ export class RMFArtifactService {
   }
 
   async getMetrics(): Promise<RMFArtifactMetrics> {
-    const allArtifacts = Array.from(this.artifacts.values())
+    const allArtifacts = await prisma.rMFArtifact.findMany()
     const qualityScores = allArtifacts.filter(a => a.qualityScore).map(a => a.qualityScore!)
     const averageScore = qualityScores.length > 0
       ? qualityScores.reduce((sum, s) => sum + s, 0) / qualityScores.length
@@ -97,7 +146,19 @@ export class RMFArtifactService {
       approved: allArtifacts.filter(a => a.status === 'approved').length,
       delivered: allArtifacts.filter(a => a.status === 'delivered').length,
       averageQualityScore: averageScore,
-      byType: this.groupByType(allArtifacts),
+      byType: this.groupByType(allArtifacts.map(a => ({
+        id: a.id,
+        artifactType: a.artifactType as any,
+        systemId: a.systemId,
+        systemName: a.systemName,
+        status: a.status as any,
+        content: a.content,
+        qualityScore: a.qualityScore || undefined,
+        metadata: a.metadata ? JSON.parse(a.metadata) : undefined,
+        createdAt: a.createdAt.toISOString(),
+        updatedAt: a.updatedAt.toISOString(),
+        approvedAt: a.approvedAt?.toISOString(),
+      }))),
     }
   }
 

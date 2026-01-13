@@ -21,7 +21,9 @@ export const systemHealthSchema = z.object({
   lastUpdated: z.string().datetime(),
 })
 
-export type SystemHealth = z.infer<typeof systemHealthSchema>
+export type SystemHealth = z.infer<typeof systemHealthSchema> & {
+  alerts?: HealthAlert[]
+}
 
 export interface HealthAlert {
   id: string

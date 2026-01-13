@@ -1,47 +1,109 @@
 import { MetrologyProject, CalibrationSchedule, MeasurementUncertainty, TraceabilityChain, MetrologyMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('metrology-management')
 
 export class MetrologyManagementService {
-  private projects: Map<string, MetrologyProject> = new Map()
-  private schedules: Map<string, CalibrationSchedule> = new Map()
-  private equipment: Map<string, any> = new Map()
-
   async createProject(data: Omit<MetrologyProject, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<MetrologyProject> {
     logger.info('Creating metrology project', { projectName: data.projectName })
 
-    const project: MetrologyProject = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const metadataToStore = {
+      ...data.metadata,
+      calibrationType: data.calibrationType,
+      priority: data.priority,
+      equipmentName: data.equipmentName,
     }
+    
+    const project = await prisma.metrologyProject.create({
+      data: {
+        projectName: data.projectName,
+        equipmentId: data.equipmentId || null,
+        status: 'pending',
+        dueDate: data.dueDate ? new Date(data.dueDate) : null,
+        metadata: JSON.stringify(metadataToStore),
+      },
+    })
 
-    this.projects.set(project.id, project)
-    return project
+    const metadata = JSON.parse(project.metadata || '{}')
+    return {
+      id: project.id,
+      projectName: project.projectName,
+      equipmentId: project.equipmentId || undefined,
+      calibrationType: metadata.calibrationType || 'General',
+      priority: metadata.priority || 'medium' as const,
+      equipmentName: metadata.equipmentName,
+      status: project.status as any,
+      dueDate: project.dueDate?.toISOString(),
+      metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
+    }
   }
 
   async getProject(id: string): Promise<MetrologyProject> {
-    const project = this.projects.get(id)
+    const project = await prisma.metrologyProject.findUnique({
+      where: { id },
+    })
+
     if (!project) {
       throw new NotFoundError('Metrology Project', id)
     }
-    return project
+
+    const metadata = project.metadata ? JSON.parse(project.metadata) : {}
+    return {
+      id: project.id,
+      projectName: project.projectName,
+      equipmentId: project.equipmentId || undefined,
+      calibrationType: metadata.calibrationType || 'General',
+      priority: metadata.priority || 'medium' as const,
+      equipmentName: metadata.equipmentName,
+      status: project.status as any,
+      dueDate: project.dueDate?.toISOString(),
+      metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
+    }
   }
 
   async listProjects(): Promise<MetrologyProject[]> {
-    return Array.from(this.projects.values())
+    const projects = await prisma.metrologyProject.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return projects.map(p => {
+      const metadata = p.metadata ? JSON.parse(p.metadata) : {}
+      return {
+        id: p.id,
+        projectName: p.projectName,
+        equipmentId: p.equipmentId || undefined,
+        calibrationType: metadata.calibrationType || 'General',
+        priority: metadata.priority || 'medium' as const,
+        equipmentName: metadata.equipmentName,
+        status: p.status as any,
+        dueDate: p.dueDate?.toISOString(),
+        metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
+      }
+    })
   }
 
   async getCalibrationSchedule(equipmentId?: string): Promise<CalibrationSchedule[]> {
+    // Note: CalibrationSchedule is not persisted in database - return mock data for now
+    // In production, this would query a dedicated CalibrationSchedule model
     if (equipmentId) {
-      const schedule = this.schedules.get(equipmentId)
-      return schedule ? [schedule] : []
+      return [{
+        equipmentId,
+        equipmentName: 'Equipment ' + equipmentId,
+        lastCalibration: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        nextCalibration: new Date(Date.now() + 335 * 24 * 60 * 60 * 1000).toISOString(),
+        interval: 365,
+        status: 'current' as const,
+      }]
     }
-    return Array.from(this.schedules.values())
+    return []
   }
 
   async calculateUncertainty(measurementId: string, value: number): Promise<MeasurementUncertainty> {
@@ -94,16 +156,32 @@ export class MetrologyManagementService {
   }
 
   async getMetrics(): Promise<MetrologyMetrics> {
-    const allProjects = Array.from(this.projects.values())
+    const allProjects = await prisma.metrologyProject.findMany()
+    const mappedProjects = allProjects.map(p => {
+      const metadata = p.metadata ? JSON.parse(p.metadata) : {}
+      return {
+        id: p.id,
+        projectName: p.projectName,
+        equipmentId: p.equipmentId || undefined,
+        calibrationType: metadata.calibrationType || 'General',
+        priority: metadata.priority || 'medium' as const,
+        equipmentName: metadata.equipmentName,
+        status: p.status as any,
+        dueDate: p.dueDate?.toISOString(),
+        metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
+      }
+    })
     
     return {
-      totalProjects: allProjects.length,
-      pending: allProjects.filter(p => p.status === 'pending').length,
-      inProgress: allProjects.filter(p => p.status === 'in-progress').length,
-      completed: allProjects.filter(p => p.status === 'completed').length,
-      overdue: allProjects.filter(p => p.status === 'overdue').length,
+      totalProjects: mappedProjects.length,
+      pending: mappedProjects.filter(p => p.status === 'pending').length,
+      inProgress: mappedProjects.filter(p => p.status === 'in-progress').length,
+      completed: mappedProjects.filter(p => p.status === 'completed').length,
+      overdue: mappedProjects.filter(p => p.status === 'overdue').length,
       averageCompletionTime: 7.5, // days
-      byPriority: this.groupByPriority(allProjects),
+      byPriority: this.groupByPriority(mappedProjects),
     }
   }
 

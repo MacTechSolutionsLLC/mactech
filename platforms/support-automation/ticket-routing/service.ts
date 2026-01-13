@@ -1,40 +1,93 @@
 import { Ticket, TicketRouting, TicketSolution, TicketMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('ticket-routing')
 
 export class TicketRoutingService {
-  private tickets: Map<string, Ticket> = new Map()
-  private knowledgeBase: Map<string, string> = new Map()
-
   async createTicket(data: Omit<Ticket, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'tags' | 'relatedTickets'>): Promise<Ticket> {
     logger.info('Creating new ticket', { title: data.title })
 
-    const ticket: Ticket = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const ticket = await prisma.ticket.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        category: data.category || null,
+        priority: data.priority,
+        status: 'open',
+        requester: data.requester,
+        assignedTo: data.assignedTo || null,
+        slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
+      },
+    })
+
+    return {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      category: ticket.category || undefined,
+      priority: ticket.priority as any,
+      status: ticket.status as any,
+      requester: ticket.requester,
+      assignedTo: ticket.assignedTo || undefined,
       tags: [],
       relatedTickets: [],
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      resolvedAt: ticket.resolvedAt?.toISOString(),
+      slaDeadline: ticket.slaDeadline?.toISOString(),
     }
-
-    this.tickets.set(ticket.id, ticket)
-    return ticket
   }
 
   async getTicket(id: string): Promise<Ticket> {
-    const ticket = this.tickets.get(id)
+    const ticket = await prisma.ticket.findUnique({
+      where: { id },
+    })
+
     if (!ticket) {
       throw new NotFoundError('Ticket', id)
     }
-    return ticket
+
+    return {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      category: ticket.category || undefined,
+      priority: ticket.priority as any,
+      status: ticket.status as any,
+      requester: ticket.requester,
+      assignedTo: ticket.assignedTo || undefined,
+      tags: [],
+      relatedTickets: [],
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      resolvedAt: ticket.resolvedAt?.toISOString(),
+      slaDeadline: ticket.slaDeadline?.toISOString(),
+    }
   }
 
   async listTickets(): Promise<Ticket[]> {
-    return Array.from(this.tickets.values())
+    const tickets = await prisma.ticket.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return tickets.map(t => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      category: t.category || undefined,
+      priority: t.priority as any,
+      status: t.status as any,
+      requester: t.requester,
+      assignedTo: t.assignedTo || undefined,
+      tags: [],
+      relatedTickets: [],
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+      resolvedAt: t.resolvedAt?.toISOString(),
+      slaDeadline: t.slaDeadline?.toISOString(),
+    }))
   }
 
   async routeTicket(ticketId: string): Promise<TicketRouting> {
@@ -52,18 +105,35 @@ export class TicketRoutingService {
     ]
 
     // Update ticket
-    ticket.status = 'assigned'
-    ticket.assignedTo = suggestedEngineer
-    ticket.assignedAt = new Date().toISOString()
-    ticket.updatedAt = new Date().toISOString()
-    this.tickets.set(ticketId, ticket)
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        status: 'assigned',
+        assignedTo: suggestedEngineer,
+      },
+    })
 
     return {
       ticketId,
       suggestedEngineer,
       confidence,
       reasoning,
-      estimatedResolutionTime: this.estimateResolutionTime(ticket),
+      estimatedResolutionTime: this.estimateResolutionTime({
+        id: updated.id,
+        title: updated.title,
+        description: updated.description,
+        category: updated.category || undefined,
+        priority: updated.priority as any,
+        status: updated.status as any,
+        requester: updated.requester,
+        assignedTo: updated.assignedTo || undefined,
+        tags: [],
+        relatedTickets: [],
+        createdAt: updated.createdAt.toISOString(),
+        updatedAt: updated.updatedAt.toISOString(),
+        resolvedAt: updated.resolvedAt?.toISOString(),
+        slaDeadline: updated.slaDeadline?.toISOString(),
+      }),
     }
   }
 
@@ -93,20 +163,36 @@ export class TicketRoutingService {
   async resolveTicket(ticketId: string, resolution: string): Promise<Ticket> {
     const ticket = await this.getTicket(ticketId)
     
-    ticket.status = 'resolved'
-    ticket.resolvedAt = new Date().toISOString()
-    ticket.updatedAt = new Date().toISOString()
-    this.tickets.set(ticketId, ticket)
-
-    // Add to knowledge base
-    this.knowledgeBase.set(ticketId, resolution)
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        status: 'resolved',
+        resolvedAt: new Date(),
+      },
+    })
     
     logger.info('Ticket resolved', { ticketId })
-    return ticket
+    
+    return {
+      id: updated.id,
+      title: updated.title,
+      description: updated.description,
+      category: updated.category || undefined,
+      priority: updated.priority as any,
+      status: updated.status as any,
+      requester: updated.requester,
+      assignedTo: updated.assignedTo || undefined,
+      tags: [],
+      relatedTickets: [],
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+      resolvedAt: updated.resolvedAt?.toISOString(),
+      slaDeadline: updated.slaDeadline?.toISOString(),
+    }
   }
 
   async getMetrics(): Promise<TicketMetrics> {
-    const allTickets = Array.from(this.tickets.values())
+    const allTickets = await prisma.ticket.findMany()
     
     return {
       total: allTickets.length,

@@ -26,6 +26,7 @@ export interface PerformanceReview {
   areasForImprovement: string[]
   goals: Array<{ goal: string; targetDate: string }>
   overallRating: 'exceeds' | 'meets' | 'below' | 'needs-improvement'
+  reviewData?: Record<string, any>
 }
 
 export interface TeamMetrics {

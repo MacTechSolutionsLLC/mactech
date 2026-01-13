@@ -23,6 +23,7 @@ export const deploymentSchema = z.object({
 export type Deployment = z.infer<typeof deploymentSchema> & {
   id: string
   status: 'draft' | 'validating' | 'deploying' | 'deployed' | 'failed'
+  systemId?: string
   createdAt: string
   updatedAt: string
   deployedAt?: string

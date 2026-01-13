@@ -1,43 +1,93 @@
 import { SecurityDocument, WorkInstruction, DocumentMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('security-documentation')
 
 export class SecurityDocumentationService {
-  private documents: Map<string, SecurityDocument> = new Map()
-  private workInstructions: Map<string, WorkInstruction> = new Map()
-
   async generateDocument(data: Omit<SecurityDocument, 'id' | 'version' | 'status' | 'format' | 'content' | 'createdAt' | 'updatedAt'>): Promise<SecurityDocument> {
     logger.info('Generating security document', { documentType: data.documentType, title: data.title })
 
     const content = this.generateContent(data)
 
-    const document: SecurityDocument = {
-      ...data,
-      id: crypto.randomUUID(),
-      version: '1.0',
-      status: 'draft',
-      format: 'html',
-      content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const document = await prisma.securityDocument.create({
+      data: {
+        documentType: data.documentType,
+        systemId: data.systemId || '',
+        systemName: data.systemId || 'Unknown System', // Use systemId as fallback
+        title: data.title,
+        content,
+        format: 'html',
+        version: '1.0',
+        status: 'draft',
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
 
-    this.documents.set(document.id, document)
-    return document
+    return {
+      id: document.id,
+      documentType: document.documentType as any,
+      systemId: document.systemId,
+      systemName: document.systemName,
+      title: document.title,
+      content: document.content,
+      format: document.format as any,
+      version: document.version,
+      status: document.status as any,
+      metadata: document.metadata ? JSON.parse(document.metadata) : undefined,
+      createdAt: document.createdAt.toISOString(),
+      updatedAt: document.updatedAt.toISOString(),
+      approvedAt: document.approvedAt?.toISOString(),
+    }
   }
 
   async getDocument(id: string): Promise<SecurityDocument> {
-    const document = this.documents.get(id)
+    const document = await prisma.securityDocument.findUnique({
+      where: { id },
+    })
+
     if (!document) {
       throw new NotFoundError('Security Document', id)
     }
-    return document
+
+    return {
+      id: document.id,
+      documentType: document.documentType as any,
+      systemId: document.systemId,
+      systemName: document.systemName || undefined,
+      title: document.title,
+      content: document.content,
+      format: document.format as any,
+      version: document.version,
+      status: document.status as any,
+      metadata: document.metadata ? JSON.parse(document.metadata) : undefined,
+      createdAt: document.createdAt.toISOString(),
+      updatedAt: document.updatedAt.toISOString(),
+      approvedAt: document.approvedAt?.toISOString(),
+    }
   }
 
   async listDocuments(): Promise<SecurityDocument[]> {
-    return Array.from(this.documents.values())
+    const documents = await prisma.securityDocument.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return documents.map(d => ({
+      id: d.id,
+      documentType: d.documentType as any,
+      systemId: d.systemId,
+      systemName: d.systemName || undefined,
+      title: d.title,
+      content: d.content,
+      format: d.format as any,
+      version: d.version,
+      status: d.status as any,
+      metadata: d.metadata ? JSON.parse(d.metadata) : undefined,
+      createdAt: d.createdAt.toISOString(),
+      updatedAt: d.updatedAt.toISOString(),
+      approvedAt: d.approvedAt?.toISOString(),
+    }))
   }
 
   async generateWorkInstruction(process: string, title: string): Promise<WorkInstruction> {
@@ -57,32 +107,61 @@ export class SecurityDocumentationService {
       status: 'draft',
     }
 
-    this.workInstructions.set(instruction.id, instruction)
+    // Store work instruction (would need WorkInstruction model in Prisma)
     return instruction
   }
 
   async approveDocument(id: string, approvedBy: string): Promise<SecurityDocument> {
-    const document = await this.getDocument(id)
-    
-    document.status = 'approved'
-    document.approvedBy = approvedBy
-    document.approvedAt = new Date().toISOString()
-    document.updatedAt = new Date().toISOString()
-    this.documents.set(id, document)
+    const updated = await prisma.securityDocument.update({
+      where: { id },
+      data: {
+        status: 'approved',
+        approvedAt: new Date(),
+      },
+    })
 
     logger.info('Document approved', { id, approvedBy })
-    return document
+    return {
+      id: updated.id,
+      documentType: updated.documentType as any,
+      systemId: updated.systemId,
+      systemName: updated.systemName,
+      title: updated.title,
+      content: updated.content,
+      format: updated.format as any,
+      version: updated.version,
+      status: updated.status as any,
+      metadata: updated.metadata ? JSON.parse(updated.metadata) : undefined,
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+      approvedAt: updated.approvedAt?.toISOString(),
+    }
   }
 
   async getMetrics(): Promise<DocumentMetrics> {
-    const allDocuments = Array.from(this.documents.values())
+    const allDocuments = await prisma.securityDocument.findMany()
+    const mappedDocuments = allDocuments.map(d => ({
+      id: d.id,
+      documentType: d.documentType as any,
+      systemId: d.systemId,
+      systemName: d.systemName || undefined,
+      title: d.title,
+      content: d.content,
+      format: d.format as any,
+      version: d.version,
+      status: d.status as any,
+      metadata: d.metadata ? JSON.parse(d.metadata) : undefined,
+      createdAt: d.createdAt.toISOString(),
+      updatedAt: d.updatedAt.toISOString(),
+      approvedAt: d.approvedAt?.toISOString(),
+    }))
     
     return {
-      total: allDocuments.length,
-      draft: allDocuments.filter(d => d.status === 'draft').length,
-      approved: allDocuments.filter(d => d.status === 'approved').length,
-      delivered: allDocuments.filter(d => d.status === 'delivered').length,
-      byType: this.groupByType(allDocuments),
+      total: mappedDocuments.length,
+      draft: mappedDocuments.filter(d => d.status === 'draft').length,
+      approved: mappedDocuments.filter(d => d.status === 'approved').length,
+      delivered: mappedDocuments.filter(d => d.status === 'delivered').length,
+      byType: this.groupByType(mappedDocuments),
       averageReviewTime: 3.5, // days
     }
   }

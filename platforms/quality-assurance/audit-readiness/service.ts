@@ -1,14 +1,11 @@
 import { AuditReadiness, AuditGap, AuditEvidencePackage, AuditResponse, AuditReadinessMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('audit-readiness')
 
 export class AuditReadinessService {
-  private audits: Map<string, AuditReadiness> = new Map()
-  private evidencePackages: Map<string, AuditEvidencePackage> = new Map()
-  private responses: Map<string, AuditResponse> = new Map()
-
   async createAuditReadiness(data: Omit<AuditReadiness, 'id' | 'readinessScore' | 'readinessLevel' | 'gaps' | 'strengths' | 'recommendations' | 'createdAt' | 'updatedAt'>): Promise<AuditReadiness> {
     logger.info('Creating audit readiness assessment', { systemId: data.systemId, auditType: data.auditType })
 
@@ -17,36 +14,62 @@ export class AuditReadinessService {
     const readinessScore = this.calculateReadinessScore(gaps)
     const readinessLevel = this.determineReadinessLevel(readinessScore)
 
-    const audit: AuditReadiness = {
-      ...data,
-      id: crypto.randomUUID(),
-      readinessScore,
-      readinessLevel,
-      gaps,
-      strengths: [
-        'Strong quality management system',
-        'Experienced team',
-        'Good documentation practices',
-      ],
-      recommendations: [
-        'Address critical gaps before audit',
-        'Complete evidence collection',
-        'Schedule pre-audit review',
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const strengths = [
+      'Strong quality management system',
+      'Experienced team',
+      'Good documentation practices',
+    ]
+    const recommendations = [
+      'Address critical gaps before audit',
+      'Complete evidence collection',
+      'Schedule pre-audit review',
+    ]
 
-    this.audits.set(audit.id, audit)
-    return audit
+    const audit = await prisma.auditReadiness.create({
+      data: {
+        systemId: data.systemId,
+        auditType: data.auditType,
+        auditDate: data.auditDate ? new Date(data.auditDate) : null,
+        readinessScore,
+        readinessLevel,
+        gaps: JSON.stringify(gaps),
+        strengths: JSON.stringify(strengths),
+        recommendations: JSON.stringify(recommendations),
+        status: 'draft',
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
+
+    return this.mapToAuditReadiness(audit)
+  }
+
+  private mapToAuditReadiness(audit: any): AuditReadiness {
+    return {
+      id: audit.id,
+      systemId: audit.systemId,
+      auditType: audit.auditType as any,
+      auditDate: audit.auditDate?.toISOString(),
+      readinessScore: audit.readinessScore,
+      readinessLevel: audit.readinessLevel as any,
+      gaps: JSON.parse(audit.gaps),
+      strengths: JSON.parse(audit.strengths),
+      recommendations: JSON.parse(audit.recommendations),
+      metadata: audit.metadata ? JSON.parse(audit.metadata) : undefined,
+      createdAt: audit.createdAt.toISOString(),
+      updatedAt: audit.updatedAt.toISOString(),
+    }
   }
 
   async getAuditReadiness(id: string): Promise<AuditReadiness> {
-    const audit = this.audits.get(id)
+    const audit = await prisma.auditReadiness.findUnique({
+      where: { id },
+    })
+
     if (!audit) {
       throw new NotFoundError('Audit Readiness', id)
     }
-    return audit
+
+    return this.mapToAuditReadiness(audit)
   }
 
   async identifyGaps(systemId: string, auditType: string): Promise<AuditGap[]> {
@@ -85,17 +108,25 @@ export class AuditReadinessService {
               gap.evidenceStatus === 'partial' ? 'partial' as const : 'missing' as const,
     }))
 
-    const package_: AuditEvidencePackage = {
-      id: crypto.randomUUID(),
-      auditId,
-      evidence,
-      status: evidence.every(e => e.status === 'complete') ? 'complete' : 'draft',
-      createdAt: new Date().toISOString(),
-      completedAt: evidence.every(e => e.status === 'complete') ? new Date().toISOString() : undefined,
-    }
+    const status = evidence.every(e => e.status === 'complete') ? 'complete' : 'draft'
+    
+    const package_ = await prisma.auditEvidencePackage.create({
+      data: {
+        auditId,
+        evidence: JSON.stringify(evidence),
+        status,
+        completedAt: status === 'complete' ? new Date() : null,
+      },
+    })
 
-    this.evidencePackages.set(package_.id, package_)
-    return package_
+    return {
+      id: package_.id,
+      auditId: package_.auditId,
+      evidence: JSON.parse(package_.evidence),
+      status: package_.status as any,
+      createdAt: package_.createdAt.toISOString(),
+      completedAt: package_.completedAt?.toISOString(),
+    }
   }
 
   async generateResponse(auditId: string, question: string): Promise<AuditResponse> {
@@ -114,25 +145,26 @@ export class AuditReadinessService {
       createdAt: new Date().toISOString(),
     }
 
-    this.responses.set(response.id, response)
+    // Note: AuditResponse is not persisted in database - it's generated on-demand
     return response
   }
 
   async getMetrics(): Promise<AuditReadinessMetrics> {
-    const allAudits = Array.from(this.audits.values())
+    const allAudits = await prisma.auditReadiness.findMany()
+    const mappedAudits = allAudits.map(a => this.mapToAuditReadiness(a))
     
     return {
-      totalAudits: allAudits.length,
-      ready: allAudits.filter(a => a.readinessLevel === 'ready').length,
-      needsWork: allAudits.filter(a => a.readinessLevel === 'needs-work').length,
-      notReady: allAudits.filter(a => a.readinessLevel === 'not-ready').length,
-      averageReadinessScore: allAudits.length > 0
-        ? allAudits.reduce((sum, a) => sum + a.readinessScore, 0) / allAudits.length
+      totalAudits: mappedAudits.length,
+      ready: mappedAudits.filter(a => a.readinessLevel === 'ready').length,
+      needsWork: mappedAudits.filter(a => a.readinessLevel === 'needs-work').length,
+      notReady: mappedAudits.filter(a => a.readinessLevel === 'not-ready').length,
+      averageReadinessScore: mappedAudits.length > 0
+        ? mappedAudits.reduce((sum, a) => sum + a.readinessScore, 0) / mappedAudits.length
         : 0,
-      criticalGaps: allAudits.reduce((sum, a) => 
+      criticalGaps: mappedAudits.reduce((sum, a) => 
         sum + a.gaps.filter(g => g.priority === 'critical').length, 0
       ),
-      byAuditType: this.groupByAuditType(allAudits),
+      byAuditType: this.groupByAuditType(mappedAudits),
     }
   }
 

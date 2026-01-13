@@ -124,3 +124,448 @@ model GovernmentContractDiscovery {
   place_of_performance String? // Location/place of performance
 }
 
+// ============================================================================
+// MacTech Platforms Database Schema
+// Models for automation platforms and tools
+// ============================================================================
+
+// Infrastructure Domain
+model Deployment {
+  id            String   @id @default(uuid())
+  name          String
+  architecture  String
+  storageType   String
+  status        String
+  systemId      String?
+  vmwareConfig  String?  // JSON
+  networkConfig String?  // JSON
+  compliance    String?  // JSON
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deployedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+model SystemHealth {
+  id            String   @id @default(uuid())
+  systemId      String   @unique
+  systemName    String
+  systemType    String
+  status        String
+  metrics       String?  // JSON
+  alerts        String?  // JSON
+  lastUpdated   DateTime @default(now())
+  
+  @@index([status])
+  @@index([systemType])
+}
+
+model NetworkTopology {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  zones         String   // JSON array
+  requirements  String?  // JSON
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([status])
+}
+
+model FirewallRule {
+  id            String   @id @default(uuid())
+  topologyId    String
+  source        String
+  destination   String
+  port          String
+  protocol      String
+  action        String
+  description   String
+  createdAt     DateTime @default(now())
+  
+  @@index([topologyId])
+}
+
+// Quality Assurance Domain
+model ISOComplianceProgram {
+  id            String   @id @default(uuid())
+  organizationId String
+  standard      String
+  scope         String
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([organizationId])
+  @@index([standard])
+}
+
+model SOP {
+  id            String   @id @default(uuid())
+  title         String
+  requirement   String
+  standard      String?
+  version       String
+  status        String
+  content       String
+  format        String
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([status])
+  @@index([standard])
+}
+
+model MetrologyProject {
+  id            String   @id @default(uuid())
+  projectName   String
+  equipmentId   String?
+  status        String
+  dueDate       DateTime?
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([equipmentId])
+  @@index([status])
+}
+
+model ComplianceGap {
+  id            String   @id @default(uuid())
+  programId     String
+  requirement   String
+  clause        String
+  currentStatus String
+  remediation   String
+  priority      String?
+  createdAt     DateTime @default(now())
+  
+  @@index([programId])
+}
+
+model AuditReadiness {
+  id            String   @id @default(uuid())
+  systemId      String
+  auditType     String
+  auditDate     DateTime?
+  readinessScore Int
+  readinessLevel String
+  gaps          String   // JSON array
+  strengths     String   // JSON array
+  recommendations String // JSON array
+  metadata      String?  // JSON
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([auditType])
+  @@index([status])
+}
+
+model AuditEvidencePackage {
+  id            String   @id @default(uuid())
+  auditId       String
+  evidence      String   // JSON array
+  status        String
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([auditId])
+  @@index([status])
+}
+
+// Legal & Contracts Domain
+model Contract {
+  id            String   @id @default(uuid())
+  title         String
+  type          String
+  status        String
+  riskScore     Int?
+  startDate     DateTime
+  endDate       DateTime?
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  signedAt      DateTime?
+  expiresAt     DateTime?
+  
+  @@index([status])
+  @@index([type])
+  @@index([expiresAt])
+}
+
+model LegalDocument {
+  id            String   @id @default(uuid())
+  documentType  String
+  title         String
+  parties       String   // JSON array
+  terms         String?  // JSON
+  version       String
+  status        String
+  content       String
+  format        String
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  signedAt      DateTime?
+  
+  @@index([documentType])
+  @@index([status])
+}
+
+model DocumentReview {
+  id            String   @id @default(uuid())
+  documentId    String
+  reviewer      String
+  reviewDate    DateTime @default(now())
+  risks         String   // JSON array
+  status        String
+  createdAt     DateTime @default(now())
+  
+  @@index([documentId])
+  @@index([status])
+}
+
+model ContractObligation {
+  id            String   @id @default(uuid())
+  contractId    String
+  description   String
+  type          String
+  dueDate       DateTime
+  status        String
+  completedAt   DateTime?
+  
+  @@index([contractId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Cybersecurity & RMF Domain
+model RMFRequirement {
+  id                String   @id @default(uuid())
+  systemId          String
+  controlId         String
+  title             String
+  implementationStatus String
+  traceabilityId    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([implementationStatus])
+}
+
+model BOEPlan {
+  id            String   @id @default(uuid())
+  systemId      String
+  controlId     String
+  evidenceType  String
+  status        String
+  dueDate       DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([status])
+}
+
+model SecurityBaseline {
+  id            String   @id @default(uuid())
+  name          String
+  systemType    String
+  controls      String   // JSON array
+  status        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([status])
+  @@index([systemType])
+}
+
+model SecurityDocument {
+  id            String   @id @default(uuid())
+  documentType  String
+  systemId      String
+  systemName    String
+  title         String
+  content       String
+  format        String
+  version       String
+  status        String
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([documentType])
+  @@index([status])
+}
+
+model CVEAnalysis {
+  id            String   @id @default(uuid())
+  softwareName  String
+  version       String
+  status        String
+  riskLevel     String
+  recommendation String
+  cves          String?  // JSON array
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([status])
+  @@index([riskLevel])
+}
+
+model VulnerabilityFinding {
+  id            String   @id @default(uuid())
+  scanId        String
+  cveId         String?
+  title         String
+  severity      String
+  status        String
+  remediation   String?
+  createdAt     DateTime @default(now())
+  
+  @@index([scanId])
+  @@index([severity])
+  @@index([status])
+}
+
+model VulnerabilityScan {
+  id            String   @id @default(uuid())
+  systemId      String
+  scanType      String
+  status        String
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+// Compliance & Security Domain
+model STIGValidation {
+  id            String   @id @default(uuid())
+  systemId      String
+  stigProfile   String
+  systemType    String
+  status        String
+  results       String?  // JSON
+  remediation   String?  // JSON
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  
+  @@index([systemId])
+  @@index([status])
+}
+
+model Evidence {
+  id            String   @id @default(uuid())
+  controlId     String
+  systemId      String
+  evidenceType  String
+  status        String
+  qualityScore  Int?
+  collectedAt   DateTime?
+  validatedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([systemId])
+  @@index([controlId])
+  @@index([status])
+}
+
+model RMFArtifact {
+  id            String   @id @default(uuid())
+  artifactType  String
+  systemId      String
+  systemName    String
+  content       String
+  status        String
+  qualityScore  Int?
+  metadata      String?  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  approvedAt    DateTime?
+  
+  @@index([systemId])
+  @@index([artifactType])
+  @@index([status])
+}
+
+// Support Automation Domain
+model Ticket {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  category      String?
+  priority      String
+  status        String
+  requester     String
+  assignedTo    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  resolvedAt    DateTime?
+  slaDeadline   DateTime?
+  
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+}
+
+model KnowledgeArticle {
+  id            String   @id @default(uuid())
+  title         String
+  content       String
+  category      String?
+  status        String
+  views         Int       @default(0)
+  helpful       Int       @default(0)
+  notHelpful    Int       @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastViewedAt  DateTime?
+  
+  @@index([status])
+  @@index([category])
+}
+
+// Team Leadership Domain
+model TeamMember {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  role              String
+  performanceScore  Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([role])
+}
+
+model PerformanceReview {
+  id            String   @id @default(uuid())
+  teamMemberId String
+  reviewDate    DateTime @default(now())
+  reviewer      String
+  overallRating String
+  reviewData    String?  // JSON
+  createdAt     DateTime @default(now())
+  
+  @@index([teamMemberId])
+  @@index([reviewDate])
+}
+

@@ -1,6 +1,7 @@
 import { Deployment, DeploymentTemplate, DeploymentValidationResult } from './types'
 import { createLogger } from '../../shared/logger'
 import { ValidationError, NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('data-center-deployment')
 
@@ -37,33 +38,62 @@ const templates: DeploymentTemplate[] = [
 ]
 
 export class DataCenterDeploymentService {
-  private deployments: Map<string, Deployment> = new Map()
-
   async createDeployment(data: Omit<Deployment, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<Deployment> {
     logger.info('Creating new deployment', { name: data.name })
 
-    const deployment: Deployment = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const deployment = await prisma.deployment.create({
+      data: {
+        name: data.name,
+        architecture: data.architecture,
+        storageType: data.storageType,
+        status: 'draft',
+        systemId: data.systemId || null,
+        vmwareConfig: data.vmwareConfig ? JSON.stringify(data.vmwareConfig) : null,
+        networkConfig: data.networkConfig ? JSON.stringify(data.networkConfig) : null,
+        compliance: data.compliance ? JSON.stringify(data.compliance) : null,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
 
-    this.deployments.set(deployment.id, deployment)
-    return deployment
+    return this.mapToDeployment(deployment)
   }
 
   async getDeployment(id: string): Promise<Deployment> {
-    const deployment = this.deployments.get(id)
+    const deployment = await prisma.deployment.findUnique({
+      where: { id },
+    })
+
     if (!deployment) {
       throw new NotFoundError('Deployment', id)
     }
-    return deployment
+
+    return this.mapToDeployment(deployment)
   }
 
   async listDeployments(): Promise<Deployment[]> {
-    return Array.from(this.deployments.values())
+    const deployments = await prisma.deployment.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return deployments.map(d => this.mapToDeployment(d))
+  }
+
+  private mapToDeployment(dbDeployment: any): Deployment {
+    return {
+      id: dbDeployment.id,
+      name: dbDeployment.name,
+      architecture: dbDeployment.architecture as any,
+      storageType: dbDeployment.storageType as any,
+      status: dbDeployment.status as any,
+      systemId: dbDeployment.systemId || undefined,
+      vmwareConfig: dbDeployment.vmwareConfig ? JSON.parse(dbDeployment.vmwareConfig) : undefined,
+      networkConfig: dbDeployment.networkConfig ? JSON.parse(dbDeployment.networkConfig) : undefined,
+      compliance: dbDeployment.compliance ? JSON.parse(dbDeployment.compliance) : undefined,
+      metadata: dbDeployment.metadata ? JSON.parse(dbDeployment.metadata) : undefined,
+      createdAt: dbDeployment.createdAt.toISOString(),
+      updatedAt: dbDeployment.updatedAt.toISOString(),
+      deployedAt: dbDeployment.deployedAt?.toISOString(),
+    }
   }
 
   async validateDeployment(id: string): Promise<DeploymentValidationResult> {
@@ -118,21 +148,27 @@ export class DataCenterDeploymentService {
 
     logger.info('Deploying infrastructure', { id })
 
-    // Update status
-    deployment.status = 'deploying'
-    deployment.updatedAt = new Date().toISOString()
-    this.deployments.set(id, deployment)
+    // Update status to deploying
+    const updated = await prisma.deployment.update({
+      where: { id },
+      data: {
+        status: 'deploying',
+      },
+    })
 
     // In production, this would trigger actual deployment automation
-    // For now, simulate deployment
-    setTimeout(() => {
-      deployment.status = 'deployed'
-      deployment.deployedAt = new Date().toISOString()
-      deployment.updatedAt = new Date().toISOString()
-      this.deployments.set(id, deployment)
+    // For now, simulate deployment completion
+    setTimeout(async () => {
+      await prisma.deployment.update({
+        where: { id },
+        data: {
+          status: 'deployed',
+          deployedAt: new Date(),
+        },
+      })
     }, 2000)
 
-    return deployment
+    return this.mapToDeployment(updated)
   }
 
   async getTemplates(): Promise<DeploymentTemplate[]> {

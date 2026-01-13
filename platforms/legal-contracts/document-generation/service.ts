@@ -1,43 +1,70 @@
 import { LegalDocument, DocumentReview, DocumentComparison, LegalDocumentMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('document-generation')
 
 export class LegalDocumentGenerationService {
-  private documents: Map<string, LegalDocument> = new Map()
-  private reviews: Map<string, DocumentReview> = new Map()
-
   async generateDocument(data: Omit<LegalDocument, 'id' | 'version' | 'status' | 'content' | 'format' | 'createdAt' | 'updatedAt'>): Promise<LegalDocument> {
     logger.info('Generating legal document', { documentType: data.documentType, title: data.title })
 
     const content = this.generateContent(data)
 
-    const document: LegalDocument = {
-      ...data,
-      id: crypto.randomUUID(),
-      version: '1.0',
-      status: 'draft',
-      content,
-      format: 'html',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const document = await prisma.legalDocument.create({
+      data: {
+        documentType: data.documentType,
+        title: data.title,
+        parties: JSON.stringify(data.parties),
+        terms: data.terms ? JSON.stringify(data.terms) : null,
+        version: '1.0',
+        status: 'draft',
+        content,
+        format: 'html',
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    })
 
-    this.documents.set(document.id, document)
-    return document
+    return this.mapToDocument(document)
   }
 
   async getDocument(id: string): Promise<LegalDocument> {
-    const document = this.documents.get(id)
+    const document = await prisma.legalDocument.findUnique({
+      where: { id },
+    })
+
     if (!document) {
       throw new NotFoundError('Legal Document', id)
     }
-    return document
+
+    return this.mapToDocument(document)
   }
 
   async listDocuments(): Promise<LegalDocument[]> {
-    return Array.from(this.documents.values())
+    const documents = await prisma.legalDocument.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return documents.map(d => this.mapToDocument(d))
+  }
+
+  private mapToDocument(dbDoc: any): LegalDocument {
+    return {
+      id: dbDoc.id,
+      documentType: dbDoc.documentType as any,
+      title: dbDoc.title,
+      parties: JSON.parse(dbDoc.parties),
+      terms: dbDoc.terms ? JSON.parse(dbDoc.terms) : undefined,
+      version: dbDoc.version,
+      status: dbDoc.status as any,
+      content: dbDoc.content,
+      format: dbDoc.format as any,
+      metadata: dbDoc.metadata ? JSON.parse(dbDoc.metadata) : undefined,
+      createdAt: dbDoc.createdAt.toISOString(),
+      updatedAt: dbDoc.updatedAt.toISOString(),
+      approvedAt: dbDoc.approvedAt?.toISOString(),
+      signedAt: dbDoc.signedAt?.toISOString(),
+    }
   }
 
   async reviewDocument(documentId: string, reviewer: string): Promise<DocumentReview> {
@@ -68,8 +95,23 @@ export class LegalDocumentGenerationService {
       status: 'completed',
     }
 
-    this.reviews.set(review.id, review)
-    return review
+    const dbReview = await prisma.documentReview.create({
+      data: {
+        documentId,
+        reviewer,
+        risks: JSON.stringify(risks),
+        status: 'completed',
+      },
+    })
+
+    return {
+      id: dbReview.id,
+      documentId: dbReview.documentId,
+      reviewer: dbReview.reviewer,
+      reviewDate: dbReview.reviewDate.toISOString(),
+      risks: JSON.parse(dbReview.risks),
+      status: dbReview.status as any,
+    }
   }
 
   async compareDocuments(document1Id: string, document2Id: string): Promise<DocumentComparison> {
@@ -103,14 +145,15 @@ export class LegalDocumentGenerationService {
   }
 
   async getMetrics(): Promise<LegalDocumentMetrics> {
-    const allDocuments = Array.from(this.documents.values())
+    const allDocuments = await prisma.legalDocument.findMany()
+    const mappedDocuments = allDocuments.map(d => this.mapToDocument(d))
     
     return {
-      total: allDocuments.length,
-      draft: allDocuments.filter(d => d.status === 'draft').length,
-      approved: allDocuments.filter(d => d.status === 'approved').length,
-      signed: allDocuments.filter(d => d.status === 'signed').length,
-      byType: this.groupByType(allDocuments),
+      total: mappedDocuments.length,
+      draft: mappedDocuments.filter(d => d.status === 'draft').length,
+      approved: mappedDocuments.filter(d => d.status === 'approved').length,
+      signed: mappedDocuments.filter(d => d.status === 'signed').length,
+      byType: this.groupByType(mappedDocuments),
       averageReviewTime: 4.2, // days
     }
   }

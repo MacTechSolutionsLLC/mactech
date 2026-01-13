@@ -1,44 +1,56 @@
 import { NetworkTopology, FirewallRule, NetworkComplianceResult, NetworkMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('network-config')
 
 export class NetworkConfigurationService {
-  private topologies: Map<string, NetworkTopology> = new Map()
-  private firewallRules: Map<string, FirewallRule[]> = new Map()
-
   async createTopology(data: Omit<NetworkTopology, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<NetworkTopology> {
     logger.info('Creating network topology', { name: data.name })
 
-    const topology: NetworkTopology = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const topology = await prisma.networkTopology.create({
+      data: {
+        name: data.name,
+        description: data.description || null,
+        zones: JSON.stringify(data.zones),
+        requirements: data.requirements ? JSON.stringify(data.requirements) : null,
+        status: 'draft',
+      },
+    })
 
-    this.topologies.set(topology.id, topology)
-    return topology
+    return this.mapToTopology(topology)
   }
 
   async getTopology(id: string): Promise<NetworkTopology> {
-    const topology = this.topologies.get(id)
+    const topology = await prisma.networkTopology.findUnique({
+      where: { id },
+    })
+
     if (!topology) {
       throw new NotFoundError('Network Topology', id)
     }
-    return topology
+
+    return this.mapToTopology(topology)
   }
 
   async listTopologies(): Promise<NetworkTopology[]> {
-    return Array.from(this.topologies.values())
+    const topologies = await prisma.networkTopology.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return topologies.map(t => this.mapToTopology(t))
   }
 
   async generateFirewallRules(topologyId: string): Promise<FirewallRule[]> {
     const topology = await this.getTopology(topologyId)
     
     logger.info('Generating firewall rules', { topologyId })
+
+    // Delete existing rules for this topology
+    await prisma.firewallRule.deleteMany({
+      where: { topologyId },
+    })
 
     // In production, generate rules based on topology and security zones
     const rules: FirewallRule[] = topology.zones.flatMap((zone, zoneIndex) => 
@@ -54,13 +66,41 @@ export class NetworkConfigurationService {
       }))
     )
 
-    this.firewallRules.set(topologyId, rules)
+    // Save rules to database
+    await prisma.firewallRule.createMany({
+      data: rules.map(r => ({
+        id: r.id,
+        topologyId: r.topologyId,
+        source: r.source,
+        destination: r.destination,
+        port: r.port,
+        protocol: r.protocol,
+        action: r.action,
+        description: r.description,
+      })),
+    })
+
     return rules
+  }
+
+  private mapToTopology(dbTopology: any): NetworkTopology {
+    return {
+      id: dbTopology.id,
+      name: dbTopology.name,
+      description: dbTopology.description || undefined,
+      zones: JSON.parse(dbTopology.zones),
+      requirements: dbTopology.requirements ? JSON.parse(dbTopology.requirements) : undefined,
+      status: dbTopology.status as any,
+      createdAt: dbTopology.createdAt.toISOString(),
+      updatedAt: dbTopology.updatedAt.toISOString(),
+    }
   }
 
   async validateCompliance(topologyId: string): Promise<NetworkComplianceResult> {
     const topology = await this.getTopology(topologyId)
-    const rules = this.firewallRules.get(topologyId) || []
+    const rules = await prisma.firewallRule.findMany({
+      where: { topologyId },
+    })
     
     logger.info('Validating network compliance', { topologyId })
 
@@ -93,7 +133,7 @@ export class NetworkConfigurationService {
   }
 
   async getMetrics(): Promise<NetworkMetrics> {
-    const allTopologies = Array.from(this.topologies.values())
+    const allTopologies = await prisma.networkTopology.findMany()
     
     return {
       totalTopologies: allTopologies.length,

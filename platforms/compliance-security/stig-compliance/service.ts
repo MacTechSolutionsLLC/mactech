@@ -1,33 +1,56 @@
 import { STIGValidation, STIGValidationResult, STIGRemediationPlaybook, STIGComplianceMetrics } from './types'
 import { createLogger } from '../../shared/logger'
 import { NotFoundError } from '../../shared/errors'
+import { prisma } from '../../shared/db'
 
 const logger = createLogger('stig-compliance')
 
 export class STIGComplianceService {
-  private validations: Map<string, STIGValidation> = new Map()
-  private systems: Map<string, any> = new Map()
-
   async createValidation(data: Omit<STIGValidation, 'id' | 'status' | 'createdAt'>): Promise<STIGValidation> {
     logger.info('Creating STIG validation', { systemId: data.systemId })
 
-    const validation: STIGValidation = {
-      ...data,
-      id: crypto.randomUUID(),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    }
+    const validation = await prisma.sTIGValidation.create({
+      data: {
+        systemId: data.systemId,
+        stigProfile: data.stigProfile,
+        systemType: data.systemType,
+        status: 'pending',
+      },
+    })
 
-    this.validations.set(validation.id, validation)
-    return validation
+    return {
+      id: validation.id,
+      systemId: validation.systemId,
+      stigProfile: validation.stigProfile,
+      systemType: validation.systemType as any,
+      validateRemediation: true, // Default value
+      status: validation.status as any,
+      results: validation.results ? JSON.parse(validation.results) : undefined,
+      createdAt: validation.createdAt.toISOString(),
+      completedAt: validation.completedAt?.toISOString(),
+    }
   }
 
   async getValidation(id: string): Promise<STIGValidation> {
-    const validation = this.validations.get(id)
+    const validation = await prisma.sTIGValidation.findUnique({
+      where: { id },
+    })
+
     if (!validation) {
       throw new NotFoundError('STIG Validation', id)
     }
-    return validation
+
+    return {
+      id: validation.id,
+      systemId: validation.systemId,
+      stigProfile: validation.stigProfile,
+      systemType: validation.systemType as any,
+      validateRemediation: true, // Default value
+      status: validation.status as any,
+      results: validation.results ? JSON.parse(validation.results) : undefined,
+      createdAt: validation.createdAt.toISOString(),
+      completedAt: validation.completedAt?.toISOString(),
+    }
   }
 
   async runValidation(id: string): Promise<STIGValidationResult> {
@@ -35,8 +58,10 @@ export class STIGComplianceService {
     
     logger.info('Running STIG validation', { id })
 
-    validation.status = 'running'
-    this.validations.set(id, validation)
+    await prisma.sTIGValidation.update({
+      where: { id },
+      data: { status: 'running' },
+    })
 
     // In production, this would integrate with actual STIG scanning tools
     // For now, simulate validation results
@@ -73,10 +98,14 @@ export class STIGComplianceService {
       ],
     }
 
-    validation.status = 'completed'
-    validation.results = result
-    validation.completedAt = new Date().toISOString()
-    this.validations.set(id, validation)
+    await prisma.sTIGValidation.update({
+      where: { id },
+      data: {
+        status: 'completed',
+        results: JSON.stringify(result),
+        completedAt: new Date(),
+      },
+    })
 
     return result
   }
@@ -105,8 +134,21 @@ export class STIGComplianceService {
   }
 
   async getComplianceMetrics(): Promise<STIGComplianceMetrics> {
-    const allValidations = Array.from(this.validations.values())
-    const completed = allValidations.filter(v => v.status === 'completed' && v.results)
+    const allValidations = await prisma.sTIGValidation.findMany()
+    const completed = allValidations
+      .filter(v => v.status === 'completed' && v.results)
+      .map(v => ({
+        id: v.id,
+        systemId: v.systemId,
+        stigProfile: v.stigProfile,
+        systemType: v.systemType as any,
+        validateRemediation: true,
+        status: v.status as any,
+        results: v.results ? JSON.parse(v.results) : undefined,
+        createdAt: v.createdAt.toISOString(),
+        completedAt: v.completedAt?.toISOString(),
+      }))
+      .filter(v => v.status === 'completed' && v.results)
     
     const compliant = completed.filter(v => v.results!.complianceScore >= 95).length
     const nonCompliant = completed.filter(v => v.results!.complianceScore < 70).length
@@ -119,8 +161,20 @@ export class STIGComplianceService {
       : 0
 
     const criticalFindings = completed.reduce((sum, v) => 
-      sum + (v.results?.gaps.filter(g => g.severity === 'critical').length || 0), 0
+      sum + (v.results?.gaps.filter((g: any) => g.severity === 'critical').length || 0), 0
     )
+
+    const mappedValidations = allValidations.map(v => ({
+      id: v.id,
+      systemId: v.systemId,
+      stigProfile: v.stigProfile,
+      systemType: v.systemType as any,
+      validateRemediation: true,
+      status: v.status as any,
+      results: v.results ? JSON.parse(v.results) : undefined,
+      createdAt: v.createdAt.toISOString(),
+      completedAt: v.completedAt?.toISOString(),
+    }))
 
     return {
       totalSystems: allValidations.length,
@@ -129,7 +183,7 @@ export class STIGComplianceService {
       partiallyCompliant,
       averageComplianceScore: averageScore,
       criticalFindings,
-      bySystemType: this.groupBySystemType(allValidations),
+      bySystemType: this.groupBySystemType(mappedValidations),
     }
   }
 
