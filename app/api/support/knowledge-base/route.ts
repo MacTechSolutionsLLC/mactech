@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       if (!query) {
         return NextResponse.json({ success: false, error: 'query required' }, { status: 400 })
       }
-      const results = await knowledgeBaseService.searchArticles(query)
+      const results = await knowledgeBaseService.search(query)
       return NextResponse.json({ success: true, data: results })
     }
 
