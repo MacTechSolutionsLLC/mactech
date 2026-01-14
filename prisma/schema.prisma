@@ -65,6 +65,13 @@ model GovernmentContractDiscovery {
   updated_at          DateTime @updatedAt
   discovered_by       String?
   
+  // Ingestion pipeline fields
+  ingestion_source    String?  // Track if from ingestion pipeline vs search
+  ingestion_batch_id  String?  // Track ingestion batch
+  flagged             Boolean  @default(false)
+  flagged_at          DateTime?
+  flagged_by          String?
+  
   // Scraping fields
   scraped             Boolean  @default(false)
   scraped_at          DateTime?
@@ -122,6 +129,17 @@ model GovernmentContractDiscovery {
   estimated_value     String?  // Contract value estimate
   period_of_performance String? // POP dates
   place_of_performance String? // Location/place of performance
+}
+
+// Ignored opportunities from ingestion pipeline
+model IgnoredOpportunity {
+  id            String   @id @default(cuid())
+  notice_id     String   @unique
+  ignored_at    DateTime @default(now())
+  ignored_by    String?
+  reason        String?
+  
+  @@index([notice_id])
 }
 
 // ============================================================================
