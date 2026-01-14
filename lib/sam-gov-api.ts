@@ -244,28 +244,15 @@ function buildKeywordQuery(
     cleanedKeywords = expandKeywords(cleanedKeywords)
   }
   
-  // Only add service category keywords if no explicit keywords provided
-  // This makes searches less restrictive when user provides specific keywords
-  if (serviceCategory && !cleanedKeywords) {
-    const categoryKeywords: Record<ServiceCategory, string[]> = {
-      cybersecurity: ['RMF', 'ATO', 'cybersecurity', 'ISSO', 'ISSM', 'STIG', 'NIST 800-53'],
-      infrastructure: ['data center', 'infrastructure', 'cloud', 'network'],
-      compliance: ['audit readiness', 'compliance', 'ISO', 'QMS'],
-      contracts: ['contract management', 'governance'],
-      general: [],
-    }
-    
-    if (categoryKeywords[serviceCategory].length > 0) {
-      keywordParts.push(...categoryKeywords[serviceCategory].slice(0, 3))
-    }
-  }
+  // REMOVED: Service category keyword injection - only use user-provided keywords
+  // This ensures searches are exactly what the user specifies, no automatic additions
   
   // Add custom keywords
   if (customKeywords) {
     keywordParts.push(customKeywords)
   }
   
-  // Add explicit keywords (cleaned and expanded) - prioritize user-provided keywords
+  // Add explicit keywords (cleaned and expanded) - only user-provided keywords
   if (cleanedKeywords) {
     keywordParts.push(cleanedKeywords)
   }
@@ -317,11 +304,11 @@ export async function searchSamGov(params: {
     ? TARGET_PSC_CODES
     : (params.pscCodes || [])
   
-  // Build keyword query - prioritize explicit keywords over service category
-  // Only add service category keywords if no explicit keywords provided
+  // Build keyword query - only use explicit user-provided keywords
+  // No service category keyword injection
   const keyword = params.keywords && params.keywords.trim().length > 0
     ? buildKeywordQuery(params.keywords, undefined) // Use only explicit keywords
-    : buildKeywordQuery(undefined, params.serviceCategory) // Fall back to category keywords if no explicit keywords
+    : undefined // No keywords provided - don't add any
   
   // Normalize set-aside types (SDVOSB, VOSB)
   const setAsideTypes = (params.setAside || [])
@@ -474,7 +461,7 @@ async function searchSamGovSingle(params: {
   
   const keyword = params.keyword || buildKeywordQuery(
     params.keywords,
-    params.serviceCategory
+    undefined // No service category keywords
   )
   
   // Build API URL

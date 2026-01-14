@@ -103,22 +103,16 @@ export function buildSamGovQuery(params: VetCertQueryParams): SamGovQuery {
     ? params.pscCodes
     : [] // Empty by default - rely on keyword search only
   
-  // Build keyword string from provided keywords and service category
+  // Build keyword string from provided keywords only (no service category injection)
   const keywordParts: string[] = []
   
-  // Add user-provided keywords
+  // Add user-provided keywords only
   if (params.keywords && params.keywords.length > 0) {
     keywordParts.push(...params.keywords)
   }
   
-  // Add service category keywords if specified
-  if (params.serviceCategory && params.serviceCategory !== 'general') {
-    const categoryKeywords = SERVICE_KEYWORDS[params.serviceCategory]
-    if (categoryKeywords.length > 0) {
-      // Add top 3 category keywords
-      keywordParts.push(...categoryKeywords.slice(0, 3))
-    }
-  }
+  // REMOVED: Service category keyword injection - only use user-provided keywords
+  // This ensures searches are exactly what the user specifies
   
   // Remove duplicates and join
   const keyword = [...new Set(keywordParts)].join(' ').trim() || undefined
@@ -144,36 +138,16 @@ export function buildGoogleQuery(params: VetCertQueryParams): GoogleQuery {
   // Contract opportunity keywords
   query += '(contract opportunity OR solicitation OR notice) '
   
-  // Build combined keyword group: user keywords + VetCert terms + service category keywords
-  // This prioritizes user keywords while still including VetCert filtering
+  // Build combined keyword group: user keywords + VetCert terms only
+  // REMOVED: Service category keyword injection - only use user-provided keywords
   const keywordParts: string[] = []
   
-  // Add user-provided keywords first (highest priority)
+  // Add user-provided keywords only
   if (params.keywords && params.keywords.length > 0) {
     params.keywords.forEach(kw => {
       const trimmed = kw.trim()
       if (trimmed.length > 0) {
         keywordParts.push(`"${trimmed}"`)
-      }
-    })
-  }
-  
-  // Add service category keywords only if not already covered by user keywords
-  if (params.serviceCategory && params.serviceCategory !== 'general') {
-    const categoryKeywords = SERVICE_KEYWORDS[params.serviceCategory]
-    const userKeywordsLower = (params.keywords || []).map(k => k.toLowerCase().trim())
-    
-    // Only add category keywords that aren't already in user keywords
-    categoryKeywords.forEach(catKw => {
-      const catKwLower = catKw.toLowerCase()
-      const alreadyIncluded = userKeywordsLower.some(uk => 
-        uk === catKwLower || 
-        uk.includes(catKwLower) || 
-        catKwLower.includes(uk)
-      )
-      
-      if (!alreadyIncluded) {
-        keywordParts.push(`"${catKw}"`)
       }
     })
   }
