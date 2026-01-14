@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
     // Build Google query
     const googleQuery = buildGoogleQuery({
       keywords: parsedKeywords,
-      serviceCategory: body.service_category || 'cybersecurity',
       location: body.location,
       agency: body.agency,
       dateRange: body.date_range || 'past_month',
@@ -56,4 +55,5 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
 

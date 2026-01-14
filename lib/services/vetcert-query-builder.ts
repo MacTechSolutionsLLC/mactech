@@ -110,7 +110,7 @@ export function buildGoogleQuery(params: VetCertQueryParams): GoogleQuery {
   
   return {
     query: trimmedQuery,
-    description: `VetCert-focused search for ${params.serviceCategory || 'general'} opportunities with ${params.keywords?.length || 0} keywords`,
+    description: `VetCert-focused search with ${params.keywords?.length || 0} keywords`,
   }
 }
 

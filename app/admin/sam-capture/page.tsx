@@ -180,6 +180,7 @@ export default function SamCapturePage() {
 
   useEffect(() => {
     loadOpportunities()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minScore, sortBy])
 
   return (
