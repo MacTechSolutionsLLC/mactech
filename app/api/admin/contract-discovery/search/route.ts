@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
     let processedResults = samGovResults.opportunitiesData
       .map((opportunity) => {
         try {
-          return transformSamGovResult(opportunity, originalKeywords)
+          return transformSamGovResultV2(opportunity, originalKeywords)
         } catch (transformError) {
           console.error(`[${requestId}] Error transforming result:`, {
             error: transformError,
