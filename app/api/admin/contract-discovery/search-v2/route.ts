@@ -11,12 +11,12 @@ export const dynamic = 'force-dynamic'
 
 interface SearchRequestBody {
   keywords: string // Comma-separated keywords
-  service_category?: 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
   location?: string
-  agency?: string[]
+  agency?: string // Single agency code (e.g., 9700 for DoD)
+  ptype?: string // Solicitation type (RFI, PRESOL, etc.)
   date_range?: 'past_week' | 'past_month' | 'past_year'
   naics_codes?: string[]
-  psc_codes?: string[]
+  set_aside?: string[] // Set-aside codes (SDVOSB, VOSB, etc.)
   limit?: number
   use_cache?: boolean
 }
@@ -46,7 +46,10 @@ export async function POST(request: NextRequest) {
       logger.debug('Request body parsed', {
         requestId,
         keywords: body.keywords,
-        serviceCategory: body.service_category,
+        naicsCodes: body.naics_codes,
+        setAside: body.set_aside,
+        ptype: body.ptype,
+        agency: body.agency,
       })
     } catch (parseError) {
       logger.error('Failed to parse request body', {
@@ -66,12 +69,12 @@ export async function POST(request: NextRequest) {
     // Build search request
     const searchRequest: SearchRequest = {
       keywords: body.keywords,
-      serviceCategory: body.service_category, // Optional - no default
       location: body.location,
-      agency: body.agency,
+      agency: body.agency, // Single agency code
+      ptype: body.ptype, // Solicitation type
       dateRange: body.date_range || 'past_month',
       naicsCodes: body.naics_codes,
-      pscCodes: body.psc_codes,
+      setAside: body.set_aside, // Set-aside codes
       limit: body.limit || 30,
       useCache: body.use_cache !== false,
     }
@@ -80,12 +83,11 @@ export async function POST(request: NextRequest) {
     const parsedKeywords = body.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
     const googleQuery = buildGoogleQuery({
       keywords: parsedKeywords,
-      serviceCategory: body.service_category, // Optional - no default
       location: body.location,
-      agency: body.agency,
+      agency: body.agency ? [body.agency] : undefined,
       dateRange: body.date_range || 'past_month',
       naicsCodes: body.naics_codes,
-      pscCodes: body.psc_codes,
+      pscCodes: [], // PSC codes not used in new implementation
     })
     
     // Execute search
@@ -297,7 +299,6 @@ export async function POST(request: NextRequest) {
         validation: r.validation,
       })),
       apiCallDetails: searchResponse.apiCallDetails,
-      samGovQuery: searchResponse.samGovQuery,
       googleQuery: googleQuery, // Include Google query in response
       totalRecords: searchResponse.totalRecords,
       resultsCount: storedResults.length,

@@ -1,27 +1,16 @@
 /**
- * VetCert-focused query builder
- * Automatically injects SDVOSB/VOSB filters and optimizes NAICS/PSC codes
+ * VetCert-focused Google query builder
+ * Builds Google search queries for SAM.gov contract opportunities
+ * Note: SAM.gov API queries are now handled directly in sam-gov-api-v2.ts
  */
-
-import { ServiceCategory } from '../contract-discovery'
-import { TARGET_NAICS_CODES, TARGET_PSC_CODES } from '../sam-gov-api'
 
 export interface VetCertQueryParams {
   keywords: string[]
-  serviceCategory?: ServiceCategory
   setAside?: string[]
   naicsCodes?: string[]
   pscCodes?: string[]
   location?: string
   agency?: string[]
-  dateRange?: 'past_week' | 'past_month' | 'past_year'
-}
-
-export interface SamGovQuery {
-  keyword?: string
-  setAside?: string[]
-  naicsCodes?: string[]
-  pscCodes?: string[]
   dateRange?: 'past_week' | 'past_month' | 'past_year'
 }
 
@@ -56,75 +45,9 @@ export const VETCERT_GOOGLE_TERMS = [
 ]
 
 /**
- * Service category keyword mappings
+ * REMOVED: buildSamGovQuery - SAM.gov API queries are now handled directly
+ * in sam-gov-api-v2.ts using the correct endpoint and parameters
  */
-const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
-  cybersecurity: [
-    'RMF', 'Risk Management Framework', 'ATO', 'Authorization to Operate',
-    'STIG', 'Security Technical Implementation Guide', 'ConMon', 'Continuous Monitoring',
-    'SCA', 'Security Control Assessment', 'POA&M', 'Plan of Action',
-    'SSP', 'System Security Plan', 'NIST 800-53', 'CMMC', 'cybersecurity',
-    'ISSO', 'ISSM', 'ISSE', 'eMASS',
-  ],
-  infrastructure: [
-    'data center', 'cloud migration', 'infrastructure as code', 'IaC',
-    'network architecture', 'systems engineering', 'platform engineering',
-    'Terraform', 'Ansible', 'AWS', 'Azure', 'infrastructure',
-  ],
-  compliance: [
-    'ISO 9001', 'ISO 17025', 'ISO 27001', 'audit readiness',
-    'quality management system', 'QMS', 'laboratory accreditation',
-    'compliance consulting', 'process documentation',
-  ],
-  contracts: [
-    'contract alignment', 'risk advisory', 'governance', 'contractual readiness',
-    'vendor management', 'subcontractor agreement',
-  ],
-  general: [],
-}
-
-/**
- * Build SAM.gov API query with VetCert defaults
- * KEYWORD-FIRST APPROACH: NAICS/PSC codes are used for client-side ranking only
- * They are NOT sent as filters to the API to avoid excessive API calls
- */
-export function buildSamGovQuery(params: VetCertQueryParams): SamGovQuery {
-  // Always include VetCert set-asides (SDVOSB and VOSB)
-  const setAside = params.setAside || [VETCERT_SET_ASIDE_CODES.SDVOSB, VETCERT_SET_ASIDE_CODES.VOSB]
-  
-  // NAICS/PSC codes are used for client-side ranking/filtering only
-  // Only use codes if explicitly provided by user - no defaults
-  // This allows keyword-based search to be broader and more flexible
-  const naicsCodes = params.naicsCodes && params.naicsCodes.length > 0
-    ? params.naicsCodes
-    : [] // Empty by default - rely on keyword search only
-  
-  const pscCodes = params.pscCodes && params.pscCodes.length > 0
-    ? params.pscCodes
-    : [] // Empty by default - rely on keyword search only
-  
-  // Build keyword string from provided keywords only (no service category injection)
-  const keywordParts: string[] = []
-  
-  // Add user-provided keywords only
-  if (params.keywords && params.keywords.length > 0) {
-    keywordParts.push(...params.keywords)
-  }
-  
-  // REMOVED: Service category keyword injection - only use user-provided keywords
-  // This ensures searches are exactly what the user specifies
-  
-  // Remove duplicates and join
-  const keyword = [...new Set(keywordParts)].join(' ').trim() || undefined
-  
-  return {
-    keyword,
-    setAside,
-    naicsCodes,
-    pscCodes,
-    dateRange: params.dateRange || 'past_month',
-  }
-}
 
 /**
  * Build Google search query with VetCert focus
@@ -239,88 +162,8 @@ export function expandKeywords(keywords: string[]): string[] {
 }
 
 /**
- * Build both SAM.gov API and Google queries from comma-separated keywords
+ * REMOVED: buildDualQueries and buildSamGovQueryOnly
+ * SAM.gov API queries are now handled directly in sam-gov-api-v2.ts
+ * This file now only handles Google query building
  */
-export function buildDualQueries(
-  keywords: string,
-  options: {
-    serviceCategory?: ServiceCategory
-    location?: string
-    agency?: string[]
-    dateRange?: 'past_week' | 'past_month' | 'past_year'
-    naicsCodes?: string[]
-    pscCodes?: string[]
-  } = {}
-): {
-  samGov: SamGovQuery
-  google: GoogleQuery
-  parsedKeywords: string[]
-} {
-  // Parse and expand keywords
-  const parsedKeywords = parseKeywords(keywords)
-  const expandedKeywords = expandKeywords(parsedKeywords)
-  
-  // Build query params
-  const params: VetCertQueryParams = {
-    keywords: expandedKeywords,
-    serviceCategory: options.serviceCategory || 'cybersecurity',
-    location: options.location,
-    agency: options.agency,
-    dateRange: options.dateRange || 'past_month',
-    naicsCodes: options.naicsCodes,
-    pscCodes: options.pscCodes,
-  }
-  
-  // Build both queries
-  const samGov = buildSamGovQuery(params)
-  const google = buildGoogleQuery(params)
-  
-  return {
-    samGov,
-    google,
-    parsedKeywords: expandedKeywords,
-  }
-}
-
-/**
- * Build only SAM.gov API query (no Google query)
- * Used when Google query generation is separated from API workflow
- */
-export function buildSamGovQueryOnly(
-  keywords: string,
-  options: {
-    serviceCategory?: ServiceCategory
-    location?: string
-    agency?: string[]
-    dateRange?: 'past_week' | 'past_month' | 'past_year'
-    naicsCodes?: string[]
-    pscCodes?: string[]
-  } = {}
-): {
-  samGov: SamGovQuery
-  parsedKeywords: string[]
-} {
-  // Parse and expand keywords
-  const parsedKeywords = parseKeywords(keywords)
-  const expandedKeywords = expandKeywords(parsedKeywords)
-  
-  // Build query params
-  const params: VetCertQueryParams = {
-    keywords: expandedKeywords,
-    serviceCategory: options.serviceCategory || 'cybersecurity',
-    location: options.location,
-    agency: options.agency,
-    dateRange: options.dateRange || 'past_month',
-    naicsCodes: options.naicsCodes,
-    pscCodes: options.pscCodes,
-  }
-  
-  // Build only SAM.gov query
-  const samGov = buildSamGovQuery(params)
-  
-  return {
-    samGov,
-    parsedKeywords: expandedKeywords,
-  }
-}
 

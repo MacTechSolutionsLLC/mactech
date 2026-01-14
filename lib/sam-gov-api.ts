@@ -279,6 +279,9 @@ function mapSetAside(setAside?: string): string[] {
 }
 
 /**
+ * @deprecated This function uses the incorrect endpoint and parameters.
+ * Use searchSamGovV2 from sam-gov-api-v2.ts instead.
+ * 
  * Search SAM.gov for contract opportunities
  * Supports multiple NAICS codes by making multiple API calls if needed
  */
@@ -630,6 +633,8 @@ async function searchSamGovSingle(params: {
 }
 
 /**
+ * @deprecated Use transformSamGovResultV2 from sam-gov-api-v2.ts instead.
+ * 
  * Transform SAM.gov opportunity to DiscoveryResult format
  * @param opportunity The SAM.gov opportunity data
  * @param searchKeywords Optional array of keywords to filter and score by

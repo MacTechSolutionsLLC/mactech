@@ -3,7 +3,7 @@
  * Orchestrates SAM.gov API searches with rate limiting, caching, and retry logic
  */
 
-import { searchSamGov, transformSamGovResult, SamGovApiResponse } from '../sam-gov-api'
+import { searchSamGovV2, transformSamGovResultV2, SamGovApiResponse } from '../sam-gov-api-v2'
 
 // Helper to get date range (duplicated from sam-gov-api for use here)
 function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { from: string; to: string } {
@@ -28,8 +28,7 @@ function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { f
   const fromStr = from.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   return { from: fromStr, to }
 }
-import { DiscoveryResult, ServiceCategory } from '../contract-discovery'
-import { buildSamGovQueryOnly, SamGovQuery, GoogleQuery } from './vetcert-query-builder'
+import { DiscoveryResult } from '../contract-discovery'
 import { retry, CircuitBreaker } from '../utils/retry'
 import { getCache, generateCacheKey } from '../utils/cache'
 import { getRateLimiter, getSamGovRateLimit, RateLimitError } from '../utils/rate-limiter'
@@ -46,12 +45,12 @@ const circuitBreaker = new CircuitBreaker({
 
 export interface SearchRequest {
   keywords: string // Comma-separated keywords
-  serviceCategory?: ServiceCategory
   location?: string
-  agency?: string[]
+  agency?: string // Single agency code (e.g., 9700 for DoD)
+  ptype?: string // Solicitation type (RFI, PRESOL, etc.)
   dateRange?: 'past_week' | 'past_month' | 'past_year'
   naicsCodes?: string[]
-  pscCodes?: string[]
+  setAside?: string[] // Set-aside codes (SDVOSB, VOSB, etc.)
   limit?: number
   useCache?: boolean
 }
@@ -72,7 +71,6 @@ export interface ApiCallDetails {
 export interface SearchResponse {
   success: boolean
   results: DiscoveryResult[]
-  samGovQuery: SamGovQuery
   apiCallDetails: ApiCallDetails
   totalRecords: number
   cached: boolean
@@ -88,7 +86,8 @@ function generateSearchCacheKey(request: SearchRequest): string {
   return generateCacheKey(
     'contract-search',
     request.keywords,
-    request.serviceCategory || 'general',
+    request.naicsCodes?.join(',') || '',
+    request.setAside?.join(',') || '',
     request.dateRange || 'past_month',
     request.limit || 30
   )
@@ -98,8 +97,16 @@ function generateSearchCacheKey(request: SearchRequest): string {
  * Execute SAM.gov API search with rate limiting and retry
  */
 async function executeSamGovSearch(
-  query: SamGovQuery,
-  limit: number,
+  params: {
+    keywords?: string
+    naicsCodes?: string[]
+    setAside?: string[]
+    ptype?: string
+    agency?: string
+    dateRange?: 'past_week' | 'past_month' | 'past_year'
+    limit?: number
+    offset?: number
+  },
   requestId: string
 ): Promise<SamGovApiResponse> {
   // Check rate limit
@@ -134,16 +141,16 @@ async function executeSamGovSearch(
   const result = await circuitBreaker.execute(async () => {
     return retry(
       async () => {
-        logger.debug('Executing SAM.gov API search', { query, limit })
-        return await searchSamGov({
-          keywords: query.keyword,
-          serviceCategory: query.naicsCodes?.length ? undefined : 'cybersecurity', // Default if no NAICS
-          dateRange: query.dateRange || 'past_month',
-          setAside: query.setAside,
-          naicsCodes: query.naicsCodes,
-          pscCodes: query.pscCodes,
-          limit,
-          offset: 0,
+        logger.debug('Executing SAM.gov API v2 search', { params })
+        return await searchSamGovV2({
+          keywords: params.keywords,
+          naicsCodes: params.naicsCodes,
+          setAside: params.setAside,
+          ptype: params.ptype,
+          agency: params.agency,
+          dateRange: params.dateRange || 'past_month',
+          limit: params.limit || 25,
+          offset: params.offset || 0,
         })
       },
       {
@@ -201,24 +208,23 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
   logger.info('Starting contract search', {
     requestId,
     keywords: request.keywords,
-    serviceCategory: request.serviceCategory,
+    naicsCodes: request.naicsCodes,
+    setAside: request.setAside,
   })
   
   try {
-    // Build SAM.gov API query only (Google query generation moved to separate button)
-    const { samGov, parsedKeywords } = buildSamGovQueryOnly(request.keywords, {
-      serviceCategory: request.serviceCategory,
-      location: request.location,
-      agency: request.agency,
-      dateRange: request.dateRange,
-      naicsCodes: request.naicsCodes,
-      pscCodes: request.pscCodes,
-    })
+    // Default set-asides for VetCert searches (SDVOSB and VOSB)
+    const setAside = request.setAside && request.setAside.length > 0
+      ? request.setAside
+      : ['SDVOSB', 'VOSB'] // Default VetCert set-asides
     
-    logger.debug('Built SAM.gov query', {
+    logger.debug('SAM.gov search parameters', {
       requestId,
-      samGovKeywords: samGov.keyword,
-      parsedKeywords,
+      keywords: request.keywords,
+      naicsCodes: request.naicsCodes,
+      setAside,
+      ptype: request.ptype,
+      agency: request.agency,
     })
     
     // Check cache if enabled
@@ -246,9 +252,18 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     // Execute search if not cached
     if (!apiResponse) {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:178',message:'Executing API search (not cached)',data:{requestId,query:samGov.keyword},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:178',message:'Executing API search (not cached)',data:{requestId,keywords:request.keywords},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
-      apiResponse = await executeSamGovSearch(samGov, request.limit || 30, requestId)
+      apiResponse = await executeSamGovSearch({
+        keywords: request.keywords,
+        naicsCodes: request.naicsCodes,
+        setAside,
+        ptype: request.ptype,
+        agency: request.agency,
+        dateRange: request.dateRange,
+        limit: request.limit || 30,
+        offset: 0,
+      }, requestId)
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'contract-search-service.ts:181',message:'API search completed',data:{requestId,success:!!apiResponse,totalRecords:apiResponse?.totalRecords},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
@@ -269,7 +284,7 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     const transformedResults = apiResponse.opportunitiesData
       .map(opportunity => {
         try {
-          return transformSamGovResult(opportunity, originalKeywords)
+          return transformSamGovResultV2(opportunity, originalKeywords)
         } catch (error) {
           logger.warn('Error transforming result', {
             requestId,
@@ -336,55 +351,45 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     })
     
     // Build API call details for display
-    const { from, to } = getDateRange(samGov.dateRange || 'past_month')
+    const { from, to } = getDateRange(request.dateRange || 'past_month')
     const apiCallDetails: ApiCallDetails = {
-      keyword: samGov.keyword,
-      setAside: samGov.setAside || [],
-      dateRange: samGov.dateRange || 'past_month',
+      keyword: request.keywords,
+      setAside: setAside,
+      dateRange: request.dateRange || 'past_month',
       postedFrom: from,
       postedTo: to,
       limit: request.limit || 30,
       offset: 0,
-      naicsCodes: samGov.naicsCodes,
-      pscCodes: samGov.pscCodes,
+      naicsCodes: request.naicsCodes,
     }
     
-    // Build API URL for display (without API key)
-    // When multiple set-asides are used, SAM.gov API makes separate calls for each
-    // Show the first set-aside URL, or indicate multiple calls
-    if (apiCallDetails.setAside.length > 1) {
-      // Multiple set-asides: show first one and indicate multiple calls
-      const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
-      if (apiCallDetails.keyword) {
-        apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
-      }
-      // Only add the first set-aside to the URL (others are separate API calls)
-      apiUrl.searchParams.append('setAside', apiCallDetails.setAside[0])
-      apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
-      apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
-      apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
-      apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
-      apiCallDetails.apiUrl = `${apiUrl.toString()} (Note: ${apiCallDetails.setAside.length} separate API calls made - one per set-aside)`
-    } else {
-      // Single set-aside or no set-aside: show normal URL
-      const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
-      if (apiCallDetails.keyword) {
-        apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
-      }
-      if (apiCallDetails.setAside.length > 0) {
-        apiUrl.searchParams.append('setAside', apiCallDetails.setAside[0])
-      }
-      apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
-      apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
-      apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
-      apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
-      apiCallDetails.apiUrl = apiUrl.toString()
+    // Build API URL for display (correct endpoint, without API key)
+    const apiUrl = new URL('https://api.sam.gov/opportunities/v2/search')
+    if (apiCallDetails.keyword) {
+      apiUrl.searchParams.append('keywords', apiCallDetails.keyword)
     }
+    if (apiCallDetails.setAside.length > 0) {
+      // API supports multiple set-asides in one call (comma-separated)
+      apiUrl.searchParams.append('setAside', apiCallDetails.setAside.join(','))
+    }
+    if (apiCallDetails.naicsCodes && apiCallDetails.naicsCodes.length > 0) {
+      apiUrl.searchParams.append('naics', apiCallDetails.naicsCodes.join(','))
+    }
+    if (request.ptype) {
+      apiUrl.searchParams.append('ptype', request.ptype)
+    }
+    if (request.agency) {
+      apiUrl.searchParams.append('agency', request.agency)
+    }
+    apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
+    apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
+    apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
+    apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
+    apiCallDetails.apiUrl = apiUrl.toString()
     
     return {
       success: true,
       results,
-      samGovQuery: samGov,
       apiCallDetails,
       totalRecords: apiResponse.totalRecords,
       cached,
@@ -413,37 +418,20 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     })
     
     // Build empty API call details for error case
-    const emptyApiCallDetails: ApiCallDetails = {
-      keyword: undefined,
-      setAside: [],
-      dateRange: request.dateRange || 'past_month',
-      postedFrom: '',
-      postedTo: '',
-      limit: request.limit || 30,
-      offset: 0,
-    }
-    
     const { from, to } = getDateRange(request.dateRange)
     
     return {
       success: false,
       results: [],
-      samGovQuery: {
-        keyword: undefined,
-        setAside: [],
-        naicsCodes: [],
-        pscCodes: [],
-      },
       apiCallDetails: {
-        keyword: undefined,
-        setAside: [],
+        keyword: request.keywords,
+        setAside: request.setAside || ['SDVOSB', 'VOSB'],
         dateRange: request.dateRange || 'past_month',
         postedFrom: from,
         postedTo: to,
         limit: request.limit || 30,
         offset: 0,
         naicsCodes: request.naicsCodes,
-        pscCodes: request.pscCodes,
       },
       totalRecords: 0,
       cached: false,

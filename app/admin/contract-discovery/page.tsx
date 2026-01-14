@@ -72,6 +72,8 @@ export default function ContractDiscoveryPage() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [naicsCodes, setNaicsCodes] = useState('') // For manual entry
   const [pscCodes, setPscCodes] = useState('')
+  const [ptype, setPtype] = useState('') // Solicitation type (RFI, PRESOL, etc.)
+  const [agency, setAgency] = useState('') // Agency code (e.g., 9700 for DoD)
   
   // Results state
   const [isSearching, setIsSearching] = useState(false)
@@ -131,7 +133,9 @@ export default function ContractDiscoveryPage() {
         date_range: dateRange,
         location: location.trim() || undefined,
         naics_codes: allNaicsCodes.length > 0 ? allNaicsCodes : undefined,
-        psc_codes: pscCodes.trim() ? pscCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+        set_aside: ['SDVOSB', 'VOSB'], // Default VetCert set-asides
+        ptype: ptype.trim() || undefined,
+        agency: agency.trim() || undefined,
         limit: 30,
       }
       
@@ -518,6 +522,49 @@ export default function ContractDiscoveryPage() {
                         />
                         <p className="text-body-xs text-neutral-500 mt-1">
                           Add additional NAICS codes not in the list above
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="ptype" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                          Solicitation Type (optional)
+                        </label>
+                        <select
+                          id="ptype"
+                          value={ptype}
+                          onChange={(e) => setPtype(e.target.value)}
+                          className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        >
+                          <option value="">All Types</option>
+                          <option value="RFI">RFI - Request for Information</option>
+                          <option value="PRESOL">PRESOL - Presolicitation</option>
+                          <option value="COMBINE">COMBINE - Combined Synopsis/Solicitation</option>
+                          <option value="SRCSGT">SRCSGT - Sources Sought</option>
+                          <option value="SNOTE">SNOTE - Special Notice</option>
+                          <option value="SSALE">SSALE - Sale of Surplus Property</option>
+                          <option value="AWARD">AWARD - Award Notice</option>
+                          <option value="JA">JA - Justification and Approval</option>
+                          <option value="ITB">ITB - Invitation to Bid</option>
+                        </select>
+                        <p className="text-body-xs text-neutral-500 mt-1">
+                          Filter by specific solicitation type (e.g., RFI for early capture opportunities)
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="agency" className="block text-body-sm font-medium text-neutral-900 mb-2">
+                          Agency Code (optional)
+                        </label>
+                        <input
+                          id="agency"
+                          type="text"
+                          value={agency}
+                          onChange={(e) => setAgency(e.target.value)}
+                          placeholder="e.g., 9700 for DoD"
+                          className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        />
+                        <p className="text-body-xs text-neutral-500 mt-1">
+                          Filter by specific agency (e.g., 9700 for Department of Defense)
                         </p>
                       </div>
                       
