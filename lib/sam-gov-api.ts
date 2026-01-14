@@ -644,8 +644,13 @@ async function searchSamGovSingle(params: {
 
 /**
  * Transform SAM.gov opportunity to DiscoveryResult format
+ * @param opportunity The SAM.gov opportunity data
+ * @param searchKeywords Optional array of keywords to filter and score by
  */
-export function transformSamGovResult(opportunity: SamGovOpportunity): DiscoveryResult {
+export function transformSamGovResult(
+  opportunity: SamGovOpportunity,
+  searchKeywords?: string[]
+): DiscoveryResult {
   // Build URL to SAM.gov opportunity page
   const url = opportunity.uiLink || 
     (opportunity.noticeId ? `https://sam.gov/opp/${opportunity.noticeId}` : 'https://sam.gov')
@@ -672,7 +677,36 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
   
   // Detect keywords from title and description
   const text = `${opportunity.title} ${opportunity.description || ''}`.toUpperCase()
+  const titleText = (opportunity.title || '').toUpperCase()
+  const descriptionText = (opportunity.description || '').toUpperCase()
   const detectedKeywords: string[] = []
+  
+  // Check if search keywords are present (for filtering and scoring)
+  let hasSearchKeywords = false
+  let keywordMatchesInTitle = 0
+  let keywordMatchesInDescription = 0
+  
+  if (searchKeywords && searchKeywords.length > 0) {
+    // Check each keyword (searchKeywords is always an array)
+    searchKeywords.forEach(keyword => {
+      const keywordUpper = keyword.trim().toUpperCase()
+      if (keywordUpper.length === 0) return
+      
+      // Check if keyword appears in title (exact word match or substring)
+      const titleMatch = titleText.includes(keywordUpper)
+      if (titleMatch) {
+        keywordMatchesInTitle++
+        hasSearchKeywords = true
+      }
+      
+      // Check if keyword appears in description
+      const descMatch = descriptionText.includes(keywordUpper)
+      if (descMatch) {
+        keywordMatchesInDescription++
+        hasSearchKeywords = true
+      }
+    })
+  }
   
   const keywordPatterns = [
     { pattern: /RMF|RISK MANAGEMENT FRAMEWORK/gi, keyword: 'RMF' },
@@ -705,6 +739,21 @@ export function transformSamGovResult(opportunity: SamGovOpportunity): Discovery
   
   // Calculate relevance score
   let relevanceScore = 30 // Base score
+  
+  // Major boost for search keywords in title (exact matches are highly relevant)
+  if (keywordMatchesInTitle > 0) {
+    relevanceScore += 50 + (keywordMatchesInTitle * 20) // Strong boost for title matches
+  }
+  
+  // Moderate boost for search keywords in description
+  if (keywordMatchesInDescription > 0) {
+    relevanceScore += 20 + (keywordMatchesInDescription * 10)
+  }
+  
+  // Penalize results that don't contain any search keywords (if keywords were provided)
+  if (searchKeywords && searchKeywords.length > 0 && !hasSearchKeywords) {
+    relevanceScore -= 40 // Significant penalty for missing keywords
+  }
   
   // Apply client-side relevance boost from NAICS/PSC matching (set during search)
   if (opportunity._relevanceBoost) {

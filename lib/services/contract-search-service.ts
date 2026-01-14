@@ -259,11 +259,17 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
       }
     }
     
-    // Transform results
-    const results = apiResponse.opportunitiesData
+    // Parse original search keywords (before expansion) for filtering
+    const originalKeywords = request.keywords
+      .split(',')
+      .map(k => k.trim())
+      .filter(k => k.length > 0)
+    
+    // Transform results with keyword filtering
+    const transformedResults = apiResponse.opportunitiesData
       .map(opportunity => {
         try {
-          return transformSamGovResult(opportunity)
+          return transformSamGovResult(opportunity, originalKeywords)
         } catch (error) {
           logger.warn('Error transforming result', {
             requestId,
@@ -274,6 +280,38 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
         }
       })
       .filter((result): result is DiscoveryResult => result !== null)
+    
+    // Post-processing: Filter results to ensure they contain search keywords
+    // Only filter if we have explicit user keywords (not service category keywords)
+    let results = transformedResults
+    if (originalKeywords.length > 0) {
+      const filteredResults = transformedResults.filter(result => {
+        const titleText = (result.title || '').toUpperCase()
+        const descText = (result.description || result.snippet || '').toUpperCase()
+        const combinedText = `${titleText} ${descText}`
+        
+        // Check if at least one keyword appears in title or description
+        const hasKeyword = originalKeywords.some(keyword => {
+          const keywordUpper = keyword.toUpperCase()
+          return combinedText.includes(keywordUpper)
+        })
+        
+        return hasKeyword
+      })
+      
+      const filteredCount = transformedResults.length - filteredResults.length
+      if (filteredCount > 0) {
+        logger.debug('Filtered results by keyword', {
+          requestId,
+          originalCount: transformedResults.length,
+          filteredCount: filteredResults.length,
+          removedCount: filteredCount,
+          keywords: originalKeywords,
+        })
+      }
+      
+      results = filteredResults
+    }
     
     // Sort by relevance score
     results.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0))
@@ -312,18 +350,36 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     }
     
     // Build API URL for display (without API key)
-    const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
-    if (apiCallDetails.keyword) {
-      apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
+    // When multiple set-asides are used, SAM.gov API makes separate calls for each
+    // Show the first set-aside URL, or indicate multiple calls
+    if (apiCallDetails.setAside.length > 1) {
+      // Multiple set-asides: show first one and indicate multiple calls
+      const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
+      if (apiCallDetails.keyword) {
+        apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
+      }
+      // Only add the first set-aside to the URL (others are separate API calls)
+      apiUrl.searchParams.append('setAside', apiCallDetails.setAside[0])
+      apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
+      apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
+      apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
+      apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
+      apiCallDetails.apiUrl = `${apiUrl.toString()} (Note: ${apiCallDetails.setAside.length} separate API calls made - one per set-aside)`
+    } else {
+      // Single set-aside or no set-aside: show normal URL
+      const apiUrl = new URL('https://api.sam.gov/prod/opportunities/v2/search')
+      if (apiCallDetails.keyword) {
+        apiUrl.searchParams.append('keyword', apiCallDetails.keyword)
+      }
+      if (apiCallDetails.setAside.length > 0) {
+        apiUrl.searchParams.append('setAside', apiCallDetails.setAside[0])
+      }
+      apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
+      apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
+      apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
+      apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
+      apiCallDetails.apiUrl = apiUrl.toString()
     }
-    if (apiCallDetails.setAside.length > 0) {
-      apiCallDetails.setAside.forEach(sa => apiUrl.searchParams.append('setAside', sa))
-    }
-    apiUrl.searchParams.append('postedFrom', apiCallDetails.postedFrom)
-    apiUrl.searchParams.append('postedTo', apiCallDetails.postedTo)
-    apiUrl.searchParams.append('limit', String(apiCallDetails.limit))
-    apiUrl.searchParams.append('offset', String(apiCallDetails.offset))
-    apiCallDetails.apiUrl = apiUrl.toString()
     
     return {
       success: true,

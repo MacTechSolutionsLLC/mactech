@@ -175,11 +175,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Parse original search keywords for filtering
+    const originalKeywords = searchParams.keywords
+      ? searchParams.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
+      : []
+    
     // Transform SAM.gov results to DiscoveryResult format
     let processedResults = samGovResults.opportunitiesData
       .map((opportunity) => {
         try {
-          return transformSamGovResult(opportunity)
+          return transformSamGovResult(opportunity, originalKeywords)
         } catch (transformError) {
           console.error(`[${requestId}] Error transforming result:`, {
             error: transformError,
@@ -189,6 +194,26 @@ export async function POST(request: NextRequest) {
         }
       })
       .filter((result): result is DiscoveryResult => result !== null)
+    
+    // Post-processing: Filter results to ensure they contain search keywords
+    if (originalKeywords.length > 0) {
+      const beforeFilter = processedResults.length
+      processedResults = processedResults.filter(result => {
+        const titleText = (result.title || '').toUpperCase()
+        const descText = (result.description || result.snippet || '').toUpperCase()
+        const combinedText = `${titleText} ${descText}`
+        
+        // Check if at least one keyword appears in title or description
+        return originalKeywords.some(keyword => {
+          const keywordUpper = keyword.toUpperCase()
+          return combinedText.includes(keywordUpper)
+        })
+      })
+      
+      if (beforeFilter !== processedResults.length) {
+        console.log(`[${requestId}] Filtered ${beforeFilter - processedResults.length} results that didn't contain keywords`)
+      }
+    }
     
     // Filter results based on search criteria
     const isVetCertSearch = searchParams.setAside && searchParams.setAside.length > 0
