@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
                     location_mentions: JSON.stringify(result.location_mentions || []),
                     detected_keywords: JSON.stringify(result.detected_keywords || []),
                     relevance_score: result.relevance_score || 0,
-                    service_category: result.detected_service_category || searchRequest.serviceCategory || null,
+                    service_category: result.detected_service_category || null,
                     description: result.description || result.snippet || existing.description,
                     scraped_text_content: result.api_data?.description || result.description || existing.scraped_text_content,
                     points_of_contact: result.points_of_contact && result.points_of_contact.length > 0
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
                     location_mentions: JSON.stringify(result.location_mentions || []),
                     detected_keywords: JSON.stringify(result.detected_keywords || []),
                     relevance_score: result.relevance_score || 0,
-                    service_category: result.detected_service_category || searchRequest.serviceCategory || null,
+                    service_category: result.detected_service_category || null,
                     ingestion_status: 'discovered',
                     verified: false,
                     sow_attachment_url: result.sow_attachment_url || null,
