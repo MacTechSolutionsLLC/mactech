@@ -148,8 +148,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse original search keywords for filtering
-    const originalKeywords = searchParams.keywords
-      ? searchParams.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
+    const originalKeywords = keywords
+      ? keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
       : []
     
     // Transform SAM.gov results to DiscoveryResult format
