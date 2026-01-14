@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Build search request
     const searchRequest: SearchRequest = {
       keywords: body.keywords,
-      serviceCategory: body.service_category || 'cybersecurity',
+      serviceCategory: body.service_category, // Optional - no default
       location: body.location,
       agency: body.agency,
       dateRange: body.date_range || 'past_month',
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     const parsedKeywords = body.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
     const googleQuery = buildGoogleQuery({
       keywords: parsedKeywords,
-      serviceCategory: body.service_category || 'cybersecurity',
+      serviceCategory: body.service_category, // Optional - no default
       location: body.location,
       agency: body.agency,
       dateRange: body.date_range || 'past_month',

@@ -3,7 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-type ServiceCategory = 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general'
+// NAICS Codes for contract search
+const NAICS_OPTIONS = [
+  { code: '541690', name: 'Other Scientific And Technical Consulting Services' },
+  { code: '541330', name: 'Engineering Services' },
+  { code: '541380', name: 'Testing Laboratories And Services' },
+  { code: '541512', name: 'Computer Systems Design Services' },
+  { code: '541519', name: 'Other Computer Related Services' },
+  { code: '541611', name: 'Administrative Management And General Management Consulting Services' },
+  { code: '541620', name: 'Environmental Consulting Services' },
+  { code: '541715', name: 'Research And Development In The Physical, Engineering, And Life Sciences (Except Nanotechnology And Biotechnology)' },
+] as const
+
+type ServiceCategory = 'cybersecurity' | 'infrastructure' | 'compliance' | 'contracts' | 'general' // Keep for backward compatibility with API
 type IngestionStatus = 'discovered' | 'verified' | 'in_review' | 'ignored'
 
 interface DiscoveryResult {
@@ -54,11 +66,11 @@ type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
 export default function ContractDiscoveryPage() {
   // Unified search state
   const [keywords, setKeywords] = useState('')
-  const [serviceCategory, setServiceCategory] = useState<ServiceCategory>('cybersecurity')
+  const [selectedNaicsCodes, setSelectedNaicsCodes] = useState<string[]>([])
   const [dateRange, setDateRange] = useState<'past_week' | 'past_month' | 'past_year'>('past_month')
   const [location, setLocation] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [naicsCodes, setNaicsCodes] = useState('')
+  const [naicsCodes, setNaicsCodes] = useState('') // For manual entry
   const [pscCodes, setPscCodes] = useState('')
   
   // Results state
@@ -108,12 +120,17 @@ export default function ContractDiscoveryPage() {
     setSearchStats(null)
     
     try {
+      // Combine selected NAICS codes with manually entered ones
+      const allNaicsCodes = [
+        ...selectedNaicsCodes,
+        ...(naicsCodes.trim() ? naicsCodes.split(',').map(c => c.trim()).filter(c => c) : [])
+      ].filter((code, index, arr) => arr.indexOf(code) === index) // Remove duplicates
+      
       const requestBody = {
         keywords: keywords.trim(),
-        service_category: serviceCategory,
         date_range: dateRange,
         location: location.trim() || undefined,
-        naics_codes: naicsCodes.trim() ? naicsCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
+        naics_codes: allNaicsCodes.length > 0 ? allNaicsCodes : undefined,
         psc_codes: pscCodes.trim() ? pscCodes.split(',').map(c => c.trim()).filter(c => c) : undefined,
         limit: 30,
       }
@@ -406,23 +423,42 @@ export default function ContractDiscoveryPage() {
                   </p>
                 </div>
                     
-                {/* Service Category */}
+                {/* NAICS Codes */}
                 <div>
-                  <label htmlFor="service-category" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                    Service Category
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="naics-select" className="block text-body-sm font-medium text-neutral-900">
+                      NAICS Codes
+                    </label>
+                    {selectedNaicsCodes.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedNaicsCodes([])}
+                        className="text-body-xs text-accent-700 hover:text-accent-800 underline"
+                      >
+                        Clear Selection
+                      </button>
+                    )}
+                  </div>
                   <select
-                    id="service-category"
-                    value={serviceCategory}
-                    onChange={(e) => setServiceCategory(e.target.value as ServiceCategory)}
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                    id="naics-select"
+                    multiple
+                    value={selectedNaicsCodes}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => option.value)
+                      setSelectedNaicsCodes(selected)
+                    }}
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 min-h-[140px]"
+                    size={6}
                   >
-                    <option value="cybersecurity">Cybersecurity</option>
-                    <option value="infrastructure">Infrastructure</option>
-                    <option value="compliance">Compliance</option>
-                    <option value="contracts">Contracts</option>
-                    <option value="general">General</option>
+                    {NAICS_OPTIONS.map(option => (
+                      <option key={option.code} value={option.code}>
+                        {option.code} - {option.name}
+                      </option>
+                    ))}
                   </select>
+                  <p className="text-body-xs text-neutral-500 mt-1">
+                    Hold Ctrl/Cmd to select multiple codes. {selectedNaicsCodes.length > 0 && `Selected: ${selectedNaicsCodes.join(', ')}`}
+                  </p>
                 </div>
                 
                 {/* Date Range */}
@@ -470,7 +506,7 @@ export default function ContractDiscoveryPage() {
                       
                       <div>
                         <label htmlFor="naics-codes" className="block text-body-sm font-medium text-neutral-900 mb-2">
-                          NAICS Codes (comma-separated, optional)
+                          Additional NAICS Codes (comma-separated, optional)
                         </label>
                         <input
                           id="naics-codes"
@@ -481,7 +517,7 @@ export default function ContractDiscoveryPage() {
                           className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                         />
                         <p className="text-body-xs text-neutral-500 mt-1">
-                          Leave empty to use default cyber/RMF codes (541512, 541519, 541511)
+                          Add additional NAICS codes not in the list above
                         </p>
                       </div>
                       
