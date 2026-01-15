@@ -2,6 +2,10 @@
 
 import { useState } from 'react'
 
+interface QueryManagerProps {
+  onQueryComplete?: () => void
+}
+
 interface QueryConfig {
   id: 'A' | 'B' | 'C' | 'D' | 'E'
   name: string
@@ -27,7 +31,7 @@ interface QueryResult {
   timestamp: string
 }
 
-export default function QueryManager() {
+export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}) {
   const [queries, setQueries] = useState<QueryConfig[]>([
     {
       id: 'A',
@@ -134,6 +138,11 @@ export default function QueryManager() {
       }
 
       setResults(prev => new Map(prev).set(query.id, result))
+      
+      // Refresh dashboard if callback provided
+      if (onQueryComplete) {
+        onQueryComplete()
+      }
     } catch (error) {
       const result: QueryResult = {
         queryId: query.id,
@@ -243,6 +252,11 @@ export default function QueryManager() {
                     {result.error && (
                       <div className="mt-3 text-body-sm text-red-700 bg-red-50 p-2 rounded">
                         Error: {result.error}
+                      </div>
+                    )}
+                    {!result.error && result.scoredAbove50 > 0 && (
+                      <div className="mt-3 text-body-sm text-green-700 bg-green-50 p-2 rounded">
+                        ✓ {result.scoredAbove50} opportunities stored in database and available in dashboard
                       </div>
                     )}
                     <div className="mt-2 text-body-xs text-neutral-500">

@@ -150,7 +150,7 @@ export default function SamDashboardPage() {
             <RunIngestButton onIngestComplete={loadOpportunities} />
           </div>
 
-          <QueryManager />
+          <QueryManager onQueryComplete={loadOpportunities} />
 
           <FiltersPanel
             minScore={minScore}

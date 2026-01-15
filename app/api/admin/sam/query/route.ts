@@ -10,9 +10,11 @@ import { deduplicateOpportunities } from '@/lib/ingestion/dedupe'
 import { normalizeOpportunity } from '@/lib/sam/samNormalizer'
 import { applyHardFilters } from '@/lib/filters/hardFilters'
 import { scoreOpportunity } from '@/lib/scoring/scoreOpportunity'
-import { SourceQuery } from '@/lib/sam/samTypes'
+import { SourceQuery, AIAnalysisResult } from '@/lib/sam/samTypes'
 import { SamGovOpportunity } from '@/lib/sam-gov-api-v2'
 import { MIN_SCORE_THRESHOLD } from '@/lib/scoring/scoringConstants'
+import { storeNormalizedOpportunities } from '@/lib/store/opportunityStore'
+import { analyzeOpportunitiesBatch } from '@/lib/ai/analyzeOpportunity'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,10 +113,14 @@ export async function POST(request: NextRequest) {
     console.log(`[Query API] Query ${queryId} passed filters: ${passedNormalized.length}`)
 
     // Score
-    const scored = passedNormalized.map(normalized => {
+    const scored: Array<{
+      normalized: any
+      score: number
+      aiAnalysis: AIAnalysisResult | null
+    }> = passedNormalized.map(normalized => {
       const rawOpp = passedRaw.find(raw => raw.noticeId === normalized.noticeId)
       if (!rawOpp) {
-        return { normalized, score: 0 }
+        return { normalized, score: 0, aiAnalysis: null }
       }
       
       const scoringResult = scoreOpportunity(rawOpp)
@@ -128,10 +134,31 @@ export async function POST(request: NextRequest) {
         normalized.relevanceTier = 'low'
       }
       
-      return { normalized, score: scoringResult.score }
+      return { normalized, score: scoringResult.score, aiAnalysis: null }
     })
 
     const scoredAbove50 = scored.filter(item => item.score >= MIN_SCORE_THRESHOLD).length
+
+    // AI Analysis (non-blocking)
+    console.log(`[Query API] Running AI analysis for ${passedNormalized.length} opportunities`)
+    const aiAnalysisMap = await analyzeOpportunitiesBatch(passedNormalized)
+    
+    // Attach AI analysis to scored opportunities
+    for (const item of scored) {
+      const analysis = aiAnalysisMap.get(item.normalized.noticeId)
+      if (analysis) {
+        item.aiAnalysis = analysis
+        item.normalized.aiTags = [
+          ...analysis.capabilityMatch,
+          analysis.recommendedAction,
+        ]
+      }
+    }
+
+    // Store in database
+    console.log(`[Query API] Storing ${scored.length} opportunities in database`)
+    const { created, updated } = await storeNormalizedOpportunities(scored, batchId)
+    console.log(`[Query API] Stored: ${created} created, ${updated} updated`)
 
     return NextResponse.json({
       success: true,
@@ -140,6 +167,10 @@ export async function POST(request: NextRequest) {
       deduplicated: rawDeduplicated.length,
       passedFilters: passedNormalized.length,
       scoredAbove50,
+      stored: {
+        created,
+        updated,
+      },
     })
   } catch (error) {
     console.error('[Query API] Error:', error)
