@@ -71,6 +71,9 @@ export default function AdminPage() {
             <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
               Contract Dashboard
             </Link>
+            <Link href="/admin/sam-dashboard" className="btn-secondary">
+              SAM.gov Dashboard
+            </Link>
           </div>
         </div>
       </section>
