@@ -42,18 +42,34 @@ export async function GET(request: NextRequest) {
     if (naicsFilter) {
       const naicsCodes = naicsFilter.split(',').map(c => c.trim()).filter(c => c)
       if (naicsCodes.length > 0) {
-        // Build OR conditions for NAICS codes
+        // Use OR to match any of the selected NAICS codes
         const naicsConditions = naicsCodes.map(code => ({
           naics_codes: {
             contains: code,
           },
         }))
         
-        // If we already have conditions, combine with AND
         if (naicsConditions.length === 1) {
           where.naics_codes = naicsConditions[0].naics_codes
         } else {
-          where.OR = naicsConditions
+          // Wrap existing conditions in AND, add NAICS OR
+          const baseConditions: any = {
+            ingestion_source: 'sam-ingestion',
+            notice_id: {
+              notIn: Array.from(ignoredSet),
+            },
+          }
+          
+          if (!showLowScore) {
+            baseConditions.relevance_score = {
+              gte: minScore,
+            }
+          }
+          
+          where.AND = [
+            baseConditions,
+            { OR: naicsConditions },
+          ]
         }
       }
     }
@@ -71,9 +87,26 @@ export async function GET(request: NextRequest) {
         if (setAsideConditions.length === 1) {
           where.set_aside = setAsideConditions[0].set_aside
         } else {
-          // Combine with existing OR or create new
-          if (where.OR) {
+          // Add to existing AND or create new structure
+          if (where.AND) {
+            where.AND.push({ OR: setAsideConditions })
+          } else if (where.OR) {
+            // Convert existing structure
+            const baseConditions: any = {
+              ingestion_source: 'sam-ingestion',
+              notice_id: {
+                notIn: Array.from(ignoredSet),
+              },
+            }
+            
+            if (!showLowScore) {
+              baseConditions.relevance_score = {
+                gte: minScore,
+              }
+            }
+            
             where.AND = [
+              baseConditions,
               { OR: where.OR },
               { OR: setAsideConditions },
             ]
