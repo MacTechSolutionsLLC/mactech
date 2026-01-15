@@ -20,7 +20,7 @@ import { scoreOpportunity } from '../scoring/scoreOpportunity'
 import { analyzeOpportunitiesBatch } from '../ai/analyzeOpportunity'
 import { storeNormalizedOpportunities } from '../store/opportunityStore'
 import { MIN_SCORE_THRESHOLD } from '../scoring/scoringConstants'
-import { NormalizedOpportunity, IngestionResult, IngestionBatch, SourceQuery as SourceQueryType } from '../sam/samTypes'
+import { NormalizedOpportunity, IngestionResult, IngestionBatch, SourceQuery as SourceQueryType, AIAnalysisResult } from '../sam/samTypes'
 import { SamGovOpportunity } from '../sam-gov-api-v2'
 
 /**
@@ -212,7 +212,11 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     
     // Stage 5: Score all filtered opportunities
     console.log(`[Ingest] Stage 5: Scoring`)
-    const scoredOpportunities = passedNormalized.map(normalized => {
+    const scoredOpportunities: Array<{
+      normalized: NormalizedOpportunity
+      score: number
+      aiAnalysis: AIAnalysisResult | null
+    }> = passedNormalized.map(normalized => {
       // Find corresponding raw opportunity for scoring
       const rawOpp = passedRaw.find(raw => raw.noticeId === normalized.noticeId)
       if (!rawOpp) {
@@ -235,7 +239,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
       return {
         normalized,
         score: scoringResult.score,
-        aiAnalysis: null, // Will be populated in next stage
+        aiAnalysis: null as AIAnalysisResult | null, // Will be populated in next stage
       }
     })
     
