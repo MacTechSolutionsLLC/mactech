@@ -12,7 +12,7 @@
  */
 
 import { paginateQuery } from '../sam/samPaginator'
-import { buildQuery, SourceQuery, QUERY_BUILDERS } from '../sam/samQueries'
+import { buildQuery } from '../sam/samQueries'
 import { deduplicateOpportunities } from './dedupe'
 import { normalizeOpportunity } from '../sam/samNormalizer'
 import { applyHardFilters } from '../filters/hardFilters'
