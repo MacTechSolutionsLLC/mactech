@@ -5,6 +5,7 @@ import Link from 'next/link'
 import OpportunityTable from './components/OpportunityTable'
 import RunIngestButton from './components/RunIngestButton'
 import FiltersPanel from './components/FiltersPanel'
+import QueryManager from './components/QueryManager'
 
 interface Opportunity {
   id: string
@@ -148,6 +149,8 @@ export default function SamDashboardPage() {
           <div className="card p-8 lg:p-12 mb-8">
             <RunIngestButton onIngestComplete={loadOpportunities} />
           </div>
+
+          <QueryManager />
 
           <FiltersPanel
             minScore={minScore}
