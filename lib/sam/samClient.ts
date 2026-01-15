@@ -49,7 +49,7 @@ export async function executeSamGovQuery(
   const headers: HeadersInit = {
     'Accept': 'application/json',
     'User-Agent': 'MacTech Contract Discovery/1.0',
-    'X-API-KEY': apiKey,
+    'X-Api-Key': apiKey, // Exact header name per SAM.gov API specification
   }
   
   let lastError: Error | null = null

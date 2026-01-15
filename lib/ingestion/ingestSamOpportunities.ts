@@ -38,24 +38,15 @@ function generateIngestRunId(): string {
 }
 
 /**
- * Get date range for queries (365 days back)
+ * Get date range for queries
+ * Default: Full year 2025 (01/01/2025 to 12/31/2025) per exact specification
  */
 function getDateRange(): { from: string; to: string } {
-  const today = new Date()
-  const to = today.toLocaleDateString('en-US', { 
-    month: '2-digit', 
-    day: '2-digit', 
-    year: 'numeric' 
-  })
-  
-  const fromDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
-  const from = fromDate.toLocaleDateString('en-US', { 
-    month: '2-digit', 
-    day: '2-digit', 
-    year: 'numeric' 
-  })
-  
-  return { from, to }
+  // Default to full year 2025 per exact specification
+  return {
+    from: '01/01/2025',
+    to: '12/31/2025',
+  }
 }
 
 /**

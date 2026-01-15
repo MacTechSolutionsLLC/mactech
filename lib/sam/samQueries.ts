@@ -7,30 +7,19 @@ import { SourceQuery } from './samTypes'
 
 /**
  * Get date range helper
+ * Default: Full year 2025 (01/01/2025 to 12/31/2025) per specification
  */
-function getDateRange(daysBack: number = 365): { from: string; to: string } {
-  const today = new Date()
-  const to = today.toLocaleDateString('en-US', { 
-    month: '2-digit', 
-    day: '2-digit', 
-    year: 'numeric' 
-  })
-  
-  const fromDate = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000)
-  const from = fromDate.toLocaleDateString('en-US', { 
-    month: '2-digit', 
-    day: '2-digit', 
-    year: 'numeric' 
-  })
-  
-  return { from, to }
+function getDateRange(): { from: string; to: string } {
+  // Default to full year 2025 per exact specification
+  return {
+    from: '01/01/2025',
+    to: '12/31/2025',
+  }
 }
 
 /**
  * Query A - Broad Universe (Safety Net)
- * ptype = r,p,k,o
- * postedFrom = rolling 365 days
- * postedTo = today
+ * Exact specification: ptype=r,p,k,o, postedFrom=01/01/2025, postedTo=12/31/2025
  */
 export function buildQueryA(
   postedFrom?: string,
@@ -40,7 +29,7 @@ export function buildQueryA(
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
     ? { from: postedFrom, to: postedTo }
-    : getDateRange(365)
+    : getDateRange()
   
   const params = new URLSearchParams()
   params.append('ptype', 'r,p,k,o')
@@ -53,9 +42,8 @@ export function buildQueryA(
 }
 
 /**
- * Query B - Cyber / IT NAICS
- * ncode = 541512,541511,541519,518210
- * ptype = r,p,o
+ * Query B - Cyber / IT NAICS Core
+ * Exact specification: ncode=541512,541511,541519,518210, ptype=r,p,o
  */
 export function buildQueryB(
   postedFrom?: string,
@@ -65,7 +53,7 @@ export function buildQueryB(
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
     ? { from: postedFrom, to: postedTo }
-    : getDateRange(365)
+    : getDateRange()
   
   const params = new URLSearchParams()
   params.append('ncode', '541512,541511,541519,518210')
@@ -79,9 +67,8 @@ export function buildQueryB(
 }
 
 /**
- * Query C - Small Business / SDVOSB
- * typeOfSetAside = SBA,SDVOSBC
- * ptype = o
+ * Query C - Small Business / SDVOSB Focused
+ * Exact specification: typeOfSetAside=SBA,SDVOSBC, ptype=o
  */
 export function buildQueryC(
   postedFrom?: string,
@@ -91,7 +78,7 @@ export function buildQueryC(
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
     ? { from: postedFrom, to: postedTo }
-    : getDateRange(365)
+    : getDateRange()
   
   const params = new URLSearchParams()
   params.append('typeOfSetAside', 'SBA,SDVOSBC')
@@ -106,7 +93,7 @@ export function buildQueryC(
 
 /**
  * Query D - Sources Sought (Early Capture)
- * ptype = r
+ * Exact specification: ptype=r
  */
 export function buildQueryD(
   postedFrom?: string,
@@ -116,7 +103,7 @@ export function buildQueryD(
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
     ? { from: postedFrom, to: postedTo }
-    : getDateRange(365)
+    : getDateRange()
   
   const params = new URLSearchParams()
   params.append('ptype', 'r')
@@ -129,9 +116,8 @@ export function buildQueryD(
 }
 
 /**
- * Query E - Keyword Intent (NAICS-Agnostic)
- * keywords = cyber,rmf,stig,ato,zero trust,information assurance,security engineering
- * ptype = r,p,o
+ * Query E - Keyword-Intent (NAICS-Agnostic)
+ * Exact specification: keywords=cyber,rmf,stig,ato,zero trust,information assurance,security engineering, ptype=r,p,o
  */
 export function buildQueryE(
   postedFrom?: string,
@@ -141,7 +127,7 @@ export function buildQueryE(
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
     ? { from: postedFrom, to: postedTo }
-    : getDateRange(365)
+    : getDateRange()
   
   const params = new URLSearchParams()
   params.append('keywords', 'cyber,rmf,stig,ato,zero trust,information assurance,security engineering')
