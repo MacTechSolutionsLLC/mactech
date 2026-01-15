@@ -34,3 +34,4 @@ export interface KnowledgeMetrics {
   topArticles: Array<{ id: string; title: string; views: number }>
 }
 
+

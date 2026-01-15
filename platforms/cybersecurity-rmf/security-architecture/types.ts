@@ -42,3 +42,4 @@ export interface SecurityArchitectureMetrics {
   bySystemType: Record<string, number>
 }
 
+

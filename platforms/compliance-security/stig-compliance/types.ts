@@ -59,3 +59,4 @@ export interface STIGComplianceMetrics {
   bySystemType: Record<string, number>
 }
 
+

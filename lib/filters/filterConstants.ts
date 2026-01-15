@@ -6,13 +6,15 @@
 /**
  * NAICS codes that are relevant for MacTech Solutions
  * These represent IT/cybersecurity consulting services
+ * Updated per specification: 541512, 541511, 541519, 541513, 541330, 518210
  */
 export const NAICS_ALLOWLIST = [
   '541512', // Computer Systems Design Services
   '541511', // Custom Computer Programming Services
   '541519', // Other Computer Related Services
-  '541330', // Engineering Services
   '541513', // Computer Facilities Management Services
+  '541330', // Engineering Services
+  '518210', // Data Processing, Hosting, and Related Services
 ] as const
 
 /**
@@ -25,12 +27,13 @@ export const NAICS_ALLOWLIST = [
  * - 51*: Tools
  * - 52*: Tools
  * - 53*: Tools
+ * Updated per specification: H, J, 41, 65, 51, 52, 53
  */
 export const PSC_BLACKLIST_PREFIXES = [
   'H',   // Facilities
   'J',   // Repair
-  '65',  // Medical
   '41',  // Furniture/Food
+  '65',  // Medical
   '51',  // Tools
   '52',  // Tools
   '53',  // Tools

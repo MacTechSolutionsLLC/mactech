@@ -1,11 +1,14 @@
 /**
  * Opportunity Store
  * Database persistence layer for SAM.gov opportunities
+ * Updated per specification to handle new schema fields
  */
 
 import { prisma } from '../prisma'
 import { ScoredOpportunity } from '../sam-ingestion/samTypes'
 import { SamGovOpportunity } from '../sam-gov-api-v2'
+import { NormalizedOpportunity, AIAnalysisResult } from '../sam/samTypes'
+import { getAllIgnored } from './ignoredOpportunities'
 
 /**
  * Convert SAM.gov opportunity to database format
@@ -72,7 +75,122 @@ function opportunityToDbData(
 }
 
 /**
- * Store scored opportunities in database
+ * Store normalized opportunities with scores and AI analysis
+ * Updates existing records or creates new ones (upsert by noticeId)
+ */
+export async function storeNormalizedOpportunities(
+  normalizedOpportunities: Array<{
+    normalized: NormalizedOpportunity
+    score: number
+    aiAnalysis?: AIAnalysisResult | null
+  }>,
+  batchId: string
+): Promise<{ created: number; updated: number }> {
+  let created = 0
+  let updated = 0
+
+  // Get ignored noticeIds
+  const ignoredSet = await getAllIgnored()
+
+  for (const item of normalizedOpportunities) {
+    try {
+      const { normalized, score, aiAnalysis } = item
+      const noticeId = normalized.noticeId
+
+      if (!noticeId) {
+        console.warn('[OpportunityStore] Skipping opportunity without noticeId')
+        continue
+      }
+
+      // Skip if ignored
+      if (ignoredSet.has(noticeId)) {
+        console.log(`[OpportunityStore] Skipping ignored opportunity ${noticeId}`)
+        continue
+      }
+
+      const url = normalized.uiLink || 
+        (noticeId ? `https://sam.gov/opp/${noticeId}` : 'https://sam.gov')
+
+      const dbData = {
+        google_query: `SAM.gov Ingestion Batch ${batchId}`,
+        service_category: null,
+        title: normalized.title,
+        url,
+        domain: 'sam.gov',
+        snippet: normalized.rawPayload.description?.substring(0, 500) || null,
+        document_type: normalized.type || null,
+        notice_id: noticeId,
+        solicitation_number: normalized.solicitationNumber || null,
+        agency: normalized.agencyPath || null,
+        naics_codes: JSON.stringify(normalized.naics.all),
+        set_aside: JSON.stringify(normalized.setAside ? [normalized.setAside] : []),
+        location_mentions: JSON.stringify(
+          normalized.placeOfPerformance ? [normalized.placeOfPerformance] : []
+        ),
+        detected_keywords: JSON.stringify(normalized.aiTags),
+        relevance_score: score,
+        ingestion_status: 'discovered',
+        ingestion_source: 'sam-ingestion',
+        ingestion_batch_id: batchId,
+        verified: false,
+        description: normalized.rawPayload.description || null,
+        scraped_text_content: normalized.rawPayload.description || null,
+        points_of_contact: normalized.rawPayload.pointOfContact && normalized.rawPayload.pointOfContact.length > 0
+          ? JSON.stringify(
+              normalized.rawPayload.pointOfContact.map(poc => ({
+                name: poc.fullName || '',
+                email: poc.email || '',
+                phone: poc.phone || '',
+                role: poc.type || poc.title || '',
+              }))
+            )
+          : null,
+        deadline: normalized.responseDeadline || null,
+        place_of_performance: normalized.placeOfPerformance || null,
+        sow_attachment_url: null,
+        sow_attachment_type: null,
+        // New fields per specification
+        raw_payload: JSON.stringify(normalized.rawPayload),
+        normalized_fields: JSON.stringify(normalized),
+        source_queries: JSON.stringify(normalized.sourceQueries),
+        ingested_at: new Date(normalized.ingestedAt),
+        aiAnalysis: aiAnalysis ? JSON.stringify(aiAnalysis) : null,
+        aiAnalysisGeneratedAt: aiAnalysis ? new Date() : null,
+      }
+
+      // Upsert by noticeId (using url as unique constraint fallback)
+      const existing = await prisma.governmentContractDiscovery.findFirst({
+        where: { notice_id: noticeId },
+      })
+
+      if (existing) {
+        // Update existing record
+        await prisma.governmentContractDiscovery.update({
+          where: { id: existing.id },
+          data: {
+            ...dbData,
+            updated_at: new Date(),
+          },
+        })
+        updated++
+      } else {
+        // Create new record
+        await prisma.governmentContractDiscovery.create({
+          data: dbData,
+        })
+        created++
+      }
+    } catch (error) {
+      console.error(`[OpportunityStore] Error storing opportunity:`, error)
+      // Continue with next opportunity
+    }
+  }
+
+  return { created, updated }
+}
+
+/**
+ * Store scored opportunities in database (legacy method)
  * Updates existing records or creates new ones
  */
 export async function storeOpportunities(
@@ -115,6 +233,13 @@ export async function storeOpportunities(
   }
 
   return { created, updated }
+}
+
+/**
+ * Get ignored noticeIds
+ */
+export async function getIgnoredNoticeIds(): Promise<Set<string>> {
+  return getAllIgnored()
 }
 
 /**
@@ -171,6 +296,17 @@ export async function unflagOpportunity(noticeId: string): Promise<void> {
   } catch (error) {
     console.error(`[OpportunityStore] Error unflagging opportunity:`, error)
     throw error
+  }
+}
+
+/**
+ * Flag or unflag an opportunity
+ */
+export async function setFlagged(noticeId: string, flagged: boolean, flaggedBy?: string): Promise<void> {
+  if (flagged) {
+    await flagOpportunity(noticeId, flaggedBy)
+  } else {
+    await unflagOpportunity(noticeId)
   }
 }
 

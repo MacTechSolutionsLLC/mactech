@@ -137,3 +137,4 @@ The enhancements are automatically applied to all contract discovery searches. T
 
 No additional configuration is required - the enhancements work out of the box with existing search functionality.
 
+

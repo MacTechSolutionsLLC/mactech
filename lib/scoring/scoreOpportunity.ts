@@ -10,7 +10,7 @@ import { filterByNaics, NaicsGateResult } from '../filters/naicsGate'
 import {
   BASE_SCORE,
   SCORING_WEIGHTS,
-  RELEVANCE_KEYWORDS,
+  CYBER_KEYWORDS,
   MIN_SCORE_THRESHOLD,
 } from './scoringConstants'
 
@@ -78,28 +78,32 @@ function isPreSolicitation(opportunity: SamGovOpportunity): boolean {
 }
 
 /**
- * Check if opportunity is Combined Synopsis/Solicitation
+ * Check if opportunity is Solicitation
  */
-function isCombined(opportunity: SamGovOpportunity): boolean {
+function isSolicitation(opportunity: SamGovOpportunity): boolean {
   const type = (opportunity.type || '').toUpperCase()
   const baseType = (opportunity.baseType || '').toUpperCase()
   
-  return type.includes('COMBINE') || 
+  return type.includes('SOLICITATION') || 
+         baseType.includes('SOLICITATION') ||
+         type.includes('COMBINE') || 
          baseType.includes('COMBINE') ||
          type.includes('COMBINED') ||
          baseType.includes('COMBINED')
 }
 
 /**
- * Count keyword matches in title and description
+ * Count cyber keyword matches in title and description
+ * Per specification: RMF, STIG, ATO, Zero Trust
+ * Each match adds +5 points
  */
-function countKeywordMatches(opportunity: SamGovOpportunity): number {
+function countCyberKeywordMatches(opportunity: SamGovOpportunity): number {
   const title = (opportunity.title || '').toUpperCase()
   const description = (opportunity.description || '').toUpperCase()
   const combined = `${title} ${description}`
   
   let matches = 0
-  for (const keyword of RELEVANCE_KEYWORDS) {
+  for (const keyword of CYBER_KEYWORDS) {
     if (combined.includes(keyword.toUpperCase())) {
       matches++
     }
@@ -152,6 +156,10 @@ function calculateSetAsideScore(opportunity: SamGovOpportunity): number {
 
 /**
  * Calculate lifecycle stage score component
+ * Per specification:
+ * - Sources Sought: +25
+ * - Pre-Solicitation: +15
+ * - Solicitation: +10
  */
 function calculateLifecycleScore(opportunity: SamGovOpportunity): number {
   if (isSourcesSought(opportunity)) {
@@ -162,8 +170,8 @@ function calculateLifecycleScore(opportunity: SamGovOpportunity): number {
     return SCORING_WEIGHTS.PRE_SOLICITATION_BOOST
   }
   
-  if (isCombined(opportunity)) {
-    return SCORING_WEIGHTS.COMBINED_BOOST
+  if (isSolicitation(opportunity)) {
+    return SCORING_WEIGHTS.SOLICITATION_BOOST
   }
   
   return 0
@@ -202,7 +210,7 @@ export function scoreOpportunity(opportunity: SamGovOpportunity): ScoringResult 
     naics: calculateNaicsScore(opportunity),
     setAside: calculateSetAsideScore(opportunity),
     lifecycle: calculateLifecycleScore(opportunity),
-    keywords: countKeywordMatches(opportunity) * SCORING_WEIGHTS.KEYWORD_MATCH,
+    keywords: countCyberKeywordMatches(opportunity) * SCORING_WEIGHTS.CYBER_KEYWORD_MATCH,
     deadline: calculateDeadlineScore(opportunity),
     total: 0,
   }

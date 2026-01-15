@@ -67,10 +67,17 @@ model GovernmentContractDiscovery {
   
   // Ingestion pipeline fields
   ingestion_source    String?  // Track if from ingestion pipeline vs search
-  ingestion_batch_id  String?  // Track ingestion batch
+  ingestion_batch_id  String?  // Track ingestion batch (batchId)
   flagged             Boolean  @default(false)
   flagged_at          DateTime?
   flagged_by          String?
+  ignored             Boolean  @default(false) // Track if ignored
+  
+  // New ingestion fields per specification
+  raw_payload         String?  // JSON string of raw SAM.gov API response
+  normalized_fields   String?  // JSON string of normalized opportunity data
+  source_queries      String   @default("[]") // JSON array of source query identifiers (A, B, C, D, E)
+  ingested_at         DateTime? // When this opportunity was ingested
   
   // Scraping fields
   scraped             Boolean  @default(false)
@@ -104,6 +111,7 @@ model GovernmentContractDiscovery {
   aiServiceCategory   String?  // cybersecurity, infrastructure, compliance, contracts, general
   aiRecommendedActions String? // JSON array of recommended actions
   aiAnalysisGeneratedAt DateTime?
+  aiAnalysis          String?  // JSON string of complete AI analysis (relevanceSummary, recommendedAction, capabilityMatch, risks)
   
   // AI Award Likelihood fields
   aiAwardLikelihood   Float?   // 0-100 award probability score
