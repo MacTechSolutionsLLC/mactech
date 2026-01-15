@@ -103,8 +103,14 @@ export async function executeSamGovQuery(
           )
         }
         
-        // Handle rate limiting (429)
+        // Handle rate limiting (429) - try fallback key if available
         if (response.status === 429) {
+          // If we're not already using fallback, try it
+          if (!useFallbackKey && process.env.ALT_SAM_API_KEY) {
+            console.log('[SAM Client] Primary API key rate limited (429), switching to fallback ALT_SAM_API_KEY')
+            return executeSamGovQuery(params, retries, true)
+          }
+          
           let nextAccessTime: string | null = null
           try {
             const errorJson = JSON.parse(errorText)
@@ -156,11 +162,18 @@ export async function executeSamGovQuery(
   }
   
   // All retries exhausted - try fallback if we haven't already
-  if (!useFallbackKey && process.env.ALT_SAM_API_KEY && 
-      lastError && (lastError.message.includes('authentication failed') || 
-                    lastError.message.includes('401'))) {
-    console.log('[SAM Client] Primary API key exhausted, trying fallback ALT_SAM_API_KEY')
-    return executeSamGovQuery(params, retries, true)
+  // Try fallback on both authentication errors (401) and rate limit errors (429)
+  if (!useFallbackKey && process.env.ALT_SAM_API_KEY && lastError) {
+    const isAuthError = lastError.message.includes('authentication failed') || 
+                        lastError.message.includes('401')
+    const isRateLimitError = lastError.message.includes('rate limit') || 
+                             lastError.message.includes('429')
+    
+    if (isAuthError || isRateLimitError) {
+      const errorType = isAuthError ? 'authentication' : 'rate limit'
+      console.log(`[SAM Client] Primary API key exhausted (${errorType}), trying fallback ALT_SAM_API_KEY`)
+      return executeSamGovQuery(params, retries, true)
+    }
   }
   
   // All retries exhausted
