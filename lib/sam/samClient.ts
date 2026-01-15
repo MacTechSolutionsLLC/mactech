@@ -10,14 +10,33 @@ const API_BASE_URL = 'https://api.sam.gov/opportunities/v2/search'
 
 /**
  * Get API key from environment
+ * Tries primary key first, then fallback key
  */
-function getApiKey(): string {
+function getApiKey(useFallback: boolean = false): string {
+  if (useFallback) {
+    const altKey = process.env.ALT_SAM_API_KEY
+    if (!altKey) {
+      throw new Error(
+        'Fallback SAM.gov API key (ALT_SAM_API_KEY) not found. ' +
+        'Please set ALT_SAM_API_KEY environment variable.'
+      )
+    }
+    return altKey
+  }
+  
   const apiKey = process.env.SAM_GOV_API_KEY || process.env.SAM_API_KEY
   
   if (!apiKey) {
+    // Try fallback before throwing error
+    const altKey = process.env.ALT_SAM_API_KEY
+    if (altKey) {
+      console.log('[SAM Client] Primary API key not found, using fallback ALT_SAM_API_KEY')
+      return altKey
+    }
+    
     throw new Error(
       'SAM.gov API key required. ' +
-      'Please register at https://api.sam.gov/ and set SAM_GOV_API_KEY environment variable.'
+      'Please register at https://api.sam.gov/ and set SAM_GOV_API_KEY or ALT_SAM_API_KEY environment variable.'
     )
   }
   
@@ -32,13 +51,14 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Execute a SAM.gov API call with retry logic
+ * Execute a SAM.gov API call with retry logic and fallback API key
  */
 export async function executeSamGovQuery(
   params: URLSearchParams,
-  retries: number = 3
+  retries: number = 3,
+  useFallbackKey: boolean = false
 ): Promise<SamGovApiResponse> {
-  const apiKey = getApiKey()
+  const apiKey = getApiKey(useFallbackKey)
   const url = new URL(API_BASE_URL)
   
   // Add all query parameters
@@ -68,8 +88,14 @@ export async function executeSamGovQuery(
       if (!response.ok) {
         const errorText = await response.text()
         
-        // Handle authentication errors
+        // Handle authentication errors - try fallback key if available
         if (response.status === 401) {
+          // If we're not already using fallback, try it
+          if (!useFallbackKey && process.env.ALT_SAM_API_KEY) {
+            console.log('[SAM Client] Primary API key failed (401), switching to fallback ALT_SAM_API_KEY')
+            return executeSamGovQuery(params, retries, true)
+          }
+          
           throw new Error(
             `SAM.gov API authentication failed. ` +
             `Please verify your API key is correct. ` +
@@ -117,15 +143,24 @@ export async function executeSamGovQuery(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
       
-      // Don't retry on authentication errors
-      if (lastError.message.includes('authentication failed') || 
-          lastError.message.includes('401')) {
+      // Don't retry on authentication errors unless we can fallback
+      if ((lastError.message.includes('authentication failed') || 
+           lastError.message.includes('401')) && 
+          (useFallbackKey || !process.env.ALT_SAM_API_KEY)) {
         throw lastError
       }
       
       // Log error but continue to retry
       console.error(`[SAM Client] Attempt ${attempt + 1} failed:`, lastError.message)
     }
+  }
+  
+  // All retries exhausted - try fallback if we haven't already
+  if (!useFallbackKey && process.env.ALT_SAM_API_KEY && 
+      lastError && (lastError.message.includes('authentication failed') || 
+                    lastError.message.includes('401'))) {
+    console.log('[SAM Client] Primary API key exhausted, trying fallback ALT_SAM_API_KEY')
+    return executeSamGovQuery(params, retries, true)
   }
   
   // All retries exhausted
