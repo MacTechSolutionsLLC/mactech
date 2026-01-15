@@ -45,22 +45,36 @@ function normalizeNaics(opportunity: SamGovOpportunity): {
 
 /**
  * Normalize agency path
+ * Prioritizes meaningful agency information over generic "Office" field
  */
 function normalizeAgencyPath(opportunity: SamGovOpportunity): string {
-  if (opportunity.agency) {
-    return opportunity.agency
+  // Priority 1: Direct agency field (most reliable)
+  if (opportunity.agency && opportunity.agency.trim() && opportunity.agency !== 'Office') {
+    return opportunity.agency.trim()
   }
   
-  if (opportunity.organizationType) {
-    return opportunity.organizationType
+  // Priority 2: Organization type (often contains agency name)
+  if (opportunity.organizationType && opportunity.organizationType.trim() && opportunity.organizationType !== 'Office') {
+    return opportunity.organizationType.trim()
   }
   
-  if (opportunity.office) {
-    return opportunity.office
+  // Priority 3: Office field (only if it's not just "Office")
+  if (opportunity.office && opportunity.office.trim() && opportunity.office !== 'Office') {
+    return opportunity.office.trim()
   }
   
-  if (opportunity.officeAddress?.city) {
-    return opportunity.officeAddress.city
+  // Priority 4: Office address city (as last resort)
+  if (opportunity.officeAddress?.city && opportunity.officeAddress.city.trim()) {
+    return opportunity.officeAddress.city.trim()
+  }
+  
+  // Priority 5: Try to extract from description if available
+  if (opportunity.description) {
+    // Look for common agency patterns in description
+    const agencyMatch = opportunity.description.match(/(?:Department of|Agency|Administration|Bureau|Service|Command)\s+([A-Z][A-Za-z\s]+?)(?:\s|,|\.|$)/i)
+    if (agencyMatch && agencyMatch[1]) {
+      return agencyMatch[1].trim()
+    }
   }
   
   return 'Unknown Agency'

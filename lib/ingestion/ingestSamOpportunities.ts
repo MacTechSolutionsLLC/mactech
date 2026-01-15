@@ -63,10 +63,10 @@ async function executeAllQueries(): Promise<Map<SourceQueryType, SamGovOpportuni
       console.log(`[Ingest] Starting Query ${sourceQuery}`)
       
       const buildQueryFn = (offset: number) => {
-        return buildQuery(sourceQuery, from, to, 50, offset)
+        return buildQuery(sourceQuery, from, to, 100, offset)
       }
       
-      const opportunities = await paginateQuery(buildQueryFn, sourceQuery, 50)
+      const opportunities = await paginateQuery(buildQueryFn, sourceQuery, 100)
       results.set(sourceQuery, opportunities)
       
       console.log(`[Ingest] Query ${sourceQuery} fetched ${opportunities.length} opportunities`)

@@ -24,7 +24,7 @@ function getDateRange(): { from: string; to: string } {
 export function buildQueryA(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -48,7 +48,7 @@ export function buildQueryA(
 export function buildQueryB(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -73,7 +73,7 @@ export function buildQueryB(
 export function buildQueryC(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -98,7 +98,7 @@ export function buildQueryC(
 export function buildQueryD(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -122,7 +122,7 @@ export function buildQueryD(
 export function buildQueryE(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -158,7 +158,7 @@ export function buildQuery(
   source: SourceQuery,
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 50,
+  limit: number = 100,
   offset: number = 0
 ): URLSearchParams {
   const builder = QUERY_BUILDERS[source]

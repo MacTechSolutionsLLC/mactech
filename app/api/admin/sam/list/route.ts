@@ -32,27 +32,56 @@ export async function GET(request: NextRequest) {
     }
     
     // Score filter
-    if (showLowScore) {
-      // Show all scores
-    } else {
+    if (!showLowScore) {
       where.relevance_score = {
         gte: minScore,
       }
     }
     
-    // NAICS filter
+    // NAICS filter - check if any of the filtered NAICS codes are in the opportunity's NAICS codes
     if (naicsFilter) {
-      const naicsCodes = naicsFilter.split(',').map(c => c.trim())
-      where.naics_codes = {
-        contains: naicsCodes[0], // Simple contains check (can be improved)
+      const naicsCodes = naicsFilter.split(',').map(c => c.trim()).filter(c => c)
+      if (naicsCodes.length > 0) {
+        // Build OR conditions for NAICS codes
+        const naicsConditions = naicsCodes.map(code => ({
+          naics_codes: {
+            contains: code,
+          },
+        }))
+        
+        // If we already have conditions, combine with AND
+        if (naicsConditions.length === 1) {
+          where.naics_codes = naicsConditions[0].naics_codes
+        } else {
+          where.OR = naicsConditions
+        }
       }
     }
     
     // Set-aside filter
     if (setAsideFilter) {
-      const setAsides = setAsideFilter.split(',').map(s => s.trim())
-      where.set_aside = {
-        contains: setAsides[0], // Simple contains check (can be improved)
+      const setAsides = setAsideFilter.split(',').map(s => s.trim()).filter(s => s)
+      if (setAsides.length > 0) {
+        const setAsideConditions = setAsides.map(setAside => ({
+          set_aside: {
+            contains: setAside,
+          },
+        }))
+        
+        if (setAsideConditions.length === 1) {
+          where.set_aside = setAsideConditions[0].set_aside
+        } else {
+          // Combine with existing OR or create new
+          if (where.OR) {
+            where.AND = [
+              { OR: where.OR },
+              { OR: setAsideConditions },
+            ]
+            delete where.OR
+          } else {
+            where.OR = setAsideConditions
+          }
+        }
       }
     }
     

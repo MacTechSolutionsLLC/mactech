@@ -20,13 +20,13 @@ function sleep(ms: number): Promise<void> {
  * 
  * @param buildQueryFn - Function that builds query params for given offset
  * @param sourceQuery - Source query identifier for logging
- * @param limit - Results per page (default 50, max 1000)
+ * @param limit - Results per page (default 100, max 1000)
  * @returns All opportunities from all pages
  */
 export async function paginateQuery(
   buildQueryFn: (offset: number) => URLSearchParams,
   sourceQuery: SourceQuery,
-  limit: number = 50
+  limit: number = 100
 ): Promise<SamGovOpportunity[]> {
   const allOpportunities: SamGovOpportunity[] = []
   let offset = 0
