@@ -25,7 +25,9 @@ export async function GET() {
     
     for (const table of tables) {
       try {
-        const count = await prisma[table as keyof typeof prisma].count()
+        // Type assertion: Prisma model delegates have a count() method
+        const model = prisma[table as keyof typeof prisma] as { count: () => Promise<number> }
+        const count = await model.count()
         checks.tables[table] = { exists: true, count }
       } catch (error: any) {
         checks.tables[table] = { 
