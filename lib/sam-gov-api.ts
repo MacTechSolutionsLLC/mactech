@@ -491,6 +491,7 @@ async function searchSamGovSingle(params: {
   apiUrl.searchParams.append('offset', String(params.offset || 0))
   
   // Add set-aside filter (SAM.gov uses specific codes)
+  // Correct parameter name: typeOfSetAside (not setAside)
   if (params.setAside && params.setAside.length > 0) {
     // Map our set-aside terms to SAM.gov codes
     const samSetAside = params.setAside
@@ -502,7 +503,7 @@ async function searchSamGovSingle(params: {
       .filter(Boolean)[0]
     
     if (samSetAside) {
-      apiUrl.searchParams.append('setAside', samSetAside)
+      apiUrl.searchParams.append('typeOfSetAside', samSetAside)
     }
   }
   

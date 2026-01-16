@@ -191,9 +191,10 @@ export async function searchSamGovV2(params: {
   }
   
   // Add set-aside codes (API supports multiple in one call)
+  // Correct parameter name: typeOfSetAside (not setAside)
   if (params.setAside && params.setAside.length > 0) {
     // API accepts comma-separated set-aside codes
-    apiUrl.searchParams.append('setAside', params.setAside.join(','))
+    apiUrl.searchParams.append('typeOfSetAside', params.setAside.join(','))
   }
   
   // Add solicitation type (ptype)
@@ -211,7 +212,7 @@ export async function searchSamGovV2(params: {
   apiUrl.searchParams.append('postedTo', to)
   
   // Add pagination
-  apiUrl.searchParams.append('limit', String(params.limit || 25))
+  apiUrl.searchParams.append('limit', String(params.limit || 1000))
   apiUrl.searchParams.append('offset', String(params.offset || 0))
   
   // Get API key from environment

@@ -46,8 +46,9 @@ export async function POST(request: NextRequest) {
       if (params.ptype) {
         searchParams.append('ptype', params.ptype)
       }
-      if (params.ncode) {
-        searchParams.append('ncode', params.ncode)
+      // Correct parameter name: naics (not ncode)
+      if (params.naics) {
+        searchParams.append('naics', params.naics)
       }
       if (params.typeOfSetAside) {
         searchParams.append('typeOfSetAside', params.typeOfSetAside)
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       
       searchParams.append('postedFrom', params.postedFrom)
       searchParams.append('postedTo', params.postedTo)
-      searchParams.append('limit', String(params.limit || 100))
+      searchParams.append('limit', String(params.limit || 1000))
       searchParams.append('offset', String(offset))
       
       return searchParams
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     const opportunities = await paginateQuery(
       buildQueryFn,
       queryId as SourceQuery,
-      params.limit || 100
+      params.limit || 1000
     )
 
     console.log(`[Query API] Query ${queryId} fetched ${opportunities.length} opportunities`)

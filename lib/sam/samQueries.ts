@@ -7,24 +7,27 @@ import { SourceQuery } from './samTypes'
 
 /**
  * Get date range helper
- * Default: Full year 2025 (01/01/2025 to 12/31/2025) per specification
+ * Default: Rolling 45 days (approximately 30-60 day window)
  */
 function getDateRange(): { from: string; to: string } {
-  // Default to full year 2025 per exact specification
-  return {
-    from: '01/01/2025',
-    to: '12/31/2025',
-  }
+  const today = new Date()
+  const to = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  
+  // 45 days ago (rolling window)
+  const fromDate = new Date(today.getTime() - 45 * 24 * 60 * 60 * 1000)
+  const from = fromDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  
+  return { from, to }
 }
 
 /**
  * Query A - Broad Universe (Safety Net)
- * Exact specification: ptype=r,p,k,o, postedFrom=01/01/2025, postedTo=12/31/2025
+ * Revised: ptype=r,p,o (removed k=Combined Synopsis/Solicitation), rolling 30-60 days, limit=1000
  */
 export function buildQueryA(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -32,7 +35,7 @@ export function buildQueryA(
     : getDateRange()
   
   const params = new URLSearchParams()
-  params.append('ptype', 'r,p,k,o')
+  params.append('ptype', 'r,p,o')
   params.append('postedFrom', from)
   params.append('postedTo', to)
   params.append('limit', String(limit))
@@ -43,12 +46,12 @@ export function buildQueryA(
 
 /**
  * Query B - Cyber / IT NAICS Core
- * Exact specification: ncode=541512,541511,541519,518210, ptype=r,p,o
+ * Revised: naics=541512,541511,541519,518210 (not ncode), rolling 30-60 days, limit=1000
  */
 export function buildQueryB(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -56,7 +59,7 @@ export function buildQueryB(
     : getDateRange()
   
   const params = new URLSearchParams()
-  params.append('ncode', '541512,541511,541519,518210')
+  params.append('naics', '541512,541511,541519,518210')
   params.append('ptype', 'r,p,o')
   params.append('postedFrom', from)
   params.append('postedTo', to)
@@ -68,12 +71,12 @@ export function buildQueryB(
 
 /**
  * Query C - Small Business / SDVOSB Focused
- * Exact specification: typeOfSetAside=SBA,SDVOSBC, ptype=o
+ * Revised: typeOfSetAside=SBA,SDVOSBC (correct param name), rolling 30-60 days, limit=1000
  */
 export function buildQueryC(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -93,12 +96,12 @@ export function buildQueryC(
 
 /**
  * Query D - Sources Sought (Early Capture)
- * Exact specification: ptype=r
+ * Revised: rolling 30-60 days, limit=1000
  */
 export function buildQueryD(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -117,12 +120,12 @@ export function buildQueryD(
 
 /**
  * Query E - Keyword-Intent (NAICS-Agnostic)
- * Exact specification: keywords=cyber,rmf,stig,ato,zero trust,information assurance,security engineering, ptype=r,p,o
+ * Revised: Simplified to keywords=cyber security (let AI handle RMF, STIG, ATO, etc.), rolling 30-60 days, limit=1000
  */
 export function buildQueryE(
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const { from, to } = postedFrom && postedTo 
@@ -130,7 +133,7 @@ export function buildQueryE(
     : getDateRange()
   
   const params = new URLSearchParams()
-  params.append('keywords', 'cyber,rmf,stig,ato,zero trust,information assurance,security engineering')
+  params.append('keywords', 'cyber security')
   params.append('ptype', 'r,p,o')
   params.append('postedFrom', from)
   params.append('postedTo', to)
@@ -158,7 +161,7 @@ export function buildQuery(
   source: SourceQuery,
   postedFrom?: string,
   postedTo?: string,
-  limit: number = 100,
+  limit: number = 1000,
   offset: number = 0
 ): URLSearchParams {
   const builder = QUERY_BUILDERS[source]

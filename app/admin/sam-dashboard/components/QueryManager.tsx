@@ -12,7 +12,7 @@ interface QueryConfig {
   description: string
   params: {
     ptype?: string
-    ncode?: string
+    naics?: string
     typeOfSetAside?: string
     keywords?: string
     postedFrom: string
@@ -31,17 +31,30 @@ interface QueryResult {
   timestamp: string
 }
 
+// Helper to get rolling date range (45 days back from today)
+function getDefaultDateRange(): { from: string; to: string } {
+  const today = new Date()
+  const to = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  
+  const fromDate = new Date(today.getTime() - 45 * 24 * 60 * 60 * 1000)
+  const from = fromDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  
+  return { from, to }
+}
+
 export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}) {
+  const defaultDates = getDefaultDateRange()
+  
   const [queries, setQueries] = useState<QueryConfig[]>([
     {
       id: 'A',
       name: 'Broad Universe (Safety Net)',
-      description: 'All opportunity types to ensure nothing is missed',
+      description: 'All opportunity types to ensure nothing is missed (removed k=Combined Synopsis/Solicitation)',
       params: {
-        ptype: 'r,p,k,o',
-        postedFrom: '01/01/2025',
-        postedTo: '12/31/2025',
-        limit: 100,
+        ptype: 'r,p,o',
+        postedFrom: defaultDates.from,
+        postedTo: defaultDates.to,
+        limit: 1000,
       },
     },
     {
@@ -49,11 +62,11 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
       name: 'Cyber / IT NAICS Core',
       description: 'Primary cyber & IT consulting lane',
       params: {
-        ncode: '541512,541511,541519,518210',
+        naics: '541512,541511,541519,518210',
         ptype: 'r,p,o',
-        postedFrom: '01/01/2025',
-        postedTo: '12/31/2025',
-        limit: 100,
+        postedFrom: defaultDates.from,
+        postedTo: defaultDates.to,
+        limit: 1000,
       },
     },
     {
@@ -63,9 +76,9 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
       params: {
         typeOfSetAside: 'SBA,SDVOSBC',
         ptype: 'o',
-        postedFrom: '01/01/2025',
-        postedTo: '12/31/2025',
-        limit: 100,
+        postedFrom: defaultDates.from,
+        postedTo: defaultDates.to,
+        limit: 1000,
       },
     },
     {
@@ -74,21 +87,21 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
       description: 'Shape requirements before solicitations drop',
       params: {
         ptype: 'r',
-        postedFrom: '01/01/2025',
-        postedTo: '12/31/2025',
-        limit: 100,
+        postedFrom: defaultDates.from,
+        postedTo: defaultDates.to,
+        limit: 1000,
       },
     },
     {
       id: 'E',
       name: 'Keyword-Intent (NAICS-Agnostic)',
-      description: 'Catch cyber work with missing or bad NAICS',
+      description: 'Simplified to "cyber security" - let AI handle RMF, STIG, ATO, etc.',
       params: {
-        keywords: 'cyber,rmf,stig,ato,zero trust,information assurance,security engineering',
+        keywords: 'cyber security',
         ptype: 'r,p,o',
-        postedFrom: '01/01/2025',
-        postedTo: '12/31/2025',
-        limit: 100,
+        postedFrom: defaultDates.from,
+        postedTo: defaultDates.to,
+        limit: 1000,
       },
     },
   ])
@@ -311,25 +324,25 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
                         className="w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm"
                       />
                       <p className="text-body-xs text-neutral-500 mt-1">
-                        Comma-separated: r=Sources Sought, p=Presolicitation, k=Combined, o=Other
+                        Comma-separated: r=Sources Sought, p=Presolicitation, o=Other (k=Combined removed per spec)
                       </p>
                     </div>
                   )}
 
-                  {query.params.ncode && (
+                  {query.params.naics && (
                     <div>
                       <label className="block text-body-sm font-medium text-neutral-900 mb-2">
-                        NAICS Codes (ncode)
+                        NAICS Codes (naics)
                       </label>
                       <input
                         type="text"
-                        value={query.params.ncode}
-                        onChange={(e) => updateQuery(query.id, 'ncode', e.target.value)}
+                        value={query.params.naics}
+                        onChange={(e) => updateQuery(query.id, 'naics', e.target.value)}
                         placeholder="541512,541511,541519,518210"
                         className="w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm"
                       />
                       <p className="text-body-xs text-neutral-500 mt-1">
-                        Comma-separated NAICS codes
+                        Comma-separated NAICS codes (correct parameter name: naics, not ncode)
                       </p>
                     </div>
                   )}
@@ -365,7 +378,7 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
                         className="w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm"
                       />
                       <p className="text-body-xs text-neutral-500 mt-1">
-                        Comma-separated keywords for text search
+                        Simplified to "cyber security" - let AI handle RMF, STIG, ATO, Zero Trust, etc.
                       </p>
                     </div>
                   )}
@@ -383,9 +396,9 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
                       onChange={(e) => updateQuery(query.id, 'limit', parseInt(e.target.value, 10) || 100)}
                       className="w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm"
                     />
-                    <p className="text-body-xs text-neutral-500 mt-1">
-                      Maximum 1000 per page (default: 100)
-                    </p>
+                      <p className="text-body-xs text-neutral-500 mt-1">
+                        Maximum 1000 per page (default: 1000)
+                      </p>
                   </div>
                 </div>
               )}

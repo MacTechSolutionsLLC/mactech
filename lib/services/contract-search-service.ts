@@ -370,7 +370,8 @@ export async function searchContracts(request: SearchRequest): Promise<SearchRes
     }
     if (apiCallDetails.setAside.length > 0) {
       // API supports multiple set-asides in one call (comma-separated)
-      apiUrl.searchParams.append('setAside', apiCallDetails.setAside.join(','))
+      // Correct parameter name: typeOfSetAside (not setAside)
+      apiUrl.searchParams.append('typeOfSetAside', apiCallDetails.setAside.join(','))
     }
     if (apiCallDetails.naicsCodes && apiCallDetails.naicsCodes.length > 0) {
       apiUrl.searchParams.append('naics', apiCallDetails.naicsCodes.join(','))
