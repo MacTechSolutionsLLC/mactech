@@ -378,7 +378,7 @@ export default function QueryManager({ onQueryComplete }: QueryManagerProps = {}
                         className="w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm"
                       />
                       <p className="text-body-xs text-neutral-500 mt-1">
-                        Simplified to "cyber security" - let AI handle RMF, STIG, ATO, Zero Trust, etc.
+                        Simplified to &quot;cyber security&quot; - let AI handle RMF, STIG, ATO, Zero Trust, etc.
                       </p>
                     </div>
                   )}
