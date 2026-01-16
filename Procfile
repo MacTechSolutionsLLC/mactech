@@ -1,2 +1,2 @@
-web: next start -p ${PORT:-3000}
+web: node scripts/start-with-migration.js
 
