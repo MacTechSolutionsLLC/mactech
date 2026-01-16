@@ -519,9 +519,9 @@ export default function ContractDashboardPage() {
                             <td className="px-4 py-3">
                               <div className="space-y-1 text-body-xs">
                                 {contract.deadline && (
-                                  <p className={contract.daysRemaining !== null && contract.daysRemaining < 7 ? 'text-red-600 font-medium' : ''}>
+                                  <p className={contract.daysRemaining != null && contract.daysRemaining < 7 ? 'text-red-600 font-medium' : ''}>
                                     Deadline: {contract.deadline}
-                                    {contract.daysRemaining !== null && (
+                                    {contract.daysRemaining != null && (
                                       <span className="ml-1">({contract.daysRemaining} days)</span>
                                     )}
                                   </p>
