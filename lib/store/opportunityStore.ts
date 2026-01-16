@@ -11,9 +11,66 @@ import { NormalizedOpportunity, AIAnalysisResult } from '../sam/samTypes'
 import { getAllIgnored } from './ignoredOpportunities'
 
 /**
+ * Get description from SAM.gov payload, fetching from API if description is a URL
+ */
+async function getDescriptionFromPayload(rawPayload: SamGovOpportunity): Promise<string | null> {
+  const description = rawPayload.description
+  
+  if (!description) {
+    return null
+  }
+  
+  // Check if description is a URL (API endpoint to fetch description)
+  if (description.startsWith('http://') || description.startsWith('https://')) {
+    // Extract noticeId from URL if present
+    const noticeIdMatch = description.match(/noticeid=([a-z0-9]+)/i)
+    const noticeId = noticeIdMatch ? noticeIdMatch[1] : rawPayload.noticeId
+    
+    if (noticeId) {
+      try {
+        // Fetch description from SAM.gov API
+        const apiKey = process.env.SAM_GOV_API_KEY || process.env.SAM_API_KEY
+        if (!apiKey) {
+          console.warn('[OpportunityStore] No API key available to fetch description')
+          return null
+        }
+        
+        const descUrl = `https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=${noticeId}`
+        const response = await fetch(descUrl, {
+          headers: {
+            'Accept': 'application/json',
+            'X-API-KEY': apiKey,
+            'User-Agent': 'MacTech Contract Discovery/1.0',
+          },
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          // The API returns the description in different possible fields
+          const fetchedDescription = data.description || data.noticeDescription || data.content || data.text
+          if (fetchedDescription && typeof fetchedDescription === 'string' && fetchedDescription.trim().length > 0) {
+            return fetchedDescription.trim()
+          }
+        } else {
+          console.warn(`[OpportunityStore] Failed to fetch description for ${noticeId}: ${response.status}`)
+        }
+      } catch (error) {
+        console.error(`[OpportunityStore] Error fetching description for ${noticeId}:`, error)
+      }
+    }
+    
+    // If fetching failed, return null instead of the URL
+    return null
+  }
+  
+  // Description is actual text, return it
+  return description.trim()
+}
+
+/**
  * Convert SAM.gov opportunity to database format
  */
-function opportunityToDbData(
+async function opportunityToDbData(
   opportunity: SamGovOpportunity,
   scored: ScoredOpportunity,
   batchId: string
@@ -29,13 +86,17 @@ function opportunityToDbData(
   const url = opportunity.uiLink || 
     (opportunity.noticeId ? `https://sam.gov/opp/${opportunity.noticeId}` : 'https://sam.gov')
 
+  // Fetch description if it's a URL, otherwise use the text directly
+  const description = await getDescriptionFromPayload(opportunity)
+  const snippet = description ? description.substring(0, 500) : (opportunity.description?.substring(0, 500) || null)
+
   return {
     google_query: `SAM.gov Ingestion Batch ${batchId}`,
     service_category: null,
     title: opportunity.title,
     url,
     domain: 'sam.gov',
-    snippet: opportunity.description?.substring(0, 500) || null,
+    snippet,
     document_type: opportunity.type || null,
     notice_id: opportunity.noticeId || null,
     solicitation_number: opportunity.solicitationNumber || null,
@@ -53,8 +114,8 @@ function opportunityToDbData(
     ingestion_source: 'sam-ingestion',
     ingestion_batch_id: batchId,
     verified: false,
-    description: opportunity.description || null,
-    scraped_text_content: opportunity.description || null,
+    description,
+    scraped_text_content: description,
     points_of_contact: opportunity.pointOfContact && opportunity.pointOfContact.length > 0
       ? JSON.stringify(
           opportunity.pointOfContact.map(poc => ({
@@ -111,13 +172,17 @@ export async function storeNormalizedOpportunities(
       const url = normalized.uiLink || 
         (noticeId ? `https://sam.gov/opp/${noticeId}` : 'https://sam.gov')
 
+      // Fetch description if it's a URL, otherwise use the text directly
+      const description = await getDescriptionFromPayload(normalized.rawPayload)
+      const snippet = description ? description.substring(0, 500) : (normalized.rawPayload.description?.substring(0, 500) || null)
+
       const dbData = {
         google_query: `SAM.gov Ingestion Batch ${batchId}`,
         service_category: null,
         title: normalized.title,
         url,
         domain: 'sam.gov',
-        snippet: normalized.rawPayload.description?.substring(0, 500) || null,
+        snippet,
         document_type: normalized.type || null,
         notice_id: noticeId,
         solicitation_number: normalized.solicitationNumber || null,
@@ -133,8 +198,8 @@ export async function storeNormalizedOpportunities(
         ingestion_source: 'sam-ingestion',
         ingestion_batch_id: batchId,
         verified: false,
-        description: normalized.rawPayload.description || null,
-        scraped_text_content: normalized.rawPayload.description || null,
+        description,
+        scraped_text_content: description,
         points_of_contact: normalized.rawPayload.pointOfContact && normalized.rawPayload.pointOfContact.length > 0
           ? JSON.stringify(
               normalized.rawPayload.pointOfContact.map(poc => ({
@@ -202,7 +267,7 @@ export async function storeOpportunities(
 
   for (const scored of scoredOpportunities) {
     try {
-      const dbData = opportunityToDbData(scored.opportunity, scored, batchId)
+      const dbData = await opportunityToDbData(scored.opportunity, scored, batchId)
       const url = dbData.url
 
       const existing = await prisma.governmentContractDiscovery.findUnique({
