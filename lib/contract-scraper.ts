@@ -48,34 +48,15 @@ export async function scrapeContractPage(
   }
 ): Promise<ScrapeResult> {
   try {
-    console.log(`[Scraper] Processing contract: ${url}`, {
+    console.log(`[Scraper] Scraping contract page: ${url}`, {
       hasApiData: !!apiData,
       hasDescription: !!apiData?.description,
       hasLinks: !!apiData?.links,
     })
     
-    // If we have API data, use it directly instead of scraping
-    if (apiData) {
-      const textContent = apiData.description || ''
-      
-      // Extract SOW attachment from API links
-      const sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
-      
-      // Analyze using API data (includes contact info extraction)
-      const analysis = analyzeContractFromApiData(apiData, sowAttachment)
-      
-      return {
-        success: true,
-        htmlContent: undefined, // Don't store HTML if we have API data
-        textContent: textContent.substring(0, 50000),
-        sowAttachmentUrl: sowAttachment?.url,
-        sowAttachmentType: sowAttachment?.type,
-        analysis,
-      }
-    }
-    
-    // Fallback to HTML scraping if no API data provided
-    console.log(`[Scraper] No API data provided, scraping HTML page: ${url}`)
+    // Always scrape the HTML page to get full rich content
+    // API data is useful for fallback, but HTML has more complete information
+    console.log(`[Scraper] Fetching HTML page: ${url}`)
     
     // Fetch the HTML page
     const response = await fetch(url, {
@@ -87,6 +68,22 @@ export async function scrapeContractPage(
     })
 
     if (!response.ok) {
+      // If HTML scraping fails and we have API data, use it as fallback
+      if (apiData) {
+        console.warn(`[Scraper] HTML fetch failed (${response.status}), using API data as fallback`)
+        const textContent = apiData.description || ''
+        const sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
+        const analysis = analyzeContractFromApiData(apiData, sowAttachment)
+        
+        return {
+          success: true,
+          htmlContent: undefined,
+          textContent: textContent.substring(0, 50000),
+          sowAttachmentUrl: sowAttachment?.url,
+          sowAttachmentType: sowAttachment?.type,
+          analysis,
+        }
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
@@ -95,20 +92,42 @@ export async function scrapeContractPage(
     
     // Extract text content (remove scripts, styles, etc.)
     $('script, style, noscript').remove()
-    const textContent = $('body').text()
+    let textContent = $('body').text()
       .replace(/\s+/g, ' ')
       .trim()
-      .substring(0, 50000) // Limit to 50k chars
-
-    // Find SOW attachment using heuristics
-    const sowAttachment = findSOWAttachment($, url, textContent)
     
-    // Analyze the contract
-    const analysis = analyzeContract($, textContent, sowAttachment)
+    // If we have API description and HTML text is very short, prefer API description
+    // But still store the HTML for reference
+    if (apiData?.description && textContent.length < 500) {
+      console.log(`[Scraper] HTML text is short, supplementing with API description`)
+      textContent = apiData.description + '\n\n' + textContent
+    }
+    
+    textContent = textContent.substring(0, 50000) // Limit to 50k chars
+
+    // Find SOW attachment - check HTML first, then API links as fallback
+    let sowAttachment = findSOWAttachment($, url, textContent)
+    if (!sowAttachment && apiData) {
+      sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
+    }
+    
+    // Analyze the contract - prefer HTML analysis, supplement with API data if available
+    let analysis = analyzeContract($, textContent, sowAttachment)
+    if (apiData && (!analysis || analysis.confidence < 0.5)) {
+      const apiAnalysis = analyzeContractFromApiData(apiData, sowAttachment)
+      // Merge analyses, preferring HTML analysis
+      if (apiAnalysis) {
+        analysis = {
+          ...apiAnalysis,
+          ...analysis,
+          confidence: Math.max(analysis?.confidence || 0, apiAnalysis.confidence),
+        }
+      }
+    }
 
     return {
       success: true,
-      htmlContent: htmlContent.substring(0, 100000), // Limit HTML storage
+      htmlContent: htmlContent.substring(0, 200000), // Increased limit for richer content
       textContent,
       sowAttachmentUrl: sowAttachment?.url,
       sowAttachmentType: sowAttachment?.type,
@@ -116,6 +135,24 @@ export async function scrapeContractPage(
     }
   } catch (error) {
     console.error(`[Scraper] Error scraping ${url}:`, error)
+    
+    // If we have API data as fallback, use it
+    if (apiData) {
+      console.log(`[Scraper] Using API data as fallback due to scraping error`)
+      const textContent = apiData.description || ''
+      const sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
+      const analysis = analyzeContractFromApiData(apiData, sowAttachment)
+      
+      return {
+        success: true,
+        htmlContent: undefined,
+        textContent: textContent.substring(0, 50000),
+        sowAttachmentUrl: sowAttachment?.url,
+        sowAttachmentType: sowAttachment?.type,
+        analysis,
+      }
+    }
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -751,6 +788,33 @@ export async function saveScrapedContract(
   scrapeResult: ScrapeResult
 ): Promise<void> {
   try {
+    // Extract a clean description from scraped text content
+    // Try to find the main description section, otherwise use first 2000 chars
+    let description = scrapeResult.textContent || null
+    if (description) {
+      // Try to extract just the description section (before "Contact Information", "Attachments", etc.)
+      const descriptionEndMarkers = [
+        /contact\s*information/i,
+        /attachments?/i,
+        /links?/i,
+        /additional\s*information/i,
+        /point\s*of\s*contact/i,
+      ]
+      
+      for (const marker of descriptionEndMarkers) {
+        const match = description.search(marker)
+        if (match > 100) { // Only cut if we have substantial content before the marker
+          description = description.substring(0, match).trim()
+          break
+        }
+      }
+      
+      // Limit description length but keep it substantial
+      if (description.length > 10000) {
+        description = description.substring(0, 10000) + '...'
+      }
+    }
+
     await prisma.governmentContractDiscovery.update({
       where: { id: contractId },
       data: {
@@ -758,11 +822,17 @@ export async function saveScrapedContract(
         scraped_at: new Date(),
         scraped_html_content: scrapeResult.htmlContent || null,
         scraped_text_content: scrapeResult.textContent || null,
+        // Update description field with scraped content if it's better than existing
+        description: description || undefined, // Only update if we have new description
         sow_attachment_url: scrapeResult.sowAttachmentUrl || null,
         sow_attachment_type: scrapeResult.sowAttachmentType || null,
         analysis_summary: scrapeResult.analysis?.summary || null,
         analysis_confidence: scrapeResult.analysis?.confidence || null,
         analysis_keywords: JSON.stringify(scrapeResult.analysis?.keywords || []),
+        // Update requirements if extracted
+        requirements: scrapeResult.analysis?.requirements 
+          ? JSON.stringify(scrapeResult.analysis.requirements)
+          : undefined,
         updated_at: new Date(),
       },
     })
