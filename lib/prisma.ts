@@ -4,13 +4,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Set default DATABASE_URL if not provided (for Railway/SQLite)
+// Warn if DATABASE_URL is not set (required for PostgreSQL)
 if (!process.env.DATABASE_URL) {
-  // Default to SQLite in /tmp for Railway or ./prisma/dev.db for local
-  process.env.DATABASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'file:/tmp/dev.db'
-    : 'file:./prisma/dev.db'
-  console.warn('[Prisma] DATABASE_URL not set, using default:', process.env.DATABASE_URL)
+  console.error('[Prisma] DATABASE_URL environment variable is not set. Database operations will fail.')
+  console.error('[Prisma] For local development, set DATABASE_URL in .env.local')
+  console.error('[Prisma] For production, ensure DATABASE_URL is set in Railway environment variables')
 }
 
 export const prisma =
