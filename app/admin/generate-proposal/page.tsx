@@ -74,7 +74,7 @@ export default function GenerateProposalPage() {
             <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
               Contract Dashboard
             </Link>
-            <Link href="/admin/sam-dashboard" className="btn-secondary">
+            <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
               SAM.gov Dashboard
             </Link>
           </div>

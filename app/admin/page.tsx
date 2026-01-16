@@ -19,9 +19,6 @@ export default function AdminPage() {
             <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
               Contract Dashboard
             </Link>
-            <Link href="/admin/sam-dashboard" className="btn-secondary">
-              SAM.gov Dashboard
-            </Link>
             <Link href="/admin/generate-proposal" className="btn-secondary">
               Generate Proposal & BOE
             </Link>
@@ -54,26 +51,15 @@ export default function AdminPage() {
                 <div className="flex-1">
                   <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Contract Dashboard</h4>
                   <p className="text-body-sm text-neutral-700">
-                    View and manage discovered contract opportunities. Review validation results, analysis summaries, 
-                    and track which opportunities have been verified or dismissed.
+                    Unified dashboard for all contract opportunities from SAM.gov ingestion pipeline and contract discovery. 
+                    View scored and AI-analyzed opportunities, filter by relevance score, NAICS codes, and set-asides, 
+                    and manage flagged, verified, or dismissed opportunities. Includes ingestion pipeline controls and query management.
                   </p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <div className="flex-shrink-0 h-10 w-10 bg-accent-700 text-white rounded-full flex items-center justify-center text-body-sm font-semibold">
                   3
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">SAM.gov Dashboard</h4>
-                  <p className="text-body-sm text-neutral-700">
-                    Monitor automated SAM.gov opportunity ingestion pipeline. View scored and AI-analyzed opportunities, 
-                    filter by relevance score, and manage flagged opportunities for review.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 h-10 w-10 bg-accent-700 text-white rounded-full flex items-center justify-center text-body-sm font-semibold">
-                  4
                 </div>
                 <div className="flex-1">
                   <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Generate Proposal & BOE</h4>
