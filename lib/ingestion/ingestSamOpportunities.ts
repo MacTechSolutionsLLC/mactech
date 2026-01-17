@@ -556,7 +556,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
           console.log(`[Ingest] Scraping ${item.normalized.noticeId}: ${item.normalized.uiLink}`)
           const scrapeResult = await scrapeContractPage(item.normalized.uiLink, {
             description: item.normalized.rawPayload?.description,
-            links: item.normalized.rawPayload?.resourceLinks,
+            links: item.normalized.rawPayload?.links,
             additionalInfoLink: item.normalized.rawPayload?.additionalInfoLink,
             title: item.normalized.title,
           })
@@ -585,7 +585,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                 if (parsedData) {
                   // Extract all links from multiple sources
                   const allLinks = extractAllLinks(
-                    item.normalized.rawPayload?.resourceLinks,
+                    item.normalized.rawPayload?.links,
                     item.normalized.rawPayload?.additionalInfoLink,
                     scrapeResult.htmlContent,
                     parsedData
@@ -626,7 +626,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                 } else {
                   // Even if parsing fails, extract links from API and HTML
                   const allLinks = extractAllLinks(
-                    item.normalized.rawPayload?.resourceLinks,
+                    item.normalized.rawPayload?.links,
                     item.normalized.rawPayload?.additionalInfoLink,
                     scrapeResult.htmlContent
                   )
