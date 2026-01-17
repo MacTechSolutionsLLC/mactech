@@ -395,7 +395,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
           try {
             const enrichment = await enrichOpportunity(opportunity.id, {
               limit: 10,
-              useDatabase: true,
+              useDatabase: false, // Call USAspending API directly for turnkey solution
               createLinks: true,
             })
             

@@ -322,6 +322,81 @@ export async function enrichOpportunity(
           .filter((v): v is string => v !== undefined && v !== null)
       )
 
+      // Save awards to database for linking (turnkey solution)
+      if (createLinks && similarAwards.length > 0) {
+        const batchId = `enrichment-${Date.now()}`
+        for (const award of similarAwards) {
+          try {
+            const awardId = award.award_id || award.id || award.generated_unique_award_id
+            if (!awardId) continue
+
+            // Check if award exists
+            const existing = await prisma.usaSpendingAward.findFirst({
+              where: {
+                OR: [
+                  { award_id: awardId },
+                  { generated_unique_award_id: award.generated_unique_award_id },
+                ].filter(Boolean),
+              },
+            })
+
+            if (!existing) {
+              // Save award to database for linking
+              await prisma.usaSpendingAward.create({
+                data: {
+                  award_id: awardId,
+                  generated_unique_award_id: award.generated_unique_award_id,
+                  award_type: award.type,
+                  award_type_description: award.type_description,
+                  category: award.category,
+                  piid: award.piid,
+                  fain: award.fain,
+                  uri: award.uri,
+                  total_obligation: award.total_obligation,
+                  total_outlay: award.total_outlay,
+                  total_subsidy_cost: award.total_subsidy_cost,
+                  awarding_agency: award.awarding_agency ? JSON.stringify(award.awarding_agency) : null,
+                  funding_agency: award.funding_agency ? JSON.stringify(award.funding_agency) : null,
+                  awarding_agency_name: award.awarding_agency?.name || award.awarding_agency?.toptier_agency?.name,
+                  funding_agency_name: award.funding_agency?.name || award.funding_agency?.toptier_agency?.name,
+                  awarding_agency_id: award.awarding_agency?.id,
+                  funding_agency_id: award.funding_agency?.id,
+                  recipient_name: award.recipient?.name,
+                  recipient_uei: award.recipient?.uei,
+                  recipient_duns: award.recipient?.duns,
+                  recipient_hash: award.recipient?.hash,
+                  recipient_id: award.recipient?.recipient_id,
+                  recipient_location: award.recipient?.location ? JSON.stringify(award.recipient.location) : null,
+                  place_of_performance: award.place_of_performance ? JSON.stringify(award.place_of_performance) : null,
+                  pop_state: award.place_of_performance?.state,
+                  pop_country: award.place_of_performance?.country,
+                  start_date: award.start_date ? new Date(award.start_date) : null,
+                  end_date: award.end_date ? new Date(award.end_date) : null,
+                  last_modified_date: award.last_modified_date ? new Date(award.last_modified_date) : null,
+                  awarding_date: award.awarding_date ? new Date(award.awarding_date) : null,
+                  period_of_performance: award.period_of_performance ? JSON.stringify(award.period_of_performance) : null,
+                  naics_code: award.naics || award.naics_code,
+                  naics_description: award.naics_description,
+                  psc_code: award.psc || award.psc_code,
+                  psc_description: award.psc_description,
+                  cfda_number: award.cfda_number,
+                  cfda_title: award.cfda_title,
+                  description: award.description,
+                  transaction_count: award.transaction_count || 0,
+                  total_subaward_amount: award.total_subaward_amount,
+                  subaward_count: award.subaward_count || 0,
+                  raw_data: JSON.stringify(award),
+                  ingestion_batch_id: batchId,
+                },
+              })
+            }
+          } catch (error) {
+            // Continue if save fails - award might already exist
+            console.warn(`[Award Enrichment] Could not save award ${award.award_id || award.id}:`, error)
+          }
+        }
+      }
+
       const result: EnrichmentResult = {
         similar_awards: similarAwards,
         statistics: {
