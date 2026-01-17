@@ -81,7 +81,6 @@ export async function GET(request: NextRequest) {
         url: true,
         solicitation_number: true,
         created_at: true, // Posted date
-        deadline: true,
         period_of_performance: true,
         place_of_performance: true,
         estimated_value: true,
