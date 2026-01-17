@@ -7,6 +7,7 @@
 
 import * as cheerio from 'cheerio'
 import { prisma } from './prisma'
+import { cleanContractContent } from './ai/contract-content-cleaner'
 
 export interface ScrapeResult {
   success: boolean
@@ -788,10 +789,46 @@ export async function saveScrapedContract(
   scrapeResult: ScrapeResult
 ): Promise<void> {
   try {
-    // Extract a clean description from scraped text content
-    // Try to find the main description section, otherwise use first 2000 chars
     let description = scrapeResult.textContent || null
-    if (description) {
+    let cleanedTextContent = scrapeResult.textContent || null
+    let extractedFields: any = {}
+
+    // Use AI to clean and parse the content
+    if (scrapeResult.textContent && scrapeResult.textContent.trim().length > 100) {
+      console.log(`[Scraper] Cleaning content with AI for contract ${contractId}`)
+      try {
+        const cleaned = await cleanContractContent(
+          scrapeResult.textContent,
+          scrapeResult.htmlContent
+        )
+
+        if (cleaned) {
+          // Use AI-cleaned description (more succinct and accurate)
+          description = cleaned.cleanedDescription
+          cleanedTextContent = cleaned.cleanedTextContent
+          extractedFields = cleaned.extractedFields
+
+          console.log(`[Scraper] ✓ AI cleaned content for contract ${contractId}`)
+        }
+      } catch (error) {
+        console.warn(`[Scraper] AI cleaning failed for ${contractId}, using fallback:`, error)
+        // Fallback to basic cleaning if AI fails
+        if (description) {
+          description = description
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#39;/g, "'")
+            .replace(/&quot;/g, '"')
+            .replace(/\s+/g, ' ')
+            .trim()
+        }
+      }
+    }
+
+    // If we still don't have a description, try to extract from scraped text
+    if (!description && scrapeResult.textContent) {
       // Try to extract just the description section (before "Contact Information", "Attachments", etc.)
       const descriptionEndMarkers = [
         /contact\s*information/i,
@@ -801,17 +838,41 @@ export async function saveScrapedContract(
         /point\s*of\s*contact/i,
       ]
       
+      let extractedDescription = scrapeResult.textContent
       for (const marker of descriptionEndMarkers) {
-        const match = description.search(marker)
+        const match = extractedDescription.search(marker)
         if (match > 100) { // Only cut if we have substantial content before the marker
-          description = description.substring(0, match).trim()
+          extractedDescription = extractedDescription.substring(0, match).trim()
           break
         }
       }
       
       // Limit description length but keep it substantial
-      if (description.length > 10000) {
-        description = description.substring(0, 10000) + '...'
+      if (extractedDescription.length > 10000) {
+        extractedDescription = extractedDescription.substring(0, 10000) + '...'
+      }
+      
+      description = extractedDescription
+    }
+
+    // Merge extracted requirements with analysis requirements
+    const allRequirements = [
+      ...(extractedFields.requirements || []),
+      ...(scrapeResult.analysis?.requirements || []),
+    ]
+    const uniqueRequirements = [...new Set(allRequirements)]
+
+    // Update points of contact if extracted by AI
+    let pointsOfContact = undefined
+    if (extractedFields.contactInfo) {
+      const contact = extractedFields.contactInfo
+      if (contact.name || contact.email || contact.phone) {
+        pointsOfContact = JSON.stringify([{
+          name: contact.name || '',
+          email: contact.email || '',
+          phone: contact.phone || '',
+          role: 'Primary Point of Contact',
+        }])
       }
     }
 
@@ -821,21 +882,34 @@ export async function saveScrapedContract(
         scraped: true,
         scraped_at: new Date(),
         scraped_html_content: scrapeResult.htmlContent || null,
-        scraped_text_content: scrapeResult.textContent || null,
-        // Update description field with scraped content if it's better than existing
-        description: description || undefined, // Only update if we have new description
+        scraped_text_content: cleanedTextContent || scrapeResult.textContent || null,
+        // Update description field with AI-cleaned content
+        description: description || undefined,
         sow_attachment_url: scrapeResult.sowAttachmentUrl || null,
         sow_attachment_type: scrapeResult.sowAttachmentType || null,
-        analysis_summary: scrapeResult.analysis?.summary || null,
+        analysis_summary: extractedFields.summary || scrapeResult.analysis?.summary || null,
         analysis_confidence: scrapeResult.analysis?.confidence || null,
-        analysis_keywords: JSON.stringify(scrapeResult.analysis?.keywords || []),
-        // Update requirements if extracted
-        requirements: scrapeResult.analysis?.requirements 
-          ? JSON.stringify(scrapeResult.analysis.requirements)
+        analysis_keywords: JSON.stringify([
+          ...(extractedFields.keyPoints || []),
+          ...(scrapeResult.analysis?.keywords || []),
+        ]),
+        // Update requirements with extracted and analyzed requirements
+        requirements: uniqueRequirements.length > 0
+          ? JSON.stringify(uniqueRequirements)
           : undefined,
+        // Update points of contact if extracted
+        points_of_contact: pointsOfContact || undefined,
+        // Update deadline if extracted
+        deadline: extractedFields.timeline || undefined,
+        // Update estimated value if extracted
+        estimated_value: extractedFields.budget || undefined,
+        // Update place of performance if extracted
+        place_of_performance: extractedFields.location || undefined,
         updated_at: new Date(),
       },
     })
+
+    console.log(`[Scraper] ✓ Saved scraped and cleaned contract ${contractId}`)
   } catch (error) {
     console.error(`[Scraper] Error saving scraped contract ${contractId}:`, error)
     throw error
