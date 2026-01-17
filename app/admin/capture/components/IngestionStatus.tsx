@@ -37,14 +37,27 @@ export default function IngestionStatus({ onStatusChange }: IngestionStatusProps
     try {
       const response = await fetch('/api/admin/capture/ingest')
       const data = await response.json()
+      console.log('[IngestionStatus] Status response:', data)
       if (data.success) {
         setStatus(data)
         if (onStatusChange && data.status === 'completed') {
           onStatusChange()
         }
+      } else {
+        console.error('[IngestionStatus] API returned error:', data.error)
+        // Still set status to show error, but allow button to work
+        setStatus({
+          status: 'idle',
+          samGovOutage: false,
+        })
       }
     } catch (error) {
       console.error('Error loading status:', error)
+      // On error, set to idle so button is enabled
+      setStatus({
+        status: 'idle',
+        samGovOutage: false,
+      })
     }
   }
 
@@ -179,8 +192,17 @@ export default function IngestionStatus({ onStatusChange }: IngestionStatusProps
 
           <button
             onClick={handleRunIngest}
-            disabled={isRunning || status.status === 'running' || status.samGovOutage}
+            disabled={isRunning || status.status === 'running' || (status.samGovOutage && status.status === 'outage')}
             className="px-6 py-2 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title={
+              isRunning
+                ? 'Ingestion is currently running'
+                : status.status === 'running'
+                ? 'Ingestion is already in progress'
+                : status.samGovOutage && status.status === 'outage'
+                ? 'SAM.gov API is unavailable'
+                : 'Start ingestion'
+            }
           >
             {isRunning ? 'Running...' : 'Run Ingest'}
           </button>
