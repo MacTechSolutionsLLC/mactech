@@ -26,6 +26,21 @@ export interface ParsedContract {
   deadline: string | null
   contractType: string | null
   performancePeriod: string | null
+  // Explicit fields for display
+  postedDate?: string | null
+  pointsOfContact?: Array<{
+    name: string
+    email?: string
+    phone?: string
+    role?: string
+  }>
+  vendor?: string | null
+  links?: Array<{
+    url: string
+    type: string // 'SOW', 'Attachment', 'Resource', 'Additional Info'
+    name?: string
+    description?: string
+  }>
 }
 
 /**
@@ -74,7 +89,25 @@ Return JSON with this exact structure:
   "estimatedValue": "Estimated contract value or null",
   "deadline": "Submission deadline or null",
   "contractType": "Contract type (FFP, CPFF, etc.) or null",
-  "performancePeriod": "Period of performance or null"
+  "performancePeriod": "Period of performance or null",
+  "postedDate": "Posted date (YYYY-MM-DD or ISO format) or null",
+  "pointsOfContact": [
+    {
+      "name": "Contact name",
+      "email": "email@example.com or null",
+      "phone": "Phone number or null",
+      "role": "Role/title or null"
+    }
+  ],
+  "vendor": "Vendor/awardee name from historical awards (if available) or null",
+  "links": [
+    {
+      "url": "Full URL",
+      "type": "SOW" | "Attachment" | "Resource" | "Additional Info",
+      "name": "Link name/description or null",
+      "description": "Link description or null"
+    }
+  ]
 }
 
 Extract ALL available information comprehensively. Focus on:
@@ -84,6 +117,23 @@ Extract ALL available information comprehensively. Focus on:
 - Finding budget and timeline information
 - Extracting NAICS codes and PSC codes
 - Identifying security clearance requirements
+- **Extracting ALL points of contact** (name, email, phone, role) - look for "Point of Contact", "POC", "Contracting Officer", "CO", "Technical POC", etc.
+- **Extracting ALL dates** (posted date, deadline, period of performance start/end dates)
+- **Extracting ALL links** (SOW attachments, PDFs, DOCX files, resource links, additional info links) - categorize as "SOW", "Attachment", "Resource", or "Additional Info"
+- **Extracting vendor information** if mentioned (awardee name, incumbent vendor)
+
+For links, extract from:
+- Document attachments (PDF, DOCX, XLSX files)
+- SOW/PWS references
+- Resource links
+- Additional information URLs
+- Any URLs mentioned in the text
+
+For points of contact, look for:
+- Contracting Officer (CO)
+- Technical POC
+- Program Manager
+- Any contact information sections
 
 If a field is not found, use null or empty array. Be thorough and extract everything you can find.`
         },
@@ -130,6 +180,10 @@ If a field is not found, use null or empty array. Be thorough and extract everyt
       deadline: parsed.deadline || null,
       contractType: parsed.contractType || null,
       performancePeriod: parsed.performancePeriod || null,
+      postedDate: parsed.postedDate || null,
+      pointsOfContact: Array.isArray(parsed.pointsOfContact) ? parsed.pointsOfContact : [],
+      vendor: parsed.vendor || null,
+      links: Array.isArray(parsed.links) ? parsed.links : [],
     }
   } catch (error: any) {
     console.error("Error parsing contract:", error)

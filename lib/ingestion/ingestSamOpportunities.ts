@@ -26,7 +26,132 @@ import { prisma } from '../prisma'
 import { isSamGovOutage } from '../sam/samClient'
 import { enrichOpportunity } from '../services/award-enrichment'
 import { scrapeContractPage } from '../contract-scraper'
-import { parseContractText } from '../ai/contract-parser'
+import { parseContractText, ParsedContract } from '../ai/contract-parser'
+import { calculateSmartSortScore, OpportunityWithEnrichment } from '../ai/smartSort'
+import * as cheerio from 'cheerio'
+
+/**
+ * Extract and categorize all links from multiple sources
+ */
+function extractAllLinks(
+  apiLinks?: Array<{ rel?: string; href?: string; type?: string }>,
+  additionalInfoLink?: string,
+  htmlContent?: string,
+  parsedData?: ParsedContract
+): Array<{ url: string; type: string; name?: string; description?: string }> {
+  const linksMap = new Map<string, { url: string; type: string; name?: string; description?: string }>()
+  
+  // Helper to categorize link type
+  const categorizeLink = (url: string, text?: string): string => {
+    const urlLower = url.toLowerCase()
+    const textLower = (text || '').toLowerCase()
+    const combined = `${urlLower} ${textLower}`
+    
+    // SOW links
+    if (combined.match(/sow|statement\s+of\s+work|pws|performance\s+work\s+statement|work\s+statement|scope\s+of\s+work/)) {
+      return 'SOW'
+    }
+    
+    // Attachments (PDF, DOCX, XLSX)
+    if (urlLower.match(/\.(pdf|docx?|xlsx?)$/)) {
+      return 'Attachment'
+    }
+    
+    // Resources
+    if (combined.match(/resource|faq|question|answer|help|guide|manual/)) {
+      return 'Resource'
+    }
+    
+    // Additional Info
+    if (combined.match(/additional\s+info|more\s+information|details|supplemental/)) {
+      return 'Additional Info'
+    }
+    
+    // Default to Resource for unknown links
+    return 'Resource'
+  }
+  
+  // Extract from API links
+  if (apiLinks) {
+    for (const link of apiLinks) {
+      if (link.href) {
+        const type = categorizeLink(link.href, link.rel || link.type)
+        linksMap.set(link.href, {
+          url: link.href,
+          type,
+          name: link.rel || link.type || undefined,
+          description: link.type || undefined,
+        })
+      }
+    }
+  }
+  
+  // Extract from additionalInfoLink
+  if (additionalInfoLink) {
+    const type = categorizeLink(additionalInfoLink)
+    linksMap.set(additionalInfoLink, {
+      url: additionalInfoLink,
+      type,
+      name: 'Additional Information',
+      description: 'Additional information link',
+    })
+  }
+  
+  // Extract from HTML content
+  if (htmlContent) {
+    try {
+      const $ = cheerio.load(htmlContent)
+      $('a[href]').each((_, element) => {
+        const $link = $(element)
+        const href = $link.attr('href')
+        const text = $link.text().trim()
+        const title = $link.attr('title') || ''
+        
+        if (href) {
+          // Resolve relative URLs
+          let fullUrl = href
+          if (href.startsWith('/') || href.startsWith('#')) {
+            // Skip relative URLs that aren't absolute
+            return
+          } else if (!href.startsWith('http')) {
+            // Skip non-http URLs
+            return
+          }
+          
+          const type = categorizeLink(fullUrl, text || title)
+          const existing = linksMap.get(fullUrl)
+          if (!existing || (text && !existing.name)) {
+            linksMap.set(fullUrl, {
+              url: fullUrl,
+              type,
+              name: text || title || undefined,
+              description: title || undefined,
+            })
+          }
+        }
+      })
+    } catch (error) {
+      console.warn(`[Ingest] Error extracting links from HTML:`, error)
+    }
+  }
+  
+  // Extract from parsed data
+  if (parsedData?.links) {
+    for (const link of parsedData.links) {
+      const existing = linksMap.get(link.url)
+      if (!existing || (link.name && !existing.name)) {
+        linksMap.set(link.url, {
+          url: link.url,
+          type: link.type || categorizeLink(link.url),
+          name: link.name || undefined,
+          description: link.description || undefined,
+        })
+      }
+    }
+  }
+  
+  return Array.from(linksMap.values())
+}
 
 /**
  * Generate batch ID for this ingestion run
@@ -68,10 +193,10 @@ async function executeAllQueries(): Promise<Map<SourceQueryType, SamGovOpportuni
       console.log(`[Ingest] Starting Query ${sourceQuery}`)
       
       const buildQueryFn = (offset: number) => {
-        return buildQuery(sourceQuery, from, to, 100, offset)
+        return buildQuery(sourceQuery, from, to, 1000, offset)
       }
       
-      const opportunities = await paginateQuery(buildQueryFn, sourceQuery, 100)
+      const opportunities = await paginateQuery(buildQueryFn, sourceQuery, 1000)
       results.set(sourceQuery, opportunities)
       
       console.log(`[Ingest] Query ${sourceQuery} fetched ${opportunities.length} opportunities`)
@@ -458,6 +583,14 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                 const parsedData = await parseContractText(scrapeResult.textContent)
                 
                 if (parsedData) {
+                  // Extract all links from multiple sources
+                  const allLinks = extractAllLinks(
+                    item.normalized.rawPayload?.resourceLinks,
+                    item.normalized.rawPayload?.additionalInfoLink,
+                    scrapeResult.htmlContent,
+                    parsedData
+                  )
+                  
                   // Update with parsed data
                   await prisma.governmentContractDiscovery.update({
                     where: { id: opportunity.id },
@@ -481,9 +614,31 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                       set_aside: parsedData.setAside.length > 0
                         ? JSON.stringify(parsedData.setAside)
                         : opportunity.set_aside,
+                      // Store all extracted links
+                      resource_links: allLinks.length > 0 ? JSON.stringify(allLinks) : null,
+                      // Update POC from parsed data if available
+                      points_of_contact: parsedData.pointsOfContact && parsedData.pointsOfContact.length > 0
+                        ? JSON.stringify(parsedData.pointsOfContact)
+                        : opportunity.points_of_contact || null,
                     },
                   })
                   parsedCount++
+                } else {
+                  // Even if parsing fails, extract links from API and HTML
+                  const allLinks = extractAllLinks(
+                    item.normalized.rawPayload?.resourceLinks,
+                    item.normalized.rawPayload?.additionalInfoLink,
+                    scrapeResult.htmlContent
+                  )
+                  
+                  if (allLinks.length > 0) {
+                    await prisma.governmentContractDiscovery.update({
+                      where: { id: opportunity.id },
+                      data: {
+                        resource_links: JSON.stringify(allLinks),
+                      },
+                    })
+                  }
                 }
               } catch (parseError) {
                 console.error(`[Ingest] Error parsing ${item.normalized.noticeId}:`, parseError)
@@ -541,6 +696,65 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
         }
       }
     }
+    
+    // Stage 9: Calculate smart sort scores for high-scoring, fully enriched opportunities (optional optimization)
+    console.log(`[Ingest] Stage 9: Calculating smart sort scores for high-scoring opportunities`)
+    let smartSortCount = 0
+    
+    // Only calculate for opportunities that have been fully enriched (score >= 70, scraped, parsed, and enriched)
+    const fullyEnrichedOpportunities = await prisma.governmentContractDiscovery.findMany({
+      where: {
+        relevance_score: { gte: 70 },
+        scraped: true,
+        aiParsedData: { not: null },
+        usaspending_enrichment_status: 'completed',
+        smart_sort_score: null, // Only calculate if not already cached
+      },
+      take: 50, // Limit to 50 per ingestion run to avoid rate limits
+    })
+    
+    for (const opportunity of fullyEnrichedOpportunities) {
+      try {
+        // Parse enriched data
+        const parsedData = opportunity.aiParsedData
+          ? typeof opportunity.aiParsedData === 'string'
+            ? JSON.parse(opportunity.aiParsedData)
+            : opportunity.aiParsedData
+          : null
+
+        const usaspendingEnrichment = opportunity.usaspending_enrichment
+          ? typeof opportunity.usaspending_enrichment === 'string'
+            ? JSON.parse(opportunity.usaspending_enrichment)
+            : opportunity.usaspending_enrichment
+          : null
+
+        const smartSortResult = await calculateSmartSortScore({
+          opportunity: opportunity as OpportunityWithEnrichment,
+          enrichedData: {
+            scrapedContent: opportunity.scraped_text_content || undefined,
+            parsedData,
+            usaspendingEnrichment,
+          },
+        })
+
+        // Store smart sort score
+        await prisma.governmentContractDiscovery.update({
+          where: { id: opportunity.id },
+          data: {
+            smart_sort_score: smartSortResult.smartScore,
+            smart_sort_reasoning: smartSortResult.reasoning,
+            smart_sort_calculated_at: new Date(),
+          },
+        })
+
+        smartSortCount++
+      } catch (error) {
+        console.error(`[Ingest] Error calculating smart sort for ${opportunity.notice_id}:`, error)
+        // Continue with next opportunity
+      }
+    }
+    
+    console.log(`[Ingest] Calculated smart sort scores for ${smartSortCount} opportunities`)
     
     const duration = Date.now() - startTime
     console.log(`[Ingest] Ingestion completed in ${duration}ms`)

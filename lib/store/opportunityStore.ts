@@ -215,6 +215,30 @@ export async function storeNormalizedOpportunities(
         place_of_performance: normalized.placeOfPerformance || null,
         sow_attachment_url: null,
         sow_attachment_type: null,
+        // Extract initial links from API payload (will be enriched during scraping/parsing)
+        resource_links: normalized.rawPayload.links && normalized.rawPayload.links.length > 0
+          ? JSON.stringify(
+              normalized.rawPayload.links
+                .filter(link => link.href)
+                .map(link => ({
+                  url: link.href!,
+                  type: link.rel?.toLowerCase().includes('sow') || link.href?.toLowerCase().includes('sow')
+                    ? 'SOW'
+                    : link.href?.match(/\.(pdf|docx?|xlsx?)$/i)
+                    ? 'Attachment'
+                    : 'Resource',
+                  name: link.rel || link.type || undefined,
+                  description: link.type || undefined,
+                }))
+            )
+          : normalized.rawPayload.additionalInfoLink
+          ? JSON.stringify([{
+              url: normalized.rawPayload.additionalInfoLink,
+              type: 'Additional Info',
+              name: 'Additional Information',
+              description: 'Additional information link',
+            }])
+          : null,
         // New fields per specification
         raw_payload: JSON.stringify(normalized.rawPayload),
         normalized_fields: JSON.stringify(normalized),

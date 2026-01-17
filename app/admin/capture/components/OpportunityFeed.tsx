@@ -17,6 +17,16 @@ interface Opportunity {
   capture_status?: string
   naics_codes: string
   set_aside: string
+  // Explicit information fields
+  points_of_contact?: string | null
+  description?: string | null
+  url?: string
+  solicitation_number?: string | null
+  created_at?: string
+  period_of_performance?: string | null
+  place_of_performance?: string | null
+  estimated_value?: string | null
+  resource_links?: string | null
   // Enriched data indicators
   scraped?: boolean
   scraped_at?: string
@@ -40,7 +50,7 @@ export default function OpportunityFeed() {
     setAside: '',
     status: 'all' as 'all' | 'flagged' | 'ignored' | 'pursuing',
   })
-  const [sortBy, setSortBy] = useState<'score' | 'deadline' | 'date'>('score')
+  const [sortBy, setSortBy] = useState<'score' | 'deadline' | 'date' | 'smart'>('score')
 
   useEffect(() => {
     loadOpportunities()
@@ -166,6 +176,7 @@ export default function OpportunityFeed() {
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm"
             >
               <option value="score">Relevance Score</option>
+              <option value="smart">Smart Sort (AI-Enhanced)</option>
               <option value="deadline">Deadline</option>
               <option value="date">Posted Date</option>
             </select>
@@ -233,17 +244,121 @@ export default function OpportunityFeed() {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+                    <h3 className="text-lg font-semibold text-neutral-900 mb-3">
                       {opp.title}
                     </h3>
-                    <div className="flex items-center gap-4 text-sm text-neutral-600 mb-2">
-                      {opp.agency && <span>Agency: {opp.agency}</span>}
-                      {opp.deadline && (
-                        <span>Deadline: {new Date(opp.deadline).toLocaleDateString()}</span>
+                    
+                    {/* Explicit Information Sections */}
+                    <div className="space-y-2 mb-3">
+                      {/* Dates Section */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-700">📅 Dates:</span>
+                        {opp.created_at && (
+                          <span>Posted: {new Date(opp.created_at).toLocaleDateString()}</span>
+                        )}
+                        {opp.deadline && (
+                          <span>Due: {new Date(opp.deadline).toLocaleDateString()}</span>
+                        )}
+                        {opp.period_of_performance && (
+                          <span>POP: {opp.period_of_performance}</span>
+                        )}
+                      </div>
+                      
+                      {/* Points of Contact Section */}
+                      {opp.points_of_contact && (() => {
+                        try {
+                          const pocs = JSON.parse(opp.points_of_contact)
+                          if (Array.isArray(pocs) && pocs.length > 0) {
+                            const firstPoc = pocs[0]
+                            return (
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-600">
+                                <span className="font-medium text-neutral-700">👤 POC:</span>
+                                <span>{firstPoc.name || 'N/A'}</span>
+                                {firstPoc.email && <span>{firstPoc.email}</span>}
+                                {firstPoc.phone && <span>{firstPoc.phone}</span>}
+                                {firstPoc.role && <span className="text-neutral-500">({firstPoc.role})</span>}
+                                {pocs.length > 1 && <span className="text-neutral-500">+{pocs.length - 1} more</span>}
+                              </div>
+                            )
+                          }
+                        } catch (e) {
+                          // Invalid JSON, skip
+                        }
+                        return null
+                      })()}
+                      
+                      {/* Links & Attachments Section */}
+                      {opp.resource_links && (() => {
+                        try {
+                          const links = JSON.parse(opp.resource_links)
+                          if (Array.isArray(links) && links.length > 0) {
+                            const sowLinks = links.filter((l: any) => l.type === 'SOW')
+                            const attachments = links.filter((l: any) => l.type === 'Attachment')
+                            const otherLinks = links.filter((l: any) => l.type !== 'SOW' && l.type !== 'Attachment')
+                            return (
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
+                                <span className="font-medium text-neutral-700">🔗 Links:</span>
+                                {sowLinks.length > 0 && (
+                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded">
+                                    {sowLinks.length} SOW
+                                  </span>
+                                )}
+                                {attachments.length > 0 && (
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded">
+                                    {attachments.length} Attachments
+                                  </span>
+                                )}
+                                {otherLinks.length > 0 && (
+                                  <span className="px-2 py-0.5 bg-neutral-100 text-neutral-800 rounded">
+                                    {otherLinks.length} Resources
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          }
+                        } catch (e) {
+                          // Invalid JSON, skip
+                        }
+                        return null
+                      })()}
+                      
+                      {/* Vendor Information Section */}
+                      {opp.incumbent_vendors && (() => {
+                        try {
+                          const vendors = JSON.parse(opp.incumbent_vendors)
+                          if (Array.isArray(vendors) && vendors.length > 0) {
+                            return (
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
+                                <span className="font-medium text-neutral-700">💰 Vendors:</span>
+                                <span>{vendors.slice(0, 3).join(', ')}</span>
+                                {vendors.length > 3 && <span className="text-neutral-500">+{vendors.length - 3} more</span>}
+                              </div>
+                            )
+                          }
+                        } catch (e) {
+                          // Invalid JSON, skip
+                        }
+                        return null
+                      })()}
+                      
+                      {/* Description Section */}
+                      {opp.description && (
+                        <div className="text-xs text-neutral-600">
+                          <span className="font-medium text-neutral-700">📄 Description: </span>
+                          <span className="line-clamp-2">{opp.description.substring(0, 200)}{opp.description.length > 200 ? '...' : ''}</span>
+                        </div>
                       )}
                     </div>
+                    
+                    {/* Agency and Score */}
+                    <div className="flex items-center gap-4 text-sm text-neutral-600 mb-2">
+                      {opp.agency && <span>Agency: {opp.agency}</span>}
+                      {opp.solicitation_number && <span>Solicitation: {opp.solicitation_number}</span>}
+                    </div>
+                    
+                    {/* AI Summary */}
                     {opp.aiSummary && (
-                      <p className="text-sm text-neutral-700 line-clamp-2">{opp.aiSummary}</p>
+                      <p className="text-sm text-neutral-700 line-clamp-2 mt-2">{opp.aiSummary}</p>
                     )}
                   </div>
                   <div className="flex gap-2 ml-4" onClick={(e) => e.stopPropagation()}>

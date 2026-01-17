@@ -23,6 +23,12 @@ interface Opportunity {
   ignored: boolean
   naics_codes: string
   set_aside: string
+  // Explicit information fields
+  points_of_contact?: string | null
+  url?: string
+  solicitation_number?: string | null
+  created_at?: string
+  resource_links?: string | null
   // Enriched data
   scraped?: boolean
   scraped_at?: string
@@ -194,6 +200,253 @@ export default function OpportunityDetail({
             </span>
           )}
         </div>
+      </div>
+
+      {/* Explicit Information Sections */}
+      <div className="space-y-4">
+        {/* Contract Information */}
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Contract Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-neutral-700">Name:</span>
+              <span className="ml-2 text-neutral-600">{opportunity.title}</span>
+            </div>
+            {opportunity.notice_id && (
+              <div>
+                <span className="font-medium text-neutral-700">Notice ID:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.notice_id}</span>
+              </div>
+            )}
+            {opportunity.solicitation_number && (
+              <div>
+                <span className="font-medium text-neutral-700">Solicitation Number:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.solicitation_number}</span>
+              </div>
+            )}
+            {opportunity.agency && (
+              <div>
+                <span className="font-medium text-neutral-700">Agency:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.agency}</span>
+              </div>
+            )}
+            {opportunity.set_aside && (() => {
+              try {
+                const setAside = JSON.parse(opportunity.set_aside)
+                if (Array.isArray(setAside) && setAside.length > 0) {
+                  return (
+                    <div>
+                      <span className="font-medium text-neutral-700">Set-Aside:</span>
+                      <span className="ml-2 text-neutral-600">{setAside.join(', ')}</span>
+                    </div>
+                  )
+                }
+              } catch (e) {}
+              return null
+            })()}
+            {opportunity.url && (
+              <div className="md:col-span-2">
+                <span className="font-medium text-neutral-700">Contract Link:</span>
+                <a
+                  href={opportunity.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-accent-700 hover:text-accent-800 underline"
+                >
+                  {opportunity.url}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Dates Section */}
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Important Dates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            {opportunity.created_at && (
+              <div>
+                <span className="font-medium text-neutral-700">Posted Date:</span>
+                <span className="ml-2 text-neutral-600">
+                  {new Date(opportunity.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            {opportunity.deadline && (
+              <div>
+                <span className="font-medium text-neutral-700">Response Deadline:</span>
+                <span className="ml-2 text-neutral-600">
+                  {new Date(opportunity.deadline).toLocaleDateString()}
+                  {(() => {
+                    const daysRemaining = Math.ceil(
+                      (new Date(opportunity.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                    )
+                    return daysRemaining >= 0 ? (
+                      <span className="ml-2 text-xs text-neutral-500">({daysRemaining} days remaining)</span>
+                    ) : (
+                      <span className="ml-2 text-xs text-red-600">(Expired)</span>
+                    )
+                  })()}
+                </span>
+              </div>
+            )}
+            {opportunity.period_of_performance && (
+              <div>
+                <span className="font-medium text-neutral-700">Period of Performance:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.period_of_performance}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Points of Contact */}
+        {opportunity.points_of_contact && (() => {
+          try {
+            const pocs = JSON.parse(opportunity.points_of_contact)
+            if (Array.isArray(pocs) && pocs.length > 0) {
+              return (
+                <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Points of Contact</h2>
+                  <div className="space-y-3">
+                    {pocs.map((poc: any, idx: number) => (
+                      <div key={idx} className="border border-neutral-200 rounded p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-neutral-700">{poc.name || 'N/A'}</span>
+                          {poc.role && (
+                            <span className="text-xs text-neutral-500">({poc.role})</span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm text-neutral-600">
+                          {poc.email && (
+                            <span>
+                              Email: <a href={`mailto:${poc.email}`} className="text-accent-700 hover:text-accent-800">{poc.email}</a>
+                            </span>
+                          )}
+                          {poc.phone && <span>Phone: {poc.phone}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          } catch (e) {}
+          return null
+        })()}
+
+        {/* Links & Attachments */}
+        {opportunity.resource_links && (() => {
+          try {
+            const links = JSON.parse(opportunity.resource_links)
+            if (Array.isArray(links) && links.length > 0) {
+              const sowLinks = links.filter((l: any) => l.type === 'SOW')
+              const attachments = links.filter((l: any) => l.type === 'Attachment')
+              const resources = links.filter((l: any) => l.type === 'Resource')
+              const additionalInfo = links.filter((l: any) => l.type === 'Additional Info')
+              
+              return (
+                <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Links & Attachments</h2>
+                  <div className="space-y-4">
+                    {sowLinks.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">SOW Documents</h3>
+                        <ul className="space-y-1">
+                          {sowLinks.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url} ({link.type})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {attachments.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Attachments</h3>
+                        <ul className="space-y-1">
+                          {attachments.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url} ({link.type})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {resources.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Resources</h3>
+                        <ul className="space-y-1">
+                          {resources.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {additionalInfo.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Additional Information</h3>
+                        <ul className="space-y-1">
+                          {additionalInfo.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            }
+          } catch (e) {}
+          return null
+        })()}
+
+        {/* Vendor Information */}
+        {incumbentVendors && Array.isArray(incumbentVendors) && incumbentVendors.length > 0 && (
+          <div className="bg-white rounded-lg border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Vendor Information</h2>
+            <div>
+              <span className="text-sm font-medium text-neutral-700">Likely Incumbents:</span>
+              <div className="mt-2 text-sm text-neutral-600">
+                {incumbentVendors.join(', ')}
+              </div>
+              <p className="mt-2 text-xs text-neutral-500">
+                From USAspending/Entity API enrichment
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* AI Summary */}

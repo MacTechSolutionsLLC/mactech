@@ -137,6 +137,7 @@ model GovernmentContractDiscovery {
   estimated_value       String? // Contract value estimate
   period_of_performance String? // POP dates
   place_of_performance  String? // Location/place of performance
+  resource_links        String? // JSON array of all links: [{url, type, name, description}]
   
   // USAspending enrichment fields
   usaspending_enrichment       String?  @db.Text // JSON field to store enrichment data and AI analysis
@@ -147,6 +148,11 @@ model GovernmentContractDiscovery {
   incumbent_vendors            String?  @db.Text // JSON array of likely incumbents from USAspending
   competitive_landscape_summary String?  @db.Text // AI-generated competitive landscape summary
   capture_status               String? // 'flagged', 'monitoring', 'ignored', 'pursuing'
+  
+  // Smart Sort fields (optional caching)
+  smart_sort_score             Float? // 0-100 composite score for AI-enhanced sorting
+  smart_sort_reasoning         String? @db.Text // AI reasoning for the smart sort score
+  smart_sort_calculated_at     DateTime? // When smart sort was last calculated
   
   // Relationships
   awardLinks OpportunityAwardLink[]

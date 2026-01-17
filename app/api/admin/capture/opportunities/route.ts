@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { calculateSmartSortScoresBatch, OpportunityWithEnrichment } from '@/lib/ai/smartSort'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,14 +50,18 @@ export async function GET(request: NextRequest) {
     if (sortBy === 'score') {
       orderBy.relevance_score = 'desc'
     } else if (sortBy === 'deadline') {
+      // Enhanced deadline sort: consider parsed deadline data and urgency
       orderBy.deadline = 'asc'
+    } else if (sortBy === 'smart') {
+      // Smart sort: use smart_sort_score if available, otherwise calculate on-demand
+      orderBy.smart_sort_score = 'desc'
     } else {
       orderBy.created_at = 'desc'
     }
 
-    const opportunities = await prisma.governmentContractDiscovery.findMany({
+    let opportunities = await prisma.governmentContractDiscovery.findMany({
       where,
-      orderBy,
+      orderBy: sortBy === 'smart' ? { relevance_score: 'desc' } : orderBy, // Fetch by relevance first, then apply smart sort
       take: 100,
       select: {
         id: true,
@@ -70,6 +75,17 @@ export async function GET(request: NextRequest) {
         ignored: true,
         naics_codes: true,
         set_aside: true,
+        // Explicit information fields
+        points_of_contact: true,
+        description: true,
+        url: true,
+        solicitation_number: true,
+        created_at: true, // Posted date
+        deadline: true,
+        period_of_performance: true,
+        place_of_performance: true,
+        estimated_value: true,
+        resource_links: true, // All links and attachments
         // Enriched data fields
         scraped: true,
         scraped_at: true,
@@ -81,15 +97,50 @@ export async function GET(request: NextRequest) {
         usaspending_enrichment_status: true,
         incumbent_vendors: true,
         competitive_landscape_summary: true,
-        description: true,
         requirements: true,
-        estimated_value: true,
-        period_of_performance: true,
-        place_of_performance: true,
         sow_attachment_url: true,
         sow_attachment_type: true,
+        smart_sort_score: true,
+        smart_sort_reasoning: true,
       },
     })
+
+    // Apply smart sort if requested
+    if (sortBy === 'smart') {
+      // Check if opportunities have cached smart sort scores
+      const hasCachedScores = opportunities.some(opp => opp.smart_sort_score !== null)
+      
+      if (!hasCachedScores || opportunities.length < 50) {
+        // Calculate smart sort scores for opportunities without cached scores
+        const opportunitiesToScore = opportunities.filter(
+          opp => opp.smart_sort_score === null
+        ) as OpportunityWithEnrichment[]
+        
+        if (opportunitiesToScore.length > 0) {
+          const smartSortResults = await calculateSmartSortScoresBatch(opportunitiesToScore)
+          
+          // Update opportunities with calculated scores
+          opportunities = opportunities.map(opp => {
+            const result = smartSortResults.get(opp.id)
+            if (result) {
+              return {
+                ...opp,
+                smart_sort_score: result.smartScore,
+                smart_sort_reasoning: result.reasoning,
+              }
+            }
+            return opp
+          })
+        }
+      }
+      
+      // Sort by smart sort score (cached or calculated)
+      opportunities.sort((a, b) => {
+        const scoreA = a.smart_sort_score ?? a.relevance_score
+        const scoreB = b.smart_sort_score ?? b.relevance_score
+        return scoreB - scoreA
+      })
+    }
 
     return NextResponse.json({
       success: true,
