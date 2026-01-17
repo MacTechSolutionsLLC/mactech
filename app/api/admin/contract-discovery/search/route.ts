@@ -228,6 +228,13 @@ export async function POST(request: NextRequest) {
                   usaspending_enrichment: true,
                   usaspending_enriched_at: true,
                   usaspending_enrichment_status: true,
+                  description: true,
+                  scraped_text_content: true,
+                  points_of_contact: true,
+                  deadline: true,
+                  place_of_performance: true,
+                  sow_attachment_url: true,
+                  sow_attachment_type: true,
                 },
               })
 
