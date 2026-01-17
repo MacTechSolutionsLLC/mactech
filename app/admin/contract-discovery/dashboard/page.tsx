@@ -336,6 +336,48 @@ export default function ContractDashboardPage() {
           </div>
 
           <QueryManager onQueryComplete={loadContracts} />
+
+          {/* Enrich Contracts Button */}
+          <div className="card p-6 mb-8">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div>
+                <h2 className="heading-3 mb-2">Enrich High-Score Contracts</h2>
+                <p className="text-body-sm text-neutral-600">
+                  Scrape and enrich all contracts with relevance score ≥ 50% to populate their summary pages with full HTML/text content
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!confirm('This will scrape all contracts with score ≥ 50%. This may take a while. Continue?')) {
+                    return
+                  }
+                  
+                  try {
+                    const response = await fetch('/api/admin/contract-discovery/enrich', {
+                      method: 'POST',
+                    })
+                    const data = await response.json()
+                    
+                    if (data.success) {
+                      alert(`Enrichment started! Processing ${data.total} contracts. Check server logs for progress.`)
+                      // Reload contracts after a delay to see updated data
+                      setTimeout(() => {
+                        loadContracts()
+                      }, 5000)
+                    } else {
+                      alert(data.error || 'Failed to start enrichment')
+                    }
+                  } catch (err) {
+                    console.error('Error starting enrichment:', err)
+                    alert('Failed to start enrichment')
+                  }
+                }}
+                className="btn-primary whitespace-nowrap"
+              >
+                Enrich Contracts (≥50%)
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

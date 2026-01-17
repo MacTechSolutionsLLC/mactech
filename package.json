@@ -15,7 +15,8 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
-    "db:verify": "node scripts/verify-db.js"
+    "db:verify": "node scripts/verify-db.js",
+    "enrich:contracts": "tsx scripts/enrich-contracts.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
