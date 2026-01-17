@@ -161,31 +161,40 @@ export async function POST(request: NextRequest) {
     }
     
     // Step 5: Test USAspending enrichment (if score is high enough)
+    // Note: enrichOpportunity requires a database ID, so we need to use the stored opportunity
     if (score >= 70 && normalized) {
       diagnostics.push('🔍 Step 5: Testing USAspending enrichment...')
       try {
-        const enrichment = await enrichOpportunity(
-          normalized.noticeId,
-          normalized,
-          {
-            useDatabase: false, // Test direct API call
-            limit: 5,
-            createLinks: false, // Don't create links in test
-          }
-        )
+        // Get the stored opportunity to get its database ID
+        const storedOpp = await prisma.governmentContractDiscovery.findFirst({
+          where: { notice_id: normalized.noticeId },
+        })
         
-        if (enrichment && enrichment.similar_awards.length > 0) {
-          diagnostics.push(`✅ USAspending enrichment successful: Found ${enrichment.similar_awards.length} similar awards`)
+        if (storedOpp) {
+          const enrichment = await enrichOpportunity(
+            storedOpp.id, // Use database ID, not noticeId
+            {
+              useDatabase: false, // Test direct API call
+              limit: 5,
+              createLinks: false, // Don't create links in test
+            }
+          )
           
-          // Test Entity API enrichment (check if recipient_entity_data is present)
-          const hasEntityData = enrichment.similar_awards.some((award: any) => award.recipient_entity_data)
-          if (hasEntityData) {
-            diagnostics.push(`✅ Entity API enrichment successful: Found entity data in awards`)
+          if (enrichment && enrichment.similar_awards.length > 0) {
+            diagnostics.push(`✅ USAspending enrichment successful: Found ${enrichment.similar_awards.length} similar awards`)
+            
+            // Test Entity API enrichment (check if recipient_entity_data is present)
+            const hasEntityData = enrichment.similar_awards.some((award: any) => award.recipient_entity_data)
+            if (hasEntityData) {
+              diagnostics.push(`✅ Entity API enrichment successful: Found entity data in awards`)
+            } else {
+              diagnostics.push(`⚠️  Entity API enrichment: No entity data found (may be normal if no UEIs)`)
+            }
           } else {
-            diagnostics.push(`⚠️  Entity API enrichment: No entity data found (may be normal if no UEIs)`)
+            diagnostics.push(`⚠️  USAspending enrichment: No similar awards found (may be normal)`)
           }
         } else {
-          diagnostics.push(`⚠️  USAspending enrichment: No similar awards found (may be normal)`)
+          diagnostics.push(`⚠️  Could not find stored opportunity for enrichment test`)
         }
       } catch (enrichError) {
         errors.push(`Enrichment test failed: ${enrichError instanceof Error ? enrichError.message : String(enrichError)}`)
