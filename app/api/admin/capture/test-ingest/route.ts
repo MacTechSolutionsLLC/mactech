@@ -91,7 +91,9 @@ export async function POST(request: NextRequest) {
     let score = 0
     
     try {
-      normalized = normalizeOpportunity(testOpportunity, 'A')
+      const batchId = 'test-batch'
+      const ingestRunId = 'test-run'
+      normalized = normalizeOpportunity(testOpportunity, 'A', batchId, ingestRunId)
       score = scoreOpportunity(normalized)
       diagnostics.push(`✅ Normalized and scored: score=${score}`)
     } catch (normalizeError) {
