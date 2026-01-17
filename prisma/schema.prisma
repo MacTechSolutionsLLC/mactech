@@ -313,6 +313,9 @@ model UsaSpendingAward {
   updated_at         DateTime @updatedAt
   ingestion_batch_id String?
 
+  // SAM.gov Entity API enrichment (vendor metadata)
+  recipient_entity_data String? @db.Text // JSON: enriched vendor data from Entity API (UEI, NAICS, certifications, etc.)
+
   // Relationships
   transactions UsaSpendingTransaction[]
   opportunityLinks OpportunityAwardLink[]
