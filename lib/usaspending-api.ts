@@ -327,11 +327,119 @@ async function makeRequest<T>(
 }
 
 /**
- * Search awards by filters
+ * Calculate cosine similarity between two text strings
+ * Used for title similarity matching
+ */
+export function calculateTitleSimilarity(text1: string, text2: string): number {
+  if (!text1 || !text2) return 0
+  
+  // Normalize text: lowercase, remove punctuation, split into words
+  const normalize = (text: string): string[] => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 0)
+  }
+  
+  const words1 = normalize(text1)
+  const words2 = normalize(text2)
+  
+  if (words1.length === 0 || words2.length === 0) return 0
+  
+  // Create word frequency maps
+  const freq1 = new Map<string, number>()
+  const freq2 = new Map<string, number>()
+  
+  words1.forEach(word => freq1.set(word, (freq1.get(word) || 0) + 1))
+  words2.forEach(word => freq2.set(word, (freq2.get(word) || 0) + 1))
+  
+  // Get all unique words
+  const allWords = new Set([...freq1.keys(), ...freq2.keys()])
+  
+  // Calculate dot product and magnitudes
+  let dotProduct = 0
+  let magnitude1 = 0
+  let magnitude2 = 0
+  
+  allWords.forEach(word => {
+    const count1 = freq1.get(word) || 0
+    const count2 = freq2.get(word) || 0
+    
+    dotProduct += count1 * count2
+    magnitude1 += count1 * count1
+    magnitude2 += count2 * count2
+  })
+  
+  // Cosine similarity
+  const magnitude = Math.sqrt(magnitude1) * Math.sqrt(magnitude2)
+  return magnitude > 0 ? dotProduct / magnitude : 0
+}
+
+/**
+ * Normalize agency name for deterministic matching
+ * Removes common variations and standardizes format
+ */
+export function normalizeAgencyName(agencyName: string): string {
+  if (!agencyName) return ''
+  
+  return agencyName
+    .toUpperCase()
+    .trim()
+    // Remove common prefixes/suffixes
+    .replace(/^(DEPARTMENT OF|DEPT OF|DOD|DHS|DOE|HHS|VA|GSA|NASA|NSF)\s+/i, '')
+    .replace(/\s+(DEPARTMENT|DEPT|ADMINISTRATION|ADMIN|AGENCY|SERVICE|BUREAU|OFFICE)$/i, '')
+    // Remove punctuation
+    .replace(/[^\w\s]/g, ' ')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Match awards by title similarity
+ * Returns awards with similarity score above threshold
+ */
+export function matchAwardsByTitle(
+  awards: UsaSpendingAward[],
+  targetTitle: string,
+  threshold: number = 0.3
+): Array<{ award: UsaSpendingAward; similarity: number }> {
+  if (!targetTitle || !awards || awards.length === 0) {
+    return []
+  }
+  
+  const matches: Array<{ award: UsaSpendingAward; similarity: number }> = []
+  
+  for (const award of awards) {
+    const awardTitle = award.description || ''
+    const similarity = calculateTitleSimilarity(targetTitle, awardTitle)
+    
+    if (similarity >= threshold) {
+      matches.push({ award, similarity })
+    }
+  }
+  
+  // Sort by similarity (descending)
+  matches.sort((a, b) => b.similarity - a.similarity)
+  
+  return matches
+}
+
+/**
+ * Search awards by filters with optional title similarity matching
  */
 export async function searchAwards(
-  params: UsaSpendingSearchParams
-): Promise<UsaSpendingSearchResponse> {
+  params: UsaSpendingSearchParams & {
+    titleSimilarity?: {
+      targetTitle: string
+      threshold?: number
+      maxResults?: number
+    }
+  }
+): Promise<UsaSpendingSearchResponse & {
+  titleSimilarityMatches?: Array<{ award: UsaSpendingAward; similarity: number }>
+}> {
   const {
     filters,
     fields,
@@ -340,6 +448,7 @@ export async function searchAwards(
     sort,
     order = 'desc',
     subawards = false,
+    titleSimilarity,
   } = params
 
   const body: any = {
@@ -358,10 +467,31 @@ export async function searchAwards(
     body.order = order
   }
 
-  return makeRequest<UsaSpendingSearchResponse>('/search/spending_by_award/', {
+  const response = await makeRequest<UsaSpendingSearchResponse>('/search/spending_by_award/', {
     method: 'POST',
     body: JSON.stringify(body),
   })
+  
+  // If title similarity matching is requested, calculate similarities
+  if (titleSimilarity && response.results) {
+    const matches = matchAwardsByTitle(
+      response.results,
+      titleSimilarity.targetTitle,
+      titleSimilarity.threshold || 0.3
+    )
+    
+    // Limit results if specified
+    const limitedMatches = titleSimilarity.maxResults
+      ? matches.slice(0, titleSimilarity.maxResults)
+      : matches
+    
+    return {
+      ...response,
+      titleSimilarityMatches: limitedMatches,
+    }
+  }
+  
+  return response
 }
 
 /**

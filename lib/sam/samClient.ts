@@ -1,12 +1,16 @@
 /**
  * SAM.gov API Client
  * Wrapper around SAM.gov Opportunities API v2
- * Handles authentication, rate limiting, and error handling
+ * Handles authentication, rate limiting, error handling, and outage detection
  */
 
 import { SamGovApiResponse } from '../sam-gov-api-v2'
+import { detectSamGovOutage, detectOutageFromError, OutageDetectionResult } from './outageDetector'
 
 const API_BASE_URL = 'https://api.sam.gov/opportunities/v2/search'
+
+// Export outage detection result type
+export type { OutageDetectionResult }
 
 /**
  * Get API key from environment
@@ -51,7 +55,28 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Execute a SAM.gov API call with retry logic and fallback API key
+ * Add jitter to backoff time to avoid thundering herd
+ */
+function addJitter(baseMs: number, jitterPercent: number = 0.1): number {
+  const jitter = baseMs * jitterPercent * (Math.random() * 2 - 1) // ±jitterPercent
+  return Math.max(0, baseMs + jitter)
+}
+
+/**
+ * Log request/response for traceability
+ */
+function logRequest(url: string, params: URLSearchParams, attempt: number): void {
+  const sanitizedUrl = url.toString().replace(/api_key=[^&]+/, 'api_key=***')
+  console.log(`[SAM Client] Request ${attempt}: ${sanitizedUrl}`)
+}
+
+function logResponse(status: number, attempt: number, duration?: number): void {
+  const durationStr = duration ? ` (${duration}ms)` : ''
+  console.log(`[SAM Client] Response ${attempt}: ${status}${durationStr}`)
+}
+
+/**
+ * Execute a SAM.gov API call with retry logic, fallback API key, and outage detection
  */
 export async function executeSamGovQuery(
   params: URLSearchParams,
@@ -73,20 +98,36 @@ export async function executeSamGovQuery(
   }
   
   let lastError: Error | null = null
+  let lastOutageDetection: OutageDetectionResult | null = null
   
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       if (attempt > 0) {
-        // Exponential backoff: 1s, 2s, 4s
-        const backoffMs = Math.pow(2, attempt - 1) * 1000
-        console.log(`[SAM Client] Retry attempt ${attempt + 1}/${retries} after ${backoffMs}ms`)
+        // Exponential backoff with jitter: 1s, 2s, 4s
+        const baseBackoffMs = Math.pow(2, attempt - 1) * 1000
+        const backoffMs = addJitter(baseBackoffMs, 0.1)
+        console.log(`[SAM Client] Retry attempt ${attempt + 1}/${retries} after ${Math.round(backoffMs)}ms`)
         await sleep(backoffMs)
       }
       
+      logRequest(url.toString(), params, attempt + 1)
+      const startTime = Date.now()
+      
       const response = await fetch(url.toString(), { headers })
+      const duration = Date.now() - startTime
+      logResponse(response.status, attempt + 1, duration)
       
       if (!response.ok) {
         const errorText = await response.text()
+        
+        // Check for outage
+        const outageDetection = detectSamGovOutage(errorText, response.status)
+        if (outageDetection.isOutage) {
+          lastOutageDetection = outageDetection
+          console.warn(`[SAM Client] Outage detected: ${outageDetection.reason}`)
+          // Don't retry on outage - throw immediately
+          throw new Error(`SAM.gov API outage: ${outageDetection.reason}`)
+        }
         
         // Handle authentication errors - try fallback key if available
         if (response.status === 401) {
@@ -149,6 +190,15 @@ export async function executeSamGovQuery(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
       
+      // Check for outage in error message
+      const outageDetection = detectOutageFromError(lastError)
+      if (outageDetection.isOutage) {
+        lastOutageDetection = outageDetection
+        console.warn(`[SAM Client] Outage detected in error: ${outageDetection.reason}`)
+        // Don't retry on outage - throw immediately
+        throw new Error(`SAM.gov API outage: ${outageDetection.reason}`)
+      }
+      
       // Don't retry on authentication errors unless we can fallback
       if ((lastError.message.includes('authentication failed') || 
            lastError.message.includes('401')) && 
@@ -177,6 +227,20 @@ export async function executeSamGovQuery(
   }
   
   // All retries exhausted
+  // If we detected an outage, include it in the error
+  if (lastOutageDetection?.isOutage) {
+    throw new Error(`SAM.gov API outage: ${lastOutageDetection.reason}`)
+  }
+  
   throw lastError || new Error('Failed to execute SAM.gov query after retries')
+}
+
+/**
+ * Check if an error indicates SAM.gov outage
+ */
+export function isSamGovOutage(error: Error | string): boolean {
+  const errorMessage = typeof error === 'string' ? error : error.message
+  const detection = detectOutageFromError(errorMessage)
+  return detection.isOutage
 }
 

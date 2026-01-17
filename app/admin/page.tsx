@@ -48,6 +48,9 @@ export default function AdminPage() {
             Manage contract opportunities, generate proposals, and monitor SAM.gov data ingestion.
           </p>
           <div className="flex gap-4 flex-wrap">
+            <Link href="/admin/capture" className="btn-primary">
+              Federal Capture Dashboard
+            </Link>
             <Link href="/admin/contract-discovery" className="btn-secondary">
               Contract Discovery
             </Link>

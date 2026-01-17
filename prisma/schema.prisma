@@ -137,6 +137,19 @@ model GovernmentContractDiscovery {
   estimated_value       String? // Contract value estimate
   period_of_performance String? // POP dates
   place_of_performance  String? // Location/place of performance
+  
+  // USAspending enrichment fields
+  usaspending_enrichment       String?  @db.Text // JSON field to store enrichment data and AI analysis
+  usaspending_enriched_at      DateTime? // Timestamp of when enrichment was performed
+  usaspending_enrichment_status String? // Status: 'pending', 'completed', 'failed'
+  
+  // Capture dashboard fields
+  incumbent_vendors            String?  @db.Text // JSON array of likely incumbents from USAspending
+  competitive_landscape_summary String?  @db.Text // AI-generated competitive landscape summary
+  capture_status               String? // 'flagged', 'monitoring', 'ignored', 'pursuing'
+  
+  // Relationships
+  awardLinks OpportunityAwardLink[]
 }
 
 // Ignored opportunities from ingestion pipeline
@@ -148,6 +161,81 @@ model IgnoredOpportunity {
   reason     String?
 
   @@index([notice_id])
+}
+
+// ============================================================================
+// Federal Capture Dashboard Models
+// ============================================================================
+
+// Links between SAM.gov opportunities and USAspending awards
+// Enables deterministic joins for competitive intelligence
+model OpportunityAwardLink {
+  id             String   @id @default(cuid())
+  opportunity_id String   // GovernmentContractDiscovery ID
+  award_id       String   // UsaSpendingAward ID
+  
+  // Join metadata
+  join_confidence Float?  // 0-1 confidence in the match
+  join_method     String? // 'agency_naics', 'title_similarity', 'manual'
+  similarity_score Float? // Title similarity score if applicable
+  
+  // Match criteria used
+  matched_naics     String? // JSON array of matched NAICS codes
+  matched_agency    String? // Matched agency name/ID
+  title_similarity  Float? // Cosine similarity score
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  // Relationships
+  opportunity GovernmentContractDiscovery? @relation(fields: [opportunity_id], references: [id], onDelete: Cascade)
+  award       UsaSpendingAward?           @relation(fields: [award_id], references: [id], onDelete: Cascade)
+  
+  @@unique([opportunity_id, award_id])
+  @@index([opportunity_id])
+  @@index([award_id])
+  @@index([join_confidence])
+}
+
+// Track ingestion runs and SAM.gov outage states
+model IngestionStatus {
+  id String @id @default(cuid())
+  
+  // Status tracking
+  status String // 'running', 'completed', 'paused', 'failed', 'outage'
+  batch_id String? // Current or last batch ID
+  
+  // SAM.gov outage detection
+  sam_gov_outage Boolean @default(false)
+  sam_gov_outage_detected_at DateTime?
+  sam_gov_outage_resolved_at DateTime?
+  sam_gov_outage_reason String? // e.g., 'State: SUSPENDED'
+  
+  // Ingestion metrics
+  last_run_started_at DateTime?
+  last_run_completed_at DateTime?
+  last_run_duration_ms Int? // Duration in milliseconds
+  
+  // Last run results
+  last_fetched Int @default(0)
+  last_deduplicated Int @default(0)
+  last_passed_filters Int @default(0)
+  last_scored_above_50 Int @default(0)
+  
+  // Error tracking
+  last_error String? @db.Text
+  error_count Int @default(0)
+  
+  // Retry tracking
+  retry_count Int @default(0)
+  next_retry_at DateTime?
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  @@index([status])
+  @@index([sam_gov_outage])
+  @@index([last_run_started_at])
 }
 
 // ============================================================================
@@ -227,6 +315,7 @@ model UsaSpendingAward {
 
   // Relationships
   transactions UsaSpendingTransaction[]
+  opportunityLinks OpportunityAwardLink[]
 
   // Indexes for common queries
   @@index([award_id])

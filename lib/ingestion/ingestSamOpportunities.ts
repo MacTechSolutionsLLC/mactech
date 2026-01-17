@@ -22,6 +22,9 @@ import { storeNormalizedOpportunities } from '../store/opportunityStore'
 import { MIN_SCORE_THRESHOLD } from '../scoring/scoringConstants'
 import { NormalizedOpportunity, IngestionResult, IngestionBatch, SourceQuery as SourceQueryType, AIAnalysisResult } from '../sam/samTypes'
 import { SamGovOpportunity } from '../sam-gov-api-v2'
+import { prisma } from '../prisma'
+import { isSamGovOutage } from '../sam/samClient'
+import { enrichOpportunity } from '../services/award-enrichment'
 
 /**
  * Generate batch ID for this ingestion run
@@ -82,6 +85,90 @@ async function executeAllQueries(): Promise<Map<SourceQueryType, SamGovOpportuni
 }
 
 /**
+ * Update ingestion status in database
+ */
+async function updateIngestionStatus(
+  status: 'running' | 'completed' | 'paused' | 'failed' | 'outage',
+  options: {
+    batchId?: string
+    samGovOutage?: boolean
+    outageReason?: string
+    error?: string
+    metrics?: {
+      fetched?: number
+      deduplicated?: number
+      passedFilters?: number
+      scoredAbove50?: number
+    }
+  } = {}
+): Promise<void> {
+  try {
+    // Get or create status record
+    let statusRecord = await prisma.ingestionStatus.findFirst()
+    
+    const updateData: any = {
+      status,
+      batch_id: options.batchId,
+      updated_at: new Date(),
+    }
+
+    if (options.samGovOutage !== undefined) {
+      updateData.sam_gov_outage = options.samGovOutage
+      if (options.samGovOutage) {
+        updateData.sam_gov_outage_detected_at = new Date()
+        updateData.sam_gov_outage_reason = options.outageReason
+      } else {
+        updateData.sam_gov_outage_resolved_at = new Date()
+      }
+    }
+
+    if (status === 'running') {
+      updateData.last_run_started_at = new Date()
+    }
+
+    if (status === 'completed' || status === 'failed') {
+      updateData.last_run_completed_at = new Date()
+      if (options.metrics) {
+        updateData.last_fetched = options.metrics.fetched || 0
+        updateData.last_deduplicated = options.metrics.deduplicated || 0
+        updateData.last_passed_filters = options.metrics.passedFilters || 0
+        updateData.last_scored_above_50 = options.metrics.scoredAbove50 || 0
+      }
+    }
+
+    if (status === 'failed') {
+      updateData.last_error = options.error
+      updateData.error_count = { increment: 1 }
+    }
+
+    if (status === 'completed') {
+      const startTime = statusRecord?.last_run_started_at?.getTime()
+      if (startTime) {
+        updateData.last_run_duration_ms = Date.now() - startTime
+      }
+    }
+
+    if (statusRecord) {
+      await prisma.ingestionStatus.update({
+        where: { id: statusRecord.id },
+        data: updateData,
+      })
+    } else {
+      await prisma.ingestionStatus.create({
+        data: {
+          ...updateData,
+          status,
+          batch_id: options.batchId,
+        },
+      })
+    }
+  } catch (error) {
+    console.error('[Ingest] Error updating status:', error)
+    // Don't throw - status tracking is non-blocking
+  }
+}
+
+/**
  * Main ingestion function
  */
 export async function ingestSamOpportunities(): Promise<IngestionResult> {
@@ -91,10 +178,43 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
   
   console.log(`[Ingest] Starting ingestion batch: ${batchId}`)
   
+  // Update status to running
+  await updateIngestionStatus('running', { batchId })
+  
   try {
     // Stage 1: Execute all 5 queries with full pagination
     console.log(`[Ingest] Stage 1: Executing all queries`)
-    const queryResults = await executeAllQueries()
+    let queryResults: Map<SourceQueryType, SamGovOpportunity[]>
+    
+    try {
+      queryResults = await executeAllQueries()
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      
+      // Check for outage
+      if (isSamGovOutage(errorMessage)) {
+        console.warn(`[Ingest] SAM.gov outage detected: ${errorMessage}`)
+        await updateIngestionStatus('outage', {
+          batchId,
+          samGovOutage: true,
+          outageReason: errorMessage,
+        })
+        throw new Error(`SAM.gov API outage: ${errorMessage}`)
+      }
+      
+      // Other errors - mark as failed
+      await updateIngestionStatus('failed', {
+        batchId,
+        error: errorMessage,
+      })
+      throw error
+    }
+    
+    // Clear outage status if we got here
+    await updateIngestionStatus('running', {
+      batchId,
+      samGovOutage: false,
+    })
     
     // Combine all results
     const allRawOpportunities: SamGovOpportunity[] = []
@@ -259,8 +379,64 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     const { created, updated } = await storeNormalizedOpportunities(scoredOpportunities, batchId)
     console.log(`[Ingest] Stored: ${created} created, ${updated} updated`)
     
+    // Stage 8: Automatic USAspending enrichment for high-scoring opportunities (score ≥ 70)
+    console.log(`[Ingest] Stage 8: Auto-enriching high-scoring opportunities (score ≥ 70)`)
+    const highScoringOpportunities = scoredOpportunities.filter(item => item.score >= 70)
+    let enrichedCount = 0
+    
+    for (const item of highScoringOpportunities) {
+      try {
+        // Find the stored opportunity record
+        const opportunity = await prisma.governmentContractDiscovery.findFirst({
+          where: { notice_id: item.normalized.noticeId },
+        })
+        
+        if (opportunity && !opportunity.usaspending_enrichment) {
+          try {
+            const enrichment = await enrichOpportunity(opportunity.id, {
+              limit: 10,
+              useDatabase: true,
+              createLinks: true,
+            })
+            
+            if (enrichment) {
+              // Store enrichment result
+              await prisma.governmentContractDiscovery.update({
+                where: { id: opportunity.id },
+                data: {
+                  usaspending_enrichment: JSON.stringify(enrichment),
+                  usaspending_enriched_at: new Date(),
+                  usaspending_enrichment_status: 'completed',
+                },
+              })
+              enrichedCount++
+            }
+          } catch (enrichError) {
+            console.error(`[Ingest] Error enriching opportunity ${item.normalized.noticeId}:`, enrichError)
+            // Continue with next opportunity
+          }
+        }
+      } catch (error) {
+        console.error(`[Ingest] Error processing enrichment for opportunity:`, error)
+        // Continue with next opportunity
+      }
+    }
+    
+    console.log(`[Ingest] Auto-enriched ${enrichedCount} high-scoring opportunities`)
+    
     const duration = Date.now() - startTime
     console.log(`[Ingest] Ingestion completed in ${duration}ms`)
+    
+    // Update status to completed
+    await updateIngestionStatus('completed', {
+      batchId,
+      metrics: {
+        fetched: totalFetched,
+        deduplicated: normalizedOpportunities.length,
+        passedFilters: filterResult.stats.passed,
+        scoredAbove50,
+      },
+    })
     
     return {
       success: true,
@@ -283,6 +459,17 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error(`[Ingest] Ingestion failed:`, error)
+    
+    // Check if it's an outage
+    const isOutage = isSamGovOutage(errorMessage)
+    
+    // Update status
+    await updateIngestionStatus(isOutage ? 'outage' : 'failed', {
+      batchId,
+      samGovOutage: isOutage,
+      outageReason: isOutage ? errorMessage : undefined,
+      error: errorMessage,
+    })
     
     return {
       success: false,

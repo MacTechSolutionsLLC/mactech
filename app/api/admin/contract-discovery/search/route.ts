@@ -223,6 +223,12 @@ export async function POST(request: NextRequest) {
             try {
               const existing = await prisma.governmentContractDiscovery.findUnique({
                 where: { url: result.url },
+                select: {
+                  id: true,
+                  usaspending_enrichment: true,
+                  usaspending_enriched_at: true,
+                  usaspending_enrichment_status: true,
+                },
               })
 
               if (existing) {
@@ -256,8 +262,20 @@ export async function POST(request: NextRequest) {
                     sow_attachment_type: result.sow_attachment_type || existing.sow_attachment_type,
                     updated_at: new Date(),
                   },
+                  select: {
+                    id: true,
+                    usaspending_enrichment: true,
+                    usaspending_enriched_at: true,
+                    usaspending_enrichment_status: true,
+                  },
                 })
-                return { ...result, id: updated.id }
+                return { 
+                  ...result, 
+                  id: updated.id,
+                  usaspending_enrichment: updated.usaspending_enrichment,
+                  usaspending_enriched_at: updated.usaspending_enriched_at?.toISOString() || null,
+                  usaspending_enrichment_status: updated.usaspending_enrichment_status,
+                }
               } else {
                 // Store API data if available (for SAM.gov API results)
                 const apiDataJson = result.api_data ? JSON.stringify(result.api_data) : null
@@ -295,8 +313,20 @@ export async function POST(request: NextRequest) {
                     deadline: result.deadline || null,
                     place_of_performance: result.place_of_performance || null,
                   },
+                  select: {
+                    id: true,
+                    usaspending_enrichment: true,
+                    usaspending_enriched_at: true,
+                    usaspending_enrichment_status: true,
+                  },
                 })
-                return { ...result, id: created.id }
+                return { 
+                  ...result, 
+                  id: created.id,
+                  usaspending_enrichment: created.usaspending_enrichment,
+                  usaspending_enriched_at: created.usaspending_enriched_at?.toISOString() || null,
+                  usaspending_enrichment_status: created.usaspending_enrichment_status,
+                }
               }
             } catch (error) {
               console.error('Error storing individual result:', error)
@@ -340,6 +370,9 @@ export async function POST(request: NextRequest) {
         detected_service_category: r.detected_service_category,
         ingestion_status: r.ingestion_status || 'discovered',
         verified: r.verified || false,
+        usaspending_enrichment: r.usaspending_enrichment || null,
+        usaspending_enriched_at: r.usaspending_enriched_at || null,
+        usaspending_enrichment_status: r.usaspending_enrichment_status || null,
       })),
       warnings: dbWarnings.length > 0 ? dbWarnings : undefined,
     })

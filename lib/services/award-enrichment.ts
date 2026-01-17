@@ -1,10 +1,21 @@
 /**
  * Award Enrichment Service
  * Links SAM.gov opportunities to similar historical awards from USAspending.gov
+ * Supports batch enrichment, detailed data fetching, and caching
  */
 
 import { prisma } from '../prisma'
-import { searchAwards, UsaSpendingFilters } from '../usaspending-api'
+import { 
+  searchAwards, 
+  UsaSpendingFilters,
+  searchSpendingByNaics,
+  searchSpendingByPsc,
+  searchSpendingByAwardingAgency,
+  searchSpendingOverTime,
+  calculateTitleSimilarity,
+  normalizeAgencyName,
+  matchAwardsByTitle
+} from '../usaspending-api'
 
 export interface EnrichmentResult {
   similar_awards: any[]
@@ -16,20 +27,160 @@ export interface EnrichmentResult {
     unique_recipients: string[]
     unique_agencies: string[]
   }
+  trends?: {
+    award_frequency?: string
+    typical_duration?: string
+    spending_over_time?: any[]
+    agency_patterns?: any[]
+    naics_trends?: any[]
+    psc_trends?: any[]
+  }
+}
+
+export interface BatchEnrichmentResult {
+  contractId: string
+  success: boolean
+  enrichment?: EnrichmentResult
+  error?: string
+}
+
+// Simple in-memory cache (in production, use Redis or similar)
+const enrichmentCache = new Map<string, { data: EnrichmentResult; timestamp: number }>()
+const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+
+/**
+ * Deterministic join logic: Match opportunities to awards
+ * Uses Agency + NAICS + Title similarity for deterministic joins
+ */
+export async function createOpportunityAwardLinks(
+  opportunityId: string,
+  awards: any[],
+  opportunityTitle: string,
+  opportunityAgency?: string,
+  opportunityNaics?: string[]
+): Promise<number> {
+  let linksCreated = 0
+
+  for (const award of awards) {
+    let joinConfidence = 0
+    let joinMethod = 'manual'
+    let similarityScore: number | null = null
+    const matchedNaics: string[] = []
+    let matchedAgency: string | null = null
+
+    // Method 1: Agency + NAICS matching (highest confidence)
+    if (opportunityAgency && opportunityNaics && opportunityNaics.length > 0) {
+      const normalizedOppAgency = normalizeAgencyName(opportunityAgency)
+      const awardAgency = award.awarding_agency?.name || award.awarding_agency?.toptier_agency?.name || ''
+      const normalizedAwardAgency = normalizeAgencyName(awardAgency)
+
+      if (normalizedOppAgency && normalizedAwardAgency && 
+          normalizedOppAgency === normalizedAwardAgency) {
+        // Agency matches
+        matchedAgency = awardAgency
+
+        // Check NAICS match
+        const awardNaics = award.naics || award.naics_code || ''
+        const naicsMatch = opportunityNaics.some(naics => 
+          awardNaics.includes(naics) || awardNaics === naics
+        )
+
+        if (naicsMatch) {
+          matchedNaics.push(...opportunityNaics.filter(naics => 
+            awardNaics.includes(naics) || awardNaics === naics
+          ))
+          joinConfidence = 0.9
+          joinMethod = 'agency_naics'
+        }
+      }
+    }
+
+    // Method 2: Title similarity (medium confidence)
+    if (joinConfidence < 0.7 && opportunityTitle) {
+      const awardTitle = award.description || ''
+      similarityScore = calculateTitleSimilarity(opportunityTitle, awardTitle)
+      
+      if (similarityScore >= 0.5) {
+        joinConfidence = Math.max(joinConfidence, similarityScore * 0.8)
+        if (joinMethod === 'manual') {
+          joinMethod = 'title_similarity'
+        }
+      }
+    }
+
+    // Only create link if confidence is above threshold
+    if (joinConfidence >= 0.5) {
+      try {
+        // Find or create award in database
+        let awardRecord = await prisma.usaSpendingAward.findFirst({
+          where: {
+            OR: [
+              { award_id: award.award_id || award.id },
+              { generated_unique_award_id: award.generated_unique_award_id },
+            ],
+          },
+        })
+
+        if (!awardRecord && award.award_id) {
+          // Award not in DB, skip linking (would need to ingest first)
+          continue
+        }
+
+        if (awardRecord) {
+          // Create or update link
+          await prisma.opportunityAwardLink.upsert({
+            where: {
+              opportunity_id_award_id: {
+                opportunity_id: opportunityId,
+                award_id: awardRecord.id,
+              },
+            },
+            create: {
+              opportunity_id: opportunityId,
+              award_id: awardRecord.id,
+              join_confidence: joinConfidence,
+              join_method: joinMethod,
+              similarity_score: similarityScore,
+              matched_naics: JSON.stringify(matchedNaics),
+              matched_agency: matchedAgency,
+              title_similarity: similarityScore,
+            },
+            update: {
+              join_confidence: joinConfidence,
+              join_method: joinMethod,
+              similarity_score: similarityScore,
+              matched_naics: JSON.stringify(matchedNaics),
+              matched_agency: matchedAgency,
+              title_similarity: similarityScore,
+            },
+          })
+          linksCreated++
+        }
+      } catch (error) {
+        console.error(`[Award Enrichment] Error creating link:`, error)
+        // Continue with next award
+      }
+    }
+  }
+
+  return linksCreated
 }
 
 /**
  * Enrich a SAM.gov opportunity with similar historical awards
+ * Uses deterministic join logic for linking
  */
 export async function enrichOpportunity(
   opportunityId: string,
   options?: {
     limit?: number
     useDatabase?: boolean
+    createLinks?: boolean // Create OpportunityAwardLink records
   }
 ): Promise<EnrichmentResult | null> {
   const limit = options?.limit ?? 10
   const useDatabase = options?.useDatabase ?? false
+  const createLinks = options?.createLinks ?? true
 
   try {
     // Get the opportunity
@@ -41,26 +192,27 @@ export async function enrichOpportunity(
       return null
     }
 
+    // Parse NAICS codes
+    let naicsCodes: string[] = []
+    try {
+      naicsCodes = JSON.parse(opportunity.naics_codes || '[]')
+    } catch (e) {
+      // Ignore parse errors
+    }
+
     // Build filters based on opportunity
     const filters: UsaSpendingFilters = {
       award_type_codes: ['A', 'B', 'C', 'D', 'IDV'], // Contracts and IDVs
     }
 
-    // Parse NAICS codes from opportunity
-    try {
-      const naicsCodes = JSON.parse(opportunity.naics_codes || '[]')
-      if (Array.isArray(naicsCodes) && naicsCodes.length > 0) {
-        filters.naics_codes = naicsCodes.map((code: string) => ({ code }))
-      }
-    } catch (e) {
-      // Ignore parse errors
+    if (naicsCodes.length > 0) {
+      filters.naics_codes = naicsCodes.map((code: string) => ({ code }))
     }
 
-    // Try to extract agency information (this is approximate)
+    // Try to match by agency name (normalized)
     if (opportunity.agency) {
-      // In a real implementation, you'd want an agency name to ID mapping
-      // For now, we'll search by agency name in the description
-      filters.recipient_search_text = opportunity.agency
+      // Note: This is approximate - in production, use agency ID mapping
+      // For now, we'll search by keywords in description
     }
 
     if (useDatabase) {
@@ -118,15 +270,41 @@ export async function enrichOpportunity(
         },
       }
     } else {
-      // Search API
+      // Search API with title similarity if available
       const response = await searchAwards({
         filters,
-        limit,
+        limit: limit * 2, // Get more results for filtering
         sort: 'total_obligation',
         order: 'desc',
+        titleSimilarity: opportunity.title
+          ? {
+              targetTitle: opportunity.title,
+              threshold: 0.3,
+              maxResults: limit,
+            }
+          : undefined,
       })
 
-      const similarAwards = response.results || []
+      let similarAwards = response.results || []
+      
+      // If title similarity matches were found, prioritize them
+      if (response.titleSimilarityMatches && response.titleSimilarityMatches.length > 0) {
+        // Merge similarity matches with regular results, prioritizing high similarity
+        const similarityMap = new Map(
+          response.titleSimilarityMatches.map(m => [m.award.award_id || m.award.id, m.similarity])
+        )
+        
+        similarAwards = similarAwards
+          .map(award => ({
+            award,
+            similarity: similarityMap.get(award.award_id || award.id) || 0,
+          }))
+          .sort((a, b) => b.similarity - a.similarity)
+          .slice(0, limit)
+          .map(item => item.award)
+      } else {
+        similarAwards = similarAwards.slice(0, limit)
+      }
 
       const obligations = similarAwards
         .map(a => a.total_obligation)
@@ -144,7 +322,7 @@ export async function enrichOpportunity(
           .filter((v): v is string => v !== undefined && v !== null)
       )
 
-      return {
+      const result: EnrichmentResult = {
         similar_awards: similarAwards,
         statistics: {
           count: similarAwards.length,
@@ -157,10 +335,224 @@ export async function enrichOpportunity(
           unique_agencies: Array.from(agencies),
         },
       }
+
+      // Create deterministic links if requested
+      if (createLinks && similarAwards.length > 0) {
+        const linksCreated = await createOpportunityAwardLinks(
+          opportunityId,
+          similarAwards,
+          opportunity.title,
+          opportunity.agency || undefined,
+          naicsCodes
+        )
+        console.log(`[Award Enrichment] Created ${linksCreated} opportunity-award links`)
+      }
+
+      return result
     }
   } catch (error) {
     console.error('[Award Enrichment] Error:', error)
     return null
+  }
+}
+
+/**
+ * Get detailed enrichment data including trends and patterns
+ */
+export async function getDetailedEnrichment(
+  opportunityId: string,
+  options?: {
+    limit?: number
+    useDatabase?: boolean
+    includeTrends?: boolean
+  }
+): Promise<EnrichmentResult | null> {
+  const limit = options?.limit ?? 20
+  const useDatabase = options?.useDatabase ?? false
+  const includeTrends = options?.includeTrends ?? true
+
+  // Check cache first
+  const cacheKey = `enrichment:${opportunityId}:${limit}:${useDatabase}`
+  const cached = enrichmentCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[Award Enrichment] Using cached data for ${opportunityId}`)
+    return cached.data
+  }
+
+  try {
+    const opportunity = await prisma.governmentContractDiscovery.findUnique({
+      where: { id: opportunityId },
+    })
+
+    if (!opportunity) {
+      return null
+    }
+
+    // Get basic enrichment
+    const basicEnrichment = await enrichOpportunity(opportunityId, { limit, useDatabase })
+    if (!basicEnrichment) {
+      return null
+    }
+
+    const result: EnrichmentResult = { ...basicEnrichment }
+
+    // Add trends if requested
+    if (includeTrends) {
+      const filters: UsaSpendingFilters = {
+        award_type_codes: ['A', 'B', 'C', 'D', 'IDV'],
+      }
+
+      try {
+        const naicsCodes = JSON.parse(opportunity.naics_codes || '[]')
+        if (Array.isArray(naicsCodes) && naicsCodes.length > 0) {
+          filters.naics_codes = naicsCodes.map((code: string) => ({ code }))
+        }
+      } catch (e) {
+        // Ignore
+      }
+
+      // Get spending trends
+      try {
+        const spendingOverTime = await searchSpendingOverTime(filters)
+        result.trends = {
+          ...result.trends,
+          spending_over_time: spendingOverTime.results || [],
+        }
+      } catch (e) {
+        console.error('[Award Enrichment] Error fetching spending trends:', e)
+      }
+
+      // Get NAICS trends
+      try {
+        const naicsTrends = await searchSpendingByNaics(filters, 1, 10)
+        result.trends = {
+          ...result.trends,
+          naics_trends: naicsTrends.results || [],
+        }
+      } catch (e) {
+        console.error('[Award Enrichment] Error fetching NAICS trends:', e)
+      }
+
+      // Get agency patterns
+      try {
+        const agencyPatterns = await searchSpendingByAwardingAgency(filters, 1, 10)
+        result.trends = {
+          ...result.trends,
+          agency_patterns: agencyPatterns.results || [],
+        }
+      } catch (e) {
+        console.error('[Award Enrichment] Error fetching agency patterns:', e)
+      }
+
+      // Calculate typical duration from similar awards
+      if (basicEnrichment.similar_awards.length > 0) {
+        const durations = basicEnrichment.similar_awards
+          .map(a => {
+            const start = a.start_date || a.period_of_performance?.start_date
+            const end = a.end_date || a.period_of_performance?.end_date
+            if (start && end) {
+              const startDate = new Date(start)
+              const endDate = new Date(end)
+              const months = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+              return months
+            }
+            return null
+          })
+          .filter((v): v is number => v !== null)
+
+        if (durations.length > 0) {
+          const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length
+          result.trends = {
+            ...result.trends,
+            typical_duration: `${Math.round(avgDuration)} months`,
+          }
+        }
+      }
+    }
+
+    // Cache the result
+    enrichmentCache.set(cacheKey, { data: result, timestamp: Date.now() })
+
+    return result
+  } catch (error) {
+    console.error('[Award Enrichment] Error in detailed enrichment:', error)
+    return null
+  }
+}
+
+/**
+ * Enrich multiple contracts in batch
+ */
+export async function enrichBatch(
+  opportunityIds: string[],
+  options?: {
+    limit?: number
+    useDatabase?: boolean
+    includeTrends?: boolean
+    onProgress?: (progress: { current: number; total: number; contractId: string }) => void
+  }
+): Promise<BatchEnrichmentResult[]> {
+  const results: BatchEnrichmentResult[] = []
+  const total = opportunityIds.length
+
+  for (let i = 0; i < opportunityIds.length; i++) {
+    const contractId = opportunityIds[i]
+
+    if (options?.onProgress) {
+      options.onProgress({ current: i + 1, total, contractId })
+    }
+
+    try {
+      const enrichment = await getDetailedEnrichment(contractId, {
+        limit: options?.limit,
+        useDatabase: options?.useDatabase,
+        includeTrends: options?.includeTrends,
+      })
+
+      if (enrichment) {
+        results.push({
+          contractId,
+          success: true,
+          enrichment,
+        })
+      } else {
+        results.push({
+          contractId,
+          success: false,
+          error: 'No enrichment data found',
+        })
+      }
+    } catch (error) {
+      results.push({
+        contractId,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+
+    // Small delay to avoid overwhelming the API
+    if (i < opportunityIds.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+  }
+
+  return results
+}
+
+/**
+ * Clear enrichment cache for a specific contract or all contracts
+ */
+export function clearEnrichmentCache(opportunityId?: string): void {
+  if (opportunityId) {
+    // Clear specific contract cache
+    for (const key of enrichmentCache.keys()) {
+      if (key.includes(opportunityId)) {
+        enrichmentCache.delete(key)
+      }
+    }
+  } else {
+    // Clear all cache
+    enrichmentCache.clear()
   }
 }
 

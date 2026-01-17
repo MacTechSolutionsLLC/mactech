@@ -259,3 +259,169 @@ export async function getEntitiesByPscCodes(
   return searchSamGovEntities(params, options.version || 4)
 }
 
+/**
+ * Simple in-memory cache for entity data
+ * In production, use Redis or similar
+ */
+interface EntityCacheEntry {
+  data: EntityData
+  timestamp: number
+}
+
+const entityCache = new Map<string, EntityCacheEntry>()
+const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+
+/**
+ * Get entity by UEI with caching
+ */
+export async function getEntityByUei(
+  uei: string,
+  options: {
+    useCache?: boolean
+    includeSections?: string
+    version?: number
+  } = {}
+): Promise<EntityData | null> {
+  const useCache = options.useCache !== false // Default to true
+  
+  // Check cache first
+  if (useCache) {
+    const cached = entityCache.get(uei)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log(`[SAM.gov Entity API] Cache hit for UEI: ${uei}`)
+      return cached.data
+    }
+  }
+  
+  try {
+    const params: EntitySearchParams = {
+      ueiSAM: uei,
+      includeSections: options.includeSections || 'entityRegistration,coreData',
+      size: 1,
+    }
+    
+    const response = await searchSamGovEntities(params, options.version || 4)
+    
+    if (response.entityData && response.entityData.length > 0) {
+      const entity = response.entityData[0]
+      
+      // Cache the result
+      if (useCache) {
+        entityCache.set(uei, {
+          data: entity,
+          timestamp: Date.now(),
+        })
+      }
+      
+      return entity
+    }
+    
+    return null
+  } catch (error) {
+    console.error(`[SAM.gov Entity API] Error fetching entity ${uei}:`, error)
+    return null
+  }
+}
+
+/**
+ * Batch lookup entities by UEI
+ * Processes in batches to avoid overwhelming the API
+ */
+export async function batchLookupEntities(
+  ueis: string[],
+  options: {
+    batchSize?: number
+    delayBetweenBatches?: number
+    useCache?: boolean
+    includeSections?: string
+    version?: number
+  } = {}
+): Promise<Map<string, EntityData>> {
+  const batchSize = options.batchSize || 10
+  const delayBetweenBatches = options.delayBetweenBatches || 1000 // 1 second
+  const useCache = options.useCache !== false
+  
+  const results = new Map<string, EntityData>()
+  
+  // Filter out cached entries
+  const uncachedUeis: string[] = []
+  for (const uei of ueis) {
+    if (useCache) {
+      const cached = entityCache.get(uei)
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        results.set(uei, cached.data)
+        continue
+      }
+    }
+    uncachedUeis.push(uei)
+  }
+  
+  // Process in batches
+  for (let i = 0; i < uncachedUeis.length; i += batchSize) {
+    const batch = uncachedUeis.slice(i, i + batchSize)
+    
+    // Process batch in parallel (but with rate limiting)
+    const batchPromises = batch.map(uei =>
+      getEntityByUei(uei, {
+        useCache: false, // We'll cache manually
+        includeSections: options.includeSections,
+        version: options.version,
+      })
+    )
+    
+    const batchResults = await Promise.all(batchPromises)
+    
+    // Store results
+    batch.forEach((uei, index) => {
+      const entity = batchResults[index]
+      if (entity) {
+        results.set(uei, entity)
+        
+        // Cache the result
+        if (useCache) {
+          entityCache.set(uei, {
+            data: entity,
+            timestamp: Date.now(),
+          })
+        }
+      }
+    })
+    
+    // Delay between batches to avoid rate limiting
+    if (i + batchSize < uncachedUeis.length) {
+      await new Promise(resolve => setTimeout(resolve, delayBetweenBatches))
+    }
+  }
+  
+  console.log(`[SAM.gov Entity API] Batch lookup: ${results.size}/${ueis.length} entities found`)
+  
+  return results
+}
+
+/**
+ * Clear entity cache
+ */
+export function clearEntityCache(): void {
+  entityCache.clear()
+  console.log('[SAM.gov Entity API] Cache cleared')
+}
+
+/**
+ * Get cache statistics
+ */
+export function getEntityCacheStats(): { size: number; entries: number } {
+  const now = Date.now()
+  let validEntries = 0
+  
+  for (const entry of entityCache.values()) {
+    if (now - entry.timestamp < CACHE_TTL) {
+      validEntries++
+    }
+  }
+  
+  return {
+    size: entityCache.size,
+    entries: validEntries,
+  }
+}
+

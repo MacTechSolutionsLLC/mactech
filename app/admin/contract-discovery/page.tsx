@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import AwardHistory from '@/components/usaspending/AwardHistory'
+import EnrichmentButton from '@/components/contracts/EnrichmentButton'
+import EnrichedDataDisplay from '@/components/contracts/EnrichedDataDisplay'
+import AIAnalysisDisplay from '@/components/contracts/AIAnalysisDisplay'
+import DeliverablesExport from '@/components/contracts/DeliverablesExport'
 
 // NAICS Codes for contract search
 const NAICS_OPTIONS = [
@@ -55,6 +59,9 @@ interface DiscoveryResult {
     warnings: string[]
     completeness: number
   }
+  usaspending_enrichment?: string | null
+  usaspending_enriched_at?: string | null
+  usaspending_enrichment_status?: string | null
 }
 
 interface GoogleQuery {
@@ -75,6 +82,9 @@ export default function ContractDiscoveryPage() {
   const [pscCodes, setPscCodes] = useState('')
   const [ptype, setPtype] = useState('') // Solicitation type (RFI, PRESOL, etc.)
   const [agency, setAgency] = useState('') // Agency code (e.g., 9700 for DoD)
+  
+  // Selection state
+  const [selectedContracts, setSelectedContracts] = useState<Set<string>>(new Set())
   
   // Results state
   const [isSearching, setIsSearching] = useState(false)
@@ -766,16 +776,75 @@ export default function ContractDiscoveryPage() {
           <div className="max-w-6xl mx-auto">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="heading-2">Opportunities Found ({results.length})</h2>
-              <div className="text-body-sm text-neutral-600">
-                Sorted by relevance
+              <div className="flex items-center gap-4">
+                {selectedContracts.size > 0 && (
+                  <span className="text-body-sm text-neutral-600">
+                    {selectedContracts.size} selected
+                  </span>
+                )}
+                <div className="text-body-sm text-neutral-600">
+                  Sorted by relevance
+                </div>
               </div>
             </div>
+            
+            {/* Selection Controls */}
+            {results.length > 0 && (
+              <div className="mb-4 space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+                  <button
+                    onClick={() => {
+                      if (selectedContracts.size === results.length) {
+                        setSelectedContracts(new Set())
+                      } else {
+                        setSelectedContracts(new Set(results.map(r => r.id)))
+                      }
+                    }}
+                    className="btn-secondary text-body-sm px-4 py-2"
+                  >
+                    {selectedContracts.size === results.length ? 'Deselect All' : 'Select All'}
+                  </button>
+                  {selectedContracts.size > 0 && (
+                    <span className="text-body-sm text-neutral-700">
+                      {selectedContracts.size} contract{selectedContracts.size !== 1 ? 's' : ''} selected
+                    </span>
+                  )}
+                </div>
+                
+                {/* Enrichment Button */}
+                {selectedContracts.size > 0 && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <EnrichmentButton
+                      contractIds={Array.from(selectedContracts)}
+                      onComplete={(results) => {
+                        // Refresh the results to show updated enrichment data
+                        handleSearch()
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="card overflow-hidden p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-neutral-50 border-b border-neutral-200">
                     <tr>
+                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900 w-12">
+                        <input
+                          type="checkbox"
+                          checked={selectedContracts.size === results.length && results.length > 0}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedContracts(new Set(results.map(r => r.id)))
+                            } else {
+                              setSelectedContracts(new Set())
+                            }
+                          }}
+                          className="rounded"
+                        />
+                      </th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Opportunity</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Agency</th>
                       <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Details</th>
@@ -788,6 +857,22 @@ export default function ContractDiscoveryPage() {
                       .map((result) => (
                         <>
                           <tr key={result.id} className={`hover:bg-neutral-50 ${result.dismissed ? 'opacity-50' : ''} ${result.verified ? 'bg-green-50' : ''}`}>
+                            <td className="px-4 py-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedContracts.has(result.id)}
+                                onChange={(e) => {
+                                  const newSelected = new Set(selectedContracts)
+                                  if (e.target.checked) {
+                                    newSelected.add(result.id)
+                                  } else {
+                                    newSelected.delete(result.id)
+                                  }
+                                  setSelectedContracts(newSelected)
+                                }}
+                                className="rounded"
+                              />
+                            </td>
                             <td className="px-4 py-3">
                             <div className="max-w-md">
                               <p className="text-body-sm font-medium text-neutral-900 mb-1 line-clamp-2">
@@ -911,7 +996,7 @@ export default function ContractDiscoveryPage() {
                         </tr>
                         {expandedIds.has(result.id) && result.scraped && (
                           <tr key={`${result.id}-expanded`}>
-                            <td colSpan={4} className="px-4 py-4 bg-neutral-50">
+                            <td colSpan={5} className="px-4 py-4 bg-neutral-50">
                               <div className="space-y-4">
                                 {result.analysis_summary && (
                                   <div>
@@ -970,6 +1055,59 @@ export default function ContractDiscoveryPage() {
                                 {result.id && (
                                   <div className="mt-4">
                                     <AwardHistory opportunityId={result.id} />
+                                  </div>
+                                )}
+                                
+                                {/* USAspending Enrichment Display */}
+                                {result.usaspending_enrichment && (
+                                  <div className="mt-4">
+                                    {(() => {
+                                      try {
+                                        const enrichmentData = JSON.parse(result.usaspending_enrichment)
+                                        return (
+                                          <>
+                                            <EnrichedDataDisplay
+                                              contractId={result.id}
+                                              enrichmentData={enrichmentData}
+                                            />
+                                            {enrichmentData.ai_analysis && (
+                                              <div className="mt-4">
+                                                <AIAnalysisDisplay
+                                                  aiAnalysis={enrichmentData.ai_analysis}
+                                                  contractTitle={result.title}
+                                                />
+                                              </div>
+                                            )}
+                                            {enrichmentData.ai_analysis?.deliverables && (
+                                              <div className="mt-4">
+                                                <DeliverablesExport
+                                                  contractTitle={result.title}
+                                                  deliverables={enrichmentData.ai_analysis.deliverables}
+                                                  strategicInsights={enrichmentData.ai_analysis.strategic_insights}
+                                                />
+                                              </div>
+                                            )}
+                                          </>
+                                        )
+                                      } catch (e) {
+                                        return null
+                                      }
+                                    })()}
+                                  </div>
+                                )}
+                                
+                                {/* Enrichment Status Badge */}
+                                {result.usaspending_enrichment_status && (
+                                  <div className="mt-2">
+                                    <span className={`inline-block px-2 py-1 text-xs rounded ${
+                                      result.usaspending_enrichment_status === 'completed'
+                                        ? 'bg-green-100 text-green-800'
+                                        : result.usaspending_enrichment_status === 'failed'
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      Enrichment: {result.usaspending_enrichment_status}
+                                    </span>
                                   </div>
                                 )}
                               </div>
