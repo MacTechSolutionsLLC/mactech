@@ -23,8 +23,23 @@ interface Opportunity {
   ignored: boolean
   naics_codes: string
   set_aside: string
+  // Enriched data
+  scraped?: boolean
+  scraped_at?: string
+  scraped_text_content?: string | null
+  aiParsedData?: string | null
+  aiParsedAt?: string | null
   usaspending_enrichment?: any
-  competitive_landscape_summary?: string
+  usaspending_enriched_at?: string | null
+  usaspending_enrichment_status?: string | null
+  incumbent_vendors?: string | null
+  competitive_landscape_summary?: string | null
+  requirements?: string | null
+  estimated_value?: string | null
+  period_of_performance?: string | null
+  place_of_performance?: string | null
+  sow_attachment_url?: string | null
+  sow_attachment_type?: string | null
 }
 
 export default function OpportunityDetail({
@@ -109,6 +124,24 @@ export default function OpportunityDetail({
       : opportunity.usaspending_enrichment
     : null
 
+  const parsedData = opportunity.aiParsedData
+    ? typeof opportunity.aiParsedData === 'string'
+      ? JSON.parse(opportunity.aiParsedData)
+      : opportunity.aiParsedData
+    : null
+
+  const incumbentVendors = opportunity.incumbent_vendors
+    ? typeof opportunity.incumbent_vendors === 'string'
+      ? JSON.parse(opportunity.incumbent_vendors)
+      : opportunity.incumbent_vendors
+    : null
+
+  const requirements = opportunity.requirements
+    ? typeof opportunity.requirements === 'string'
+      ? JSON.parse(opportunity.requirements)
+      : opportunity.requirements
+    : null
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -131,11 +164,34 @@ export default function OpportunityDetail({
           )}
         </div>
         <h1 className="text-2xl font-bold text-neutral-900 mb-2">{opportunity.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-neutral-600">
+        <div className="flex items-center gap-4 text-sm text-neutral-600 mb-3">
           {opportunity.agency && <span>Agency: {opportunity.agency}</span>}
           <span>Score: {opportunity.relevance_score}</span>
           {opportunity.deadline && (
             <span>Deadline: {new Date(opportunity.deadline).toLocaleDateString()}</span>
+          )}
+        </div>
+        {/* Enrichment Status Badges */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {opportunity.scraped && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
+              📄 HTML Scraped {opportunity.scraped_at && `(${new Date(opportunity.scraped_at).toLocaleDateString()})`}
+            </span>
+          )}
+          {parsedData && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+              🤖 AI Parsed {opportunity.aiParsedAt && `(${new Date(opportunity.aiParsedAt).toLocaleDateString()})`}
+            </span>
+          )}
+          {opportunity.usaspending_enrichment_status === 'completed' && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800">
+              💰 USAspending Enriched {opportunity.usaspending_enriched_at && `(${new Date(opportunity.usaspending_enriched_at).toLocaleDateString()})`}
+            </span>
+          )}
+          {incumbentVendors && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-teal-100 text-teal-800">
+              🏢 Entity API Enriched
+            </span>
           )}
         </div>
       </div>
@@ -178,8 +234,92 @@ export default function OpportunityDetail({
         </div>
       )}
 
+      {/* AI Parsed Data */}
+      {parsedData && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">AI Parsed Contract Data</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {parsedData.summary && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Summary</h3>
+                <p className="text-sm text-neutral-600">{parsedData.summary}</p>
+              </div>
+            )}
+            {parsedData.scope && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Scope</h3>
+                <p className="text-sm text-neutral-600">{parsedData.scope}</p>
+              </div>
+            )}
+            {parsedData.objectives && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Objectives</h3>
+                <p className="text-sm text-neutral-600">{parsedData.objectives}</p>
+              </div>
+            )}
+            {parsedData.requirements && parsedData.requirements.length > 0 && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Requirements</h3>
+                <ul className="list-disc list-inside text-sm text-neutral-600 space-y-1">
+                  {parsedData.requirements.map((req: string, idx: number) => (
+                    <li key={idx}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {parsedData.deliverables && parsedData.deliverables.length > 0 && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Deliverables</h3>
+                <ul className="list-disc list-inside text-sm text-neutral-600 space-y-1">
+                  {parsedData.deliverables.map((del: string, idx: number) => (
+                    <li key={idx}>{del}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {parsedData.timeline && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Timeline</h3>
+                <p className="text-sm text-neutral-600">{parsedData.timeline}</p>
+              </div>
+            )}
+            {parsedData.estimatedValue && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Estimated Value</h3>
+                <p className="text-sm text-neutral-600">{parsedData.estimatedValue}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scraped Content */}
+      {opportunity.scraped_text_content && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Scraped Content</h2>
+          <div className="max-h-96 overflow-y-auto">
+            <p className="text-sm text-neutral-600 whitespace-pre-wrap">
+              {opportunity.scraped_text_content.substring(0, 5000)}
+              {opportunity.scraped_text_content.length > 5000 && '...'}
+            </p>
+          </div>
+          {opportunity.sow_attachment_url && (
+            <div className="mt-4">
+              <a
+                href={opportunity.sow_attachment_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-accent-700 hover:text-accent-800 underline"
+              >
+                📎 View SOW Attachment ({opportunity.sow_attachment_type || 'Document'})
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Competitive Intelligence */}
-      {(enrichment || aiAnalysis?.competitiveLandscape) && (
+      {(enrichment || aiAnalysis?.competitiveLandscape || incumbentVendors) && (
         <div className="bg-white rounded-lg border border-neutral-200 p-6">
           <h2 className="text-lg font-semibold text-neutral-900 mb-4">
             Competitive Intelligence
@@ -202,6 +342,33 @@ export default function OpportunityDetail({
                   </div>
                 </div>
               </div>
+              {enrichment.similar_awards && enrichment.similar_awards.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-neutral-700 mb-2">Similar Awards (with Entity API data)</div>
+                  <div className="space-y-2">
+                    {enrichment.similar_awards.slice(0, 5).map((award: any, idx: number) => (
+                      <div key={idx} className="border border-neutral-200 rounded p-3">
+                        <div className="text-sm font-medium text-neutral-900">
+                          {award.recipient?.name || award.recipient_name || 'Unknown'}
+                        </div>
+                        {award.total_obligation && (
+                          <div className="text-xs text-neutral-600">
+                            ${award.total_obligation.toLocaleString()}
+                          </div>
+                        )}
+                        {award.recipient_entity_data && (
+                          <div className="mt-2 text-xs text-neutral-600">
+                            <div>Entity: {award.recipient_entity_data.entityName || 'N/A'}</div>
+                            {award.recipient_entity_data.socioEconomicStatus && award.recipient_entity_data.socioEconomicStatus.length > 0 && (
+                              <div>Certifications: {award.recipient_entity_data.socioEconomicStatus.join(', ')}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {enrichment.statistics.unique_recipients && (
                 <div>
                   <div className="text-sm text-neutral-600 mb-2">Previous Awardees</div>
@@ -210,6 +377,20 @@ export default function OpportunityDetail({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+          {incumbentVendors && Array.isArray(incumbentVendors) && incumbentVendors.length > 0 && (
+            <div className="mb-4">
+              <div className="text-sm font-medium text-neutral-700 mb-2">Likely Incumbents (from Entity API)</div>
+              <div className="text-sm text-neutral-600">
+                {incumbentVendors.join(', ')}
+              </div>
+            </div>
+          )}
+          {opportunity.competitive_landscape_summary && (
+            <div>
+              <div className="text-sm font-medium text-neutral-700 mb-2">Competitive Landscape</div>
+              <p className="text-sm text-neutral-600">{opportunity.competitive_landscape_summary}</p>
             </div>
           )}
           {aiAnalysis?.competitiveLandscape && (

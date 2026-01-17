@@ -17,6 +17,16 @@ interface Opportunity {
   capture_status?: string
   naics_codes: string
   set_aside: string
+  // Enriched data indicators
+  scraped?: boolean
+  scraped_at?: string
+  aiParsedData?: string | null
+  aiParsedAt?: string | null
+  usaspending_enrichment?: string | null
+  usaspending_enriched_at?: string | null
+  usaspending_enrichment_status?: string | null
+  incumbent_vendors?: string | null
+  competitive_landscape_summary?: string | null
 }
 
 export default function OpportunityFeed() {
@@ -179,7 +189,7 @@ export default function OpportunityFeed() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
                           opp.relevance_score >= 70
@@ -199,6 +209,27 @@ export default function OpportunityFeed() {
                       {opp.ignored && (
                         <span className="px-2 py-1 rounded text-xs font-medium bg-neutral-100 text-neutral-800">
                           Ignored
+                        </span>
+                      )}
+                      {/* Enrichment indicators */}
+                      {opp.scraped && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800" title="HTML scraped">
+                          📄 Scraped
+                        </span>
+                      )}
+                      {opp.aiParsedData && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800" title="AI parsed">
+                          🤖 Parsed
+                        </span>
+                      )}
+                      {opp.usaspending_enrichment && opp.usaspending_enrichment_status === 'completed' && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800" title="USAspending enriched">
+                          💰 USAspending
+                        </span>
+                      )}
+                      {opp.incumbent_vendors && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-teal-100 text-teal-800" title="Entity API enriched">
+                          🏢 Entities
                         </span>
                       )}
                     </div>

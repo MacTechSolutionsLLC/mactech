@@ -25,6 +25,8 @@ import { SamGovOpportunity } from '../sam-gov-api-v2'
 import { prisma } from '../prisma'
 import { isSamGovOutage } from '../sam/samClient'
 import { enrichOpportunity } from '../services/award-enrichment'
+import { scrapeContractPage } from '../contract-scraper'
+import { parseContractText } from '../ai/contract-parser'
 
 /**
  * Generate batch ID for this ingestion run
@@ -408,6 +410,95 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     }
     
     console.log(`[Ingest] Auto-enriched ${enrichedCount} high-scoring opportunities`)
+    
+    // Stage 7.5: Scrape and AI parse high-scoring opportunities (score >= 70)
+    console.log(`[Ingest] Stage 7.5: Scraping and AI parsing high-scoring opportunities`)
+    let scrapedCount = 0
+    let parsedCount = 0
+    
+    for (const item of scoredOpportunities) {
+      if (item.score >= 70 && item.normalized.uiLink) {
+        try {
+          const opportunity = await prisma.governmentContractDiscovery.findFirst({
+            where: { notice_id: item.normalized.noticeId },
+          })
+          
+          if (!opportunity || opportunity.scraped) {
+            continue // Skip if already scraped
+          }
+          
+          // Scrape the contract page
+          console.log(`[Ingest] Scraping ${item.normalized.noticeId}: ${item.normalized.uiLink}`)
+          const scrapeResult = await scrapeContractPage(item.normalized.uiLink, {
+            description: item.normalized.rawPayload?.description,
+            links: item.normalized.rawPayload?.resourceLinks,
+            additionalInfoLink: item.normalized.rawPayload?.additionalInfoLink,
+            title: item.normalized.title,
+          })
+          
+          if (scrapeResult.success) {
+            // Save scraped content
+            await prisma.governmentContractDiscovery.update({
+              where: { id: opportunity.id },
+              data: {
+                scraped: true,
+                scraped_at: new Date(),
+                scraped_html_content: scrapeResult.htmlContent || null,
+                scraped_text_content: scrapeResult.textContent || null,
+                sow_attachment_url: scrapeResult.sowAttachmentUrl || null,
+                sow_attachment_type: scrapeResult.sowAttachmentType || null,
+              },
+            })
+            scrapedCount++
+            
+            // AI parse the scraped text if available
+            if (scrapeResult.textContent && scrapeResult.textContent.length > 500) {
+              try {
+                console.log(`[Ingest] AI parsing ${item.normalized.noticeId}`)
+                const parsedData = await parseContractText(scrapeResult.textContent)
+                
+                if (parsedData) {
+                  // Update with parsed data
+                  await prisma.governmentContractDiscovery.update({
+                    where: { id: opportunity.id },
+                    data: {
+                      aiParsedData: JSON.stringify(parsedData),
+                      aiParsedAt: new Date(),
+                      // Update fields from parsed data if they're missing or more complete
+                      description: parsedData.summary || opportunity.description || null,
+                      deadline: parsedData.deadline || opportunity.deadline || null,
+                      place_of_performance: parsedData.location || opportunity.place_of_performance || null,
+                      estimated_value: parsedData.estimatedValue || parsedData.budget || opportunity.estimated_value || null,
+                      period_of_performance: parsedData.performancePeriod || parsedData.timeline || opportunity.period_of_performance || null,
+                      requirements: parsedData.requirements.length > 0 
+                        ? JSON.stringify(parsedData.requirements) 
+                        : opportunity.requirements || null,
+                      // Update NAICS if parsed data has more codes
+                      naics_codes: parsedData.naicsCodes.length > 0
+                        ? JSON.stringify(parsedData.naicsCodes)
+                        : opportunity.naics_codes,
+                      // Update set-aside if parsed data has more info
+                      set_aside: parsedData.setAside.length > 0
+                        ? JSON.stringify(parsedData.setAside)
+                        : opportunity.set_aside,
+                    },
+                  })
+                  parsedCount++
+                }
+              } catch (parseError) {
+                console.error(`[Ingest] Error parsing ${item.normalized.noticeId}:`, parseError)
+                // Continue - scraping is still valuable even if parsing fails
+              }
+            }
+          }
+        } catch (scrapeError) {
+          console.error(`[Ingest] Error scraping ${item.normalized.noticeId}:`, scrapeError)
+          // Continue with next opportunity
+        }
+      }
+    }
+    
+    console.log(`[Ingest] Scraped ${scrapedCount} and AI parsed ${parsedCount} high-scoring opportunities`)
     
     // Stage 8: AI analyze opportunities with enrichment context (as per diagram: Enrichment → AI Analysis → Executive Summaries)
     console.log(`[Ingest] Stage 8: AI analysis with enrichment context (Executive Summaries)`)

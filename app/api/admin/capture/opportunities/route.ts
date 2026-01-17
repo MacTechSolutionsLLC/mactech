@@ -68,9 +68,26 @@ export async function GET(request: NextRequest) {
         aiSummary: true,
         flagged: true,
         ignored: true,
-        // capture_status: true, // Uncomment after migration
         naics_codes: true,
         set_aside: true,
+        // Enriched data fields
+        scraped: true,
+        scraped_at: true,
+        scraped_text_content: true,
+        aiParsedData: true,
+        aiParsedAt: true,
+        usaspending_enrichment: true,
+        usaspending_enriched_at: true,
+        usaspending_enrichment_status: true,
+        incumbent_vendors: true,
+        competitive_landscape_summary: true,
+        description: true,
+        requirements: true,
+        estimated_value: true,
+        period_of_performance: true,
+        place_of_performance: true,
+        sow_attachment_url: true,
+        sow_attachment_type: true,
       },
     })
 
