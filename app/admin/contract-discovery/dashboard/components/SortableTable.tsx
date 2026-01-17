@@ -136,22 +136,22 @@ export default function SortableTable({
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) {
       return (
-        <span className="inline-block ml-1 text-neutral-400">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className="inline-block ml-2 text-neutral-300 group-hover:text-neutral-400 transition-colors">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
           </svg>
         </span>
       )
     }
     return (
-      <span className="inline-block ml-1 text-accent-700">
+      <span className="inline-block ml-2 text-accent-600">
         {sortDirection === 'asc' ? (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
           </svg>
         ) : (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
           </svg>
         )}
       </span>
@@ -159,57 +159,59 @@ export default function SortableTable({
   }
 
   return (
-    <div className="card overflow-hidden p-0 shadow-sm">
+    <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-neutral-50 border-b-2 border-neutral-200">
-            <tr>
+          <thead>
+            <tr className="bg-gradient-to-b from-neutral-50 to-white border-b border-neutral-100">
               <th 
-                className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[30%] cursor-pointer hover:bg-neutral-100 transition-colors"
+                className="px-8 py-5 text-left"
                 onClick={() => handleSort(null)}
               >
-                Contract
+                <div className="flex items-center">
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Contract</span>
+                </div>
               </th>
               <th 
-                className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[15%] cursor-pointer hover:bg-neutral-100 transition-colors"
+                className="px-8 py-5 text-left cursor-pointer group"
                 onClick={() => handleSort('agency')}
               >
                 <div className="flex items-center">
-                  Agency/Office
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Agency</span>
                   <SortIcon column="agency" />
                 </div>
               </th>
               <th 
-                className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[12%] cursor-pointer hover:bg-neutral-100 transition-colors"
+                className="px-8 py-5 text-left cursor-pointer group"
                 onClick={() => handleSort('deadline')}
               >
                 <div className="flex items-center">
-                  Dates
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Dates</span>
                   <SortIcon column="deadline" />
                 </div>
               </th>
               <th 
-                className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[8%] cursor-pointer hover:bg-neutral-100 transition-colors"
+                className="px-8 py-5 text-left cursor-pointer group"
                 onClick={() => handleSort('score')}
               >
                 <div className="flex items-center">
-                  Score
+                  <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Score</span>
                   <SortIcon column="score" />
                 </div>
               </th>
-              <th className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[10%]">
-                Status
+              <th className="px-8 py-5 text-left">
+                <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</span>
               </th>
-              <th className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[10%]">
-                SOW
+              <th className="px-8 py-5 text-left">
+                <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">SOW</span>
               </th>
-              <th className="px-6 py-4 text-left text-body-sm font-semibold text-neutral-900 w-[15%]">
-                Actions
+              <th className="px-8 py-5 text-left">
+                <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</span>
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200 bg-white">
-            {sortedContracts.map((contract) => {
+          <tbody className="divide-y divide-neutral-50">
+            {sortedContracts.map((contract, index) => {
               const isAIExpanded = expandedAI.has(contract.id)
               const primaryPOC = contract.points_of_contact && contract.points_of_contact.length > 0 
                 ? contract.points_of_contact[0] 
@@ -219,25 +221,29 @@ export default function SortableTable({
                 <>
                   <tr 
                     key={contract.id} 
-                    className={`hover:bg-neutral-50 transition-colors ${
-                      contract.dismissed ? 'opacity-60' : ''
-                    } ${contract.verified ? 'bg-green-50/50' : ''} ${contract.flagged ? 'bg-yellow-50/50' : ''}`}
+                    className={`
+                      transition-all duration-200 ease-out
+                      hover:bg-gradient-to-r hover:from-neutral-50/50 hover:to-white
+                      ${contract.dismissed ? 'opacity-60' : ''}
+                      ${contract.verified ? 'bg-emerald-50/30' : ''}
+                      ${contract.flagged ? 'bg-amber-50/30' : ''}
+                    `}
                     onClick={() => window.location.href = `/admin/contract-discovery/${contract.id}`}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6">
                       <div className="max-w-md">
                         <Link
                           href={`/admin/contract-discovery/${contract.id}`}
-                          className="text-body-sm font-semibold text-accent-700 hover:text-accent-900 mb-2 block line-clamp-2"
+                          className="text-sm font-semibold text-neutral-900 hover:text-accent-700 mb-3 block leading-snug transition-colors"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {contract.title}
                         </Link>
-                        <div className="flex flex-wrap gap-1.5 mb-2">
+                        <div className="flex flex-wrap gap-1.5 mb-3">
                           {contract.set_aside.slice(0, 2).map((sa, idx) => (
                             <span
                               key={idx}
-                              className="inline-block px-2 py-0.5 bg-green-100 text-green-800 text-body-xs rounded font-medium"
+                              className="inline-flex items-center px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-medium rounded-full"
                             >
                               {sa}
                             </span>
@@ -245,20 +251,24 @@ export default function SortableTable({
                           {contract.detected_keywords.slice(0, 3).map((kw, idx) => (
                             <span
                               key={idx}
-                              className="inline-block px-2 py-0.5 bg-accent-50 text-accent-700 text-body-xs rounded"
+                              className="inline-flex items-center px-2.5 py-1 bg-accent-50 text-accent-700 text-xs font-medium rounded-full"
                             >
                               {kw}
                             </span>
                           ))}
                         </div>
-                        <div className="text-body-xs text-neutral-500 space-y-0.5">
-                          {contract.notice_id && <p>Notice: {contract.notice_id}</p>}
-                          {contract.solicitation_number && <p>Solicitation: {contract.solicitation_number}</p>}
+                        <div className="text-xs text-neutral-500 space-y-1">
+                          {contract.notice_id && (
+                            <p className="font-mono">Notice: {contract.notice_id}</p>
+                          )}
+                          {contract.solicitation_number && (
+                            <p className="font-mono">Solicitation: {contract.solicitation_number}</p>
+                          )}
                           {contract.naics_codes.length > 0 && (
                             <p>NAICS: {contract.naics_codes.slice(0, 2).join(', ')}{contract.naics_codes.length > 2 ? '...' : ''}</p>
                           )}
                           {contract.ingestion_source && (
-                            <p className="text-accent-700 font-medium">
+                            <p className="text-accent-600 font-medium">
                               {contract.ingestion_source === 'sam-ingestion' ? '📥 SAM Ingestion' : '🔍 Discovery'}
                             </p>
                           )}
@@ -267,25 +277,25 @@ export default function SortableTable({
                           href={contract.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-body-xs text-accent-700 hover:text-accent-800 mt-2 inline-block break-all"
+                          className="text-xs text-accent-600 hover:text-accent-700 mt-2 inline-block font-medium transition-colors"
                           onClick={(e) => e.stopPropagation()}
                         >
                           View on SAM.gov →
                         </a>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
+                    <td className="px-8 py-6">
+                      <div className="space-y-1.5">
                         {contract.agency && (
-                          <p className="text-body-sm font-medium text-neutral-900">{contract.agency}</p>
+                          <p className="text-sm font-medium text-neutral-900">{contract.agency}</p>
                         )}
                         {primaryPOC && (
-                          <div className="text-body-xs text-neutral-600">
+                          <div className="text-xs text-neutral-600">
                             {primaryPOC.name && <p className="font-medium">POC: {primaryPOC.name}</p>}
                             {primaryPOC.email && (
                               <a 
                                 href={`mailto:${primaryPOC.email}`}
-                                className="text-accent-700 hover:text-accent-800 break-all"
+                                className="text-accent-600 hover:text-accent-700 break-all transition-colors"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {primaryPOC.email}
@@ -296,13 +306,13 @@ export default function SortableTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1 text-body-xs">
+                    <td className="px-8 py-6">
+                      <div className="space-y-1.5 text-xs">
                         {contract.deadline && (
-                          <p className={contract.daysRemaining != null && contract.daysRemaining < 7 ? 'text-red-600 font-semibold' : 'text-neutral-700'}>
+                          <p className={contract.daysRemaining != null && contract.daysRemaining < 7 ? 'text-red-600 font-semibold' : 'text-neutral-700 font-medium'}>
                             Deadline: {contract.deadline}
                             {contract.daysRemaining != null && (
-                              <span className="ml-1">({contract.daysRemaining} days)</span>
+                              <span className="ml-1.5">({contract.daysRemaining} days)</span>
                             )}
                           </p>
                         )}
@@ -314,14 +324,14 @@ export default function SortableTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6">
                       <ScoreBadge score={contract.relevance_score} />
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1.5">
-                        <span className={`inline-block px-2.5 py-1 text-body-xs rounded font-medium ${
+                    <td className="px-8 py-6">
+                      <div className="space-y-2">
+                        <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full ${
                           contract.verified 
-                            ? 'bg-green-100 text-green-800' 
+                            ? 'bg-emerald-100 text-emerald-800' 
                             : contract.dismissed
                             ? 'bg-red-100 text-red-800'
                             : contract.scraped
@@ -338,27 +348,27 @@ export default function SortableTable({
                               e.stopPropagation()
                               onToggleAI(contract.id)
                             }}
-                            className="block text-body-xs text-blue-700 hover:text-blue-800 underline"
+                            className="block text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
                           >
                             {isAIExpanded ? 'Hide' : 'Show'} AI Analysis
                           </button>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6">
                       {contract.sow_attachment_url ? (
                         <div className="space-y-2">
                           <a
                             href={contract.sow_attachment_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-body-sm text-accent-700 hover:text-accent-800 underline"
+                            className="inline-flex items-center gap-1.5 text-sm text-accent-600 hover:text-accent-700 font-medium transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <span>📄</span>
                             <span>Download SOW</span>
                             {contract.sow_attachment_type && (
-                              <span className="text-body-xs text-neutral-500">
+                              <span className="text-xs text-neutral-500">
                                 ({contract.sow_attachment_type})
                               </span>
                             )}
@@ -369,38 +379,38 @@ export default function SortableTable({
                                 e.stopPropagation()
                                 onScrapeSOW(contract.id)
                               }}
-                              className="block text-body-xs text-accent-700 hover:text-accent-800 underline"
+                              className="block text-xs text-accent-600 hover:text-accent-700 font-medium transition-colors"
                             >
                               Scrape SOW Content
                             </button>
                           )}
                           {contract.sow_scraped && (
-                            <span className="text-body-xs text-green-600 font-medium">✓ Content Scraped</span>
+                            <span className="text-xs text-emerald-600 font-semibold">✓ Content Scraped</span>
                           )}
                         </div>
                       ) : contract.scraped ? (
-                        <span className="text-body-xs text-neutral-500">No SOW found</span>
+                        <span className="text-xs text-neutral-500">No SOW found</span>
                       ) : (
-                        <span className="text-body-xs text-neutral-400">Not scraped yet</span>
+                        <span className="text-xs text-neutral-400">Not scraped yet</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6">
                       <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
                         {!contract.scraped && (
                           <button
                             onClick={() => onScrape(contract.id)}
-                            className="btn-primary text-body-xs px-3 py-1.5"
+                            className="px-3 py-1.5 bg-accent-700 text-white text-xs font-medium rounded-lg hover:bg-accent-800 transition-all duration-200 shadow-sm hover:shadow"
                           >
                             Scrape
                           </button>
                         )}
                         {contract.notice_id && (
-                          <>
+                          <div className="flex gap-1.5">
                             <button
                               onClick={() => onFlag(contract.notice_id, !contract.flagged)}
-                              className={`text-body-xs px-2 py-1 rounded transition-colors ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                                 contract.flagged
-                                  ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                  ? 'bg-amber-100 text-amber-800 hover:bg-amber-200'
                                   : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                               }`}
                               title={contract.flagged ? 'Unflag' : 'Flag'}
@@ -409,17 +419,17 @@ export default function SortableTable({
                             </button>
                             <button
                               onClick={() => onIgnore(contract.notice_id)}
-                              className="text-body-xs px-2 py-1 rounded bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+                              className="px-2.5 py-1.5 rounded-lg bg-neutral-100 text-neutral-700 hover:bg-neutral-200 text-xs font-medium transition-all duration-200"
                               title="Ignore"
                             >
                               ×
                             </button>
-                          </>
+                          </div>
                         )}
                         {!contract.verified && !contract.dismissed && (
                           <button
                             onClick={() => onAdd(contract.id)}
-                            className="text-body-xs px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow"
                           >
                             Add
                           </button>
@@ -427,14 +437,14 @@ export default function SortableTable({
                         {!contract.dismissed && (
                           <button
                             onClick={() => onDismiss(contract.id)}
-                            className="text-body-xs px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                            className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow"
                           >
                             Dismiss
                           </button>
                         )}
                         <button
                           onClick={() => onDelete(contract.id)}
-                          className="text-body-xs px-3 py-1.5 bg-neutral-600 text-white rounded hover:bg-neutral-700 transition-colors"
+                          className="px-3 py-1.5 bg-neutral-600 text-white text-xs font-medium rounded-lg hover:bg-neutral-700 transition-all duration-200 shadow-sm hover:shadow"
                         >
                           Delete
                         </button>
@@ -443,28 +453,28 @@ export default function SortableTable({
                   </tr>
                   {isAIExpanded && contract.aiAnalysis && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-4 bg-blue-50">
-                        <div className="space-y-3">
-                          <h4 className="text-body-sm font-semibold text-neutral-900">AI Analysis</h4>
+                      <td colSpan={7} className="px-8 py-6 bg-blue-50/50">
+                        <div className="space-y-4">
+                          <h4 className="text-sm font-semibold text-neutral-900">AI Analysis</h4>
                           {contract.aiAnalysis.relevanceSummary && (
-                            <p className="text-body-sm text-neutral-700">
-                              <strong>Summary:</strong> {contract.aiAnalysis.relevanceSummary}
+                            <p className="text-sm text-neutral-700 leading-relaxed">
+                              <strong className="font-semibold">Summary:</strong> {contract.aiAnalysis.relevanceSummary}
                             </p>
                           )}
                           {contract.aiAnalysis.recommendedAction && (
-                            <p className="text-body-sm text-neutral-700">
-                              <strong>Recommended Action:</strong>{' '}
+                            <p className="text-sm text-neutral-700 leading-relaxed">
+                              <strong className="font-semibold">Recommended Action:</strong>{' '}
                               <span className="font-medium">{contract.aiAnalysis.recommendedAction}</span>
                             </p>
                           )}
                           {contract.aiAnalysis.capabilityMatch && contract.aiAnalysis.capabilityMatch.length > 0 && (
                             <div>
-                              <strong className="text-body-sm text-neutral-700">Capability Match:</strong>
-                              <div className="flex flex-wrap gap-1 mt-1">
+                              <strong className="text-sm text-neutral-700 font-semibold">Capability Match:</strong>
+                              <div className="flex flex-wrap gap-1.5 mt-2">
                                 {contract.aiAnalysis.capabilityMatch.map((cap: string, idx: number) => (
                                   <span
                                     key={idx}
-                                    className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800"
+                                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-emerald-100 text-emerald-800 font-medium"
                                   >
                                     {cap}
                                   </span>
@@ -474,8 +484,8 @@ export default function SortableTable({
                           )}
                           {contract.aiAnalysis.risks && contract.aiAnalysis.risks.length > 0 && (
                             <div>
-                              <strong className="text-body-sm text-neutral-700">Risks:</strong>
-                              <ul className="list-disc list-inside text-body-sm text-neutral-700 mt-1">
+                              <strong className="text-sm text-neutral-700 font-semibold">Risks:</strong>
+                              <ul className="list-disc list-inside text-sm text-neutral-700 mt-2 space-y-1">
                                 {contract.aiAnalysis.risks.map((risk: string, idx: number) => (
                                   <li key={idx}>{risk}</li>
                                 ))}
@@ -483,9 +493,9 @@ export default function SortableTable({
                             </div>
                           )}
                           {contract.aiSummary && (
-                            <div className="mt-2 pt-2 border-t border-blue-200">
-                              <strong className="text-body-sm text-neutral-700">Full Summary:</strong>
-                              <p className="text-body-sm text-neutral-700 mt-1">{contract.aiSummary}</p>
+                            <div className="mt-3 pt-3 border-t border-blue-200">
+                              <strong className="text-sm text-neutral-700 font-semibold">Full Summary:</strong>
+                              <p className="text-sm text-neutral-700 mt-2 leading-relaxed">{contract.aiSummary}</p>
                             </div>
                           )}
                         </div>
@@ -501,4 +511,3 @@ export default function SortableTable({
     </div>
   )
 }
-

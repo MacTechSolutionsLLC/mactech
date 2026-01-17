@@ -50,65 +50,73 @@ export default function ContractFilters({
   opportunityCount,
 }: ContractFiltersProps) {
   return (
-    <div className="card p-6 mb-6 shadow-sm">
-      <div className="space-y-6">
-        {/* First Row: Score, Sort, Show Low Score, Count */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+    <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-8 mb-8">
+      <div className="space-y-8">
+        {/* Header with Count */}
+        <div className="flex items-center justify-between pb-6 border-b border-neutral-100">
+          <div>
+            <h3 className="text-lg font-semibold text-neutral-900 mb-1">Filters</h3>
+            <p className="text-sm text-neutral-500">Refine your contract search</p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-neutral-900">{opportunityCount.toLocaleString()}</div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wider">Opportunities</div>
+          </div>
+        </div>
+
+        {/* First Row: Score, Sort, Show Low Score */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-body-sm font-medium text-neutral-900 mb-2">
-              Min Score: {minScore}%
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
+              Minimum Score: <span className="text-accent-700 font-semibold">{minScore}%</span>
             </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={minScore}
-              onChange={(e) => setMinScore(parseInt(e.target.value, 10))}
-              className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-accent-700"
-            />
+            <div className="relative">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={minScore}
+                onChange={(e) => setMinScore(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-neutral-200 rounded-full appearance-none cursor-pointer accent-accent-700"
+                style={{
+                  background: `linear-gradient(to right, rgb(29 78 216) 0%, rgb(29 78 216) ${minScore}%, rgb(229 231 235) ${minScore}%, rgb(229 231 235) 100%)`
+                }}
+              />
+              <div className="flex justify-between mt-1 text-xs text-neutral-500">
+                <span>0%</span>
+                <span>100%</span>
+              </div>
+            </div>
           </div>
 
           <div>
-            <label className="block text-body-sm font-medium text-neutral-900 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
               Sort By
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'score' | 'deadline' | 'date')}
-              className="block w-full px-3 py-2 border border-neutral-300 rounded-sm text-body-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+              className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all appearance-none cursor-pointer hover:border-neutral-300"
             >
               <option value="score">Score (High to Low)</option>
               <option value="deadline">Deadline (Soonest)</option>
               <option value="date">Posted Date (Newest)</option>
             </select>
           </div>
-
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="showLowScore"
-              checked={showLowScore}
-              onChange={(e) => setShowLowScore(e.target.checked)}
-              className="w-4 h-4 rounded border-neutral-300 text-accent-700 focus:ring-accent-500"
-            />
-            <label htmlFor="showLowScore" className="text-body-sm text-neutral-700">
-              Show low-score
-            </label>
-          </div>
         </div>
 
-        {/* Second Row: Set-Aside and Sole Source Filters */}
+        {/* Second Row: Set-Aside and NAICS Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-body-sm font-medium text-neutral-900">
-                Filter by Set-Aside
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-medium text-neutral-700">
+                Set-Aside Type
               </label>
               {setAsideFilter.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setSetAsideFilter([])}
-                  className="text-body-xs text-accent-700 hover:text-accent-800 underline"
+                  className="text-xs text-accent-600 hover:text-accent-700 font-medium transition-colors"
                 >
                   Clear
                 </button>
@@ -121,30 +129,35 @@ export default function ContractFilters({
                 const selected = Array.from(e.target.selectedOptions, option => option.value)
                 setSetAsideFilter(selected)
               }}
-              className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-body-sm min-h-[120px]"
+              className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-sm min-h-[140px] transition-all hover:border-neutral-300"
               size={6}
             >
               {SET_ASIDE_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value} className="py-2">
                   {option.label}
                 </option>
               ))}
             </select>
-            <p className="text-body-xs text-neutral-500 mt-1">
-              Hold Ctrl/Cmd to select multiple. {setAsideFilter.length > 0 && `Selected: ${setAsideFilter.join(', ')}`}
+            {setAsideFilter.length > 0 && (
+              <p className="text-xs text-neutral-500 mt-2">
+                Selected: <span className="font-medium text-neutral-700">{setAsideFilter.join(', ')}</span>
+              </p>
+            )}
+            <p className="text-xs text-neutral-400 mt-1.5">
+              Hold Ctrl/Cmd to select multiple
             </p>
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-body-sm font-medium text-neutral-900">
-                Filter by NAICS Code
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-medium text-neutral-700">
+                NAICS Code
               </label>
               {naicsFilter.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setNaicsFilter([])}
-                  className="text-body-xs text-accent-700 hover:text-accent-800 underline"
+                  className="text-xs text-accent-600 hover:text-accent-700 font-medium transition-colors"
                 >
                   Clear
                 </button>
@@ -157,43 +170,55 @@ export default function ContractFilters({
                 const selected = Array.from(e.target.selectedOptions, option => option.value)
                 setNaicsFilter(selected)
               }}
-              className="w-full px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-body-sm min-h-[120px]"
+              className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-sm min-h-[140px] transition-all hover:border-neutral-300"
               size={6}
             >
               {NAICS_OPTIONS.map(option => (
-                <option key={option.code} value={option.code}>
+                <option key={option.code} value={option.code} className="py-2">
                   {option.code} - {option.name}
                 </option>
               ))}
             </select>
-            <p className="text-body-xs text-neutral-500 mt-1">
-              Hold Ctrl/Cmd to select multiple codes. {naicsFilter.length > 0 && `Selected: ${naicsFilter.join(', ')}`}
+            {naicsFilter.length > 0 && (
+              <p className="text-xs text-neutral-500 mt-2">
+                Selected: <span className="font-medium text-neutral-700">{naicsFilter.join(', ')}</span>
+              </p>
+            )}
+            <p className="text-xs text-neutral-400 mt-1.5">
+              Hold Ctrl/Cmd to select multiple
             </p>
           </div>
         </div>
 
-        {/* Third Row: Sole Source Toggle */}
-        <div className="flex items-center gap-3 pt-2 border-t border-neutral-200">
-          <input
-            type="checkbox"
-            id="soleSourceFilter"
-            checked={soleSourceFilter}
-            onChange={(e) => setSoleSourceFilter(e.target.checked)}
-            className="w-4 h-4 rounded border-neutral-300 text-accent-700 focus:ring-accent-500 cursor-pointer"
-          />
-          <label htmlFor="soleSourceFilter" className="text-body-sm font-medium text-neutral-900 cursor-pointer">
-            Show only Sole Source contracts
-          </label>
-        </div>
-
-        {/* Count Display */}
-        <div className="flex items-center justify-between pt-2 border-t border-neutral-200">
-          <div className="text-body-sm text-neutral-600">
-            <span className="font-semibold text-neutral-900">{opportunityCount}</span> opportunities found
+        {/* Third Row: Toggles */}
+        <div className="flex items-center gap-8 pt-4 border-t border-neutral-100">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="showLowScore"
+              checked={showLowScore}
+              onChange={(e) => setShowLowScore(e.target.checked)}
+              className="w-5 h-5 rounded-md border-neutral-300 text-accent-700 focus:ring-2 focus:ring-accent-500 focus:ring-offset-0 cursor-pointer transition-all"
+            />
+            <label htmlFor="showLowScore" className="text-sm font-medium text-neutral-700 cursor-pointer">
+              Show low-score contracts
+            </label>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="soleSourceFilter"
+              checked={soleSourceFilter}
+              onChange={(e) => setSoleSourceFilter(e.target.checked)}
+              className="w-5 h-5 rounded-md border-neutral-300 text-accent-700 focus:ring-2 focus:ring-accent-500 focus:ring-offset-0 cursor-pointer transition-all"
+            />
+            <label htmlFor="soleSourceFilter" className="text-sm font-medium text-neutral-700 cursor-pointer">
+              Show only Sole Source contracts
+            </label>
           </div>
         </div>
       </div>
     </div>
   )
 }
-

@@ -331,19 +331,19 @@ export default function ContractDashboardPage() {
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-neutral-50 min-h-screen">
       {/* Header */}
-      <section className="section-narrow bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="heading-hero mb-2">Contract Dashboard</h1>
-              <p className="text-body text-neutral-600">
+              <h1 className="text-3xl font-bold text-neutral-900 mb-2">Contract Dashboard</h1>
+              <p className="text-base text-neutral-600">
                 Unified view of all contract opportunities from SAM.gov ingestion pipeline and contract discovery
               </p>
             </div>
             <div className="flex gap-4">
-              <Link href="/admin" className="btn-secondary">
+              <Link href="/admin" className="px-6 py-2.5 bg-transparent text-accent-700 border border-accent-700 rounded-xl text-sm font-medium hover:bg-accent-50 transition-all">
                 Back to Admin
               </Link>
             </div>
@@ -352,12 +352,12 @@ export default function ContractDashboardPage() {
       </section>
 
       {/* Tab Navigation */}
-      <section className="section-container bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex gap-1 border-b border-neutral-200">
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex gap-1">
             <button
               onClick={() => setActiveTab('contracts')}
-              className={`px-6 py-3 text-body-sm font-medium transition-colors border-b-2 ${
+              className={`px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 ${
                 activeTab === 'contracts'
                   ? 'border-accent-700 text-accent-700'
                   : 'border-transparent text-neutral-600 hover:text-neutral-900'
@@ -367,7 +367,7 @@ export default function ContractDashboardPage() {
             </button>
             <button
               onClick={() => setActiveTab('search')}
-              className={`px-6 py-3 text-body-sm font-medium transition-colors border-b-2 ${
+              className={`px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 ${
                 activeTab === 'search'
                   ? 'border-accent-700 text-accent-700'
                   : 'border-transparent text-neutral-600 hover:text-neutral-900'
@@ -381,31 +381,132 @@ export default function ContractDashboardPage() {
 
       {/* Tab Content */}
       {activeTab === 'contracts' && (
-        <>
-          {/* Consolidated API Actions */}
-          <section className="section-container bg-neutral-50">
-            <div className="max-w-7xl mx-auto">
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            {/* Status and Source Filters - Apple Style */}
+            <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6 mb-8">
+              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {(['all', 'verified', 'scraped', 'dismissed'] as const).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        filter === f
+                          ? 'bg-accent-700 text-white shadow-md shadow-accent-700/20'
+                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-4 items-center w-full lg:w-auto">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-neutral-700">Source:</label>
+                    <select
+                      value={sourceFilter}
+                      onChange={(e) => setSourceFilter(e.target.value as 'all' | 'sam-ingestion' | 'discovery')}
+                      className="px-4 py-2 bg-white border border-neutral-200 rounded-xl text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all hover:border-neutral-300"
+                    >
+                      <option value="all">All Sources</option>
+                      <option value="sam-ingestion">SAM Ingestion</option>
+                      <option value="discovery">Contract Discovery</option>
+                    </select>
+                  </div>
+                  <div className="flex-1 lg:flex-initial">
+                    <input
+                      type="text"
+                      placeholder="Search contracts..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full lg:w-64 px-4 py-2 bg-white border border-neutral-200 rounded-xl text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all hover:border-neutral-300"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Filters Panel */}
+            <ContractFilters
+              minScore={minScore}
+              setMinScore={setMinScore}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              showLowScore={showLowScore}
+              setShowLowScore={setShowLowScore}
+              naicsFilter={naicsFilter}
+              setNaicsFilter={setNaicsFilter}
+              setAsideFilter={setAsideFilter}
+              setSetAsideFilter={setSetAsideFilter}
+              soleSourceFilter={soleSourceFilter}
+              setSoleSourceFilter={setSoleSourceFilter}
+              opportunityCount={filteredContracts.length}
+            />
+
+            {loading ? (
+              <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-16 text-center">
+                <div className="animate-spin h-10 w-10 border-3 border-accent-700 border-t-transparent rounded-full mx-auto"></div>
+                <p className="text-sm text-neutral-600 mt-6 font-medium">Loading contracts...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 rounded-2xl border border-red-200 p-6 shadow-sm">
+                <p className="text-sm text-red-800 font-medium">{error}</p>
+              </div>
+            ) : filteredContracts.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-16 text-center">
+                <p className="text-lg font-semibold text-neutral-600 mb-2">No contracts found</p>
+                <p className="text-sm text-neutral-500 mb-6">
+                  Try adjusting your filters or search for new contracts
+                </p>
+                <Link href="/admin/contract-discovery" className="inline-block px-6 py-3 bg-accent-700 text-white rounded-xl text-sm font-medium hover:bg-accent-800 transition-all shadow-md shadow-accent-700/20">
+                  Search for Contracts
+                </Link>
+              </div>
+            ) : (
+              <SortableTable
+                contracts={filteredContracts}
+                onScrape={handleScrape}
+                onScrapeSOW={handleScrapeSOW}
+                onAdd={handleAdd}
+                onDismiss={handleDismiss}
+                onDelete={handleDelete}
+                onFlag={handleFlag}
+                onIgnore={handleIgnore}
+                expandedAI={expandedAI}
+                onToggleAI={toggleAIExpansion}
+              />
+            )}
+          </div>
+        </section>
+      )}
+
+      {activeTab === 'search' && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            {/* API Actions Section */}
+            <div className="mb-8">
               <div className="mb-6">
-                <h2 className="heading-2 mb-2">API Actions</h2>
-                <p className="text-body-sm text-neutral-600">
+                <h2 className="text-2xl font-bold text-neutral-900 mb-2">Contract Management</h2>
+                <p className="text-base text-neutral-600">
                   Manage contract ingestion, enrichment, and data processing
                 </p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="card p-6 shadow-sm">
+                <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
                   <RunIngestButton onIngestComplete={loadContracts} />
                 </div>
                 
-                <div className="card p-6 shadow-sm">
+                <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
                   <QueryManager onQueryComplete={loadContracts} />
                 </div>
                 
-                <div className="card p-6 shadow-sm">
+                <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
                   <div className="flex flex-col gap-4">
                     <div>
-                      <h3 className="heading-3 mb-2">Enrich High-Score Contracts</h3>
-                      <p className="text-body-sm text-neutral-600">
+                      <h3 className="text-lg font-semibold text-neutral-900 mb-2">Enrich High-Score Contracts</h3>
+                      <p className="text-sm text-neutral-600 leading-relaxed">
                         Scrape and enrich all contracts with relevance score ≥ 50% to populate their summary pages with full HTML/text content
                       </p>
                     </div>
@@ -434,18 +535,18 @@ export default function ContractDashboardPage() {
                           alert('Failed to start enrichment')
                         }
                       }}
-                      className="btn-primary whitespace-nowrap"
+                      className="px-6 py-3 bg-accent-700 text-white rounded-xl text-sm font-medium hover:bg-accent-800 transition-all shadow-md shadow-accent-700/20 whitespace-nowrap"
                     >
                       Enrich Contracts (≥50%)
                     </button>
                   </div>
                 </div>
                 
-                <div className="card p-6 shadow-sm">
+                <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
                   <div className="flex flex-col gap-4">
                     <div>
-                      <h3 className="heading-3 mb-2">Clean Content with AI</h3>
-                      <p className="text-body-sm text-neutral-600">
+                      <h3 className="text-lg font-semibold text-neutral-900 mb-2">Clean Content with AI</h3>
+                      <p className="text-sm text-neutral-600 leading-relaxed">
                         Re-process already-scraped contracts with AI to clean verbose content, remove strange characters, and extract structured data
                       </p>
                     </div>
@@ -474,7 +575,7 @@ export default function ContractDashboardPage() {
                           alert('Failed to start AI cleaning')
                         }
                       }}
-                      className="btn-primary whitespace-nowrap"
+                      className="px-6 py-3 bg-accent-700 text-white rounded-xl text-sm font-medium hover:bg-accent-800 transition-all shadow-md shadow-accent-700/20 whitespace-nowrap"
                     >
                       Clean with AI (≥50%)
                     </button>
@@ -482,116 +583,15 @@ export default function ContractDashboardPage() {
                 </div>
               </div>
             </div>
-          </section>
 
-          {/* Filters and Contract Table */}
-          <section className="section-container bg-white">
-            <div className="max-w-7xl mx-auto">
-              {/* Source and Status Filters */}
-              <div className="card p-6 mb-6 shadow-sm">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                  <div className="flex gap-2 flex-wrap">
-                    {(['all', 'verified', 'scraped', 'dismissed'] as const).map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
-                          filter === f
-                            ? 'bg-accent-700 text-white'
-                            : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                        }`}
-                      >
-                        {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <label className="text-body-sm font-medium text-neutral-700 mr-2">Source:</label>
-                    <select
-                      value={sourceFilter}
-                      onChange={(e) => setSourceFilter(e.target.value as 'all' | 'sam-ingestion' | 'discovery')}
-                      className="px-3 py-2 border border-neutral-300 rounded-sm text-body-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                    >
-                      <option value="all">All Sources</option>
-                      <option value="sam-ingestion">SAM Ingestion</option>
-                      <option value="discovery">Contract Discovery</option>
-                    </select>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search contracts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 w-full md:w-64"
-                  />
-                </div>
-              </div>
-
-              {/* Advanced Filters Panel */}
-              <ContractFilters
-                minScore={minScore}
-                setMinScore={setMinScore}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                showLowScore={showLowScore}
-                setShowLowScore={setShowLowScore}
-                naicsFilter={naicsFilter}
-                setNaicsFilter={setNaicsFilter}
-                setAsideFilter={setAsideFilter}
-                setSetAsideFilter={setSetAsideFilter}
-                soleSourceFilter={soleSourceFilter}
-                setSoleSourceFilter={setSoleSourceFilter}
-                opportunityCount={filteredContracts.length}
-              />
-
-              {loading ? (
-                <div className="card p-12 text-center shadow-sm">
-                  <div className="animate-spin h-8 w-8 border-2 border-accent-700 border-t-transparent rounded-full mx-auto"></div>
-                  <p className="text-body-sm text-neutral-600 mt-4">Loading contracts...</p>
-                </div>
-              ) : error ? (
-                <div className="card p-6 bg-red-50 border border-red-200 shadow-sm">
-                  <p className="text-body-sm text-red-800">{error}</p>
-                </div>
-              ) : filteredContracts.length === 0 ? (
-                <div className="card p-12 text-center shadow-sm">
-                  <p className="text-body-lg text-neutral-600 mb-2">No contracts found</p>
-                  <p className="text-body-sm text-neutral-500 mb-4">
-                    Try adjusting your filters or search for new contracts
-                  </p>
-                  <Link href="/admin/contract-discovery" className="btn-primary inline-block">
-                    Search for Contracts
-                  </Link>
-                </div>
-              ) : (
-                <SortableTable
-                  contracts={filteredContracts}
-                  onScrape={handleScrape}
-                  onScrapeSOW={handleScrapeSOW}
-                  onAdd={handleAdd}
-                  onDismiss={handleDismiss}
-                  onDelete={handleDelete}
-                  onFlag={handleFlag}
-                  onIgnore={handleIgnore}
-                  expandedAI={expandedAI}
-                  onToggleAI={toggleAIExpansion}
-                />
-              )}
-            </div>
-          </section>
-        </>
-      )}
-
-      {activeTab === 'search' && (
-        <section className="section-container bg-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="card p-8 lg:p-12 shadow-sm">
+            {/* Search Page Link */}
+            <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-8">
               <div className="mb-6">
-                <h2 className="heading-2 mb-4">Search for New Contracts</h2>
-                <p className="text-body-sm text-neutral-600 mb-6">
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">Search for New Contracts</h2>
+                <p className="text-base text-neutral-600 mb-6">
                   Use the dedicated search page to find new contract opportunities on SAM.gov
                 </p>
-                <Link href="/admin/contract-discovery" className="btn-primary">
+                <Link href="/admin/contract-discovery" className="inline-block px-6 py-3 bg-accent-700 text-white rounded-xl text-sm font-medium hover:bg-accent-800 transition-all shadow-md shadow-accent-700/20">
                   Go to Search Page
                 </Link>
               </div>
