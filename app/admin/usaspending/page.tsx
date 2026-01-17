@@ -423,7 +423,7 @@ export default function UsaSpendingPage() {
 
       {results.length === 0 && !isSearching && !error && (
         <div className="text-center py-12 text-gray-500">
-          <p>No results yet. Enter search criteria and click "Search Awards" to begin.</p>
+          <p>No results yet. Enter search criteria and click &quot;Search Awards&quot; to begin.</p>
         </div>
       )}
     </div>
