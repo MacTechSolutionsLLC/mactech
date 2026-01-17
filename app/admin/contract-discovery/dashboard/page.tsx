@@ -378,6 +378,47 @@ export default function ContractDashboardPage() {
               </button>
             </div>
           </div>
+
+          {/* Clean Content with AI Button */}
+          <div className="card p-6 mb-8">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div>
+                <h2 className="heading-3 mb-2">Clean Content with AI</h2>
+                <p className="text-body-sm text-neutral-600">
+                  Re-process already-scraped contracts with AI to clean verbose content, remove strange characters, and extract structured data
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!confirm('This will re-process all scraped contracts (score ≥ 50%) with AI cleaning. This may take a while. Continue?')) {
+                    return
+                  }
+                  
+                  try {
+                    const response = await fetch('/api/admin/contract-discovery/clean-content?minScore=50', {
+                      method: 'POST',
+                    })
+                    const data = await response.json()
+                    
+                    if (data.success) {
+                      alert(`AI cleaning started! Processing ${data.total} contracts. Check server logs for progress.`)
+                      setTimeout(() => {
+                        loadContracts()
+                      }, 5000)
+                    } else {
+                      alert(data.error || 'Failed to start AI cleaning')
+                    }
+                  } catch (err) {
+                    console.error('Error starting AI cleaning:', err)
+                    alert('Failed to start AI cleaning')
+                  }
+                }}
+                className="btn-primary whitespace-nowrap"
+              >
+                Clean with AI (≥50%)
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
