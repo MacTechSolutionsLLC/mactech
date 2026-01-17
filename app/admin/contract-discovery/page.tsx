@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import AwardHistory from '@/components/usaspending/AwardHistory'
 
 // NAICS Codes for contract search
 const NAICS_OPTIONS = [
@@ -963,6 +964,13 @@ export default function ContractDiscoveryPage() {
                                   <p className="text-body-xs text-neutral-500">
                                     Scraped: {new Date(result.scraped_at).toLocaleString()}
                                   </p>
+                                )}
+                                
+                                {/* Historical Awards Enrichment */}
+                                {result.id && (
+                                  <div className="mt-4">
+                                    <AwardHistory opportunityId={result.id} />
+                                  </div>
                                 )}
                               </div>
                             </td>

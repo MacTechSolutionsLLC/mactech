@@ -11,143 +11,277 @@ datasource db {
 }
 
 model ReadinessAssessment {
-  id          String   @id @default(cuid())
-  email       String
-  name        String?
-  organization String?
-  systemType  String
-  authStatus  String
-  auditHistory String
-  infraMaturity String
+  id               String   @id @default(cuid())
+  email            String
+  name             String?
+  organization     String?
+  systemType       String
+  authStatus       String
+  auditHistory     String
+  infraMaturity    String
   timelinePressure String
-  readinessScore String
-  gapsSummary  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  readinessScore   String
+  gapsSummary      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model ContactSubmission {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
+  id           String   @id @default(cuid())
+  name         String
+  email        String
   organization String?
-  phone       String?
-  message     String
-  createdAt   DateTime @default(now())
+  phone        String?
+  message      String
+  createdAt    DateTime @default(now())
 }
 
 model GovernmentContractDiscovery {
-  id                  String   @id @default(cuid())
-  google_query        String
-  service_category    String?
-  title               String
-  url                 String   @unique
-  domain              String
-  snippet             String?
-  document_type       String?
-  notice_id           String?
-  solicitation_number String?
-  agency              String?
-  naics_codes         String   @default("[]") // JSON array as string
-  set_aside           String   @default("[]") // JSON array as string
-  location_mentions   String   @default("[]") // JSON array as string
-  detected_keywords   String   @default("[]") // JSON array as string
-  relevance_score     Int      @default(0)
-  ingestion_status    String   @default("discovered")
-  verified            Boolean  @default(false)
-  verified_at         DateTime?
-  verified_by         String?
-  downloaded          Boolean  @default(false)
-  downloaded_at       DateTime?
-  proposal_generated  Boolean  @default(false)
+  id                    String    @id @default(cuid())
+  google_query          String
+  service_category      String?
+  title                 String
+  url                   String    @unique
+  domain                String
+  snippet               String?
+  document_type         String?
+  notice_id             String?
+  solicitation_number   String?
+  agency                String?
+  naics_codes           String    @default("[]") // JSON array as string
+  set_aside             String    @default("[]") // JSON array as string
+  location_mentions     String    @default("[]") // JSON array as string
+  detected_keywords     String    @default("[]") // JSON array as string
+  relevance_score       Int       @default(0)
+  ingestion_status      String    @default("discovered")
+  verified              Boolean   @default(false)
+  verified_at           DateTime?
+  verified_by           String?
+  downloaded            Boolean   @default(false)
+  downloaded_at         DateTime?
+  proposal_generated    Boolean   @default(false)
   proposal_generated_at DateTime?
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  discovered_by       String?
-  
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  discovered_by         String?
+
   // Ingestion pipeline fields
-  ingestion_source    String?  // Track if from ingestion pipeline vs search
-  ingestion_batch_id  String?  // Track ingestion batch (batchId)
-  flagged             Boolean  @default(false)
-  flagged_at          DateTime?
-  flagged_by          String?
-  ignored             Boolean  @default(false) // Track if ignored
-  
+  ingestion_source   String? // Track if from ingestion pipeline vs search
+  ingestion_batch_id String? // Track ingestion batch (batchId)
+  flagged            Boolean   @default(false)
+  flagged_at         DateTime?
+  flagged_by         String?
+  ignored            Boolean   @default(false) // Track if ignored
+
   // New ingestion fields per specification
-  raw_payload         String?  // JSON string of raw SAM.gov API response
-  normalized_fields   String?  // JSON string of normalized opportunity data
-  source_queries      String   @default("[]") // JSON array of source query identifiers (A, B, C, D, E)
-  ingested_at         DateTime? // When this opportunity was ingested
-  
+  raw_payload       String? // JSON string of raw SAM.gov API response
+  normalized_fields String? // JSON string of normalized opportunity data
+  source_queries    String    @default("[]") // JSON array of source query identifiers (A, B, C, D, E)
+  ingested_at       DateTime? // When this opportunity was ingested
+
   // Scraping fields
-  scraped             Boolean  @default(false)
-  scraped_at          DateTime?
-  scraped_html_content String?  // Full HTML content of opportunity page
+  scraped              Boolean   @default(false)
+  scraped_at           DateTime?
+  scraped_html_content String? // Full HTML content of opportunity page
   scraped_text_content String? // Extracted text from HTML
-  
+
   // SOW attachment fields
-  sow_attachment_url  String?  // URL to the SOW attachment
-  sow_attachment_type String?  // PDF, DOCX, etc.
+  sow_attachment_url     String? // URL to the SOW attachment
+  sow_attachment_type    String? // PDF, DOCX, etc.
   sow_attachment_content String? // Extracted text from SOW document
-  sow_scraped         Boolean  @default(false)
-  sow_scraped_at      DateTime?
-  
+  sow_scraped            Boolean   @default(false)
+  sow_scraped_at         DateTime?
+
   // Analysis fields
-  analysis_summary    String?  // AI/heuristic analysis of the contract
-  analysis_confidence Float?   // Confidence score 0-1
-  analysis_keywords   String   @default("[]") // Additional keywords from analysis
-  
+  analysis_summary    String? // AI/heuristic analysis of the contract
+  analysis_confidence Float? // Confidence score 0-1
+  analysis_keywords   String  @default("[]") // Additional keywords from analysis
+
   // AI Parsing fields
-  aiParsedData        String?  // JSON string of parsed contract data
-  aiParsedAt          DateTime?
-  
+  aiParsedData String? // JSON string of parsed contract data
+  aiParsedAt   DateTime?
+
   // AI Analysis fields
-  aiSummary           String?  // AI-generated executive summary
-  aiKeyRequirements   String?  // JSON array of key requirements
-  aiKeywords          String?  // JSON array of AI-detected keywords
-  aiStrengths         String?  // JSON array of strengths/advantages
-  aiConcerns          String?  // JSON array of concerns/challenges
-  aiFitScore          Float?   // 0-100 fit score for MacTech capabilities
-  aiServiceCategory   String?  // cybersecurity, infrastructure, compliance, contracts, general
-  aiRecommendedActions String? // JSON array of recommended actions
+  aiSummary             String? // AI-generated executive summary
+  aiKeyRequirements     String? // JSON array of key requirements
+  aiKeywords            String? // JSON array of AI-detected keywords
+  aiStrengths           String? // JSON array of strengths/advantages
+  aiConcerns            String? // JSON array of concerns/challenges
+  aiFitScore            Float? // 0-100 fit score for MacTech capabilities
+  aiServiceCategory     String? // cybersecurity, infrastructure, compliance, contracts, general
+  aiRecommendedActions  String? // JSON array of recommended actions
   aiAnalysisGeneratedAt DateTime?
-  aiAnalysis          String?  // JSON string of complete AI analysis (relevanceSummary, recommendedAction, capabilityMatch, risks)
-  
+  aiAnalysis            String? // JSON string of complete AI analysis (relevanceSummary, recommendedAction, capabilityMatch, risks)
+
   // AI Award Likelihood fields
-  aiAwardLikelihood   Float?   // 0-100 award probability score
-  aiAwardConfidence   String?  // HIGH, MEDIUM, LOW
-  aiAwardReasoning    String?  // Explanation of the score
-  aiAwardStrengths    String?  // JSON array of award strengths
-  aiAwardConcerns     String?  // JSON array of award concerns
-  aiAwardRiskFactors  String?  // JSON array of risk factors
-  aiAwardRecommendations String? // JSON array of recommendations
+  aiAwardLikelihood            Float? // 0-100 award probability score
+  aiAwardConfidence            String? // HIGH, MEDIUM, LOW
+  aiAwardReasoning             String? // Explanation of the score
+  aiAwardStrengths             String? // JSON array of award strengths
+  aiAwardConcerns              String? // JSON array of award concerns
+  aiAwardRiskFactors           String? // JSON array of risk factors
+  aiAwardRecommendations       String? // JSON array of recommendations
   aiAwardLikelihoodGeneratedAt DateTime?
-  
+
   // Dismissal fields
-  dismissed           Boolean  @default(false)
-  dismissed_at        DateTime?
-  dismissed_by        String?
-  dismissal_reason    String?
-  
+  dismissed        Boolean   @default(false)
+  dismissed_at     DateTime?
+  dismissed_by     String?
+  dismissal_reason String?
+
   // Additional contract details
-  points_of_contact   String?  // JSON array of POC objects: [{name, email, phone, role}]
-  description         String?  // Full contract description
-  requirements        String?  // JSON array of requirements
-  deadline            String?  // Response deadline/date
-  estimated_value     String?  // Contract value estimate
+  points_of_contact     String? // JSON array of POC objects: [{name, email, phone, role}]
+  description           String? // Full contract description
+  requirements          String? // JSON array of requirements
+  deadline              String? // Response deadline/date
+  estimated_value       String? // Contract value estimate
   period_of_performance String? // POP dates
-  place_of_performance String? // Location/place of performance
+  place_of_performance  String? // Location/place of performance
 }
 
 // Ignored opportunities from ingestion pipeline
 model IgnoredOpportunity {
-  id            String   @id @default(cuid())
-  notice_id     String   @unique
-  ignored_at    DateTime @default(now())
-  ignored_by    String?
-  reason        String?
-  
+  id         String   @id @default(cuid())
+  notice_id  String   @unique
+  ignored_at DateTime @default(now())
+  ignored_by String?
+  reason     String?
+
   @@index([notice_id])
+}
+
+// ============================================================================
+// USAspending.gov Historical Awards
+// Models for storing historical award data from USAspending.gov
+// ============================================================================
+
+model UsaSpendingAward {
+  id                        String  @id @default(cuid())
+  award_id                  String? @unique // USAspending award ID
+  generated_unique_award_id String? @unique // Generated unique award ID
+
+  // Award type and category
+  award_type             String? // A, B, C, D, IDV, etc.
+  award_type_description String?
+  category               String? // contract, grant, loan, etc.
+
+  // Award identifiers
+  piid String? // Procurement Instrument Identifier
+  fain String? // Federal Award Identification Number
+  uri  String? // Unique Record Identifier
+
+  // Financial data
+  total_obligation   Float?
+  total_outlay       Float?
+  total_subsidy_cost Float?
+
+  // Agency information (stored as JSON for flexibility)
+  awarding_agency      String? // JSON: {id, name, toptier_agency, subtier_agency}
+  funding_agency       String? // JSON: {id, name, toptier_agency, subtier_agency}
+  awarding_agency_name String? // Denormalized for easy querying
+  funding_agency_name  String? // Denormalized for easy querying
+  awarding_agency_id   String? // Denormalized for easy querying
+  funding_agency_id    String? // Denormalized for easy querying
+
+  // Recipient information
+  recipient_name     String?
+  recipient_uei      String?
+  recipient_duns     String?
+  recipient_hash     String?
+  recipient_id       String?
+  recipient_location String? // JSON: {address, city, state, zip, country, congressional_district}
+
+  // Place of performance
+  place_of_performance String? // JSON: {state, county, city, zip, country, congressional_district, location}
+  pop_state            String? // Denormalized for easy querying
+  pop_country          String? // Denormalized for easy querying
+
+  // Dates
+  start_date            DateTime?
+  end_date              DateTime?
+  last_modified_date    DateTime?
+  awarding_date         DateTime?
+  period_of_performance String? // JSON: {start_date, end_date, last_modified_date}
+
+  // Classification codes
+  naics_code        String?
+  naics_description String?
+  psc_code          String?
+  psc_description   String?
+  cfda_number       String?
+  cfda_title        String?
+
+  // Description
+  description String? @db.Text
+
+  // Counts
+  transaction_count     Int    @default(0)
+  total_subaward_amount Float?
+  subaward_count        Int    @default(0)
+
+  // Raw data and metadata
+  raw_data           String?  @db.Text // Full API response as JSON
+  ingested_at        DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  ingestion_batch_id String?
+
+  // Relationships
+  transactions UsaSpendingTransaction[]
+
+  // Indexes for common queries
+  @@index([award_id])
+  @@index([award_type])
+  @@index([awarding_agency_id])
+  @@index([funding_agency_id])
+  @@index([recipient_uei])
+  @@index([recipient_duns])
+  @@index([naics_code])
+  @@index([psc_code])
+  @@index([pop_state])
+  @@index([awarding_date])
+  @@index([start_date])
+  @@index([end_date])
+  @@index([ingested_at])
+}
+
+model UsaSpendingTransaction {
+  id             String  @id @default(cuid())
+  transaction_id String? @unique
+  award_id       String? // Link to UsaSpendingAward
+
+  // Transaction details
+  action_date               DateTime?
+  action_type               String?
+  action_type_description   String?
+  federal_action_obligation Float?
+  total_obligation          Float?
+  total_outlay              Float?
+
+  // Agency information
+  awarding_agency      String? // JSON
+  funding_agency       String? // JSON
+  awarding_agency_name String? // Denormalized
+  funding_agency_name  String? // Denormalized
+
+  // Recipient information
+  recipient      String? // JSON
+  recipient_name String?
+  recipient_uei  String?
+  recipient_duns String?
+
+  // Raw data
+  raw_data    String?  @db.Text // Full API response as JSON
+  ingested_at DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relationships
+  award UsaSpendingAward? @relation(fields: [award_id], references: [id], onDelete: Cascade)
+
+  @@index([transaction_id])
+  @@index([award_id])
+  @@index([action_date])
+  @@index([recipient_uei])
+  @@index([recipient_duns])
 }
 
 // ============================================================================
@@ -157,107 +291,107 @@ model IgnoredOpportunity {
 
 // Infrastructure Domain
 model Deployment {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
   architecture  String
   storageType   String
   status        String
   systemId      String?
-  vmwareConfig  String?  // JSON
-  networkConfig String?  // JSON
-  compliance    String?  // JSON
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  vmwareConfig  String? // JSON
+  networkConfig String? // JSON
+  compliance    String? // JSON
+  metadata      String? // JSON
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   deployedAt    DateTime?
-  
+
   @@index([systemId])
   @@index([status])
 }
 
 model SystemHealth {
-  id            String   @id @default(uuid())
-  systemId      String   @unique
-  systemName    String
-  systemType    String
-  status        String
-  metrics       String?  // JSON
-  alerts        String?  // JSON
-  lastUpdated   DateTime @default(now())
-  
+  id          String   @id @default(uuid())
+  systemId    String   @unique
+  systemName  String
+  systemType  String
+  status      String
+  metrics     String? // JSON
+  alerts      String? // JSON
+  lastUpdated DateTime @default(now())
+
   @@index([status])
   @@index([systemType])
 }
 
 model NetworkTopology {
-  id            String   @id @default(uuid())
-  name          String
-  description   String?
-  zones         String   // JSON array
-  requirements  String?  // JSON
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  zones        String // JSON array
+  requirements String? // JSON
+  status       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   @@index([status])
 }
 
 model FirewallRule {
-  id            String   @id @default(uuid())
-  topologyId    String
-  source        String
-  destination   String
-  port          String
-  protocol      String
-  action        String
-  description   String
-  createdAt     DateTime @default(now())
-  
+  id          String   @id @default(uuid())
+  topologyId  String
+  source      String
+  destination String
+  port        String
+  protocol    String
+  action      String
+  description String
+  createdAt   DateTime @default(now())
+
   @@index([topologyId])
 }
 
 // Quality Assurance Domain
 model ISOComplianceProgram {
-  id            String   @id @default(uuid())
+  id             String   @id @default(uuid())
   organizationId String
-  standard      String
-  scope         String
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  standard       String
+  scope          String
+  status         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   @@index([organizationId])
   @@index([standard])
 }
 
 model SOP {
-  id            String   @id @default(uuid())
-  title         String
-  requirement   String
-  standard      String?
-  version       String
-  status        String
-  content       String
-  format        String
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  approvedAt    DateTime?
-  
+  id          String    @id @default(uuid())
+  title       String
+  requirement String
+  standard    String?
+  version     String
+  status      String
+  content     String
+  format      String
+  metadata    String? // JSON
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  approvedAt  DateTime?
+
   @@index([status])
   @@index([standard])
 }
 
 model MetrologyProject {
-  id            String   @id @default(uuid())
-  projectName   String
-  equipmentId   String?
-  status        String
-  dueDate       DateTime?
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id          String    @id @default(uuid())
+  projectName String
+  equipmentId String?
+  status      String
+  dueDate     DateTime?
+  metadata    String? // JSON
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@index([equipmentId])
   @@index([status])
 }
@@ -271,104 +405,104 @@ model ComplianceGap {
   remediation   String
   priority      String?
   createdAt     DateTime @default(now())
-  
+
   @@index([programId])
 }
 
 model AuditReadiness {
-  id            String   @id @default(uuid())
-  systemId      String
-  auditType     String
-  auditDate     DateTime?
-  readinessScore Int
-  readinessLevel String
-  gaps          String   // JSON array
-  strengths     String   // JSON array
+  id              String    @id @default(uuid())
+  systemId        String
+  auditType       String
+  auditDate       DateTime?
+  readinessScore  Int
+  readinessLevel  String
+  gaps            String // JSON array
+  strengths       String // JSON array
   recommendations String // JSON array
-  metadata      String?  // JSON
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  metadata        String? // JSON
+  status          String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   @@index([systemId])
   @@index([auditType])
   @@index([status])
 }
 
 model AuditEvidencePackage {
-  id            String   @id @default(uuid())
-  auditId       String
-  evidence      String   // JSON array
-  status        String
-  createdAt     DateTime @default(now())
-  completedAt   DateTime?
-  
+  id          String    @id @default(uuid())
+  auditId     String
+  evidence    String // JSON array
+  status      String
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
   @@index([auditId])
   @@index([status])
 }
 
 // Legal & Contracts Domain
 model Contract {
-  id            String   @id @default(uuid())
-  title         String
-  type          String
-  status        String
-  riskScore     Int?
-  startDate     DateTime
-  endDate       DateTime?
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  signedAt      DateTime?
-  expiresAt     DateTime?
-  
+  id        String    @id @default(uuid())
+  title     String
+  type      String
+  status    String
+  riskScore Int?
+  startDate DateTime
+  endDate   DateTime?
+  metadata  String? // JSON
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  signedAt  DateTime?
+  expiresAt DateTime?
+
   @@index([status])
   @@index([type])
   @@index([expiresAt])
 }
 
 model LegalDocument {
-  id            String   @id @default(uuid())
-  documentType  String
-  title         String
-  parties       String   // JSON array
-  terms         String?  // JSON
-  version       String
-  status        String
-  content       String
-  format        String
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  approvedAt    DateTime?
-  signedAt      DateTime?
-  
+  id           String    @id @default(uuid())
+  documentType String
+  title        String
+  parties      String // JSON array
+  terms        String? // JSON
+  version      String
+  status       String
+  content      String
+  format       String
+  metadata     String? // JSON
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  approvedAt   DateTime?
+  signedAt     DateTime?
+
   @@index([documentType])
   @@index([status])
 }
 
 model DocumentReview {
-  id            String   @id @default(uuid())
-  documentId    String
-  reviewer      String
-  reviewDate    DateTime @default(now())
-  risks         String   // JSON array
-  status        String
-  createdAt     DateTime @default(now())
-  
+  id         String   @id @default(uuid())
+  documentId String
+  reviewer   String
+  reviewDate DateTime @default(now())
+  risks      String // JSON array
+  status     String
+  createdAt  DateTime @default(now())
+
   @@index([documentId])
   @@index([status])
 }
 
 model ContractObligation {
-  id            String   @id @default(uuid())
-  contractId    String
-  description   String
-  type          String
-  dueDate       DateTime
-  status        String
-  completedAt   DateTime?
-  
+  id          String    @id @default(uuid())
+  contractId  String
+  description String
+  type        String
+  dueDate     DateTime
+  status      String
+  completedAt DateTime?
+
   @@index([contractId])
   @@index([status])
   @@index([dueDate])
@@ -376,157 +510,157 @@ model ContractObligation {
 
 // Cybersecurity & RMF Domain
 model RMFRequirement {
-  id                String   @id @default(uuid())
-  systemId          String
-  controlId         String
-  title             String
+  id                   String   @id @default(uuid())
+  systemId             String
+  controlId            String
+  title                String
   implementationStatus String
-  traceabilityId    String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  traceabilityId       String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
   @@index([systemId])
   @@index([controlId])
   @@index([implementationStatus])
 }
 
 model BOEPlan {
-  id            String   @id @default(uuid())
-  systemId      String
-  controlId     String
-  evidenceType  String
-  status        String
-  dueDate       DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id           String   @id @default(uuid())
+  systemId     String
+  controlId    String
+  evidenceType String
+  status       String
+  dueDate      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   @@index([systemId])
   @@index([controlId])
   @@index([status])
 }
 
 model SecurityBaseline {
-  id            String   @id @default(uuid())
-  name          String
-  systemType    String
-  controls      String   // JSON array
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  approvedAt    DateTime?
-  
+  id         String    @id @default(uuid())
+  name       String
+  systemType String
+  controls   String // JSON array
+  status     String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  approvedAt DateTime?
+
   @@index([status])
   @@index([systemType])
 }
 
 model SecurityDocument {
-  id            String   @id @default(uuid())
-  documentType  String
-  systemId      String
-  systemName    String
-  title         String
-  content       String
-  format        String
-  version       String
-  status        String
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  approvedAt    DateTime?
-  
+  id           String    @id @default(uuid())
+  documentType String
+  systemId     String
+  systemName   String
+  title        String
+  content      String
+  format       String
+  version      String
+  status       String
+  metadata     String? // JSON
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  approvedAt   DateTime?
+
   @@index([systemId])
   @@index([documentType])
   @@index([status])
 }
 
 model CVEAnalysis {
-  id            String   @id @default(uuid())
-  softwareName  String
-  version       String
-  status        String
-  riskLevel     String
+  id             String    @id @default(uuid())
+  softwareName   String
+  version        String
+  status         String
+  riskLevel      String
   recommendation String
-  cves          String?  // JSON array
-  createdAt     DateTime @default(now())
-  completedAt   DateTime?
-  
+  cves           String? // JSON array
+  createdAt      DateTime  @default(now())
+  completedAt    DateTime?
+
   @@index([status])
   @@index([riskLevel])
 }
 
 model VulnerabilityFinding {
-  id            String   @id @default(uuid())
-  scanId        String
-  cveId         String?
-  title         String
-  severity      String
-  status        String
-  remediation   String?
-  createdAt     DateTime @default(now())
-  
+  id          String   @id @default(uuid())
+  scanId      String
+  cveId       String?
+  title       String
+  severity    String
+  status      String
+  remediation String?
+  createdAt   DateTime @default(now())
+
   @@index([scanId])
   @@index([severity])
   @@index([status])
 }
 
 model VulnerabilityScan {
-  id            String   @id @default(uuid())
-  systemId      String
-  scanType      String
-  status        String
-  startedAt     DateTime @default(now())
-  completedAt   DateTime?
-  
+  id          String    @id @default(uuid())
+  systemId    String
+  scanType    String
+  status      String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
   @@index([systemId])
   @@index([status])
 }
 
 // Compliance & Security Domain
 model STIGValidation {
-  id            String   @id @default(uuid())
-  systemId      String
-  stigProfile   String
-  systemType    String
-  status        String
-  results       String?  // JSON
-  remediation   String?  // JSON
-  createdAt     DateTime @default(now())
-  completedAt   DateTime?
-  
+  id          String    @id @default(uuid())
+  systemId    String
+  stigProfile String
+  systemType  String
+  status      String
+  results     String? // JSON
+  remediation String? // JSON
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
   @@index([systemId])
   @@index([status])
 }
 
 model Evidence {
-  id            String   @id @default(uuid())
-  controlId     String
-  systemId      String
-  evidenceType  String
-  status        String
-  qualityScore  Int?
-  collectedAt   DateTime?
-  validatedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id           String    @id @default(uuid())
+  controlId    String
+  systemId     String
+  evidenceType String
+  status       String
+  qualityScore Int?
+  collectedAt  DateTime?
+  validatedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
   @@index([systemId])
   @@index([controlId])
   @@index([status])
 }
 
 model RMFArtifact {
-  id            String   @id @default(uuid())
-  artifactType  String
-  systemId      String
-  systemName    String
-  content       String
-  status        String
-  qualityScore  Int?
-  metadata      String?  // JSON
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  approvedAt    DateTime?
-  
+  id           String    @id @default(uuid())
+  artifactType String
+  systemId     String
+  systemName   String
+  content      String
+  status       String
+  qualityScore Int?
+  metadata     String? // JSON
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  approvedAt   DateTime?
+
   @@index([systemId])
   @@index([artifactType])
   @@index([status])
@@ -534,64 +668,63 @@ model RMFArtifact {
 
 // Support Automation Domain
 model Ticket {
-  id            String   @id @default(uuid())
-  title         String
-  description   String
-  category      String?
-  priority      String
-  status        String
-  requester     String
-  assignedTo    String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  resolvedAt    DateTime?
-  slaDeadline   DateTime?
-  
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  category    String?
+  priority    String
+  status      String
+  requester   String
+  assignedTo  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  resolvedAt  DateTime?
+  slaDeadline DateTime?
+
   @@index([status])
   @@index([priority])
   @@index([assignedTo])
 }
 
 model KnowledgeArticle {
-  id            String   @id @default(uuid())
-  title         String
-  content       String
-  category      String?
-  status        String
-  views         Int       @default(0)
-  helpful       Int       @default(0)
-  notHelpful    Int       @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastViewedAt  DateTime?
-  
+  id           String    @id @default(uuid())
+  title        String
+  content      String
+  category     String?
+  status       String
+  views        Int       @default(0)
+  helpful      Int       @default(0)
+  notHelpful   Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastViewedAt DateTime?
+
   @@index([status])
   @@index([category])
 }
 
 // Team Leadership Domain
 model TeamMember {
-  id                String   @id @default(uuid())
-  name              String
-  email             String   @unique
-  role              String
-  performanceScore  Int?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  role             String
+  performanceScore Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   @@index([role])
 }
 
 model PerformanceReview {
   id            String   @id @default(uuid())
-  teamMemberId String
+  teamMemberId  String
   reviewDate    DateTime @default(now())
   reviewer      String
   overallRating String
-  reviewData    String?  // JSON
+  reviewData    String? // JSON
   createdAt     DateTime @default(now())
-  
+
   @@index([teamMemberId])
   @@index([reviewDate])
 }
-

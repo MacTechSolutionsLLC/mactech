@@ -1,0 +1,609 @@
+/**
+ * USAspending.gov API Integration
+ * 
+ * Uses the official USAspending.gov API v2
+ * Documentation: https://api.usaspending.gov/api/v2/
+ * Base URL: https://api.usaspending.gov/api/v2/
+ * 
+ * No authentication required - public API
+ * Status codes: 200 (success), 400 (malformed request), 500 (server error)
+ */
+
+const BASE_URL = 'https://api.usaspending.gov/api/v2'
+
+/**
+ * Award type codes
+ * A = Procurement Contract, B = Grant, C = Direct Payment, D = Loan, IDV = Indefinite Delivery Vehicle
+ */
+export type AwardTypeCode = 'A' | 'B' | 'C' | 'D' | 'IDV' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11'
+
+/**
+ * Time period filter for fiscal year and period
+ */
+export interface TimePeriodFilter {
+  start_date?: string // YYYY-MM-DD
+  end_date?: string // YYYY-MM-DD
+  date_type?: 'action_date' | 'last_modified_date'
+}
+
+/**
+ * Agency filter
+ */
+export interface AgencyFilter {
+  type?: 'awarding' | 'funding'
+  tier?: 'toptier' | 'subtier'
+  name?: string
+  toptier_agency_id?: string
+  toptier_agency_name?: string
+  subtier_agency_id?: string
+  subtier_agency_name?: string
+}
+
+/**
+ * Location filter for place of performance
+ */
+export interface LocationFilter {
+  country?: string
+  state?: string
+  county?: string
+  city?: string
+  congressional_district?: string
+  zip?: string
+}
+
+/**
+ * Award amount filter
+ */
+export interface AwardAmountFilter {
+  lower_bound?: number
+  upper_bound?: number
+}
+
+/**
+ * Main filters object for search endpoints
+ */
+export interface UsaSpendingFilters {
+  award_type_codes?: AwardTypeCode[]
+  agencies?: AgencyFilter[]
+  naics_codes?: Array<{ code?: string; name?: string }>
+  psc_codes?: Array<{ code?: string; name?: string }>
+  recipient_search_text?: string
+  recipient_id?: string
+  recipient_uei?: string
+  recipient_duns?: string
+  time_period?: TimePeriodFilter[]
+  place_of_performance_locations?: LocationFilter[]
+  award_amounts?: AwardAmountFilter[]
+  keywords?: string[]
+  tas_codes?: string[]
+  cfda_numbers?: string[]
+  def_codes?: string[]
+}
+
+/**
+ * Search parameters for spending_by_award endpoint
+ */
+export interface UsaSpendingSearchParams {
+  filters: UsaSpendingFilters
+  fields?: string[]
+  page?: number
+  limit?: number
+  sort?: string
+  order?: 'asc' | 'desc'
+  subawards?: boolean
+}
+
+/**
+ * Award data structure
+ */
+export interface UsaSpendingAward {
+  id?: string
+  award_id?: string
+  generated_unique_award_id?: string
+  type?: string
+  type_description?: string
+  category?: string
+  piid?: string
+  fain?: string
+  uri?: string
+  total_obligation?: number
+  total_outlay?: number
+  total_subsidy_cost?: number
+  awarding_agency?: {
+    id?: string
+    name?: string
+    toptier_agency?: {
+      name?: string
+      abbreviation?: string
+    }
+    subtier_agency?: {
+      name?: string
+      abbreviation?: string
+    }
+  }
+  funding_agency?: {
+    id?: string
+    name?: string
+    toptier_agency?: {
+      name?: string
+      abbreviation?: string
+    }
+    subtier_agency?: {
+      name?: string
+      abbreviation?: string
+    }
+  }
+  recipient?: {
+    name?: string
+    uei?: string
+    duns?: string
+    hash?: string
+    recipient_id?: string
+    location?: {
+      address_line1?: string
+      address_line2?: string
+      city?: string
+      state?: string
+      zip?: string
+      country?: string
+      congressional_district?: string
+    }
+  }
+  place_of_performance?: {
+    state?: string
+    county?: string
+    city?: string
+    zip?: string
+    country?: string
+    congressional_district?: string
+    location?: {
+      latitude?: number
+      longitude?: number
+    }
+  }
+  start_date?: string
+  end_date?: string
+  last_modified_date?: string
+  awarding_date?: string
+  period_of_performance?: {
+    start_date?: string
+    end_date?: string
+    last_modified_date?: string
+  }
+  description?: string
+  naics?: string
+  naics_description?: string
+  psc?: string
+  psc_description?: string
+  cfda_number?: string
+  cfda_title?: string
+  transaction_count?: number
+  total_subaward_amount?: number
+  subaward_count?: number
+  [key: string]: any // Allow additional fields from API
+}
+
+/**
+ * Search response for spending_by_award
+ */
+export interface UsaSpendingSearchResponse {
+  page_metadata?: {
+    page?: number
+    has_next_page?: boolean
+    has_previous_page?: boolean
+    next?: string
+    previous?: string
+  }
+  results?: UsaSpendingAward[]
+  messages?: string[]
+}
+
+/**
+ * Award count response
+ */
+export interface UsaSpendingAwardCountResponse {
+  contracts?: number
+  idvs?: number
+  loans?: number
+  direct_payments?: number
+  grants?: number
+  other?: number
+}
+
+/**
+ * Autocomplete response
+ */
+export interface UsaSpendingAutocompleteResponse {
+  results?: Array<{
+    text?: string
+    value?: string
+    [key: string]: any
+  }>
+}
+
+/**
+ * Reference data response
+ */
+export interface UsaSpendingReferenceResponse {
+  results?: any[]
+  [key: string]: any
+}
+
+/**
+ * Transaction data
+ */
+export interface UsaSpendingTransaction {
+  id?: string
+  transaction_id?: string
+  award_id?: string
+  action_date?: string
+  action_type?: string
+  federal_action_obligation?: number
+  total_obligation?: number
+  total_outlay?: number
+  awarding_agency?: any
+  funding_agency?: any
+  recipient?: any
+  [key: string]: any
+}
+
+/**
+ * Rate limiter - simple implementation to avoid overwhelming the API
+ */
+class RateLimiter {
+  private requests: number[] = []
+  private maxRequests = 10
+  private windowMs = 1000 // 1 second window
+
+  async waitIfNeeded(): Promise<void> {
+    const now = Date.now()
+    // Remove requests outside the window
+    this.requests = this.requests.filter(time => now - time < this.windowMs)
+    
+    if (this.requests.length >= this.maxRequests) {
+      const oldestRequest = Math.min(...this.requests)
+      const waitTime = this.windowMs - (now - oldestRequest)
+      if (waitTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+      }
+    }
+    
+    this.requests.push(Date.now())
+  }
+}
+
+const rateLimiter = new RateLimiter()
+
+/**
+ * Make API request with error handling and retry logic
+ */
+async function makeRequest<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  retries = 3
+): Promise<T> {
+  await rateLimiter.waitIfNeeded()
+  
+  const url = `${BASE_URL}${endpoint}`
+  
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(`Bad request: ${JSON.stringify(errorData)}`)
+        }
+        if (response.status === 500) {
+          if (attempt < retries - 1) {
+            // Retry on server errors
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
+            continue
+          }
+          throw new Error(`Server error: ${response.status} ${response.statusText}`)
+        }
+        throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      if (attempt === retries - 1) {
+        throw error
+      }
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
+    }
+  }
+  
+  throw new Error('Max retries exceeded')
+}
+
+/**
+ * Search awards by filters
+ */
+export async function searchAwards(
+  params: UsaSpendingSearchParams
+): Promise<UsaSpendingSearchResponse> {
+  const {
+    filters,
+    fields,
+    page = 1,
+    limit = 100,
+    sort,
+    order = 'desc',
+    subawards = false,
+  } = params
+
+  const body: any = {
+    filters,
+    page,
+    limit: Math.min(limit, 500), // Max 500 per page
+    subawards,
+  }
+
+  if (fields && fields.length > 0) {
+    body.fields = fields
+  }
+
+  if (sort) {
+    body.sort = sort
+    body.order = order
+  }
+
+  return makeRequest<UsaSpendingSearchResponse>('/search/spending_by_award/', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+/**
+ * Get award count by type
+ */
+export async function getAwardCount(
+  filters: UsaSpendingFilters
+): Promise<UsaSpendingAwardCountResponse> {
+  return makeRequest<UsaSpendingAwardCountResponse>('/search/spending_by_award_count/', {
+    method: 'POST',
+    body: JSON.stringify({ filters }),
+  })
+}
+
+/**
+ * Get specific award details
+ */
+export async function getAward(awardId: string): Promise<UsaSpendingAward> {
+  return makeRequest<UsaSpendingAward>(`/awards/${awardId}/`, {
+    method: 'GET',
+  })
+}
+
+/**
+ * Search transactions for an award
+ */
+export async function searchTransactions(
+  filters: { award_id?: string; [key: string]: any }
+): Promise<{ results?: UsaSpendingTransaction[]; [key: string]: any }> {
+  return makeRequest('/transactions/', {
+    method: 'POST',
+    body: JSON.stringify({ filters }),
+  })
+}
+
+/**
+ * Search subawards
+ */
+export async function searchSubawards(
+  filters: { award_id?: string; [key: string]: any }
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/subawards/', {
+    method: 'POST',
+    body: JSON.stringify({ filters }),
+  })
+}
+
+/**
+ * Autocomplete recipients
+ */
+export async function autocompleteRecipient(
+  searchText: string,
+  limit = 10
+): Promise<UsaSpendingAutocompleteResponse> {
+  return makeRequest<UsaSpendingAutocompleteResponse>('/autocomplete/recipient/', {
+    method: 'POST',
+    body: JSON.stringify({
+      search_text: searchText,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Autocomplete NAICS codes
+ */
+export async function autocompleteNaics(
+  searchText: string,
+  limit = 10
+): Promise<UsaSpendingAutocompleteResponse> {
+  return makeRequest<UsaSpendingAutocompleteResponse>('/autocomplete/naics/', {
+    method: 'POST',
+    body: JSON.stringify({
+      search_text: searchText,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Autocomplete PSC codes
+ */
+export async function autocompletePsc(
+  searchText: string,
+  limit = 10
+): Promise<UsaSpendingAutocompleteResponse> {
+  return makeRequest<UsaSpendingAutocompleteResponse>('/autocomplete/psc/', {
+    method: 'POST',
+    body: JSON.stringify({
+      search_text: searchText,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Autocomplete awarding agencies
+ */
+export async function autocompleteAwardingAgency(
+  searchText: string,
+  limit = 10
+): Promise<UsaSpendingAutocompleteResponse> {
+  return makeRequest<UsaSpendingAutocompleteResponse>('/autocomplete/awarding_agency/', {
+    method: 'POST',
+    body: JSON.stringify({
+      search_text: searchText,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Autocomplete funding agencies
+ */
+export async function autocompleteFundingAgency(
+  searchText: string,
+  limit = 10
+): Promise<UsaSpendingAutocompleteResponse> {
+  return makeRequest<UsaSpendingAutocompleteResponse>('/autocomplete/funding_agency/', {
+    method: 'POST',
+    body: JSON.stringify({
+      search_text: searchText,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Get top-tier agencies reference data
+ */
+export async function getTopTierAgencies(): Promise<UsaSpendingReferenceResponse> {
+  return makeRequest<UsaSpendingReferenceResponse>('/references/toptier_agencies/', {
+    method: 'GET',
+  })
+}
+
+/**
+ * Get NAICS reference data
+ */
+export async function getNaicsReference(naicsCode?: string): Promise<UsaSpendingReferenceResponse> {
+  const endpoint = naicsCode 
+    ? `/references/naics/${naicsCode}/`
+    : '/references/naics/'
+  return makeRequest<UsaSpendingReferenceResponse>(endpoint, {
+    method: 'GET',
+  })
+}
+
+/**
+ * Get award types reference
+ */
+export async function getAwardTypes(): Promise<UsaSpendingReferenceResponse> {
+  return makeRequest<UsaSpendingReferenceResponse>('/references/award_types/', {
+    method: 'GET',
+  })
+}
+
+/**
+ * Search spending by category (NAICS)
+ */
+export async function searchSpendingByNaics(
+  filters: UsaSpendingFilters,
+  page = 1,
+  limit = 100
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/search/spending_by_category/naics/', {
+    method: 'POST',
+    body: JSON.stringify({
+      filters,
+      page,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Search spending by category (PSC)
+ */
+export async function searchSpendingByPsc(
+  filters: UsaSpendingFilters,
+  page = 1,
+  limit = 100
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/search/spending_by_category/psc/', {
+    method: 'POST',
+    body: JSON.stringify({
+      filters,
+      page,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Search spending by category (recipient)
+ */
+export async function searchSpendingByRecipient(
+  filters: UsaSpendingFilters,
+  page = 1,
+  limit = 100
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/search/spending_by_category/recipient/', {
+    method: 'POST',
+    body: JSON.stringify({
+      filters,
+      page,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Search spending by category (awarding agency)
+ */
+export async function searchSpendingByAwardingAgency(
+  filters: UsaSpendingFilters,
+  page = 1,
+  limit = 100
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/search/spending_by_category/awarding_agency/', {
+    method: 'POST',
+    body: JSON.stringify({
+      filters,
+      page,
+      limit,
+    }),
+  })
+}
+
+/**
+ * Search spending over time
+ */
+export async function searchSpendingOverTime(
+  filters: UsaSpendingFilters,
+  group?: string
+): Promise<{ results?: any[]; [key: string]: any }> {
+  return makeRequest('/search/spending_over_time/', {
+    method: 'POST',
+    body: JSON.stringify({
+      filters,
+      group,
+    }),
+  })
+}
+
