@@ -22,6 +22,7 @@ export default function IncumbentIntelligence() {
 
   useEffect(() => {
     loadAwards()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
 
   const loadAwards = async () => {

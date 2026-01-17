@@ -34,6 +34,7 @@ export default function OpportunityFeed() {
 
   useEffect(() => {
     loadOpportunities()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortBy])
 
   const loadOpportunities = async () => {

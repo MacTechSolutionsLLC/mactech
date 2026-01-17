@@ -818,7 +818,7 @@ export default function ContractDiscoveryPage() {
                       contractIds={Array.from(selectedContracts)}
                       onComplete={(results) => {
                         // Refresh the results to show updated enrichment data
-                        handleSearch()
+                        handleUnifiedSearch()
                       }}
                     />
                   </div>

@@ -30,6 +30,7 @@ export default function IngestionStatus({ onStatusChange }: IngestionStatusProps
     loadStatus()
     const interval = setInterval(loadStatus, 10000) // Poll every 10 seconds
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadStatus = async () => {
