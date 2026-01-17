@@ -181,3 +181,4 @@ export default function EnrichedDataDisplay({ contractId, enrichmentData }: Enri
   )
 }
 
+

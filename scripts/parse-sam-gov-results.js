@@ -298,3 +298,4 @@ if (require.main === module) {
 
 module.exports = { calculateRelevanceScore, formatOpportunity };
 
+
