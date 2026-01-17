@@ -42,13 +42,31 @@ export async function POST(request: NextRequest) {
         if (errorMessage.includes('P3009') || errorMessage.includes('failed migrations')) {
           results.push('⚠️  Found failed migrations - attempting to resolve...')
           
-          // Extract migration name from error message if possible
-          const failedMigrationMatch = errorMessage.match(/`(\d+_\w+)`/);
-          const failedMigrations = failedMigrationMatch 
-            ? [failedMigrationMatch[1]] 
-            : ['20260117180000_add_usaspending_models']; // Default to the known failed migration
+          // Extract migration name from error message - try multiple patterns
+          let failedMigrationName = null
+          const patterns = [
+            /`(\d+_\w+)`/,
+            /migration `(\d+_\w+)`/,
+            /The `(\d+_\w+)` migration/,
+            /(\d{14}_\w+)/,
+          ]
           
-          // Mark failed migrations as rolled back (since tables may already exist)
+          for (const pattern of patterns) {
+            const match = errorMessage.match(pattern)
+            if (match) {
+              failedMigrationName = match[1]
+              break
+            }
+          }
+          
+          // Default to known failed migrations
+          const failedMigrations = failedMigrationName
+            ? [failedMigrationName]
+            : ['20260117190000_add_capture_dashboard_models']
+          
+          results.push(`📋 Resolving failed migration(s): ${failedMigrations.join(', ')}`)
+          
+          // First, try to mark as rolled back
           for (const migration of failedMigrations) {
             try {
               execSync(`npx prisma migrate resolve --rolled-back ${migration}`, {
@@ -58,8 +76,17 @@ export async function POST(request: NextRequest) {
               results.push(`✅ Marked ${migration} as rolled back`)
             } catch (resolveError: any) {
               const resolveErrorMsg = resolveError.message || String(resolveError)
+              // If rolled-back doesn't work, try applied (in case tables already exist)
               if (resolveErrorMsg.includes('already') || resolveErrorMsg.includes('not found')) {
-                results.push(`ℹ️  ${migration}: ${resolveErrorMsg}`)
+                try {
+                  execSync(`npx prisma migrate resolve --applied ${migration}`, {
+                    stdio: 'pipe',
+                    env: { ...process.env }
+                  })
+                  results.push(`✅ Marked ${migration} as applied (tables may already exist)`)
+                } catch (appliedError: any) {
+                  results.push(`⚠️  ${migration}: Could not resolve - ${appliedError.message || resolveErrorMsg}`)
+                }
               } else {
                 results.push(`⚠️  ${migration}: ${resolveErrorMsg}`)
               }
@@ -68,6 +95,7 @@ export async function POST(request: NextRequest) {
           
           // Retry migration deploy
           try {
+            results.push('🔄 Retrying migration deploy...')
             execSync('npx prisma migrate deploy', {
               stdio: 'pipe',
               env: { ...process.env }
@@ -75,8 +103,27 @@ export async function POST(request: NextRequest) {
             results.push('✅ Migrations applied successfully after resolving failed migrations')
             success = true
           } catch (retryError: any) {
-            results.push(`❌ Retry failed: ${retryError.message || String(retryError)}`)
-            success = false
+            const retryErrorMsg = retryError.message || String(retryError)
+            results.push(`❌ Retry failed: ${retryErrorMsg}`)
+            
+            // If retry fails, try marking as applied (tables might already exist)
+            if (retryErrorMsg.includes('already exists') || retryErrorMsg.includes('duplicate')) {
+              results.push('📋 Tables may already exist - marking migration as applied...')
+              for (const migration of failedMigrations) {
+                try {
+                  execSync(`npx prisma migrate resolve --applied ${migration}`, {
+                    stdio: 'pipe',
+                    env: { ...process.env }
+                  })
+                  results.push(`✅ Marked ${migration} as applied`)
+                  success = true
+                } catch (finalError: any) {
+                  results.push(`⚠️  Final resolve failed for ${migration}: ${finalError.message}`)
+                }
+              }
+            } else {
+              success = false
+            }
           }
         } else if (errorMessage.includes('not empty') || errorMessage.includes('P3005')) {
           results.push('📋 Database is not empty - baselining existing migrations...')
