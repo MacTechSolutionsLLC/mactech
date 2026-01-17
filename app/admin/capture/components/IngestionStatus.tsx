@@ -75,8 +75,34 @@ export default function IngestionStatus({ onStatusChange }: IngestionStatusProps
     }
   }
 
+  // Show button even if no status exists yet
   if (!status) {
-    return null
+    return (
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-neutral-600">Status:</span>
+              <span className="ml-2 px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
+                Idle
+              </span>
+            </div>
+            <button
+              onClick={handleRunIngest}
+              disabled={isRunning}
+              className="px-6 py-2 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isRunning ? 'Running...' : 'Run Ingest'}
+            </button>
+          </div>
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (

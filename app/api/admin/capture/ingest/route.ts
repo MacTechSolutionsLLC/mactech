@@ -15,15 +15,31 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET() {
   try {
-    const status = await prisma.ingestionStatus.findFirst({
-      orderBy: { updated_at: 'desc' },
-    })
+    // Check if table exists, if not return default status
+    let status = null
+    try {
+      status = await prisma.ingestionStatus.findFirst({
+        orderBy: { updated_at: 'desc' },
+      })
+    } catch (error: any) {
+      // Table doesn't exist yet - return default status
+      if (error.code === 'P2021') {
+        return NextResponse.json({
+          success: true,
+          status: 'idle',
+          message: 'No ingestion runs yet',
+          samGovOutage: false,
+        })
+      }
+      throw error
+    }
 
     if (!status) {
       return NextResponse.json({
         success: true,
         status: 'idle',
         message: 'No ingestion runs yet',
+        samGovOutage: false,
       })
     }
 

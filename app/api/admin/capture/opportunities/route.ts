@@ -39,9 +39,11 @@ export async function GET(request: NextRequest) {
       where.flagged = true
     } else if (status === 'ignored') {
       where.ignored = true
-    } else if (status === 'pursuing') {
-      where.capture_status = 'pursuing'
     }
+    // Note: capture_status filter removed until migration is applied
+    // else if (status === 'pursuing') {
+    //   where.capture_status = 'pursuing'
+    // }
 
     const orderBy: any = {}
     if (sortBy === 'score') {
@@ -66,7 +68,7 @@ export async function GET(request: NextRequest) {
         aiSummary: true,
         flagged: true,
         ignored: true,
-        capture_status: true,
+        // capture_status: true, // Uncomment after migration
         naics_codes: true,
         set_aside: true,
       },
