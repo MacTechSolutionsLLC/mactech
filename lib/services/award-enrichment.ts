@@ -16,6 +16,7 @@ import {
   normalizeAgencyName,
   matchAwardsByTitle
 } from '../usaspending-api'
+import { batchLookupEntities, getEntityByUei } from '../sam-gov-entity-api'
 
 export interface EnrichmentResult {
   similar_awards: any[]
@@ -322,10 +323,58 @@ export async function enrichOpportunity(
           .filter((v): v is string => v !== undefined && v !== null)
       )
 
+      // Enrich vendor information using Entity API (as per diagram: Entity API → USAspending Enrichment)
+      const recipientUeis = new Set<string>()
+      for (const award of similarAwards) {
+        const uei = award.recipient?.uei
+        if (uei) {
+          recipientUeis.add(uei)
+        }
+      }
+
+      // Batch lookup entities for all unique UEIs
+      let entityDataMap = new Map<string, any>()
+      if (recipientUeis.size > 0) {
+        try {
+          console.log(`[Award Enrichment] Enriching ${recipientUeis.size} vendors via Entity API`)
+          entityDataMap = await batchLookupEntities(Array.from(recipientUeis), {
+            batchSize: 10,
+            delayBetweenBatches: 500,
+            includeSections: 'entityRegistration,coreData',
+          })
+          console.log(`[Award Enrichment] Enriched ${entityDataMap.size} vendors with Entity API data`)
+        } catch (entityError) {
+          console.warn(`[Award Enrichment] Entity API enrichment failed (non-blocking):`, entityError)
+          // Continue without entity data - enrichment is still valuable
+        }
+      }
+
+      // Attach entity data to awards (preserve original award structure)
+      const enrichedAwards = similarAwards.map(award => {
+        const uei = award.recipient?.uei
+        const entityData = uei ? entityDataMap.get(uei) : null
+        
+        return {
+          ...award,
+          // Add entity data as a separate property (doesn't affect original award structure)
+          recipient_entity_data: entityData ? {
+            entityName: entityData.coreData?.entityInformation?.entityName,
+            dbaName: entityData.coreData?.entityInformation?.dbaName,
+            registrationStatus: entityData.entityRegistration?.registrationStatus,
+            businessTypes: entityData.coreData?.businessTypes || [],
+            naicsCodes: entityData.coreData?.naicsCodes || [],
+            pscCodes: entityData.coreData?.pscCodes || [],
+            socioEconomicStatus: entityData.coreData?.businessTypes?.filter((bt: string) => 
+              ['SDVOSB', 'VOSB', '8A', 'WOSB', 'EDWOSB', 'HUBZone'].includes(bt)
+            ) || [],
+          } : null,
+        } as any // Type assertion to allow recipient_entity_data property
+      })
+
       // Save awards to database for linking (turnkey solution)
-      if (createLinks && similarAwards.length > 0) {
+      if (createLinks && enrichedAwards.length > 0) {
         const batchId = `enrichment-${Date.now()}`
-        for (const award of similarAwards) {
+        for (const award of enrichedAwards) {
           try {
             const awardId = award.award_id || award.id || award.generated_unique_award_id
             if (!awardId) continue
@@ -397,10 +446,11 @@ export async function enrichOpportunity(
         }
       }
 
+      // Update result with enriched awards
       const result: EnrichmentResult = {
-        similar_awards: similarAwards,
+        similar_awards: enrichedAwards,
         statistics: {
-          count: similarAwards.length,
+          count: enrichedAwards.length,
           average_obligation: obligations.length > 0
             ? obligations.reduce((a, b) => a + b, 0) / obligations.length
             : null,
@@ -412,10 +462,10 @@ export async function enrichOpportunity(
       }
 
       // Create deterministic links if requested
-      if (createLinks && similarAwards.length > 0) {
+      if (createLinks && enrichedAwards.length > 0) {
         const linksCreated = await createOpportunityAwardLinks(
           opportunityId,
-          similarAwards,
+          enrichedAwards,
           opportunity.title,
           opportunity.agency || undefined,
           naicsCodes

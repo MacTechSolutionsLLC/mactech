@@ -357,30 +357,14 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     const scoredAbove50 = scoredOpportunities.filter(item => item.score >= MIN_SCORE_THRESHOLD).length
     console.log(`[Score] ${scoredAbove50} opportunities scored ≥ ${MIN_SCORE_THRESHOLD}`)
     
-    // Stage 6: AI analyze opportunities that passed filters (async, non-blocking)
-    console.log(`[Ingest] Stage 6: AI analysis (non-blocking)`)
-    const aiAnalysisMap = await analyzeOpportunitiesBatch(passedNormalized)
-    
-    // Attach AI analysis to scored opportunities
-    for (const item of scoredOpportunities) {
-      const analysis = aiAnalysisMap.get(item.normalized.noticeId)
-      if (analysis) {
-        item.aiAnalysis = analysis
-        // Extract tags from AI analysis
-        item.normalized.aiTags = [
-          ...analysis.capabilityMatch,
-          analysis.recommendedAction,
-        ]
-      }
-    }
-    
-    // Stage 7: Store in database
-    console.log(`[Ingest] Stage 7: Storing in database`)
+    // Stage 6: Store in database (before enrichment so we have records to enrich)
+    console.log(`[Ingest] Stage 6: Storing in database`)
     const { created, updated } = await storeNormalizedOpportunities(scoredOpportunities, batchId)
     console.log(`[Ingest] Stored: ${created} created, ${updated} updated`)
     
-    // Stage 8: Automatic USAspending enrichment for high-scoring opportunities (score ≥ 70)
-    console.log(`[Ingest] Stage 8: Auto-enriching high-scoring opportunities (score ≥ 70)`)
+    // Stage 7: USAspending enrichment with Entity API (BEFORE AI Analysis, as per diagram)
+    // Enrich high-scoring opportunities (score ≥ 70) to provide competitive intelligence for AI
+    console.log(`[Ingest] Stage 7: USAspending enrichment with Entity API (before AI analysis)`)
     const highScoringOpportunities = scoredOpportunities.filter(item => item.score >= 70)
     let enrichedCount = 0
     
@@ -393,6 +377,7 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
         
         if (opportunity && !opportunity.usaspending_enrichment) {
           try {
+            // Enrich with USAspending + Entity API (enriches vendor metadata via Entity API)
             const enrichment = await enrichOpportunity(opportunity.id, {
               limit: 10,
               useDatabase: false, // Call USAspending API directly for turnkey solution
@@ -423,6 +408,48 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     }
     
     console.log(`[Ingest] Auto-enriched ${enrichedCount} high-scoring opportunities`)
+    
+    // Stage 8: AI analyze opportunities with enrichment context (as per diagram: Enrichment → AI Analysis → Executive Summaries)
+    console.log(`[Ingest] Stage 8: AI analysis with enrichment context (Executive Summaries)`)
+    const aiAnalysisMap = await analyzeOpportunitiesBatch(passedNormalized)
+    
+    // Attach AI analysis to scored opportunities
+    for (const item of scoredOpportunities) {
+      const analysis = aiAnalysisMap.get(item.normalized.noticeId)
+      if (analysis) {
+        item.aiAnalysis = analysis
+        // Extract tags from AI analysis
+        item.normalized.aiTags = [
+          ...analysis.capabilityMatch,
+          analysis.recommendedAction,
+        ]
+      }
+    }
+    
+    // Update stored opportunities with AI analysis (including summaries that now have enrichment context)
+    if (aiAnalysisMap.size > 0) {
+      console.log(`[Ingest] Updating ${aiAnalysisMap.size} opportunities with AI analysis`)
+      for (const [noticeId, analysis] of aiAnalysisMap.entries()) {
+        try {
+          await prisma.governmentContractDiscovery.updateMany({
+            where: { notice_id: noticeId },
+            data: {
+              aiSummary: analysis.relevanceSummary,
+              aiAnalysis: JSON.stringify(analysis), // Store complete analysis as JSON
+              aiRecommendedActions: JSON.stringify([analysis.recommendedAction]),
+              competitive_landscape_summary: analysis.competitiveLandscape?.marketTrends || 
+                analysis.competitiveLandscape?.vendorDominance || null,
+              incumbent_vendors: analysis.competitiveLandscape?.likelyIncumbents 
+                ? JSON.stringify(analysis.competitiveLandscape.likelyIncumbents)
+                : null,
+              aiAnalysisGeneratedAt: new Date(),
+            },
+          })
+        } catch (error) {
+          console.error(`[Ingest] Error updating AI analysis for ${noticeId}:`, error)
+        }
+      }
+    }
     
     const duration = Date.now() - startTime
     console.log(`[Ingest] Ingestion completed in ${duration}ms`)

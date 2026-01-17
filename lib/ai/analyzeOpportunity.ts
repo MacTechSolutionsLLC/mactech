@@ -43,8 +43,9 @@ export async function analyzeOpportunity(
   try {
     const openai = getOpenAIClient()
 
-    // Get USAspending enrichment if available
+    // Get USAspending enrichment if available (as per diagram: Enrichment → AI Analysis → Executive Summaries)
     let usaspendingContext = ''
+    let entityApiContext = ''
     const dataSources: string[] = ['SAM.gov']
     
     if (includeUSAspendingContext) {
@@ -68,10 +69,40 @@ USAspending.gov Historical Data:
 - Awarding agencies: ${stats.unique_agencies?.slice(0, 3).join(', ') || 'N/A'}
             `.trim()
           }
+          
+          // Extract Entity API enrichment data (vendor metadata from Entity API)
+          if (enrichment.similar_awards && Array.isArray(enrichment.similar_awards)) {
+            const enrichedVendors = enrichment.similar_awards
+              .filter((award: any) => award.recipient_entity_data)
+              .map((award: any) => {
+                const entity = award.recipient_entity_data
+                const vendorInfo = [
+                  `Vendor: ${award.recipient?.name || 'Unknown'}`,
+                  entity.entityName ? `Entity Name: ${entity.entityName}` : null,
+                  entity.registrationStatus ? `Status: ${entity.registrationStatus}` : null,
+                  entity.socioEconomicStatus?.length > 0 
+                    ? `Certifications: ${entity.socioEconomicStatus.join(', ')}` 
+                    : null,
+                  entity.naicsCodes?.length > 0 
+                    ? `NAICS: ${entity.naicsCodes.map((n: any) => n.naicsCode || n).join(', ')}` 
+                    : null,
+                ].filter(Boolean).join('; ')
+                return vendorInfo
+              })
+              .slice(0, 5)
+            
+            if (enrichedVendors.length > 0) {
+              dataSources.push('SAM.gov Entity API')
+              entityApiContext = `
+SAM.gov Entity API Vendor Intelligence:
+${enrichedVendors.map((v: string, i: number) => `${i + 1}. ${v}`).join('\n')}
+              `.trim()
+            }
+          }
         }
       } catch (e) {
         // Ignore errors fetching enrichment
-        console.warn(`[AI Analyzer] Could not fetch USAspending context:`, e)
+        console.warn(`[AI Analyzer] Could not fetch USAspending/Entity API context:`, e)
       }
     }
 
@@ -86,6 +117,7 @@ Posted Date: ${opportunity.postedDate}
 Deadline: ${opportunity.responseDeadline || 'Not specified'}
 Description: ${opportunity.rawPayload.description?.substring(0, 2000) || 'No description available'}
 ${usaspendingContext ? `\n${usaspendingContext}` : ''}
+${entityApiContext ? `\n${entityApiContext}` : ''}
     `.trim()
 
     const response = await openai.chat.completions.create({
@@ -120,7 +152,7 @@ Focus on:
 - Competitive landscape considerations (use USAspending data if provided)
 - Likely incumbents from historical awards
 
-Be concise, actionable, and cite data sources (SAM.gov vs USAspending.gov).`,
+Be concise, actionable, and cite data sources (SAM.gov, USAspending.gov, SAM.gov Entity API).`,
         },
         {
           role: 'user',
