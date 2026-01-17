@@ -13,7 +13,7 @@ console.log('🚀 Starting application...');
 // Run database migrations
 try {
   console.log('🗄️  Running database migrations...');
-  execSync('npx prisma db push --skip-generate', {
+  execSync('npx prisma migrate deploy', {
     stdio: 'inherit',
     env: { ...process.env }
   });
