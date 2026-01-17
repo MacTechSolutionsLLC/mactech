@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import RunIngestButton from '@/app/admin/sam-dashboard/components/RunIngestButton'
 import QueryManager from '@/app/admin/sam-dashboard/components/QueryManager'
-import FiltersPanel from '@/app/admin/sam-dashboard/components/FiltersPanel'
-import ScoreBadge from '@/app/admin/sam-dashboard/components/ScoreBadge'
+import ContractFilters from './components/ContractFilters'
+import SortableTable from './components/SortableTable'
 
 interface Contract {
   id: string
@@ -54,7 +54,10 @@ interface Contract {
   source_queries?: string[]
 }
 
+type Tab = 'contracts' | 'search'
+
 export default function ContractDashboardPage() {
+  const [activeTab, setActiveTab] = useState<Tab>('contracts')
   const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,14 +73,17 @@ export default function ContractDashboardPage() {
   const [showLowScore, setShowLowScore] = useState(false)
   const [naicsFilter, setNaicsFilter] = useState<string[]>([])
   const [setAsideFilter, setSetAsideFilter] = useState<string[]>([])
+  const [soleSourceFilter, setSoleSourceFilter] = useState(false)
   
   // AI Analysis expansion
   const [expandedAI, setExpandedAI] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    loadContracts()
+    if (activeTab === 'contracts') {
+      loadContracts()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, minScore, sortBy, showLowScore, naicsFilter, setAsideFilter, sourceFilter])
+  }, [filter, minScore, sortBy, showLowScore, naicsFilter, setAsideFilter, sourceFilter, activeTab])
 
   const loadContracts = async () => {
     try {
@@ -134,6 +140,37 @@ export default function ContractDashboardPage() {
       setLoading(false)
     }
   }
+
+  // Sole source detection: check if any string in set_aside array contains "Sole Source" (case-insensitive)
+  const isSoleSource = (contract: Contract): boolean => {
+    return contract.set_aside.some(sa => 
+      sa.toLowerCase().includes('sole source')
+    )
+  }
+
+  // Filter contracts based on all filters including sole source
+  const filteredContracts = useMemo(() => {
+    return contracts.filter(contract => {
+      // Text search filter
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase()
+        const matchesSearch = (
+          contract.title.toLowerCase().includes(search) ||
+          contract.agency?.toLowerCase().includes(search) ||
+          contract.notice_id?.toLowerCase().includes(search) ||
+          contract.detected_keywords.some(kw => kw.toLowerCase().includes(search))
+        )
+        if (!matchesSearch) return false
+      }
+
+      // Sole source filter
+      if (soleSourceFilter && !isSoleSource(contract)) {
+        return false
+      }
+
+      return true
+    })
+  }, [contracts, searchTerm, soleSourceFilter])
 
   const handleScrape = async (contractId: string) => {
     try {
@@ -293,17 +330,6 @@ export default function ContractDashboardPage() {
     })
   }
 
-  const filteredContracts = contracts.filter(contract => {
-    if (!searchTerm) return true
-    const search = searchTerm.toLowerCase()
-    return (
-      contract.title.toLowerCase().includes(search) ||
-      contract.agency?.toLowerCase().includes(search) ||
-      contract.notice_id?.toLowerCase().includes(search) ||
-      contract.detected_keywords.some(kw => kw.toLowerCase().includes(search))
-    )
-  })
-
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
@@ -317,9 +343,6 @@ export default function ContractDashboardPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <Link href="/admin/contract-discovery" className="btn-secondary">
-                Search Contracts
-              </Link>
               <Link href="/admin" className="btn-secondary">
                 Back to Admin
               </Link>
@@ -328,483 +351,254 @@ export default function ContractDashboardPage() {
         </div>
       </section>
 
-      {/* Ingestion Controls */}
-      <section className="section-container bg-white">
+      {/* Tab Navigation */}
+      <section className="section-container bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto">
-          <div className="card p-8 lg:p-12 mb-8">
-            <RunIngestButton onIngestComplete={loadContracts} />
-          </div>
-
-          <QueryManager onQueryComplete={loadContracts} />
-
-          {/* Enrich Contracts Button */}
-          <div className="card p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-              <div>
-                <h2 className="heading-3 mb-2">Enrich High-Score Contracts</h2>
-                <p className="text-body-sm text-neutral-600">
-                  Scrape and enrich all contracts with relevance score ≥ 50% to populate their summary pages with full HTML/text content
-                </p>
-              </div>
-              <button
-                onClick={async () => {
-                  if (!confirm('This will scrape all contracts with score ≥ 50%. This may take a while. Continue?')) {
-                    return
-                  }
-                  
-                  try {
-                    const response = await fetch('/api/admin/contract-discovery/enrich', {
-                      method: 'POST',
-                    })
-                    const data = await response.json()
-                    
-                    if (data.success) {
-                      alert(`Enrichment started! Processing ${data.total} contracts. Check server logs for progress.`)
-                      // Reload contracts after a delay to see updated data
-                      setTimeout(() => {
-                        loadContracts()
-                      }, 5000)
-                    } else {
-                      alert(data.error || 'Failed to start enrichment')
-                    }
-                  } catch (err) {
-                    console.error('Error starting enrichment:', err)
-                    alert('Failed to start enrichment')
-                  }
-                }}
-                className="btn-primary whitespace-nowrap"
-              >
-                Enrich Contracts (≥50%)
-              </button>
-            </div>
-          </div>
-
-          {/* Clean Content with AI Button */}
-          <div className="card p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-              <div>
-                <h2 className="heading-3 mb-2">Clean Content with AI</h2>
-                <p className="text-body-sm text-neutral-600">
-                  Re-process already-scraped contracts with AI to clean verbose content, remove strange characters, and extract structured data
-                </p>
-              </div>
-              <button
-                onClick={async () => {
-                  if (!confirm('This will re-process all scraped contracts (score ≥ 50%) with AI cleaning. This may take a while. Continue?')) {
-                    return
-                  }
-                  
-                  try {
-                    const response = await fetch('/api/admin/contract-discovery/clean-content?minScore=50', {
-                      method: 'POST',
-                    })
-                    const data = await response.json()
-                    
-                    if (data.success) {
-                      alert(`AI cleaning started! Processing ${data.total} contracts. Check server logs for progress.`)
-                      setTimeout(() => {
-                        loadContracts()
-                      }, 5000)
-                    } else {
-                      alert(data.error || 'Failed to start AI cleaning')
-                    }
-                  } catch (err) {
-                    console.error('Error starting AI cleaning:', err)
-                    alert('Failed to start AI cleaning')
-                  }
-                }}
-                className="btn-primary whitespace-nowrap"
-              >
-                Clean with AI (≥50%)
-              </button>
-            </div>
+          <div className="flex gap-1 border-b border-neutral-200">
+            <button
+              onClick={() => setActiveTab('contracts')}
+              className={`px-6 py-3 text-body-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'contracts'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Contracts
+            </button>
+            <button
+              onClick={() => setActiveTab('search')}
+              className={`px-6 py-3 text-body-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'search'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Search Contracts
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Filters and Search */}
-      <section className="section-container bg-white">
-        <div className="max-w-7xl mx-auto">
-          {/* Source and Status Filters */}
-          <div className="card p-6 mb-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
-              <div className="flex gap-2 flex-wrap">
-                {(['all', 'verified', 'scraped', 'dismissed'] as const).map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFilter(f)}
-                    className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
-                      filter === f
-                        ? 'bg-accent-700 text-white'
-                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                    }`}
-                  >
-                    {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
-                ))}
+      {/* Tab Content */}
+      {activeTab === 'contracts' && (
+        <>
+          {/* Consolidated API Actions */}
+          <section className="section-container bg-neutral-50">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-6">
+                <h2 className="heading-2 mb-2">API Actions</h2>
+                <p className="text-body-sm text-neutral-600">
+                  Manage contract ingestion, enrichment, and data processing
+                </p>
               </div>
-              <div className="flex gap-2 items-center">
-                <label className="text-body-sm font-medium text-neutral-700 mr-2">Source:</label>
-                <select
-                  value={sourceFilter}
-                  onChange={(e) => setSourceFilter(e.target.value as 'all' | 'sam-ingestion' | 'discovery')}
-                  className="px-3 py-2 border border-neutral-300 rounded-sm text-body-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                >
-                  <option value="all">All Sources</option>
-                  <option value="sam-ingestion">SAM Ingestion</option>
-                  <option value="discovery">Contract Discovery</option>
-                </select>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="card p-6 shadow-sm">
+                  <RunIngestButton onIngestComplete={loadContracts} />
+                </div>
+                
+                <div className="card p-6 shadow-sm">
+                  <QueryManager onQueryComplete={loadContracts} />
+                </div>
+                
+                <div className="card p-6 shadow-sm">
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <h3 className="heading-3 mb-2">Enrich High-Score Contracts</h3>
+                      <p className="text-body-sm text-neutral-600">
+                        Scrape and enrich all contracts with relevance score ≥ 50% to populate their summary pages with full HTML/text content
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('This will scrape all contracts with score ≥ 50%. This may take a while. Continue?')) {
+                          return
+                        }
+                        
+                        try {
+                          const response = await fetch('/api/admin/contract-discovery/enrich', {
+                            method: 'POST',
+                          })
+                          const data = await response.json()
+                          
+                          if (data.success) {
+                            alert(`Enrichment started! Processing ${data.total} contracts. Check server logs for progress.`)
+                            setTimeout(() => {
+                              loadContracts()
+                            }, 5000)
+                          } else {
+                            alert(data.error || 'Failed to start enrichment')
+                          }
+                        } catch (err) {
+                          console.error('Error starting enrichment:', err)
+                          alert('Failed to start enrichment')
+                        }
+                      }}
+                      className="btn-primary whitespace-nowrap"
+                    >
+                      Enrich Contracts (≥50%)
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="card p-6 shadow-sm">
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <h3 className="heading-3 mb-2">Clean Content with AI</h3>
+                      <p className="text-body-sm text-neutral-600">
+                        Re-process already-scraped contracts with AI to clean verbose content, remove strange characters, and extract structured data
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('This will re-process all scraped contracts (score ≥ 50%) with AI cleaning. This may take a while. Continue?')) {
+                          return
+                        }
+                        
+                        try {
+                          const response = await fetch('/api/admin/contract-discovery/clean-content?minScore=50', {
+                            method: 'POST',
+                          })
+                          const data = await response.json()
+                          
+                          if (data.success) {
+                            alert(`AI cleaning started! Processing ${data.total} contracts. Check server logs for progress.`)
+                            setTimeout(() => {
+                              loadContracts()
+                            }, 5000)
+                          } else {
+                            alert(data.error || 'Failed to start AI cleaning')
+                          }
+                        } catch (err) {
+                          console.error('Error starting AI cleaning:', err)
+                          alert('Failed to start AI cleaning')
+                        }
+                      }}
+                      className="btn-primary whitespace-nowrap"
+                    >
+                      Clean with AI (≥50%)
+                    </button>
+                  </div>
+                </div>
               </div>
-              <input
-                type="text"
-                placeholder="Search contracts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 w-full md:w-64"
+            </div>
+          </section>
+
+          {/* Filters and Contract Table */}
+          <section className="section-container bg-white">
+            <div className="max-w-7xl mx-auto">
+              {/* Source and Status Filters */}
+              <div className="card p-6 mb-6 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                  <div className="flex gap-2 flex-wrap">
+                    {(['all', 'verified', 'scraped', 'dismissed'] as const).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setFilter(f)}
+                        className={`px-4 py-2 rounded-sm text-body-sm font-medium transition-colors ${
+                          filter === f
+                            ? 'bg-accent-700 text-white'
+                            : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                        }`}
+                      >
+                        {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <label className="text-body-sm font-medium text-neutral-700 mr-2">Source:</label>
+                    <select
+                      value={sourceFilter}
+                      onChange={(e) => setSourceFilter(e.target.value as 'all' | 'sam-ingestion' | 'discovery')}
+                      className="px-3 py-2 border border-neutral-300 rounded-sm text-body-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                    >
+                      <option value="all">All Sources</option>
+                      <option value="sam-ingestion">SAM Ingestion</option>
+                      <option value="discovery">Contract Discovery</option>
+                    </select>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search contracts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="px-4 py-2 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 w-full md:w-64"
+                  />
+                </div>
+              </div>
+
+              {/* Advanced Filters Panel */}
+              <ContractFilters
+                minScore={minScore}
+                setMinScore={setMinScore}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                showLowScore={showLowScore}
+                setShowLowScore={setShowLowScore}
+                naicsFilter={naicsFilter}
+                setNaicsFilter={setNaicsFilter}
+                setAsideFilter={setAsideFilter}
+                setSetAsideFilter={setSetAsideFilter}
+                soleSourceFilter={soleSourceFilter}
+                setSoleSourceFilter={setSoleSourceFilter}
+                opportunityCount={filteredContracts.length}
               />
-            </div>
-          </div>
 
-          {/* Advanced Filters Panel */}
-          <FiltersPanel
-            minScore={minScore}
-            setMinScore={setMinScore}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            showLowScore={showLowScore}
-            setShowLowScore={setShowLowScore}
-            naicsFilter={naicsFilter}
-            setNaicsFilter={setNaicsFilter}
-            setAsideFilter={setAsideFilter}
-            setSetAsideFilter={setSetAsideFilter}
-            opportunityCount={filteredContracts.length}
-          />
+              {loading ? (
+                <div className="card p-12 text-center shadow-sm">
+                  <div className="animate-spin h-8 w-8 border-2 border-accent-700 border-t-transparent rounded-full mx-auto"></div>
+                  <p className="text-body-sm text-neutral-600 mt-4">Loading contracts...</p>
+                </div>
+              ) : error ? (
+                <div className="card p-6 bg-red-50 border border-red-200 shadow-sm">
+                  <p className="text-body-sm text-red-800">{error}</p>
+                </div>
+              ) : filteredContracts.length === 0 ? (
+                <div className="card p-12 text-center shadow-sm">
+                  <p className="text-body-lg text-neutral-600 mb-2">No contracts found</p>
+                  <p className="text-body-sm text-neutral-500 mb-4">
+                    Try adjusting your filters or search for new contracts
+                  </p>
+                  <Link href="/admin/contract-discovery" className="btn-primary inline-block">
+                    Search for Contracts
+                  </Link>
+                </div>
+              ) : (
+                <SortableTable
+                  contracts={filteredContracts}
+                  onScrape={handleScrape}
+                  onScrapeSOW={handleScrapeSOW}
+                  onAdd={handleAdd}
+                  onDismiss={handleDismiss}
+                  onDelete={handleDelete}
+                  onFlag={handleFlag}
+                  onIgnore={handleIgnore}
+                  expandedAI={expandedAI}
+                  onToggleAI={toggleAIExpansion}
+                />
+              )}
+            </div>
+          </section>
+        </>
+      )}
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin h-8 w-8 border-2 border-accent-700 border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-body-sm text-neutral-600 mt-4">Loading contracts...</p>
-            </div>
-          ) : error ? (
-            <div className="card p-6 bg-red-50 border border-red-200">
-              <p className="text-body-sm text-red-800">{error}</p>
-            </div>
-          ) : filteredContracts.length === 0 ? (
-            <div className="card p-12 text-center">
-              <p className="text-body-lg text-neutral-600">No contracts found</p>
-              <Link href="/admin/contract-discovery" className="btn-primary mt-4 inline-block">
-                Search for Contracts
-              </Link>
-            </div>
-          ) : (
-            <div className="card overflow-hidden p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-neutral-50 border-b border-neutral-200">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Contract</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Agency/Office</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Dates</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Score</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Status</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">SOW</th>
-                      <th className="px-4 py-3 text-left text-body-sm font-semibold text-neutral-900">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-200">
-                    {filteredContracts.map((contract) => {
-                      const isAIExpanded = expandedAI.has(contract.id)
-                      const primaryPOC = contract.points_of_contact && contract.points_of_contact.length > 0 
-                        ? contract.points_of_contact[0] 
-                        : null
-                      
-                      return (
-                        <>
-                          <tr 
-                            key={contract.id} 
-                            className={`hover:bg-neutral-50 cursor-pointer ${
-                              contract.dismissed ? 'opacity-50' : ''
-                            } ${contract.verified ? 'bg-green-50' : ''} ${contract.flagged ? 'bg-yellow-50' : ''}`}
-                            onClick={() => window.location.href = `/admin/contract-discovery/${contract.id}`}
-                          >
-                            <td className="px-4 py-3">
-                              <div className="max-w-md">
-                                <Link
-                                  href={`/admin/contract-discovery/${contract.id}`}
-                                  className="text-body-sm font-medium text-accent-700 hover:text-accent-900 mb-1 block"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {contract.title}
-                                </Link>
-                                <div className="flex flex-wrap gap-2 mb-2">
-                                  {contract.set_aside.slice(0, 2).map((sa, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="inline-block px-2 py-0.5 bg-green-100 text-green-800 text-body-xs rounded"
-                                    >
-                                      {sa}
-                                    </span>
-                                  ))}
-                                  {contract.detected_keywords.slice(0, 3).map((kw, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="inline-block px-2 py-0.5 bg-accent-50 text-accent-700 text-body-xs rounded"
-                                    >
-                                      {kw}
-                                    </span>
-                                  ))}
-                                </div>
-                                <div className="text-body-xs text-neutral-500 space-y-1">
-                                  {contract.notice_id && <p>Notice: {contract.notice_id}</p>}
-                                  {contract.solicitation_number && <p>Solicitation: {contract.solicitation_number}</p>}
-                                  {contract.naics_codes.length > 0 && (
-                                    <p>NAICS: {contract.naics_codes.slice(0, 2).join(', ')}{contract.naics_codes.length > 2 ? '...' : ''}</p>
-                                  )}
-                                  {contract.ingestion_source && (
-                                    <p className="text-accent-700 font-medium">
-                                      {contract.ingestion_source === 'sam-ingestion' ? '📥 SAM Ingestion' : '🔍 Discovery'}
-                                    </p>
-                                  )}
-                                </div>
-                                <a
-                                  href={contract.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-body-xs text-accent-700 hover:text-accent-800 mt-1 inline-block break-all"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  View on SAM.gov →
-                                </a>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="space-y-1">
-                                {contract.agency && (
-                                  <p className="text-body-sm font-medium text-neutral-900">{contract.agency}</p>
-                                )}
-                                {primaryPOC && (
-                                  <div className="text-body-xs text-neutral-600">
-                                    {primaryPOC.name && <p>POC: {primaryPOC.name}</p>}
-                                    {primaryPOC.email && (
-                                      <a 
-                                        href={`mailto:${primaryPOC.email}`}
-                                        className="text-accent-700 hover:text-accent-800"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {primaryPOC.email}
-                                      </a>
-                                    )}
-                                    {primaryPOC.phone && <p>📞 {primaryPOC.phone}</p>}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="space-y-1 text-body-xs">
-                                {contract.deadline && (
-                                  <p className={contract.daysRemaining != null && contract.daysRemaining < 7 ? 'text-red-600 font-medium' : ''}>
-                                    Deadline: {contract.deadline}
-                                    {contract.daysRemaining != null && (
-                                      <span className="ml-1">({contract.daysRemaining} days)</span>
-                                    )}
-                                  </p>
-                                )}
-                                {contract.period_of_performance && (
-                                  <p className="text-neutral-600">POP: {contract.period_of_performance}</p>
-                                )}
-                                {contract.created_at && (
-                                  <p className="text-neutral-500">Posted: {new Date(contract.created_at).toLocaleDateString()}</p>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <ScoreBadge score={contract.relevance_score} />
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="space-y-1">
-                                <span className={`inline-block px-2 py-0.5 text-body-xs rounded ${
-                                  contract.verified 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : contract.dismissed
-                                    ? 'bg-red-100 text-red-800'
-                                    : contract.scraped
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-neutral-100 text-neutral-700'
-                                }`}>
-                                  {contract.verified ? '✓ Verified' : 
-                                   contract.dismissed ? '✗ Dismissed' : 
-                                   contract.scraped ? 'Scraped' : 'Discovered'}
-                                </span>
-                                {contract.aiSummary && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      toggleAIExpansion(contract.id)
-                                    }}
-                                    className="block text-body-xs text-blue-700 hover:text-blue-800 underline mt-1"
-                                  >
-                                    {isAIExpanded ? 'Hide' : 'Show'} AI Analysis
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              {contract.sow_attachment_url ? (
-                                <div className="space-y-2">
-                                  <a
-                                    href={contract.sow_attachment_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-body-sm text-accent-700 hover:text-accent-800 underline"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <span>📄</span>
-                                    <span>Download SOW</span>
-                                    {contract.sow_attachment_type && (
-                                      <span className="text-body-xs text-neutral-500">
-                                        ({contract.sow_attachment_type})
-                                      </span>
-                                    )}
-                                  </a>
-                                  {!contract.sow_scraped && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleScrapeSOW(contract.id)
-                                      }}
-                                      className="block text-body-xs text-accent-700 hover:text-accent-800 underline"
-                                    >
-                                      Scrape SOW Content
-                                    </button>
-                                  )}
-                                  {contract.sow_scraped && (
-                                    <span className="text-body-xs text-green-600">✓ Content Scraped</span>
-                                  )}
-                                </div>
-                              ) : contract.scraped ? (
-                                <span className="text-body-xs text-neutral-500">No SOW found</span>
-                              ) : (
-                                <span className="text-body-xs text-neutral-400">Not scraped yet</span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                                {!contract.scraped && (
-                                  <button
-                                    onClick={() => handleScrape(contract.id)}
-                                    className="btn-primary text-body-sm px-3 py-1.5"
-                                  >
-                                    Scrape
-                                  </button>
-                                )}
-                                {contract.notice_id && (
-                                  <>
-                                    <button
-                                      onClick={() => handleFlag(contract.notice_id, !contract.flagged)}
-                                      className={`text-body-xs px-2 py-1 rounded ${
-                                        contract.flagged
-                                          ? 'bg-yellow-100 text-yellow-800'
-                                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                      }`}
-                                      title={contract.flagged ? 'Unflag' : 'Flag'}
-                                    >
-                                      {contract.flagged ? '★' : '☆'}
-                                    </button>
-                                    <button
-                                      onClick={() => handleIgnore(contract.notice_id)}
-                                      className="text-body-xs px-2 py-1 rounded bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                                      title="Ignore"
-                                    >
-                                      ×
-                                    </button>
-                                  </>
-                                )}
-                                {!contract.verified && !contract.dismissed && (
-                                  <button
-                                    onClick={() => handleAdd(contract.id)}
-                                    className="text-body-sm px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700"
-                                  >
-                                    Add
-                                  </button>
-                                )}
-                                {!contract.dismissed && (
-                                  <button
-                                    onClick={() => handleDismiss(contract.id)}
-                                    className="text-body-sm px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700"
-                                  >
-                                    Dismiss
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => handleDelete(contract.id)}
-                                  className="text-body-sm px-3 py-1.5 bg-neutral-600 text-white rounded hover:bg-neutral-700"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          {isAIExpanded && contract.aiAnalysis && (
-                            <tr>
-                              <td colSpan={7} className="px-6 py-4 bg-blue-50">
-                                <div className="space-y-2">
-                                  <h4 className="text-body-sm font-semibold text-neutral-900">AI Analysis</h4>
-                                  {contract.aiAnalysis.relevanceSummary && (
-                                    <p className="text-body-sm text-neutral-700">
-                                      <strong>Summary:</strong> {contract.aiAnalysis.relevanceSummary}
-                                    </p>
-                                  )}
-                                  {contract.aiAnalysis.recommendedAction && (
-                                    <p className="text-body-sm text-neutral-700">
-                                      <strong>Recommended Action:</strong>{' '}
-                                      <span className="font-medium">{contract.aiAnalysis.recommendedAction}</span>
-                                    </p>
-                                  )}
-                                  {contract.aiAnalysis.capabilityMatch && contract.aiAnalysis.capabilityMatch.length > 0 && (
-                                    <div>
-                                      <strong className="text-body-sm text-neutral-700">Capability Match:</strong>
-                                      <div className="flex flex-wrap gap-1 mt-1">
-                                        {contract.aiAnalysis.capabilityMatch.map((cap: string, idx: number) => (
-                                          <span
-                                            key={idx}
-                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800"
-                                          >
-                                            {cap}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                  {contract.aiAnalysis.risks && contract.aiAnalysis.risks.length > 0 && (
-                                    <div>
-                                      <strong className="text-body-sm text-neutral-700">Risks:</strong>
-                                      <ul className="list-disc list-inside text-body-sm text-neutral-700 mt-1">
-                                        {contract.aiAnalysis.risks.map((risk: string, idx: number) => (
-                                          <li key={idx}>{risk}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                  {contract.aiSummary && (
-                                    <div className="mt-2 pt-2 border-t border-blue-200">
-                                      <strong className="text-body-sm text-neutral-700">Full Summary:</strong>
-                                      <p className="text-body-sm text-neutral-700 mt-1">{contract.aiSummary}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </>
-                      )
-                    })}
-                  </tbody>
-                </table>
+      {activeTab === 'search' && (
+        <section className="section-container bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="card p-8 lg:p-12 shadow-sm">
+              <div className="mb-6">
+                <h2 className="heading-2 mb-4">Search for New Contracts</h2>
+                <p className="text-body-sm text-neutral-600 mb-6">
+                  Use the dedicated search page to find new contract opportunities on SAM.gov
+                </p>
+                <Link href="/admin/contract-discovery" className="btn-primary">
+                  Go to Search Page
+                </Link>
               </div>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
