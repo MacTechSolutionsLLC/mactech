@@ -80,10 +80,18 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check current status
-    const currentStatus = await prisma.ingestionStatus.findFirst({
-      orderBy: { updated_at: 'desc' },
-    })
+    // Check current status (handle missing table gracefully)
+    let currentStatus = null
+    try {
+      currentStatus = await prisma.ingestionStatus.findFirst({
+        orderBy: { updated_at: 'desc' },
+      })
+    } catch (error: any) {
+      // Table doesn't exist yet - that's okay, we'll create it during ingestion
+      if (error.code !== 'P2021') {
+        throw error
+      }
+    }
 
     // Don't allow concurrent runs
     if (currentStatus?.status === 'running') {

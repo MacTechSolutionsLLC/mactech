@@ -67,9 +67,24 @@ CREATE INDEX IF NOT EXISTS "IngestionStatus_sam_gov_outage_idx" ON "IngestionSta
 -- CreateIndex
 CREATE INDEX IF NOT EXISTS "IngestionStatus_last_run_started_at_idx" ON "IngestionStatus"("last_run_started_at");
 
--- AddForeignKey
-ALTER TABLE "OpportunityAwardLink" ADD CONSTRAINT IF NOT EXISTS "OpportunityAwardLink_opportunity_id_fkey" FOREIGN KEY ("opportunity_id") REFERENCES "GovernmentContractDiscovery"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- AddForeignKey (PostgreSQL doesn't support IF NOT EXISTS for constraints, so we check first)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'OpportunityAwardLink_opportunity_id_fkey'
+    ) THEN
+        ALTER TABLE "OpportunityAwardLink" ADD CONSTRAINT "OpportunityAwardLink_opportunity_id_fkey" 
+        FOREIGN KEY ("opportunity_id") REFERENCES "GovernmentContractDiscovery"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "OpportunityAwardLink" ADD CONSTRAINT IF NOT EXISTS "OpportunityAwardLink_award_id_fkey" FOREIGN KEY ("award_id") REFERENCES "UsaSpendingAward"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'OpportunityAwardLink_award_id_fkey'
+    ) THEN
+        ALTER TABLE "OpportunityAwardLink" ADD CONSTRAINT "OpportunityAwardLink_award_id_fkey" 
+        FOREIGN KEY ("award_id") REFERENCES "UsaSpendingAward"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+END $$;
 
