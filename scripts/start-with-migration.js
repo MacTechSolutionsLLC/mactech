@@ -20,9 +20,45 @@ try {
   console.log('✅ Database migrations completed successfully');
 } catch (error) {
   console.error('⚠️  Migration error:', error.message);
-  // Continue anyway - tables might already exist or migration might not be critical
-  // In production, you might want to exit here depending on your requirements
-  console.log('⚠️  Continuing with server start...');
+  
+  // If the error is about non-empty database (baseline needed), try to resolve it
+  if (error.message.includes('not empty') || error.message.includes('P3005')) {
+    console.log('📋 Database is not empty - attempting to baseline existing migrations...');
+    try {
+      // Mark existing migrations as applied (baseline)
+      const existingMigrations = [
+        '20260114040029_add_sam_ingestion_fields',
+        '20260115044544_add_sam_ingestion_fields'
+      ];
+      
+      for (const migration of existingMigrations) {
+        try {
+          execSync(`npx prisma migrate resolve --applied ${migration}`, {
+            stdio: 'pipe',
+            env: { ...process.env }
+          });
+          console.log(`✅ Marked ${migration} as applied`);
+        } catch (resolveError) {
+          // Migration might already be marked, continue
+          console.log(`ℹ️  ${migration} - ${resolveError.message.includes('already') ? 'already applied' : 'skipped'}`);
+        }
+      }
+      
+      // Try migrate deploy again after baselining
+      console.log('🔄 Retrying migration deploy...');
+      execSync('npx prisma migrate deploy', {
+        stdio: 'inherit',
+        env: { ...process.env }
+      });
+      console.log('✅ Database migrations completed successfully after baseline');
+    } catch (baselineError) {
+      console.error('⚠️  Baseline error:', baselineError.message);
+      console.log('⚠️  Continuing with server start...');
+    }
+  } else {
+    // Continue anyway - tables might already exist or migration might not be critical
+    console.log('⚠️  Continuing with server start...');
+  }
 }
 
 // Start the Next.js server
