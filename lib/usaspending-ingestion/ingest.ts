@@ -25,9 +25,11 @@ function generateBatchId(): string {
  * Convert award data to database format
  */
 function normalizeAward(award: UsaSpendingAward): any {
+  // Handle different ID field names from API response
+  const apiAward = award as any
   return {
-    award_id: award.award_id || award.id,
-    generated_unique_award_id: award.generated_unique_award_id,
+    award_id: award.award_id || award.id || apiAward.internal_id,
+    generated_unique_award_id: award.generated_unique_award_id || apiAward.generated_internal_id,
     award_type: award.type,
     award_type_description: award.type_description,
     category: award.category,
@@ -77,19 +79,27 @@ function normalizeAward(award: UsaSpendingAward): any {
 async function saveAward(award: UsaSpendingAward, batchId: string): Promise<{ saved: boolean; skipped: boolean }> {
   try {
     const normalized = normalizeAward(award)
-    const awardId = award.award_id || award.id || award.generated_unique_award_id
+    // Check for ID in multiple possible fields (API may use different field names)
+    const awardId = award.award_id || award.id || award.generated_unique_award_id || 
+                    (award as any).internal_id || (award as any).generated_internal_id
     
     if (!awardId) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ingest.ts:82',message:'Award missing ID - checking all fields',data:{awardKeys:Object.keys(award),award_id:award.award_id,id:award.id,generated_unique_award_id:award.generated_unique_award_id,internal_id:(award as any).internal_id,generated_internal_id:(award as any).generated_internal_id,uri:award.uri,piid:award.piid,fain:award.fain,fullAward:JSON.stringify(award).substring(0,1000)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
       // Log the award structure to help debug why it's missing an ID
       console.warn(`[Ingest] Skipping award with no ID. Available fields:`, {
         has_award_id: !!award.award_id,
         has_id: !!award.id,
         has_generated_unique_award_id: !!award.generated_unique_award_id,
+        has_internal_id: !!(award as any).internal_id,
+        has_generated_internal_id: !!(award as any).generated_internal_id,
         has_uri: !!award.uri,
         has_piid: !!award.piid,
         has_fain: !!award.fain,
         type: award.type,
         category: award.category,
+        allKeys: Object.keys(award),
       })
       return { saved: false, skipped: true }
     }
