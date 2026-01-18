@@ -617,5 +617,6 @@ if (require.main === module) {
     })
 }
 
-export { runTests, TestResult }
+export { runTests }
+export type { TestResult }
 
