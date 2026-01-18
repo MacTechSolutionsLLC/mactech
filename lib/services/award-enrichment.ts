@@ -207,7 +207,8 @@ export async function enrichOpportunity(
     }
 
     if (naicsCodes.length > 0) {
-      filters.naics_codes = naicsCodes.map((code: string) => ({ code }))
+      // USAspending API expects naics_codes as array of strings, not objects
+      filters.naics_codes = naicsCodes as any
     }
 
     // Try to match by agency name (normalized)
@@ -530,7 +531,8 @@ export async function getDetailedEnrichment(
       try {
         const naicsCodes = JSON.parse(opportunity.naics_codes || '[]')
         if (Array.isArray(naicsCodes) && naicsCodes.length > 0) {
-          filters.naics_codes = naicsCodes.map((code: string) => ({ code }))
+          // USAspending API expects naics_codes as array of strings, not objects
+          filters.naics_codes = naicsCodes as any
         }
       } catch (e) {
         // Ignore

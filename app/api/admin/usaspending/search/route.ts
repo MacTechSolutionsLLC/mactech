@@ -46,11 +46,13 @@ export async function POST(request: NextRequest) {
     const filters: UsaSpendingFilters = {}
 
     if (naics_codes && naics_codes.length > 0) {
-      filters.naics_codes = naics_codes.map(code => ({ code }))
+      // USAspending API expects naics_codes as array of strings, not objects
+      filters.naics_codes = naics_codes as any
     }
 
     if (psc_codes && psc_codes.length > 0) {
-      filters.psc_codes = psc_codes.map(code => ({ code }))
+      // USAspending API expects psc_codes as array of strings, not objects
+      filters.psc_codes = psc_codes as any
     }
 
     if (agencies && agencies.length > 0) {
