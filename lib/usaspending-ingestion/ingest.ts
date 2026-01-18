@@ -27,9 +27,13 @@ function generateBatchId(): string {
 function normalizeAward(award: UsaSpendingAward): any {
   // Handle different ID field names from API response
   const apiAward = award as any
+  // Convert award_id to string (API returns it as integer)
+  const awardId = award.award_id || award.id || apiAward.internal_id
+  const generatedId = award.generated_unique_award_id || apiAward.generated_internal_id
+  
   return {
-    award_id: award.award_id || award.id || apiAward.internal_id,
-    generated_unique_award_id: award.generated_unique_award_id || apiAward.generated_internal_id,
+    award_id: awardId ? String(awardId) : null,
+    generated_unique_award_id: generatedId ? String(generatedId) : null,
     award_type: award.type,
     award_type_description: award.type_description,
     category: award.category,
@@ -80,8 +84,10 @@ async function saveAward(award: UsaSpendingAward, batchId: string): Promise<{ sa
   try {
     const normalized = normalizeAward(award)
     // Check for ID in multiple possible fields (API may use different field names)
-    const awardId = award.award_id || award.id || award.generated_unique_award_id || 
-                    (award as any).internal_id || (award as any).generated_internal_id
+    // Convert to string since API may return integers but Prisma expects strings
+    const rawAwardId = award.award_id || award.id || award.generated_unique_award_id || 
+                       (award as any).internal_id || (award as any).generated_internal_id
+    const awardId = rawAwardId ? String(rawAwardId) : null
     
     if (!awardId) {
       // #region agent log
@@ -105,12 +111,17 @@ async function saveAward(award: UsaSpendingAward, batchId: string): Promise<{ sa
     }
 
     // Try to find existing award
+    // Convert IDs to strings for Prisma query
+    const generatedId = award.generated_unique_award_id || (award as any).generated_internal_id
     const existing = await prisma.usaSpendingAward.findFirst({
       where: {
         OR: [
           { award_id: awardId },
-          { generated_unique_award_id: award.generated_unique_award_id },
-        ].filter(Boolean),
+          { generated_unique_award_id: generatedId ? String(generatedId) : undefined },
+        ].filter(condition => {
+          // Filter out conditions with undefined values
+          return condition.award_id !== undefined || condition.generated_unique_award_id !== undefined
+        }),
       },
     })
 
