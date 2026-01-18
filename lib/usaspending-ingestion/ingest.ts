@@ -181,10 +181,10 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    // Try 'Last Modified Date' - it's in Contract Award mappings
-    // and maps to 'last_modified_date' which is in our default fields array
-    sort: 'Last Modified Date',
-    order: 'desc',
+    // Don't specify sort or order - let API use its default sorting
+    // The API has conflicting validation requirements that make it impossible
+    // to specify a valid sort field (must be both Contract Award mapping name
+    // AND exist in fields array, which are incompatible formats)
   }
 
   const response = await searchAwards(searchParams)
