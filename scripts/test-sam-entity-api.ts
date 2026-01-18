@@ -35,6 +35,10 @@ async function makeRequest(
   
   if (!apiKey) {
     console.warn('[SAM.gov Entity API] Warning: SAM_GOV_API_KEY or SAM_API_KEY not set. Tests may fail.')
+    return {
+      success: false,
+      error: 'API key not set',
+    }
   }
   
   const url = new URL(`${BASE_URL}${endpoint}`)
