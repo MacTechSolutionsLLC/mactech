@@ -8,6 +8,7 @@ import { prisma } from '../prisma'
 import { 
   searchAwards, 
   UsaSpendingFilters,
+  AwardTypeCode,
   searchSpendingByNaics,
   searchSpendingByPsc,
   searchSpendingByAwardingAgency,
@@ -206,13 +207,13 @@ export async function enrichOpportunity(
     // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
     // Using only contract types (A) and grants (B) for now to avoid validation errors
     // Filter out any invalid values (like 'IDV') to prevent API errors
-    const validAwardTypes = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
+    const validAwardTypes: AwardTypeCode[] = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
     const apiValidTypes = ['A', 'B', 'C', 'D', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
                            'IDV_A', 'IDV_B', 'IDV_B_A', 'IDV_B_B', 'IDV_B_C', 'IDV_C', 'IDV_D', 'IDV_E', 
                            '-1', 'no intersection']
-    const filteredTypes = validAwardTypes.filter(type => apiValidTypes.includes(type))
+    const filteredTypes = validAwardTypes.filter(type => apiValidTypes.includes(type)) as AwardTypeCode[]
     const filters: UsaSpendingFilters = {
-      award_type_codes: filteredTypes.length > 0 ? filteredTypes : ['A'], // Default to 'A' if all filtered out
+      award_type_codes: filteredTypes.length > 0 ? filteredTypes : (['A'] as AwardTypeCode[]), // Default to 'A' if all filtered out
     }
 
     if (naicsCodes.length > 0) {
@@ -536,13 +537,13 @@ export async function getDetailedEnrichment(
     if (includeTrends) {
       // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
       // Filter out any invalid values to prevent API errors
-      const validAwardTypes = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
+      const validAwardTypes: AwardTypeCode[] = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
       const apiValidTypes = ['A', 'B', 'C', 'D', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
                              'IDV_A', 'IDV_B', 'IDV_B_A', 'IDV_B_B', 'IDV_B_C', 'IDV_C', 'IDV_D', 'IDV_E', 
                              '-1', 'no intersection']
-      const filteredTypes = validAwardTypes.filter(type => apiValidTypes.includes(type))
+      const filteredTypes = validAwardTypes.filter(type => apiValidTypes.includes(type)) as AwardTypeCode[]
       const filters: UsaSpendingFilters = {
-        award_type_codes: filteredTypes.length > 0 ? filteredTypes : ['A'], // Default to 'A' if all filtered out
+        award_type_codes: filteredTypes.length > 0 ? filteredTypes : (['A'] as AwardTypeCode[]), // Default to 'A' if all filtered out
       }
 
       try {
