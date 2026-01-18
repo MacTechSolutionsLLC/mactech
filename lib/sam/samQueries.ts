@@ -21,8 +21,9 @@ function getDateRange(): { from: string; to: string } {
 }
 
 /**
- * Query A - Broad Universe (Safety Net)
- * Revised: ptype=r,p,o (removed k=Combined Synopsis/Solicitation), rolling 30-60 days, limit=1000
+ * Query A - Awards Only (Broad Universe)
+ * Changed to ptype=o only to avoid overlap with other queries
+ * This captures all awards regardless of NAICS/keywords
  */
 export function buildQueryA(
   postedFrom?: string,
@@ -35,7 +36,7 @@ export function buildQueryA(
     : getDateRange()
   
   const params = new URLSearchParams()
-  params.append('ptype', 'r,p,o')
+  params.append('ptype', 'o') // Awards only - distinct from other queries
   params.append('postedFrom', from)
   params.append('postedTo', to)
   params.append('limit', String(limit))
@@ -45,8 +46,9 @@ export function buildQueryA(
 }
 
 /**
- * Query B - Cyber / IT NAICS Core
- * Revised: naics=541512,541511,541519,518210 (not ncode), rolling 30-60 days, limit=1000
+ * Query B - Cyber / IT NAICS Core (Presolicitations & Awards)
+ * Focused on cyber/IT NAICS codes with presolicitations and awards only
+ * This avoids overlap with Query A (awards only) and Query D (sources sought)
  */
 export function buildQueryB(
   postedFrom?: string,
@@ -60,7 +62,7 @@ export function buildQueryB(
   
   const params = new URLSearchParams()
   params.append('naics', '541512,541511,541519,518210')
-  params.append('ptype', 'r,p,o')
+  params.append('ptype', 'p,o') // Presolicitations and awards - distinct from Query A (o only) and Query D (r only)
   params.append('postedFrom', from)
   params.append('postedTo', to)
   params.append('limit', String(limit))
@@ -119,8 +121,10 @@ export function buildQueryD(
 }
 
 /**
- * Query E - Keyword-Intent (NAICS-Agnostic)
- * Revised: Simplified to keywords=cyber security (let AI handle RMF, STIG, ATO, etc.), rolling 30-60 days, limit=1000
+ * Query E - Keyword-Intent (Presolicitations & Awards)
+ * Focused keyword search on presolicitations and awards only
+ * Uses broader keyword to capture related opportunities
+ * Distinct from Query A (all awards), Query B (NAICS-specific), Query D (sources sought)
  */
 export function buildQueryE(
   postedFrom?: string,
@@ -133,8 +137,8 @@ export function buildQueryE(
     : getDateRange()
   
   const params = new URLSearchParams()
-  params.append('keywords', 'cyber security')
-  params.append('ptype', 'r,p,o')
+  params.append('keywords', 'cyber security information technology cybersecurity')
+  params.append('ptype', 'p,o') // Presolicitations and awards - distinct from other queries
   params.append('postedFrom', from)
   params.append('postedTo', to)
   params.append('limit', String(limit))
