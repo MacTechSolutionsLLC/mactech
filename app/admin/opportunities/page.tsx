@@ -47,6 +47,7 @@ export default function OpportunitiesPage() {
 
   useEffect(() => {
     loadContracts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, minScore, sortBy, sourceFilter, pipelineStatusFilter])
 
   const loadContracts = async () => {

@@ -336,15 +336,14 @@ export async function autoProcessHighScoringContracts(
 ): Promise<{ processed: number; results: PipelineResult[] }> {
   console.log(`[Pipeline] Auto-processing contracts with score >= ${minScore}`)
   
-  const contracts = await prisma.governmentContractDiscovery.findMany({
-    where: {
-      relevance_score: { gte: minScore },
-      OR: [
-        { pipeline_status: 'discovered' },
-        { pipeline_status: null },
-        { auto_processed: false },
-      ],
-    },
+    const contracts = await prisma.governmentContractDiscovery.findMany({
+      where: {
+        relevance_score: { gte: minScore },
+        OR: [
+          { pipeline_status: 'discovered' },
+          { auto_processed: false },
+        ],
+      },
     take: limit,
     orderBy: {
       relevance_score: 'desc',
