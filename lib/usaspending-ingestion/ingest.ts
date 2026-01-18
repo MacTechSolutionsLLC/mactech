@@ -145,9 +145,13 @@ function buildFilters(filters?: IngestionFilters): UsaSpendingFilters {
   }
 
   if (filters?.startDate || filters?.endDate) {
+    // Only include time_period if at least one date is provided
+    // The API may require both, so we'll use a reasonable default if one is missing
+    const startDate = filters.startDate || '2000-01-01' // Default to early date if missing
+    const endDate = filters.endDate || new Date().toISOString().split('T')[0] // Default to today if missing
     usaspendingFilters.time_period = [{
-      start_date: filters.startDate,
-      end_date: filters.endDate,
+      start_date: startDate,
+      end_date: endDate,
       date_type: 'action_date',
     }]
   }

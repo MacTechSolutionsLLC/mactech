@@ -298,9 +298,23 @@ async function makeRequest<T>(
       })
 
       if (!response.ok) {
+        // Try to get error details from response
+        let errorData: any = {}
+        try {
+          const text = await response.text()
+          if (text) {
+            errorData = JSON.parse(text)
+          }
+        } catch (e) {
+          // If parsing fails, use empty object
+        }
+
         if (response.status === 400) {
-          const errorData = await response.json().catch(() => ({}))
           throw new Error(`Bad request: ${JSON.stringify(errorData)}`)
+        }
+        if (response.status === 422) {
+          const requestBody = options.body ? (typeof options.body === 'string' ? options.body.substring(0, 1000) : JSON.stringify(options.body).substring(0, 1000)) : 'N/A'
+          throw new Error(`Validation error (422): ${JSON.stringify(errorData)} - Request: ${requestBody}`)
         }
         if (response.status === 500) {
           if (attempt < retries - 1) {
@@ -310,7 +324,7 @@ async function makeRequest<T>(
           }
           throw new Error(`Server error: ${response.status} ${response.statusText}`)
         }
-        throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
+        throw new Error(`HTTP error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`)
       }
 
       return await response.json()
