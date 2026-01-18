@@ -181,10 +181,11 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    // Don't specify sort or order - let API use its default sorting
-    // The API has conflicting validation requirements that make it impossible
-    // to specify a valid sort field (must be both Contract Award mapping name
-    // AND exist in fields array, which are incompatible formats)
+    // Use 'Base Obligation Date' which is in Contract Award mappings
+    // This maps to 'awarding_date' which is in our default fields array
+    // The API seems to default to 'award_id' when no sort is provided, which fails validation
+    sort: 'Base Obligation Date',
+    order: 'desc',
   }
 
   const response = await searchAwards(searchParams)
