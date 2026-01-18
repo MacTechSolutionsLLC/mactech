@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminNavigation from '@/components/admin/AdminNavigation'
 
 interface UsaSpendingAward {
@@ -44,8 +44,17 @@ export default function UsaSpendingPage() {
   const [minAmount, setMinAmount] = useState('')
   const [maxAmount, setMaxAmount] = useState('')
   const [useDatabase, setUseDatabase] = useState(true)
+  const [hasSearched, setHasSearched] = useState(false)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(50)
+
+  // Auto-load awards from database on mount
+  useEffect(() => {
+    if (useDatabase && !hasSearched) {
+      handleSearch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Results state
   const [isSearching, setIsSearching] = useState(false)
@@ -111,6 +120,7 @@ export default function UsaSpendingPage() {
       if (data.success) {
         setResults(data.results || [])
         setPageMetadata(data.page_metadata)
+        setHasSearched(true)
       } else {
         setError(data.error || 'Search failed')
       }
@@ -425,9 +435,15 @@ export default function UsaSpendingPage() {
         </div>
       )}
 
-      {results.length === 0 && !isSearching && !error && (
+      {results.length === 0 && !isSearching && !error && !hasSearched && (
+        <div className="text-center py-12">
+          <p className="text-neutral-600 mb-4">Click &quot;Search Awards&quot; to view ingested awards from the database.</p>
+          <p className="text-sm text-neutral-500">The database search is enabled by default. Uncheck &quot;Search database&quot; to search the API directly instead.</p>
+        </div>
+      )}
+      {results.length === 0 && !isSearching && !error && hasSearched && (
         <div className="text-center py-12 text-neutral-500">
-          <p>No results yet. Enter search criteria and click &quot;Search Awards&quot; to begin.</p>
+          <p>No results found. Try adjusting your search criteria or check if awards have been ingested.</p>
         </div>
       )}
       </div>
