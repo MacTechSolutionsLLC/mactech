@@ -503,12 +503,9 @@ export async function searchAwards(
     'total_subaward_amount',
   ]
   
-  // If sort is specified, add it to fields array to satisfy API validation
-  // This is a workaround for the API's conflicting validation requirements
-  const fieldsToUse = fields && fields.length > 0 ? [...fields] : [...defaultFields]
-  if (sort && !fieldsToUse.includes(sort)) {
-    fieldsToUse.push(sort)
-  }
+  // Don't add sort field to fields array - it causes API to return empty objects
+  // The API validation is broken, so we'll just use the default fields
+  const fieldsToUse = fields && fields.length > 0 ? fields : defaultFields
 
   const body: any = {
     filters,
@@ -529,6 +526,13 @@ export async function searchAwards(
     method: 'POST',
     body: JSON.stringify(body),
   })
+  
+  // Debug logging for first page to see actual API response structure
+  if (page === 1 && response.results && response.results.length > 0) {
+    console.log(`[USAspending API] Sample response structure (first result):`)
+    console.log(`[USAspending API] - Keys:`, Object.keys(response.results[0]))
+    console.log(`[USAspending API] - Full object (first 3000 chars):`, JSON.stringify(response.results[0], null, 2).substring(0, 3000))
+  }
   
   // If title similarity matching is requested, calculate similarities
   if (titleSimilarity && response.results) {
