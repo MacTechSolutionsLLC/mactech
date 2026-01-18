@@ -271,14 +271,30 @@ export async function ingestAwards(
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`[USAspending Ingest] Error on page ${page}:`, error)
-        errors.push(`Page ${page}: ${errorMessage}`)
         
-        // Continue with next page if we have some results
-        if (totalFetched === 0) {
-          throw error
+        // If error is about sort field validation, log it but don't fail completely
+        // The API has broken validation requirements
+        if (errorMessage.includes('Sort value') && errorMessage.includes('not found')) {
+          console.warn(`[USAspending Ingest] Sort validation error on page ${page} (expected - API limitation):`, errorMessage)
+          // Try to continue - sometimes API returns data despite sort error
+          // If we have no results, this is a real failure
+          if (totalFetched === 0) {
+            console.error(`[USAspending Ingest] No data returned due to sort error, failing ingestion`)
+            throw error
+          }
+          // Otherwise, log warning and continue
+          errors.push(`Page ${page}: Sort validation error (API limitation)`)
+          hasMore = false
+        } else {
+          console.error(`[USAspending Ingest] Error on page ${page}:`, error)
+          errors.push(`Page ${page}: ${errorMessage}`)
+          
+          // Continue with next page if we have some results
+          if (totalFetched === 0) {
+            throw error
+          }
+          hasMore = false
         }
-        hasMore = false
       }
     }
 
