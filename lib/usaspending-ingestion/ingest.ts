@@ -9,7 +9,8 @@ import {
   searchAwards, 
   UsaSpendingSearchParams, 
   UsaSpendingFilters,
-  UsaSpendingAward 
+  UsaSpendingAward,
+  getAward
 } from '../usaspending-api'
 import { prisma } from '../prisma'
 import { IngestionResult, IngestionBatch, IngestionFilters } from './types'
@@ -98,7 +99,7 @@ async function saveAward(award: UsaSpendingAward, batchId: string, isFirstAward:
       })
     }
     
-    const normalized = normalizeAward(award)
+    let normalized = normalizeAward(award)
     // Check for ID in multiple possible fields (API may use different field names)
     // Convert to string since API may return integers but Prisma expects strings
     const rawAwardId = award.award_id || award.id || award.generated_unique_award_id || 
@@ -140,6 +141,33 @@ async function saveAward(award: UsaSpendingAward, batchId: string, isFirstAward:
         }),
       },
     })
+
+    // Check if award has minimal data (missing key descriptive fields)
+    const hasMinimalData = !award.description && 
+                          !award.awarding_agency?.name && 
+                          !award.funding_agency?.name &&
+                          !award.recipient?.name &&
+                          !award.naics_description &&
+                          !award.psc_description
+    
+    // If award has minimal data and we have an award_id, try to fetch full details
+    let awardToSave = award
+    if (hasMinimalData && awardId) {
+      try {
+        console.log(`[Ingest] Award ${awardId} has minimal data, fetching full details...`)
+        const fullAward = await getAward(awardId)
+        if (fullAward) {
+          awardToSave = fullAward
+          // Re-normalize with full award data
+          const fullNormalized = normalizeAward(fullAward)
+          normalized = fullNormalized
+          console.log(`[Ingest] Successfully enriched award ${awardId}`)
+        }
+      } catch (error) {
+        console.warn(`[Ingest] Failed to fetch full details for award ${awardId}, using minimal data:`, error)
+        // Continue with minimal data
+      }
+    }
 
     if (existing) {
       // Update existing award
