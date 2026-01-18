@@ -5,6 +5,7 @@ import Link from 'next/link'
 import IngestionStatus from './components/IngestionStatus'
 import OpportunityFeed from './components/OpportunityFeed'
 import IncumbentIntelligence from './components/IncumbentIntelligence'
+import UsaSpendingIngest from './components/UsaSpendingIngest'
 
 type Tab = 'opportunities' | 'incumbents' | 'analytics'
 
@@ -87,6 +88,13 @@ export default function CaptureDashboardPage() {
           </div>
         </section>
       )}
+
+      {/* USAspending Ingestion */}
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
+          <UsaSpendingIngest onIngestComplete={loadStats} />
+        </div>
+      </section>
 
       {/* Tab Navigation */}
       <section className="bg-white border-b border-neutral-200">
