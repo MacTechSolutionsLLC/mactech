@@ -80,8 +80,24 @@ function normalizeAward(award: UsaSpendingAward): any {
 /**
  * Save award to database (upsert)
  */
-async function saveAward(award: UsaSpendingAward, batchId: string): Promise<{ saved: boolean; skipped: boolean }> {
+async function saveAward(award: UsaSpendingAward, batchId: string, isFirstAward: boolean = false): Promise<{ saved: boolean; skipped: boolean }> {
   try {
+    // Log first award to see what data we're actually receiving
+    if (isFirstAward) {
+      console.log(`[Ingest] First award structure:`, {
+        keys: Object.keys(award),
+        awarding_agency: award.awarding_agency,
+        funding_agency: award.funding_agency,
+        recipient: award.recipient,
+        place_of_performance: award.place_of_performance,
+        has_description: !!award.description,
+        description_length: award.description?.length,
+        has_naics_description: !!award.naics_description,
+        has_psc_description: !!award.psc_description,
+        full_award: JSON.stringify(award, null, 2).substring(0, 2000),
+      })
+    }
+    
     const normalized = normalizeAward(award)
     // Check for ID in multiple possible fields (API may use different field names)
     // Convert to string since API may return integers but Prisma expects strings
@@ -280,8 +296,10 @@ export async function ingestAwards(
         // Save each award
         let pageSaved = 0
         let pageSkipped = 0
-        for (const award of awards) {
-          const result = await saveAward(award, batchId)
+        for (let i = 0; i < awards.length; i++) {
+          const award = awards[i]
+          const isFirstAward = page === 1 && i === 0
+          const result = await saveAward(award, batchId, isFirstAward)
           if (result.saved) {
             totalSaved++
             pageSaved++
