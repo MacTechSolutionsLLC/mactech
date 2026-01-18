@@ -152,12 +152,12 @@ export default function UsaSpendingPage() {
       <AdminNavigation />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-        <div className="mb-8">
+      <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-neutral-900">USAspending.gov Historical Awards</h1>
           <p className="text-neutral-600">
-            Search historical award data from USAspending.gov to analyze past contracts, winners, and spending patterns.
-          </p>
-        </div>
+          Search historical award data from USAspending.gov to analyze past contracts, winners, and spending patterns.
+        </p>
+      </div>
 
       {/* Search Form */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

@@ -160,7 +160,7 @@ export default function ContractDetailPage() {
             <div className="card p-8">
               <h1 className="heading-2 mb-4">Contract Not Found</h1>
               <p className="text-body text-neutral-700 mb-6">{error || 'The requested contract could not be found.'}</p>
-              <Link href="/admin/contract-discovery/dashboard" className="btn-primary">
+              <Link href="/admin/opportunities" className="btn-primary">
                 Back to Dashboard
               </Link>
             </div>
@@ -179,7 +179,7 @@ export default function ContractDetailPage() {
       {/* Hero Header */}
       <section className="bg-white border-b-2 border-neutral-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <Link href="/admin/contract-discovery/dashboard" className="text-body-sm text-accent-700 hover:text-accent-900 mb-6 inline-flex items-center gap-2">
+          <Link href="/admin/opportunities" className="text-body-sm text-accent-700 hover:text-accent-900 mb-6 inline-flex items-center gap-2">
             <span>←</span>
             <span>Back to Dashboard</span>
           </Link>

@@ -42,15 +42,15 @@ export default function AdminPage() {
 
   const adminTools = [
     {
-      href: '/admin/capture',
-      title: 'Federal Capture Dashboard',
-      description: 'Discover opportunities, analyze incumbents, and prepare to bid on federal contracts',
+      href: '/admin/dashboard',
+      title: 'Pipeline Dashboard',
+      description: 'Workflow view of contracts flowing through discovery, scraping, enrichment, and analysis stages',
       icon: '📊',
       color: 'bg-blue-50 border-blue-200 hover:border-blue-300',
       iconBg: 'bg-blue-100',
     },
     {
-      href: '/admin/contract-discovery',
+      href: '/admin/discovery',
       title: 'Contract Discovery',
       description: 'Search for VetCert-eligible contract opportunities on SAM.gov using keywords and filters',
       icon: '🔍',
@@ -58,12 +58,20 @@ export default function AdminPage() {
       iconBg: 'bg-green-100',
     },
     {
-      href: '/admin/contract-discovery/dashboard',
-      title: 'Contract Dashboard',
-      description: 'Unified dashboard for all contract opportunities with scoring, filtering, and management',
-      icon: '📋',
+      href: '/admin/pipeline',
+      title: 'Pipeline Monitoring',
+      description: 'Monitor ingestion status, pipeline processing, and system health',
+      icon: '⚙️',
       color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
       iconBg: 'bg-purple-100',
+    },
+    {
+      href: '/admin/opportunities',
+      title: 'Opportunities',
+      description: 'Unified view of all contract opportunities with scoring, filtering, and management',
+      icon: '📋',
+      color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300',
+      iconBg: 'bg-indigo-100',
     },
     {
       href: '/admin/generate-proposal',
@@ -93,8 +101,8 @@ export default function AdminPage() {
           <div className="max-w-4xl">
             <h1 className="text-4xl font-bold text-neutral-900 mb-4">Admin Portal</h1>
             <p className="text-lg text-neutral-700 leading-relaxed">
-              Manage contract opportunities, generate proposals, and monitor SAM.gov data ingestion.
-            </p>
+            Manage contract opportunities, generate proposals, and monitor SAM.gov data ingestion.
+          </p>
           </div>
         </div>
       </section>
@@ -126,56 +134,56 @@ export default function AdminPage() {
               </div>
             </Link>
           ))}
-        </div>
-
-        {/* Database Migration Section */}
-        <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
-          <p className="text-sm text-neutral-700 mb-4">
-            Run database migrations manually. Use this after deploying new schema changes.
-          </p>
-          <button
-            onClick={handleMigrate}
-            disabled={isMigrating}
-            className="px-6 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isMigrating ? 'Running Migrations...' : 'Run Migrations'}
-          </button>
+          </div>
           
-          {migrationResult && (
-            <div className={`mt-4 p-4 rounded-lg ${
-              migrationResult.success 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
-              <div className="flex items-start justify-between mb-2">
-                <h4 className={`font-semibold ${
-                  migrationResult.success ? 'text-green-800' : 'text-red-800'
+          {/* Database Migration Section */}
+        <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
+            <p className="text-sm text-neutral-700 mb-4">
+              Run database migrations manually. Use this after deploying new schema changes.
+            </p>
+            <button
+              onClick={handleMigrate}
+              disabled={isMigrating}
+            className="px-6 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isMigrating ? 'Running Migrations...' : 'Run Migrations'}
+            </button>
+            
+            {migrationResult && (
+              <div className={`mt-4 p-4 rounded-lg ${
+                migrationResult.success 
+                  ? 'bg-green-50 border border-green-200' 
+                  : 'bg-red-50 border border-red-200'
+              }`}>
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className={`font-semibold ${
+                    migrationResult.success ? 'text-green-800' : 'text-red-800'
+                  }`}>
+                    {migrationResult.success ? '✅ Success' : '❌ Failed'}
+                  </h4>
+                  {migrationResult.timestamp && (
+                    <span className="text-xs text-neutral-500">
+                      {new Date(migrationResult.timestamp).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+                <p className={`text-sm mb-2 ${
+                  migrationResult.success ? 'text-green-700' : 'text-red-700'
                 }`}>
-                  {migrationResult.success ? '✅ Success' : '❌ Failed'}
-                </h4>
-                {migrationResult.timestamp && (
-                  <span className="text-xs text-neutral-500">
-                    {new Date(migrationResult.timestamp).toLocaleString()}
-                  </span>
+                  {migrationResult.message}
+                </p>
+                {migrationResult.results && migrationResult.results.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {migrationResult.results.map((result, index) => (
+                      <p key={index} className="text-xs font-mono text-neutral-600">
+                        {result}
+                      </p>
+                    ))}
+                  </div>
                 )}
               </div>
-              <p className={`text-sm mb-2 ${
-                migrationResult.success ? 'text-green-700' : 'text-red-700'
-              }`}>
-                {migrationResult.message}
-              </p>
-              {migrationResult.results && migrationResult.results.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {migrationResult.results.map((result, index) => (
-                    <p key={index} className="text-xs font-mono text-neutral-600">
-                      {result}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            )}
         </div>
       </section>
     </div>

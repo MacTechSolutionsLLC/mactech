@@ -154,6 +154,14 @@ model GovernmentContractDiscovery {
   smart_sort_reasoning         String? @db.Text // AI reasoning for the smart sort score
   smart_sort_calculated_at     DateTime? // When smart sort was last calculated
   
+  // Unified Pipeline Status fields
+  pipeline_status              String  @default("discovered") // discovered, scraping, scraped, enriching, enriched, analyzing, analyzed, ready, flagged, ignored
+  pipeline_stage               String? // Current stage identifier
+  pipeline_errors              String  @default("[]") // JSON array of errors encountered
+  auto_processed               Boolean @default(false) // Whether auto-processing was attempted
+  pipeline_started_at          DateTime? // When pipeline processing started
+  pipeline_completed_at        DateTime? // When pipeline processing completed
+  
   // Relationships
   awardLinks OpportunityAwardLink[]
 }
