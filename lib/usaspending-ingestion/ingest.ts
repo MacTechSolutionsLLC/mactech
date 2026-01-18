@@ -142,13 +142,15 @@ async function saveAward(award: UsaSpendingAward, batchId: string, isFirstAward:
       },
     })
 
-    // Check if award has minimal data (missing key descriptive fields)
-    const hasMinimalData = !award.description && 
-                          !award.awarding_agency?.name && 
-                          !award.funding_agency?.name &&
-                          !award.recipient?.name &&
-                          !award.naics_description &&
-                          !award.psc_description
+    // Check if award has minimal data (missing critical descriptive fields)
+    // Consider it minimal if missing 3+ critical fields (description, agencies, recipient)
+    const missingFields = [
+      !award.description,
+      !award.awarding_agency?.name,
+      !award.funding_agency?.name,
+      !award.recipient?.name,
+    ].filter(Boolean).length
+    const hasMinimalData = missingFields >= 3 // Missing 3 or more critical fields
     
     // If award has minimal data and we have an award_id, try to fetch full details
     let awardToSave = award
