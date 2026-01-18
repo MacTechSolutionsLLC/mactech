@@ -468,6 +468,8 @@ export async function searchAwards(
   } = params
 
   // Default fields if none provided - API requires fields parameter
+  // Note: If sort is specified, the sort field name (display name) must also be in this array
+  // This is a known API limitation/issue
   const defaultFields = [
     'award_id',
     'generated_unique_award_id',
@@ -500,13 +502,20 @@ export async function searchAwards(
     'subaward_count',
     'total_subaward_amount',
   ]
+  
+  // If sort is specified, add it to fields array to satisfy API validation
+  // This is a workaround for the API's conflicting validation requirements
+  const fieldsToUse = fields && fields.length > 0 ? [...fields] : [...defaultFields]
+  if (sort && !fieldsToUse.includes(sort)) {
+    fieldsToUse.push(sort)
+  }
 
   const body: any = {
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
     subawards,
-    fields: fields && fields.length > 0 ? fields : defaultFields,
+    fields: fieldsToUse,
   }
 
   // Only include sort and order if sort is explicitly provided
