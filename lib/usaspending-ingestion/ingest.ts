@@ -181,9 +181,9 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    // Use 'Award ID' which is a valid Contract Award mapping name
-    // This corresponds to the 'award_id' field in the fields array
-    sort: 'Award ID',
+    // Try 'Last Modified Date' - it's in Contract Award mappings
+    // and maps to 'last_modified_date' which is in our default fields array
+    sort: 'Last Modified Date',
     order: 'desc',
   }
 

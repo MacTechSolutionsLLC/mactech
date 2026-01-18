@@ -509,6 +509,8 @@ export async function searchAwards(
     fields: fields && fields.length > 0 ? fields : defaultFields,
   }
 
+  // Only include sort and order if sort is explicitly provided
+  // This prevents API from defaulting to invalid sort when order is present
   if (sort) {
     body.sort = sort
     body.order = order
