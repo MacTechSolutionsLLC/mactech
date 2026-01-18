@@ -249,18 +249,34 @@ export async function ingestAwards(
 
         totalFetched += awards.length
         console.log(`[USAspending Ingest] Fetched ${awards.length} awards from page ${page} (total: ${totalFetched})`)
+        
+        // #region agent log
+        if (awards.length > 0 && page === 1) {
+          fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ingest.ts:252',message:'First page awards received',data:{awardsCount:awards.length,firstAwardId:awards[0]?.award_id,firstAwardGeneratedId:awards[0]?.generated_unique_award_id,firstAwardKeys:Object.keys(awards[0]||{})},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        }
+        // #endregion
 
         // Save each award
+        let pageSaved = 0
+        let pageSkipped = 0
         for (const award of awards) {
           const result = await saveAward(award, batchId)
           if (result.saved) {
             totalSaved++
+            pageSaved++
           } else if (result.skipped) {
             totalSkipped++
+            pageSkipped++
           } else {
-            errors.push(`Failed to save award ${award.award_id || award.id}`)
+            errors.push(`Failed to save award ${award.award_id || award.id || award.generated_unique_award_id || 'unknown'}`)
           }
         }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ingest.ts:270',message:'Page save results',data:{page,pageSaved,pageSkipped,totalSaved,totalSkipped},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+        // #endregion
+        
+        console.log(`[USAspending Ingest] Page ${page}: ${pageSaved} saved, ${pageSkipped} skipped`)
 
         hasMore = more
         page++
