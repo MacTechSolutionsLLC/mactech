@@ -181,7 +181,7 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    sort: 'awarding_date',
+    sort: 'Base Obligation Date', // Valid sort field per API (not 'awarding_date')
     order: 'desc',
   }
 

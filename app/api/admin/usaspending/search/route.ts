@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       max_amount,
       page = 1,
       limit = 50,
-      sort = 'awarding_date',
+      sort = 'Base Obligation Date', // Valid sort field per API (not 'awarding_date')
       order = 'desc',
       use_database = false,
     } = body
