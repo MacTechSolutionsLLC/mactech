@@ -300,10 +300,14 @@ async function makeRequest<T>(
       })
 
       if (!response.ok) {
+        // #region agent log
+        const errorText = await response.text().catch(() => '');
+        fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'usaspending-api.ts:302',message:'API error response',data:{status:response.status,statusText:response.statusText,errorText:errorText.substring(0,500),requestBody:options.body?.toString().substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
         // Try to get error details from response
         let errorData: any = {}
         try {
-          const text = await response.text()
+          const text = errorText
           if (text) {
             errorData = JSON.parse(text)
           }
@@ -520,14 +524,14 @@ export async function searchAwards(
     fields: fieldsToUse,
   }
 
-  // Only include sort and order if explicitly provided
-  // DO NOT include them otherwise - API has broken validation
-  if (sortToUse) {
-    body.sort = sortToUse
-    if (orderToUse) {
-      body.order = orderToUse
-    }
-  }
+  // Always include sort to prevent API from defaulting to invalid 'award_id'
+  // Use 'recipient_id' which is in Contract Award mappings and fields array
+  body.sort = sortFieldToUse
+  body.order = orderToUse || 'desc'
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'usaspending-api.ts:510',message:'Request body before API call',data:{hasSort:!!body.sort,sort:body.sort,hasOrder:!!body.order,order:body.order,bodyKeys:Object.keys(body),bodyStr:JSON.stringify(body).substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
   
   // Log request body for debugging (first page only)
   if (page === 1) {
@@ -544,10 +548,18 @@ export async function searchAwards(
     })
   }
 
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'usaspending-api.ts:535',message:'About to call makeRequest',data:{endpoint:'/search/spending_by_award/',bodySize:JSON.stringify(body).length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+
   const response = await makeRequest<UsaSpendingSearchResponse>('/search/spending_by_award/', {
     method: 'POST',
     body: JSON.stringify(body),
   })
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/97777cf7-cafd-467f-87c0-0332e36c479c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'usaspending-api.ts:542',message:'API response received',data:{hasResults:!!response.results,resultsCount:response.results?.length,hasError:!!response.messages,firstResultKeys:response.results?.[0]?Object.keys(response.results[0]):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   
   // Debug logging for first page to see actual API response structure
   if (page === 1 && response.results && response.results.length > 0) {
