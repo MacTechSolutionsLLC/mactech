@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       max_amount,
       page = 1,
       limit = 50,
-      sort = 'Base Obligation Date', // Valid sort field per API (not 'awarding_date')
+      sort, // Optional - if not provided, API uses default
       order = 'desc',
       use_database = false,
     } = body
@@ -138,7 +138,16 @@ export async function POST(request: NextRequest) {
       const skip = (page - 1) * limit
       const orderBy: any = {}
       if (sort) {
-        orderBy[sort] = order
+        // Map API sort field names to database column names
+        const sortMapping: Record<string, string> = {
+          'Base Obligation Date': 'awarding_date',
+          'Award Amount': 'total_obligation',
+          'Last Modified Date': 'last_modified_date',
+          'Start Date': 'start_date',
+          'End Date': 'end_date',
+        }
+        const dbSortField = sortMapping[sort] || sort
+        orderBy[dbSortField] = order
       } else {
         orderBy.awarding_date = 'desc'
       }

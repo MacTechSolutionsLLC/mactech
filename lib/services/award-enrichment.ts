@@ -276,7 +276,8 @@ export async function enrichOpportunity(
       const response = await searchAwards({
         filters,
         limit: limit * 2, // Get more results for filtering
-        sort: 'Award Amount', // Valid sort field per API (not 'total_obligation')
+        // Don't specify sort - let API use default, or sort must match a field in the fields array
+        // sort: 'total_obligation', // This field is in the fields array
         order: 'desc',
         titleSimilarity: opportunity.title
           ? {
