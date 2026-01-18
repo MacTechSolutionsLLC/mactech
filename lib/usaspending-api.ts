@@ -462,10 +462,15 @@ export async function searchAwards(
     page = 1,
     limit = 100,
     sort,
-    order = 'desc',
+    order,
     subawards = false,
     titleSimilarity,
   } = params
+  
+  // Explicitly ensure sort and order are undefined if not provided
+  // This prevents any default values from being used
+  const sortToUse = sort || undefined
+  const orderToUse = sortToUse ? (order || 'desc') : undefined
 
   // Default fields if none provided - API requires fields parameter
   // Note: If sort is specified, the sort field name (display name) must also be in this array
@@ -515,11 +520,28 @@ export async function searchAwards(
     fields: fieldsToUse,
   }
 
-  // Only include sort and order if sort is explicitly provided
-  // This prevents API from defaulting to invalid sort when order is present
-  if (sort) {
-    body.sort = sort
-    body.order = order
+  // Only include sort and order if explicitly provided
+  // DO NOT include them otherwise - API has broken validation
+  if (sortToUse) {
+    body.sort = sortToUse
+    if (orderToUse) {
+      body.order = orderToUse
+    }
+  }
+  
+  // Log request body for debugging (first page only)
+  if (page === 1) {
+    console.log(`[USAspending API] Request body (excluding filters):`, {
+      page: body.page,
+      limit: body.limit,
+      subawards: body.subawards,
+      hasSort: !!body.sort,
+      sort: body.sort,
+      hasOrder: !!body.order,
+      order: body.order,
+      fieldsCount: body.fields?.length,
+      fields: body.fields,
+    })
   }
 
   const response = await makeRequest<UsaSpendingSearchResponse>('/search/spending_by_award/', {
