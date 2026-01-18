@@ -181,10 +181,9 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    // Sort field must match one of the fields in the fields array (snake_case)
-    // Using 'start_date' which is in the default fields array
-    sort: 'start_date', // Sort by start date descending (most recent first)
-    order: 'desc',
+    // Don't specify sort - let API use default sorting
+    // The API requires sort fields to match Contract Award mappings (display names),
+    // but there's a conflict with the fields array format, so we'll use API defaults
   }
 
   const response = await searchAwards(searchParams)
