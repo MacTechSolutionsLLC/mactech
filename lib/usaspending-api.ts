@@ -465,15 +465,46 @@ export async function searchAwards(
     titleSimilarity,
   } = params
 
+  // Default fields if none provided - API requires fields parameter
+  const defaultFields = [
+    'award_id',
+    'generated_unique_award_id',
+    'type',
+    'type_description',
+    'category',
+    'piid',
+    'fain',
+    'uri',
+    'total_obligation',
+    'total_outlay',
+    'total_subsidy_cost',
+    'awarding_agency',
+    'funding_agency',
+    'recipient',
+    'place_of_performance',
+    'start_date',
+    'end_date',
+    'awarding_date',
+    'last_modified_date',
+    'period_of_performance',
+    'description',
+    'naics',
+    'naics_description',
+    'psc',
+    'psc_description',
+    'cfda_number',
+    'cfda_title',
+    'transaction_count',
+    'subaward_count',
+    'total_subaward_amount',
+  ]
+
   const body: any = {
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
     subawards,
-  }
-
-  if (fields && fields.length > 0) {
-    body.fields = fields
+    fields: fields && fields.length > 0 ? fields : defaultFields,
   }
 
   if (sort) {
