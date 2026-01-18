@@ -80,6 +80,17 @@ async function saveAward(award: UsaSpendingAward, batchId: string): Promise<{ sa
     const awardId = award.award_id || award.id || award.generated_unique_award_id
     
     if (!awardId) {
+      // Log the award structure to help debug why it's missing an ID
+      console.warn(`[Ingest] Skipping award with no ID. Available fields:`, {
+        has_award_id: !!award.award_id,
+        has_id: !!award.id,
+        has_generated_unique_award_id: !!award.generated_unique_award_id,
+        has_uri: !!award.uri,
+        has_piid: !!award.piid,
+        has_fain: !!award.fain,
+        type: award.type,
+        category: award.category,
+      })
       return { saved: false, skipped: true }
     }
 
