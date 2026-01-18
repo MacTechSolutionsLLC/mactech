@@ -127,11 +127,13 @@ function buildFilters(filters?: IngestionFilters): UsaSpendingFilters {
   const usaspendingFilters: UsaSpendingFilters = {}
 
   if (filters?.naicsCodes && filters.naicsCodes.length > 0) {
-    usaspendingFilters.naics_codes = filters.naicsCodes.map(code => ({ code }))
+    // USAspending API expects naics_codes as array of strings, not objects
+    usaspendingFilters.naics_codes = filters.naicsCodes as any
   }
 
   if (filters?.pscCodes && filters.pscCodes.length > 0) {
-    usaspendingFilters.psc_codes = filters.pscCodes.map(code => ({ code }))
+    // USAspending API expects psc_codes as array of strings, not objects
+    usaspendingFilters.psc_codes = filters.pscCodes as any
   }
 
   if (filters?.agencies && filters.agencies.length > 0) {

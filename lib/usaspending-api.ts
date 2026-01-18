@@ -65,8 +65,10 @@ export interface AwardAmountFilter {
 export interface UsaSpendingFilters {
   award_type_codes?: AwardTypeCode[]
   agencies?: AgencyFilter[]
-  naics_codes?: Array<{ code?: string; name?: string }>
-  psc_codes?: Array<{ code?: string; name?: string }>
+  // USAspending API accepts naics_codes as array of strings (not objects)
+  naics_codes?: string[] | Array<{ code?: string; name?: string }>
+  // USAspending API accepts psc_codes as array of strings (not objects)
+  psc_codes?: string[] | Array<{ code?: string; name?: string }>
   recipient_search_text?: string
   recipient_id?: string
   recipient_uei?: string
