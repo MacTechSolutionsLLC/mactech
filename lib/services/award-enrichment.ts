@@ -203,9 +203,11 @@ export async function enrichOpportunity(
 
     // Build filters based on opportunity
     // Note: API requires specific IDV types (IDV_A, IDV_B, etc.), not just 'IDV'
+    // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
     // Using only contract types (A) and grants (B) for now to avoid validation errors
+    const validAwardTypes = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
     const filters: UsaSpendingFilters = {
-      award_type_codes: ['A', 'B', 'C', 'D'], // Contracts, Grants, Direct Payments, Loans
+      award_type_codes: validAwardTypes,
     }
 
     if (naicsCodes.length > 0) {
@@ -527,8 +529,10 @@ export async function getDetailedEnrichment(
 
     // Add trends if requested
     if (includeTrends) {
+      // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
+      const validAwardTypes = ['A', 'B', 'C', 'D'] // Contracts, Grants, Direct Payments, Loans
       const filters: UsaSpendingFilters = {
-        award_type_codes: ['A', 'B', 'C', 'D'], // Contracts, Grants, Direct Payments, Loans
+        award_type_codes: validAwardTypes,
       }
 
       try {
