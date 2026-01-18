@@ -10,7 +10,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { ingestAwards, IngestionFilters } from '@/lib/usaspending-ingestion/ingest'
+import { ingestAwards } from '@/lib/usaspending-ingestion/ingest'
+import { IngestionFilters } from '@/lib/usaspending-ingestion/types'
 import { batchLookupEntities } from '@/lib/sam-gov-entity-api'
 import { prisma } from '@/lib/prisma'
 
