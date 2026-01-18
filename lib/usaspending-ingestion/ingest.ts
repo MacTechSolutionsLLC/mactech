@@ -181,9 +181,9 @@ async function ingestAwardsPage(
     filters,
     page,
     limit: Math.min(limit, 500), // Max 500 per page
-    // Use valid API sort field name (must match API's field mapping names)
-    // Valid options: 'Award ID', 'Start Date', 'End Date', 'Award Amount', 'Last Modified Date'
-    sort: 'Start Date', // Sort by start date descending (most recent first)
+    // Sort field must match one of the fields in the fields array (snake_case)
+    // Using 'start_date' which is in the default fields array
+    sort: 'start_date', // Sort by start date descending (most recent first)
     order: 'desc',
   }
 
