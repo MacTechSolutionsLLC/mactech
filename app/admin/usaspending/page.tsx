@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 
 interface UsaSpendingAward {
   id?: string
@@ -137,13 +138,16 @@ export default function UsaSpendingPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">USAspending.gov Historical Awards</h1>
-        <p className="text-gray-600">
-          Search historical award data from USAspending.gov to analyze past contracts, winners, and spending patterns.
-        </p>
-      </div>
+    <div className="bg-neutral-50 min-h-screen">
+      <AdminNavigation />
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-neutral-900">USAspending.gov Historical Awards</h1>
+          <p className="text-neutral-600">
+            Search historical award data from USAspending.gov to analyze past contracts, winners, and spending patterns.
+          </p>
+        </div>
 
       {/* Search Form */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -422,10 +426,11 @@ export default function UsaSpendingPage() {
       )}
 
       {results.length === 0 && !isSearching && !error && (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-neutral-500">
           <p>No results yet. Enter search criteria and click &quot;Search Awards&quot; to begin.</p>
         </div>
       )}
+      </div>
     </div>
   )
 }

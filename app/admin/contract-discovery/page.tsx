@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 import AwardHistory from '@/components/usaspending/AwardHistory'
 import EnrichmentButton from '@/components/contracts/EnrichmentButton'
 import EnrichedDataDisplay from '@/components/contracts/EnrichedDataDisplay'
@@ -362,24 +363,16 @@ export default function ContractDiscoveryPage() {
 
   return (
     <div className="bg-white min-h-screen">
+      <AdminNavigation />
+      
       {/* Header */}
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="heading-hero mb-2">Contract Opportunity Discovery</h1>
-              <p className="text-body text-neutral-600">
-                Find VetCert-eligible opportunities on SAM.gov (All searches automatically filter for SDVOSB/VOSB)
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
-                Dashboard
-              </Link>
-              <Link href="/admin" className="btn-secondary">
-                Back to Admin
-              </Link>
-            </div>
+          <div className="mb-6">
+            <h1 className="heading-hero mb-2">Contract Opportunity Discovery</h1>
+            <p className="text-body text-neutral-600">
+              Find VetCert-eligible opportunities on SAM.gov (All searches automatically filter for SDVOSB/VOSB)
+            </p>
           </div>
         </div>
       </section>

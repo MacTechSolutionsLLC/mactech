@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 
 export default function GenerateProposalPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -57,27 +58,15 @@ export default function GenerateProposalPage() {
 
   return (
     <div className="bg-white min-h-screen">
+      <AdminNavigation />
+      
       {/* Header */}
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-4xl mx-auto">
           <h1 className="heading-hero mb-6">Generate Proposal & BOE</h1>
-          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed mb-6">
+          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed">
             Upload a Statement of Work (SOW) to automatically generate a Proposal and Basis of Estimate (BOE).
           </p>
-          <div className="flex gap-4">
-            <Link href="/admin" className="btn-secondary">
-              Admin Portal
-            </Link>
-            <Link href="/admin/contract-discovery" className="btn-secondary">
-              Contract Discovery
-            </Link>
-            <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
-              Contract Dashboard
-            </Link>
-            <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
-              SAM.gov Dashboard
-            </Link>
-          </div>
         </div>
       </section>
 

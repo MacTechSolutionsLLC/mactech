@@ -24,6 +24,20 @@ export default function Footer() {
             <p className="mt-6 text-body-sm text-neutral-500">
               SDVOSB (Pending) | Veteran-Owned
             </p>
+            {/* Easter Egg: Click small image to access admin */}
+            <Link 
+              href="/admin" 
+              className="inline-block mt-4 cursor-pointer transition-opacity hover:opacity-100"
+              title="Admin Portal"
+            >
+              <Image
+                src="/mactech.png"
+                alt="MacTech Solutions"
+                width={1800}
+                height={360}
+                className="h-6 w-auto brightness-0 invert opacity-40 hover:opacity-70 transition-opacity"
+              />
+            </Link>
           </div>
           
           {/* Services */}

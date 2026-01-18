@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 import RunIngestButton from '@/app/admin/sam-dashboard/components/RunIngestButton'
 import QueryManager from '@/app/admin/sam-dashboard/components/QueryManager'
 import ContractFilters from './components/ContractFilters'
@@ -332,21 +333,16 @@ export default function ContractDashboardPage() {
 
   return (
     <div className="bg-neutral-50 min-h-screen">
+      <AdminNavigation />
+      
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-neutral-900 mb-2">Contract Dashboard</h1>
-              <p className="text-base text-neutral-600">
-                Unified view of all contract opportunities from SAM.gov ingestion pipeline and contract discovery
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <Link href="/admin" className="px-6 py-2.5 bg-transparent text-accent-700 border border-accent-700 rounded-xl text-sm font-medium hover:bg-accent-50 transition-all">
-                Back to Admin
-              </Link>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900 mb-2">Contract Dashboard</h1>
+            <p className="text-base text-neutral-600">
+              Unified view of all contract opportunities from SAM.gov ingestion pipeline and contract discovery
+            </p>
           </div>
         </div>
       </section>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 
 export default function AdminPage() {
   const [isMigrating, setIsMigrating] = useState(false)
@@ -38,130 +39,143 @@ export default function AdminPage() {
       setIsMigrating(false)
     }
   }
+
+  const adminTools = [
+    {
+      href: '/admin/capture',
+      title: 'Federal Capture Dashboard',
+      description: 'Discover opportunities, analyze incumbents, and prepare to bid on federal contracts',
+      icon: '📊',
+      color: 'bg-blue-50 border-blue-200 hover:border-blue-300',
+      iconBg: 'bg-blue-100',
+    },
+    {
+      href: '/admin/contract-discovery',
+      title: 'Contract Discovery',
+      description: 'Search for VetCert-eligible contract opportunities on SAM.gov using keywords and filters',
+      icon: '🔍',
+      color: 'bg-green-50 border-green-200 hover:border-green-300',
+      iconBg: 'bg-green-100',
+    },
+    {
+      href: '/admin/contract-discovery/dashboard',
+      title: 'Contract Dashboard',
+      description: 'Unified dashboard for all contract opportunities with scoring, filtering, and management',
+      icon: '📋',
+      color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
+      iconBg: 'bg-purple-100',
+    },
+    {
+      href: '/admin/generate-proposal',
+      title: 'Generate Proposal & BOE',
+      description: 'Upload a Statement of Work (SOW) to automatically generate Proposal and BOE documents',
+      icon: '📄',
+      color: 'bg-orange-50 border-orange-200 hover:border-orange-300',
+      iconBg: 'bg-orange-100',
+    },
+    {
+      href: '/admin/usaspending',
+      title: 'USAspending Awards',
+      description: 'View historical award data and analyze past contract awards',
+      icon: '🏆',
+      color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-300',
+      iconBg: 'bg-yellow-100',
+    },
+  ]
+
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-neutral-50 min-h-screen">
+      <AdminNavigation />
+      
       {/* Header */}
-      <section className="section-narrow bg-white border-b border-neutral-200">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="heading-hero mb-6">Admin Portal</h1>
-          <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed mb-6">
-            Manage contract opportunities, generate proposals, and monitor SAM.gov data ingestion.
-          </p>
-          <div className="flex gap-4 flex-wrap">
-            <Link href="/admin/capture" className="btn-primary">
-              Federal Capture Dashboard
-            </Link>
-            <Link href="/admin/contract-discovery" className="btn-secondary">
-              Contract Discovery
-            </Link>
-            <Link href="/admin/contract-discovery/dashboard" className="btn-secondary">
-              Contract Dashboard
-            </Link>
-            <Link href="/admin/generate-proposal" className="btn-secondary">
-              Generate Proposal & BOE
-            </Link>
-            <Link href="/admin/usaspending" className="btn-secondary">
-              USAspending Awards
-            </Link>
-          </div>
-          
-          {/* Database Migration Section */}
-          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
-            <p className="text-sm text-neutral-700 mb-4">
-              Run database migrations manually. Use this after deploying new schema changes.
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl font-bold text-neutral-900 mb-4">Admin Portal</h1>
+            <p className="text-lg text-neutral-700 leading-relaxed">
+              Manage contract opportunities, generate proposals, and monitor SAM.gov data ingestion.
             </p>
-            <button
-              onClick={handleMigrate}
-              disabled={isMigrating}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isMigrating ? 'Running Migrations...' : 'Run Migrations'}
-            </button>
-            
-            {migrationResult && (
-              <div className={`mt-4 p-4 rounded-lg ${
-                migrationResult.success 
-                  ? 'bg-green-50 border border-green-200' 
-                  : 'bg-red-50 border border-red-200'
-              }`}>
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className={`font-semibold ${
-                    migrationResult.success ? 'text-green-800' : 'text-red-800'
-                  }`}>
-                    {migrationResult.success ? '✅ Success' : '❌ Failed'}
-                  </h4>
-                  {migrationResult.timestamp && (
-                    <span className="text-xs text-neutral-500">
-                      {new Date(migrationResult.timestamp).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-                <p className={`text-sm mb-2 ${
-                  migrationResult.success ? 'text-green-700' : 'text-red-700'
-                }`}>
-                  {migrationResult.message}
-                </p>
-                {migrationResult.results && migrationResult.results.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {migrationResult.results.map((result, index) => (
-                      <p key={index} className="text-xs font-mono text-neutral-600">
-                        {result}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="section-container bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="card p-8 lg:p-12 bg-neutral-50">
-            <h3 className="heading-3 mb-6">How It Works</h3>
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 h-10 w-10 bg-accent-700 text-white rounded-full flex items-center justify-center text-body-sm font-semibold">
-                  1
+      {/* Admin Tools Grid */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {adminTools.map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className={`group block p-6 rounded-xl border-2 transition-all duration-200 ${tool.color}`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`${tool.iconBg} p-3 rounded-lg text-2xl flex-shrink-0`}>
+                  {tool.icon}
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Contract Discovery</h4>
-                  <p className="text-body-sm text-neutral-700">
-                    Search for VetCert-eligible contract opportunities on SAM.gov using keywords, NAICS codes, and filters. 
-                    Automatically filters for SDVOSB/VOSB set-asides and provides relevance scoring.
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-2 group-hover:text-accent-700 transition-colors">
+                    {tool.title}
+                  </h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    {tool.description}
                   </p>
+                  <div className="mt-4 flex items-center text-sm font-medium text-accent-700 group-hover:text-accent-800">
+                    Open →
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 h-10 w-10 bg-accent-700 text-white rounded-full flex items-center justify-center text-body-sm font-semibold">
-                  2
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Contract Dashboard</h4>
-                  <p className="text-body-sm text-neutral-700">
-                    Unified dashboard for all contract opportunities from SAM.gov ingestion pipeline and contract discovery. 
-                    View scored and AI-analyzed opportunities, filter by relevance score, NAICS codes, and set-asides, 
-                    and manage flagged, verified, or dismissed opportunities. Includes ingestion pipeline controls and query management.
-                  </p>
-                </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Database Migration Section */}
+        <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
+          <p className="text-sm text-neutral-700 mb-4">
+            Run database migrations manually. Use this after deploying new schema changes.
+          </p>
+          <button
+            onClick={handleMigrate}
+            disabled={isMigrating}
+            className="px-6 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isMigrating ? 'Running Migrations...' : 'Run Migrations'}
+          </button>
+          
+          {migrationResult && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              migrationResult.success 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              <div className="flex items-start justify-between mb-2">
+                <h4 className={`font-semibold ${
+                  migrationResult.success ? 'text-green-800' : 'text-red-800'
+                }`}>
+                  {migrationResult.success ? '✅ Success' : '❌ Failed'}
+                </h4>
+                {migrationResult.timestamp && (
+                  <span className="text-xs text-neutral-500">
+                    {new Date(migrationResult.timestamp).toLocaleString()}
+                  </span>
+                )}
               </div>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 h-10 w-10 bg-accent-700 text-white rounded-full flex items-center justify-center text-body-sm font-semibold">
-                  3
+              <p className={`text-sm mb-2 ${
+                migrationResult.success ? 'text-green-700' : 'text-red-700'
+              }`}>
+                {migrationResult.message}
+              </p>
+              {migrationResult.results && migrationResult.results.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {migrationResult.results.map((result, index) => (
+                    <p key={index} className="text-xs font-mono text-neutral-600">
+                      {result}
+                    </p>
+                  ))}
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-body-sm font-semibold text-neutral-900 mb-2">Generate Proposal & BOE</h4>
-                  <p className="text-body-sm text-neutral-700">
-                    Upload a Statement of Work (SOW) document to automatically generate a Proposal and Basis of Estimate (BOE). 
-                    AI extracts key information and creates professional documents ready for customization and submission.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </section>
     </div>
