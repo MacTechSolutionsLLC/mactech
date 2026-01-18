@@ -512,9 +512,15 @@ export async function searchAwards(
     'total_subaward_amount',
   ]
   
-  // Don't add sort field to fields array - it causes API to return empty objects
-  // The API validation is broken, so we'll just use the default fields
-  const fieldsToUse = fields && fields.length > 0 ? fields : defaultFields
+  // Use 'recipient_id' as sort - it's in Contract Award mappings (from error message)
+  // and we can add it to fields array to satisfy both validation requirements
+  let fieldsToUse = fields && fields.length > 0 ? [...fields] : [...defaultFields]
+  const sortFieldToUse = sortToUse || 'recipient_id'
+  
+  // Add recipient_id to fields if not already present (needed for sort validation)
+  if (!fieldsToUse.includes('recipient_id')) {
+    fieldsToUse.push('recipient_id')
+  }
 
   const body: any = {
     filters,
