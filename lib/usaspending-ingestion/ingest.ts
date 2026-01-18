@@ -219,7 +219,15 @@ function buildFilters(filters?: IngestionFilters): UsaSpendingFilters {
   }
 
   if (filters?.awardTypes && filters.awardTypes.length > 0) {
-    usaspendingFilters.award_type_codes = filters.awardTypes as any[]
+    // Filter out invalid award type codes (like 'IDV' which requires specific types like 'IDV_A')
+    // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
+    const apiValidTypes = ['A', 'B', 'C', 'D', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
+                           'IDV_A', 'IDV_B', 'IDV_B_A', 'IDV_B_B', 'IDV_B_C', 'IDV_C', 'IDV_D', 'IDV_E', 
+                           '-1', 'no intersection']
+    const filteredTypes = filters.awardTypes.filter(type => apiValidTypes.includes(String(type)))
+    if (filteredTypes.length > 0) {
+      usaspendingFilters.award_type_codes = filteredTypes as any[]
+    }
   }
 
   if (filters?.startDate || filters?.endDate) {
