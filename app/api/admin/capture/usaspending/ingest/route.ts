@@ -44,17 +44,24 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Discover awards
     // USAspending will intermittently 500 on heavy queries - discovery failures are non-fatal
+    // discoverAwards never throws - it handles 500s internally and returns results
+    // 
+    // IMPORTANT: Client API shape ≠ USAspending API shape
+    // All filters are normalized in discoverAwards() function
     console.log('[USAspending Capture Ingest] Discovering awards...')
-    let discoveredAwards: any[] = []
-    try {
-      discoveredAwards = await discoverAwards(body.filters, body.pagination)
+    
+    // Discovery never throws - it handles 500s internally and returns results
+    // USAspending 500s are upstream conditions, not absence of data
+    // Filters are automatically translated and baseline filters are enforced
+    const discoveredAwards = await discoverAwards(body.filters, body.pagination)
+    
+    // DO NOT SAVE ZERO RESULTS AS AUTHORITATIVE if we encountered 500s
+    // The discoverAwards function handles this internally, but we log the status
+    if (discoveredAwards.length === 0) {
+      console.warn(`[USAspending Capture Ingest] No awards discovered. This may indicate upstream API instability.`)
+      console.log(`[USAspending Capture Ingest] Continuing with existing awards in database for enrichment...`)
+    } else {
       console.log(`[USAspending Capture Ingest] Discovered ${discoveredAwards.length} awards`)
-    } catch (error) {
-      // NEVER crash the pipeline on discovery failure
-      // Return empty array and continue with whatever we have in the database
-      console.error(`[USAspending Capture Ingest] Discovery failed (non-fatal):`, error instanceof Error ? error.message : String(error))
-      console.log(`[USAspending Capture Ingest] Continuing with existing awards in database...`)
-      discoveredAwards = []
     }
 
     // Step 2: Save discovered awards (set enrichment_status = 'pending')
