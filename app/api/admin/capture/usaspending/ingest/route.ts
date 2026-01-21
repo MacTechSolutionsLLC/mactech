@@ -99,6 +99,8 @@ export async function POST(request: NextRequest) {
       take: 100, // Process in batches to avoid overwhelming the API
     })
 
+    console.log(`[USAspending Capture Ingest] Found ${awardsToEnrich.length} awards to enrich`)
+
     for (const award of awardsToEnrich) {
       if (!award.generated_internal_id) continue
 
@@ -171,13 +173,20 @@ export async function POST(request: NextRequest) {
             // Step 6: SAM.gov Entity API enrichment (SECONDARY, BEST-EFFORT)
             // Treat SAM.gov Entity API as secondary, best-effort context only
             // Only for awards with relevanceScore >= threshold AND recipient_name exists
+            // IMPORTANT: Add timeout to prevent hanging
             const ENTITY_ENRICHMENT_THRESHOLD = 60 // Configurable, default 60
 
             if (updatedAward.relevance_score !== null &&
                 updatedAward.relevance_score >= ENTITY_ENRICHMENT_THRESHOLD &&
                 updatedAward.recipient_name) {
               try {
-                const entityResult = await enrichAwardWithEntityApi(updatedAward)
+                // Add timeout to prevent hanging (5 seconds max)
+                const entityResult = await Promise.race([
+                  enrichAwardWithEntityApi(updatedAward),
+                  new Promise<{ success: false; entityData: null; error: string }>((resolve) =>
+                    setTimeout(() => resolve({ success: false, entityData: null, error: 'Timeout after 5 seconds' }), 5000)
+                  ),
+                ])
                 
                 if (entityResult.success) {
                   // Update award with entity data (null if empty results - VALID SUCCESS)
@@ -233,6 +242,8 @@ export async function POST(request: NextRequest) {
     console.log(`[USAspending Capture Ingest] Enriched ${enriched} awards`)
 
     // Step 5: Get ranked awards (filtered by baseline criteria AFTER persistence)
+    // NOTE: Awards may not have relevance_score >= 60, so they won't appear in ranked results
+    // This is expected - the baseline filters are strict (NAICS + DoD agency)
     // All filtering and scoring happens AFTER persistence
     console.log('[USAspending Capture Ingest] Fetching ranked awards...')
     

@@ -15,8 +15,13 @@ export async function GET(request: NextRequest) {
     const minScore = parseFloat(searchParams.get('minScore') || '0')
     const limit = parseInt(searchParams.get('limit') || '100')
 
+    // Show awards that are completed OR have a relevance score (even if enrichment failed)
+    // This ensures users can see awards even if Entity API enrichment is slow/failing
     const where: any = {
-      enrichment_status: 'completed',
+      OR: [
+        { enrichment_status: 'completed' },
+        { relevance_score: { not: null } }, // Show awards with scores even if enrichment incomplete
+      ],
       relevance_score: { gte: minScore },
     }
 

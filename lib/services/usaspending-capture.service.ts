@@ -813,11 +813,20 @@ export async function enrichAwardWithEntityApi(award: {
     const { searchEntitiesByLegalBusinessName } = await import('../sam-gov-entity-api')
 
     // Execute ONE Entity API query with ONLY allowed parameters
-    const response = await searchEntitiesByLegalBusinessName(truncatedName, {
-      registrationStatus: 'ACTIVE',
-      size: 5,
-      page: 0,
-    })
+    // Add timeout wrapper to prevent hanging (5 seconds max)
+    const response = await Promise.race([
+      searchEntitiesByLegalBusinessName(truncatedName, {
+        registrationStatus: 'ACTIVE',
+        size: 5,
+        page: 0,
+      }),
+      new Promise<{ entityData: null; totalRecords: 0 }>((resolve) =>
+        setTimeout(() => {
+          console.warn(`[Entity API] Timeout after 5 seconds for vendor: ${truncatedName}`)
+          resolve({ entityData: null, totalRecords: 0 })
+        }, 5000)
+      ),
+    ])
 
     // Handle results
     if (!response.entityData || response.entityData.length === 0) {
