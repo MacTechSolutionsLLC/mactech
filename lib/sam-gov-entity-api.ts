@@ -375,6 +375,18 @@ export async function getEntityByUei(
  * - Any /entities/{UEI} endpoint calls
  * - Fuzzy search parameters
  */
+/**
+ * Search entities by legal business name (RESTRICTED - v3 only)
+ * 
+ * Matches verified API call format:
+ * curl -G "https://api.sam.gov/entity-information/v3/entities" \
+ *   --data-urlencode "registrationStatus=ACTIVE" \
+ *   --data-urlencode "legalBusinessName=GENERAL DYNAMICS" \
+ *   --data-urlencode "size=5" \
+ *   --data-urlencode "page=0" \
+ *   -H "X-API-KEY: ..." \
+ *   -H "Accept: application/json"
+ */
 export async function searchEntitiesByLegalBusinessName(
   legalBusinessName: string,
   options: {
@@ -391,10 +403,10 @@ export async function searchEntitiesByLegalBusinessName(
     throw new Error('legalBusinessName is required and cannot be empty')
   }
 
-  // Build params object with ONLY allowed parameters
+  // Build params object with ONLY allowed parameters (matching verified format)
   const params: any = {
-    legalBusinessName: legalBusinessName.trim(),
     registrationStatus: options.registrationStatus || 'ACTIVE',
+    legalBusinessName: legalBusinessName.trim(),
     size: options.size || 5,
     page: options.page || 0,
   }

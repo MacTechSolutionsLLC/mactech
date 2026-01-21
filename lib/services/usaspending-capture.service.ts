@@ -148,7 +148,8 @@ export async function discoverAwards(
   pagination: { maxPages?: number; limitPerPage?: number } = {}
 ): Promise<DiscoveryAward[]> {
   const maxPages = pagination.maxPages ?? 100
-  const limitPerPage = pagination.limitPerPage ?? 100
+  // Use smaller limit per page (verified working format uses 10, but we'll use 50 as a balance)
+  const limitPerPage = pagination.limitPerPage ?? 50
 
   // Build filters with defaults
   const apiFilters: any = {
@@ -180,10 +181,8 @@ export async function discoverAwards(
 
   while (hasNext && page <= maxPages) {
     try {
-      // Use display field names (as per requirements) with valid sort field
-      // The API requires sort field to be in the fields array and use display names
-      // Try without sort first - if that fails, add a valid sort field
-      let body: any = {
+      // Use exact format from verified API call
+      const body = {
         filters: apiFilters,
         fields: [
           'Award ID',
@@ -197,13 +196,9 @@ export async function discoverAwards(
         ],
         limit: limitPerPage,
         page,
-      }
-      
-      // Only add sort for first page to reduce API load
-      // Use 'Award ID' which is definitely in the valid sort fields
-      if (page === 1) {
-        body.sort = 'Award ID'
-        body.order = 'desc'
+        // Use 'Award Amount' as sort (verified working format)
+        sort: 'Award Amount',
+        order: 'desc' as const,
       }
 
       // Log request details for first page to help debug
@@ -217,31 +212,11 @@ export async function discoverAwards(
         })
       }
 
-      // Make request with display field names and valid sort
-      let response: DiscoveryResponse
-      try {
-        response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        })
-      } catch (error) {
-        // If we get persistent 500 errors, it might be the API is down or the request is too complex
-        // Log the error and return what we have so far (graceful degradation)
-        if (error instanceof Error && error.message.includes('500')) {
-          console.error(`[USAspending Capture] API returned 500 error. This may indicate:`)
-          console.error(`  - USAspending API is experiencing issues`)
-          console.error(`  - The filter combination is too complex`)
-          console.error(`  - The date range or result set is too large`)
-          console.error(`  - Rate limiting or other API-side problems`)
-          console.error(`Returning ${allAwards.length} awards discovered so far.`)
-          
-          // Return what we have so far instead of failing completely
-          if (allAwards.length > 0) {
-            return allAwards
-          }
-        }
-        throw error
-      }
+      // Make request using verified API call format
+      const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
 
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
