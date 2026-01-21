@@ -147,7 +147,17 @@ export default function OpportunityFeed() {
       </div>
 
       {viewMode === 'awards' ? (
-        <AwardsFeed />
+        <div>
+          <AwardsFeed />
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="text-sm text-blue-700">
+              <strong>Data Source:</strong> USAspending.gov
+            </div>
+            <div className="text-xs text-blue-600 mt-1">
+              Historical awards are filtered by baseline criteria (NAICS 541512/541511/541519, DoD agency) after persistence.
+            </div>
+          </div>
+        </div>
       ) : (
         <>
       {/* Filters */}
