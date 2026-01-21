@@ -12,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Username or Email", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
@@ -20,8 +20,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string }
+        const loginValue = (credentials.email as string).toLowerCase().trim()
+        
+        // Try to find user by email first, then by name (case-insensitive)
+        let user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: { equals: loginValue, mode: 'insensitive' } },
+              { name: { equals: loginValue, mode: 'insensitive' } }
+            ]
+          }
         })
 
         if (!user || !user.password) {

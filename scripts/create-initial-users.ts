@@ -2,10 +2,10 @@ import { prisma } from '../lib/prisma'
 import bcrypt from 'bcryptjs'
 
 const users = [
-  { email: 'patrick@mactech.com', name: 'Patrick' },
-  { email: 'jonny@mactech.com', name: 'Jonny' },
-  { email: 'jimbo@mactech.com', name: 'Jimbo' },
-  { email: 'bryan@mactech.com', name: 'Bryan' },
+  { email: 'patrick@mactech.com', name: 'patrick' },
+  { email: 'jonny@mactech.com', name: 'jonny' },
+  { email: 'jimbo@mactech.com', name: 'jimbo' },
+  { email: 'bryan@mactech.com', name: 'bryan' },
 ]
 
 // Default password for all users
