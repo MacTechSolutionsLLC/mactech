@@ -6,14 +6,14 @@
  *   npx tsx scripts/trigger-usaspending-ingest-small.ts
  */
 
-const SMALL_INGEST_API_URL = process.env.API_URL || (process.env.RAILWAY_PUBLIC_DOMAIN 
-  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-  : 'http://localhost:3000')
-const INGEST_ENDPOINT = `${SMALL_INGEST_API_URL}/api/admin/capture/usaspending/ingest`
-
 async function triggerSmallIngest() {
+  const SMALL_INGEST_API_URL = process.env.API_URL || (process.env.RAILWAY_PUBLIC_DOMAIN 
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : 'http://localhost:3000')
+  const SMALL_INGEST_ENDPOINT = `${SMALL_INGEST_API_URL}/api/admin/capture/usaspending/ingest`
+  
   console.log('🚀 Starting USAspending ingestion with smaller query...')
-  console.log(`📡 Endpoint: ${INGEST_ENDPOINT}`)
+  console.log(`📡 Endpoint: ${SMALL_INGEST_ENDPOINT}`)
   console.log('')
 
   // Use a smaller date range (last 6 months) to avoid 500 errors
@@ -42,7 +42,7 @@ async function triggerSmallIngest() {
 
   try {
     const startTime = Date.now()
-    const response = await fetch(INGEST_ENDPOINT, {
+    const response = await fetch(SMALL_INGEST_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
