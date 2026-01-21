@@ -148,8 +148,9 @@ export async function discoverAwards(
   pagination: { maxPages?: number; limitPerPage?: number } = {}
 ): Promise<DiscoveryAward[]> {
   const maxPages = pagination.maxPages ?? 100
-  // Use smaller limit per page (verified working format uses 10, but we'll use 50 as a balance)
-  const limitPerPage = pagination.limitPerPage ?? 50
+  // Use smaller limit per page to avoid 500 errors (verified working format uses 10)
+  // Reduced to 25 to be more conservative and avoid API overload
+  const limitPerPage = pagination.limitPerPage ?? 25
 
   // Build filters with defaults
   const apiFilters: any = {
@@ -161,8 +162,17 @@ export async function discoverAwards(
     time_period: filters.timePeriod ? [
       { start_date: filters.timePeriod.startDate, end_date: filters.timePeriod.endDate }
     ] : [
-      // Default date range matching verified API call format (2022-01-01 to 2026-12-31)
-      { start_date: '2022-01-01', end_date: '2026-12-31' }
+      // Default to last 12 months to avoid 500 errors from heavy queries
+      // The 2022-2026 range is too heavy and causes consistent 500 errors
+      (() => {
+        const today = new Date()
+        const oneYearAgo = new Date()
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+        return {
+          start_date: oneYearAgo.toISOString().split('T')[0],
+          end_date: today.toISOString().split('T')[0]
+        }
+      })()
     ],
   }
 
