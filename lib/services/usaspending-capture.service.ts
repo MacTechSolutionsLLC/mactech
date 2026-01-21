@@ -67,21 +67,33 @@ async function makeRequest<T>(
           // If parsing fails, use empty object
         }
 
+        // Log detailed error information for debugging
+        const requestBody = options.body ? (typeof options.body === 'string' ? options.body.substring(0, 2000) : JSON.stringify(options.body).substring(0, 2000)) : 'N/A'
+        console.error(`[USAspending API] Error ${response.status} on ${endpoint}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          errorText: errorText.substring(0, 1000),
+          requestBody: requestBody.substring(0, 1000),
+          attempt: attempt + 1,
+          retries,
+        })
+
         if (response.status === 400) {
-          throw new Error(`Bad request: ${JSON.stringify(errorData)}`)
+          throw new Error(`Bad request: ${JSON.stringify(errorData)} - Request body: ${requestBody.substring(0, 500)}`)
         }
         if (response.status === 422) {
-          const requestBody = options.body ? (typeof options.body === 'string' ? options.body.substring(0, 1000) : JSON.stringify(options.body).substring(0, 1000)) : 'N/A'
-          throw new Error(`Validation error (422): ${JSON.stringify(errorData)} - Request: ${requestBody}`)
+          throw new Error(`Validation error (422): ${JSON.stringify(errorData)} - Request: ${requestBody.substring(0, 1000)}`)
         }
         if (response.status === 500) {
           if (attempt < retries - 1) {
+            console.warn(`[USAspending API] Retrying after 500 error (attempt ${attempt + 1}/${retries})...`)
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
             continue
           }
-          throw new Error(`Server error: ${response.status} ${response.statusText}`)
+          throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText.substring(0, 500)} - Request: ${requestBody.substring(0, 500)}`)
         }
-        throw new Error(`HTTP error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`)
+        throw new Error(`HTTP error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)} - Request: ${requestBody.substring(0, 500)}`)
       }
 
       return await response.json()
@@ -174,6 +186,17 @@ export async function discoverAwards(
         page,
         sort: 'Award Amount',
         order: 'desc' as const
+      }
+
+      // Log request details for first page to help debug
+      if (page === 1) {
+        console.log(`[USAspending Capture] Discovery request (page ${page}):`, {
+          filters: JSON.stringify(apiFilters).substring(0, 500),
+          fields: body.fields,
+          limit: body.limit,
+          sort: body.sort,
+          order: body.order,
+        })
       }
 
       const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
