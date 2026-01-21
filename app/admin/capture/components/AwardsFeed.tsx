@@ -23,7 +23,7 @@ interface Award {
 export default function AwardsFeed() {
   const [awards, setAwards] = useState<Award[]>([])
   const [loading, setLoading] = useState(true)
-  const [minScore, setMinScore] = useState(50)
+  const [minScore, setMinScore] = useState(0)
 
   useEffect(() => {
     loadAwards()

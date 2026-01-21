@@ -15,22 +15,23 @@ export async function GET(request: NextRequest) {
     const minScore = parseFloat(searchParams.get('minScore') || '0')
     const limit = parseInt(searchParams.get('limit') || '100')
 
-    // Show awards that are completed OR have a relevance score (even if enrichment failed)
-    // This ensures users can see awards even if Entity API enrichment is slow/failing
+    // Show awards that are completed OR have a relevance score
+    // Filter by minScore in JavaScript (not in database) to allow null scores if completed
     const where: any = {
       OR: [
         { enrichment_status: 'completed' },
-        { relevance_score: { not: null } }, // Show awards with scores even if enrichment incomplete
+        { relevance_score: { not: null } },
       ],
-      relevance_score: { gte: minScore },
     }
 
     const awards = await prisma.usaSpendingAward.findMany({
       where,
-      orderBy: {
-        relevance_score: 'desc',
-      },
-      take: limit,
+      orderBy: [
+        { relevance_score: 'desc' },
+        { enriched_at: 'desc' },
+        { ingested_at: 'desc' },
+      ],
+      take: limit * 2, // Fetch more to account for filtering
       select: {
         id: true,
         human_award_id: true,
@@ -46,11 +47,17 @@ export async function GET(request: NextRequest) {
         recipient_name: true,
         transaction_count: true,
         subaward_count: true,
+        enrichment_status: true,
       },
     })
 
+    // Filter by minScore in JavaScript (allows null scores if completed)
+    const filteredAwards = awards.filter(award => 
+      award.relevance_score === null || award.relevance_score >= minScore
+    ).slice(0, limit) // Apply limit after filtering
+
     // Parse signals JSON
-    const awardsWithParsedSignals = awards.map(award => ({
+    const awardsWithParsedSignals = filteredAwards.map(award => ({
       ...award,
       signals: award.signals ? JSON.parse(award.signals) : [],
     }))

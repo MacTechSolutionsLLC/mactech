@@ -14,6 +14,7 @@ interface IngestionResult {
     ingested: number
     saved: number
     enriched?: number
+    entityEnriched?: number
     skipped: number
     errors: string[]
     filtersUsed?: {
@@ -88,6 +89,7 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
           ingested: data.discovered || data.total || 0,
           saved: data.total || 0,
           enriched: data.enriched || 0,
+          entityEnriched: data.entityEnriched || 0,
           skipped: 0,
           errors: data.errors || [],
           filtersUsed,
@@ -219,7 +221,12 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
                     </div>
                     {result.result.enriched !== undefined && (
                       <div>
-                        <span className="font-medium">Enriched:</span> {result.result.enriched.toLocaleString()} awards
+                        <span className="font-medium">Enriched:</span> {result.result.enriched.toLocaleString()} awards (detail + transactions + scoring)
+                      </div>
+                    )}
+                    {result.result.entityEnriched !== undefined && result.result.entityEnriched > 0 && (
+                      <div>
+                        <span className="font-medium">Entity Data:</span> {result.result.entityEnriched.toLocaleString()} awards with SAM.gov data
                       </div>
                     )}
                     {result.result.skipped > 0 && (

@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
     // 
     // IMPORTANT: Client API shape ≠ USAspending API shape
     // All filters are normalized in discoverAwards() function
-    console.log('[USAspending Capture Ingest] Discovering awards...')
+    // award_type_codes is MANDATORY and always enforced
+    console.log('[USAspending Capture Ingest] Step 1: Discovering awards...')
     
     // Discovery never throws - it handles 500s internally and returns results
     // USAspending 500s are upstream conditions, not absence of data
@@ -61,11 +62,12 @@ export async function POST(request: NextRequest) {
       console.warn(`[USAspending Capture Ingest] No awards discovered. This may indicate upstream API instability.`)
       console.log(`[USAspending Capture Ingest] Continuing with existing awards in database for enrichment...`)
     } else {
-      console.log(`[USAspending Capture Ingest] Discovered ${discoveredAwards.length} awards`)
+      console.log(`[USAspending Capture Ingest] Step 1 complete: Discovered ${discoveredAwards.length} awards`)
     }
 
     // Step 2: Save discovered awards (set enrichment_status = 'pending')
     // Only save if we have results - never overwrite with zero results from 500 errors
+    console.log('[USAspending Capture Ingest] Step 2: Saving discovered awards...')
     let saved = 0
     let errors: string[] = []
 
@@ -78,15 +80,15 @@ export async function POST(request: NextRequest) {
           errors.push(`Failed to save award ${discoveryAward['Award ID'] || 'unknown'}: ${result.error}`)
         }
       }
-      console.log(`[USAspending Capture Ingest] Saved ${saved} awards to database`)
+      console.log(`[USAspending Capture Ingest] Step 2 complete: Saved ${saved} awards to database`)
     } else {
-      console.log(`[USAspending Capture Ingest] No awards to save (upstream API may be unavailable)`)
+      console.log(`[USAspending Capture Ingest] Step 2 skipped: No awards to save (upstream API may be unavailable)`)
     }
 
-    // Step 3: Enrich awards (get full details)
+    // Step 3: Enrich awards (get full details via GET /awards/{generated_internal_id}/)
     // All enrichment, filtering, and AI scoring happens AFTER persistence
     // Discovery uses minimal filters, filtering happens in database after enrichment
-    console.log('[USAspending Capture Ingest] Enriching awards...')
+    console.log('[USAspending Capture Ingest] Step 3: Enriching awards with detail data...')
     let enriched = 0
 
     // Get all awards with pending enrichment status
@@ -101,135 +103,152 @@ export async function POST(request: NextRequest) {
 
     console.log(`[USAspending Capture Ingest] Found ${awardsToEnrich.length} awards to enrich`)
 
+    let entityEnriched = 0
+
     for (const award of awardsToEnrich) {
       if (!award.generated_internal_id) continue
 
       try {
-        // Enrich award
+        // STEP 1: Award Detail Enrichment (REQUIRED)
+        // GET /api/v2/awards/{generated_internal_id}/ - stores full response in raw_data
         const enrichmentData = await enrichAward(award.generated_internal_id)
         
-        // Update award with enrichment data
+        // Update award with enrichment data (stores full response in raw_data)
         const updateResult = await updateAwardEnrichment(
           award.generated_internal_id,
           enrichmentData
         )
 
-        if (updateResult.success) {
-          enriched++
-
-          // Fetch transactions if award has transaction_count > 0
-          if (award.transaction_count && award.transaction_count > 0 && award.human_award_id && award.award_type) {
-            try {
-              const transactions = await fetchTransactions(
-                award.human_award_id,
-                [award.award_type]
-              )
-
-              if (transactions.length > 0) {
-                await saveTransactions(award.id, transactions)
-                
-                // Update transaction_count
-                await prisma.usaSpendingAward.update({
-                  where: { id: award.id },
-                  data: { transaction_count: transactions.length },
-                })
-              }
-            } catch (txError) {
-              console.error(`[USAspending Capture Ingest] Error fetching transactions for award ${award.id}:`, txError)
-              // Continue - transactions are optional
-            }
-          }
-
-          // Calculate relevance score and signals
-          const updatedAward = await prisma.usaSpendingAward.findUnique({
-            where: { id: award.id },
-          })
-
-          if (updatedAward) {
-            const relevanceScore = calculateRelevanceScore(updatedAward)
-            
-            // Get transactions for signal generation
-            const awardTransactions = await prisma.usaSpendingTransaction.findMany({
-              where: { award_id: award.id },
-              take: 100,
-            })
-
-            // Convert transactions to format expected by generateSignals
-            const txForSignals = awardTransactions.map(tx => ({
-              'Issued Date': tx.action_date?.toISOString(),
-              'Transaction Amount': tx.federal_action_obligation,
-              'Mod': tx.transaction_id,
-            }))
-
-            const signals = generateSignals(txForSignals, updatedAward)
-
-            // Update award with scoring
-            await updateAwardScoring(
-              award.generated_internal_id,
-              relevanceScore,
-              signals
-            )
-
-            // Step 6: SAM.gov Entity API enrichment (SECONDARY, BEST-EFFORT)
-            // Treat SAM.gov Entity API as secondary, best-effort context only
-            // Only for awards with relevanceScore >= threshold AND recipient_name exists
-            // IMPORTANT: Add timeout to prevent hanging
-            const ENTITY_ENRICHMENT_THRESHOLD = 60 // Configurable, default 60
-
-            if (updatedAward.relevance_score !== null &&
-                updatedAward.relevance_score >= ENTITY_ENRICHMENT_THRESHOLD &&
-                updatedAward.recipient_name) {
-              try {
-                // Add timeout to prevent hanging (5 seconds max)
-                const entityResult = await Promise.race([
-                  enrichAwardWithEntityApi(updatedAward),
-                  new Promise<{ success: false; entityData: null; error: string }>((resolve) =>
-                    setTimeout(() => resolve({ success: false, entityData: null, error: 'Timeout after 5 seconds' }), 5000)
-                  ),
-                ])
-                
-                if (entityResult.success) {
-                  // Update award with entity data (null if empty results - VALID SUCCESS)
-                  await prisma.usaSpendingAward.update({
-                    where: { id: award.id },
-                    data: {
-                      recipient_entity_data: entityResult.entityData 
-                        ? JSON.stringify(normalizeEntityData(entityResult.entityData))
-                        : null,  // Empty results stored as null (valid success case)
-                      updated_at: new Date(),
-                    },
-                  })
-                  
-                  // Log empty results at info level (not warning)
-                  if (!entityResult.entityData) {
-                    console.info(`[Entity API] No entity data found for award ${award.id} (vendor: ${updatedAward.recipient_name})`)
-                  }
-                } else {
-                  // Log API error at warn level (API returned error response)
-                  console.warn(`[Entity API] Failed to enrich award ${award.id}: ${entityResult.error}`)
-                }
-              } catch (error) {
-                // Log network/unexpected failure at error level
-                console.error(`[Entity API] Error enriching award ${award.id}:`, error)
-                // Continue pipeline - Entity API is best-effort
-              }
-            }
-          }
-        } else {
+        if (!updateResult.success) {
           errors.push(`Failed to enrich award ${award.human_award_id || award.id}: ${updateResult.error}`)
-          
-          // Mark as failed
           await prisma.usaSpendingAward.update({
             where: { id: award.id },
             data: { enrichment_status: 'failed' },
           })
+          continue
+        }
+
+        enriched++
+
+        // Reload award to get updated fields (human_award_id, award_type, etc.)
+        const enrichedAward = await prisma.usaSpendingAward.findUnique({
+          where: { id: award.id },
+        })
+
+        if (!enrichedAward) {
+          errors.push(`Award ${award.id} not found after enrichment`)
+          continue
+        }
+
+        // STEP 2: Transaction Activity (OPTIONAL BUT PREFERRED)
+        // Fetch transactions for ALL awards (not just those with transaction_count > 0)
+        let transactionCount = 0
+        if (enrichedAward.human_award_id && enrichedAward.award_type) {
+          try {
+            const transactions = await fetchTransactions(
+              enrichedAward.human_award_id,
+              [enrichedAward.award_type]
+            )
+
+            if (transactions.length > 0) {
+              await saveTransactions(award.id, transactions)
+              transactionCount = transactions.length
+              
+              // Update transaction_count
+              await prisma.usaSpendingAward.update({
+                where: { id: award.id },
+                data: { transaction_count: transactionCount },
+              })
+            }
+          } catch (txError) {
+            console.warn(`[USAspending Capture Ingest] Error fetching transactions for award ${award.id}: ${txError instanceof Error ? txError.message : 'Unknown error'}`)
+            // Continue - transactions are optional
+          }
+        }
+
+        // STEP 3: Scoring (BEFORE ENTITY API)
+        // Calculate relevance score and signals
+        const relevanceScore = calculateRelevanceScore(enrichedAward)
+        
+        // Get transactions for signal generation
+        const awardTransactions = await prisma.usaSpendingTransaction.findMany({
+          where: { award_id: award.id },
+          take: 100,
+        })
+
+        // Convert transactions to format expected by generateSignals
+        const txForSignals = awardTransactions.map(tx => ({
+          'Issued Date': tx.action_date?.toISOString(),
+          'Transaction Amount': tx.federal_action_obligation,
+          'Mod': tx.transaction_id,
+        }))
+
+        const signals = generateSignals(txForSignals, enrichedAward)
+
+        // Update award with scoring
+        await updateAwardScoring(
+          award.generated_internal_id,
+          relevanceScore,
+          signals
+        )
+
+        // Reload award to get updated score
+        const scoredAward = await prisma.usaSpendingAward.findUnique({
+          where: { id: award.id },
+        })
+
+        // STEP 4: SAM.gov Entity API enrichment (AFTER SCORING - SECONDARY, BEST-EFFORT)
+        // Only if relevance_score >= 60 AND recipient_name exists
+        const ENTITY_ENRICHMENT_THRESHOLD = 60
+
+        if (scoredAward && 
+            scoredAward.relevance_score !== null &&
+            scoredAward.relevance_score >= ENTITY_ENRICHMENT_THRESHOLD &&
+            scoredAward.recipient_name) {
+          try {
+            // Add timeout to prevent hanging (5 seconds max)
+            const entityResult = await Promise.race([
+              enrichAwardWithEntityApi(scoredAward),
+              new Promise<{ success: false; entityData: null; error: string }>((resolve) =>
+                setTimeout(() => resolve({ success: false, entityData: null, error: 'Timeout after 5 seconds' }), 5000)
+              ),
+            ])
+            
+            if (entityResult.success) {
+              // Update award with entity data (null if empty results - VALID SUCCESS)
+              await prisma.usaSpendingAward.update({
+                where: { id: award.id },
+                data: {
+                  recipient_entity_data: entityResult.entityData 
+                    ? JSON.stringify(normalizeEntityData(entityResult.entityData))
+                    : null,  // Empty results stored as null (valid success case)
+                  updated_at: new Date(),
+                },
+              })
+              
+              entityEnriched++
+              
+              // Log empty results at info level (not warning)
+              if (!entityResult.entityData) {
+                console.info(`[Entity API] No entity data found for award ${award.id} (vendor: ${scoredAward.recipient_name})`)
+              }
+            } else {
+              // Log API error at warn level (API returned error response)
+              console.warn(`[Entity API] Failed to enrich award ${award.id}: ${entityResult.error}`)
+            }
+          } catch (error) {
+            // Log network/unexpected failure at error level
+            console.error(`[Entity API] Error enriching award ${award.id}:`, error)
+            // Continue pipeline - Entity API is best-effort
+          }
         }
 
         // Small delay to avoid overwhelming the API
         await new Promise(resolve => setTimeout(resolve, 200))
       } catch (error) {
-        console.error(`[USAspending Capture Ingest] Error enriching award ${award.id}:`, error)
-        errors.push(`Error enriching award ${award.human_award_id || award.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`[USAspending Capture Ingest] Error processing award ${award.id}: ${errorMessage}`)
+        errors.push(`Error processing award ${award.human_award_id || award.id}: ${errorMessage}`)
         
         // Mark as failed
         await prisma.usaSpendingAward.update({
@@ -239,13 +258,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[USAspending Capture Ingest] Enriched ${enriched} awards`)
+    console.log(`[USAspending Capture Ingest] Step 3 complete: Enriched ${enriched} awards, ${entityEnriched} with Entity API data`)
 
-    // Step 5: Get ranked awards (filtered by baseline criteria AFTER persistence)
+    // Step 4: Get ranked awards (filtered by baseline criteria AFTER persistence)
     // NOTE: Awards may not have relevance_score >= 60, so they won't appear in ranked results
     // This is expected - the baseline filters are strict (NAICS + DoD agency)
     // All filtering and scoring happens AFTER persistence
-    console.log('[USAspending Capture Ingest] Fetching ranked awards...')
+    console.log('[USAspending Capture Ingest] Step 4: Fetching ranked awards...')
     
     // Baseline filters for final results (post-persistence filtering)
     const baselineNaicsCodes = ['541512', '541511', '541519']
@@ -301,6 +320,7 @@ export async function POST(request: NextRequest) {
       awards: awardsWithParsedSignals,
       total: saved,
       enriched,
+      entityEnriched,
       discovered: discoveredAwards.length,
       filtersUsed,
       timestamp: new Date().toISOString(),

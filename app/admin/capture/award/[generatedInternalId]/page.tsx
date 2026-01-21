@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import AdminNavigation from '@/components/admin/AdminNavigation'
 
+type Tab = 'overview' | 'incumbent' | 'activity' | 'related'
+
 interface AwardDetail {
   id: string
   humanAwardId: string | null
@@ -71,6 +73,7 @@ export default function AwardDetailPage({
   const [awardData, setAwardData] = useState<AwardDetailResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<Tab>('overview')
 
   useEffect(() => {
     const resolveParams = async () => {
@@ -182,9 +185,55 @@ export default function AwardDetailPage({
 
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Details */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-lg border border-neutral-200 mb-6">
+          <div className="flex gap-1 border-b border-neutral-200">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'overview'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('incumbent')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'incumbent'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Incumbent / Vendor
+            </button>
+            <button
+              onClick={() => setActiveTab('activity')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'activity'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Activity
+            </button>
+            <button
+              onClick={() => setActiveTab('related')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'related'
+                  ? 'border-accent-700 text-accent-700'
+                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              Related Opportunities
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
             {/* Title and Score */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
               <div className="flex items-start justify-between mb-4">
@@ -234,81 +283,68 @@ export default function AwardDetailPage({
               )}
             </div>
 
-            {/* Transaction Summary */}
-            <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Activity Summary</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <div className="text-sm text-neutral-600">Total Transactions</div>
-                  <div className="text-2xl font-bold text-neutral-900">
-                    {transactionSummary.total}
+            {/* Key Information Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Award Information</h3>
+                <dl className="space-y-3">
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Agency</dt>
+                    <dd className="text-sm text-neutral-900">{award.agency || 'N/A'}</dd>
+                    {award.subAgency && (
+                      <dd className="text-xs text-neutral-600 mt-1">{award.subAgency}</dd>
+                    )}
                   </div>
-                </div>
-                <div>
-                  <div className="text-sm text-neutral-600">Recent (180 days)</div>
-                  <div className="text-2xl font-bold text-neutral-900">
-                    {transactionSummary.recent}
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Award Amount</dt>
+                    <dd className="text-sm text-neutral-900">
+                      {award.amount ? `$${(award.amount / 1_000_000).toFixed(2)}M` : 'N/A'}
+                    </dd>
                   </div>
-                </div>
-                <div>
-                  <div className="text-sm text-neutral-600">Total Amount</div>
-                  <div className="text-2xl font-bold text-neutral-900">
-                    ${(transactionSummary.totalAmount / 1_000_000).toFixed(2)}M
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Period of Performance</dt>
+                    <dd className="text-sm text-neutral-900">
+                      {award.popStart && award.popEnd
+                        ? `${new Date(award.popStart).toLocaleDateString()} - ${new Date(award.popEnd).toLocaleDateString()}`
+                        : 'N/A'}
+                    </dd>
                   </div>
-                </div>
-                <div>
-                  <div className="text-sm text-neutral-600">Last Activity</div>
-                  <div className="text-sm font-medium text-neutral-900">
-                    {transactionSummary.lastActivity
-                      ? new Date(transactionSummary.lastActivity).toLocaleDateString()
-                      : 'N/A'}
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">NAICS Code</dt>
+                    <dd className="text-sm text-neutral-900">{award.naics || 'N/A'}</dd>
                   </div>
-                </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">PSC Code</dt>
+                    <dd className="text-sm text-neutral-900">{award.psc || 'N/A'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Subawards</dt>
+                    <dd className="text-sm text-neutral-900">{award.subawardCount || 0}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Obligations & Outlays</h3>
+                <dl className="space-y-3">
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Total Obligation</dt>
+                    <dd className="text-sm text-neutral-900">
+                      {award.amount ? `$${(award.amount / 1_000_000).toFixed(2)}M` : 'N/A'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-700">Transaction Count</dt>
+                    <dd className="text-sm text-neutral-900">{award.transactionCount || 0}</dd>
+                  </div>
+                </dl>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Sidebar */}
+        {activeTab === 'incumbent' && (
           <div className="space-y-6">
-            {/* Key Information */}
-            <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Key Information</h3>
-              <dl className="space-y-3">
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">Agency</dt>
-                  <dd className="text-sm text-neutral-900">{award.agency || 'N/A'}</dd>
-                  {award.subAgency && (
-                    <dd className="text-xs text-neutral-600 mt-1">{award.subAgency}</dd>
-                  )}
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">Award Amount</dt>
-                  <dd className="text-sm text-neutral-900">
-                    {award.amount ? `$${(award.amount / 1_000_000).toFixed(2)}M` : 'N/A'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">Period of Performance</dt>
-                  <dd className="text-sm text-neutral-900">
-                    {award.popStart && award.popEnd
-                      ? `${new Date(award.popStart).toLocaleDateString()} - ${new Date(award.popEnd).toLocaleDateString()}`
-                      : 'N/A'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">NAICS Code</dt>
-                  <dd className="text-sm text-neutral-900">{award.naics || 'N/A'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">PSC Code</dt>
-                  <dd className="text-sm text-neutral-900">{award.psc || 'N/A'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-700">Subawards</dt>
-                  <dd className="text-sm text-neutral-900">{award.subawardCount || 0}</dd>
-                </div>
-              </dl>
-            </div>
 
             {/* Incumbent / Vendor Snapshot */}
             {incumbent && (
@@ -448,8 +484,104 @@ export default function AwardDetailPage({
                 </div>
               </div>
             )}
+
+            {!incumbent && !entityData && (
+              <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                <p className="text-neutral-600">No vendor information available for this award.</p>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+
+        {activeTab === 'activity' && (
+          <div className="space-y-6">
+            {/* Activity Summary */}
+            <div className="bg-white rounded-lg border border-neutral-200 p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Activity Summary</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-neutral-600">Total Transactions</div>
+                  <div className="text-2xl font-bold text-neutral-900">
+                    {transactionSummary.total}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-neutral-600">Recent (180 days)</div>
+                  <div className="text-2xl font-bold text-neutral-900">
+                    {transactionSummary.recent}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-neutral-600">Total Amount</div>
+                  <div className="text-2xl font-bold text-neutral-900">
+                    ${(transactionSummary.totalAmount / 1_000_000).toFixed(2)}M
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-neutral-600">Last Activity</div>
+                  <div className="text-sm font-medium text-neutral-900">
+                    {transactionSummary.lastActivity
+                      ? new Date(transactionSummary.lastActivity).toLocaleDateString()
+                      : 'N/A'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Signals */}
+            <div className="bg-white rounded-lg border border-neutral-200 p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Activity Signals</h3>
+              {signals.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {signals.map((signal) => (
+                    <span
+                      key={signal}
+                      className={`px-3 py-2 rounded text-sm font-medium ${getSignalBadgeColor(signal)}`}
+                    >
+                      {signal}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-neutral-600">No activity signals available.</p>
+              )}
+            </div>
+
+            {/* Recompete Indicator */}
+            {recompeteIndicator && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <span className="text-2xl">⚠️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-orange-900 mb-2">Recompete Window</h3>
+                    <p className="text-sm text-orange-700">
+                      This award&apos;s period of performance ends within 24 months. This may indicate a recompete opportunity.
+                    </p>
+                    {award.popEnd && (
+                      <p className="text-sm text-orange-600 mt-2">
+                        PoP End Date: {new Date(award.popEnd).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'related' && (
+          <div className="bg-white rounded-lg border border-neutral-200 p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Related Opportunities</h3>
+            <p className="text-neutral-600">
+              AI-linked historical awards and related opportunities will appear here.
+            </p>
+            <p className="text-sm text-neutral-500 mt-2">
+              This feature is coming soon. Related awards will be linked based on agency, NAICS codes, and description similarity.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   )
