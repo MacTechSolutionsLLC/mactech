@@ -30,6 +30,18 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    // Check if user already exists
+    const existing = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      )
+    }
+
     // Create admin user
     const user = await prisma.user.create({
       data: {
@@ -37,6 +49,7 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         name: name || null,
         role: 'ADMIN',
+        mustChangePassword: true, // Force password change on first login
       },
       select: {
         id: true,
