@@ -232,16 +232,26 @@ export async function POST(request: NextRequest) {
 
     console.log(`[USAspending Capture Ingest] Enriched ${enriched} awards`)
 
-    // Step 4: Get ranked awards (ordered by relevance_score DESC)
+    // Step 5: Get ranked awards (filtered by baseline criteria AFTER persistence)
+    // All filtering and scoring happens AFTER persistence
+    console.log('[USAspending Capture Ingest] Fetching ranked awards...')
+    
+    // Baseline filters for final results (post-persistence filtering)
+    const baselineNaicsCodes = ['541512', '541511', '541519']
+    
     const rankedAwards = await prisma.usaSpendingAward.findMany({
       where: {
         enrichment_status: 'completed',
         relevance_score: { not: null },
+        // Filter by baseline NAICS codes (post-persistence filtering)
+        naics_code: { in: baselineNaicsCodes },
+        // Filter by DoD agency (post-persistence filtering)
+        awarding_agency_name: { contains: 'Defense', mode: 'insensitive' },
       },
       orderBy: {
         relevance_score: 'desc',
       },
-      take: 1000, // Return top 1000
+      take: 100, // Return top 100
       select: {
         id: true,
         human_award_id: true,
