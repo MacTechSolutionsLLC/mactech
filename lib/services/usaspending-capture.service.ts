@@ -173,6 +173,7 @@ export async function discoverAwards(
   while (hasNext && page <= maxPages) {
     try {
       // Use exact format from verified API call
+      // NEVER sort by generated_internal_id (causes issues)
       const body = {
         filters: apiFilters,
         fields: [
@@ -187,7 +188,7 @@ export async function discoverAwards(
         ],
         limit: limitPerPage,
         page,
-        // Use 'Award Amount' as sort (verified working format)
+        // Use 'Award Amount' as sort (verified working format, NEVER use generated_internal_id)
         sort: 'Award Amount',
         order: 'desc' as const,
       }
@@ -204,6 +205,7 @@ export async function discoverAwards(
       }
 
       // Make request using verified API call format
+      // USAspending will intermittently 500 on heavy queries - handle gracefully
       const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
         method: 'POST',
         body: JSON.stringify(body),
@@ -211,23 +213,54 @@ export async function discoverAwards(
 
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
+        console.log(`[USAspending Capture] Page ${page}: Retrieved ${response.results.length} awards (total: ${allAwards.length})`)
       }
 
       hasNext = response.page_metadata?.has_next_page ?? false
       page++
 
-      // Small delay between pages
+      // Small delay between pages to avoid overwhelming the API
       if (hasNext) {
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 200))
       }
     } catch (error) {
-      console.error(`[USAspending Capture] Error discovering awards on page ${page}:`, error)
-      // Continue with next page if we have some results
-      if (allAwards.length === 0) {
-        throw error
+      // USAspending intermittently 500s on heavy queries - this is expected
+      // NEVER crash the pipeline on discovery failure
+      // NEVER assume page 1 must succeed - continue to next page if possible
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const is500Error = errorMessage.includes('500') || errorMessage.includes('Server error')
+      
+      if (is500Error) {
+        console.warn(`[USAspending Capture] Intermittent 500 error on page ${page} (expected on heavy queries). Continuing...`)
+      } else {
+        console.error(`[USAspending Capture] Error discovering awards on page ${page}:`, errorMessage)
       }
-      hasNext = false
+      
+      // If we have results, continue to next page (don't fail completely)
+      // If page 1 fails, try page 2 anyway (never assume page 1 must succeed)
+      if (allAwards.length > 0 || page === 1) {
+        // Continue to next page - don't fail the entire pipeline
+        page++
+        // Add delay before retrying next page
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Don't set hasNext = false - let it try the next page
+        continue
+      }
+      
+      // Only stop if we have no results and it's not page 1
+      // (Page 1 failures are expected and we should try page 2)
+      if (allAwards.length === 0 && page > 1) {
+        console.warn(`[USAspending Capture] No results after ${page - 1} pages. Stopping discovery.`)
+        hasNext = false
+      }
     }
+  }
+
+  // Return whatever we got - never crash the pipeline
+  if (allAwards.length === 0) {
+    console.warn(`[USAspending Capture] Discovery completed with 0 awards. This may indicate API issues or no matching awards.`)
+  } else {
+    console.log(`[USAspending Capture] Discovery completed: ${allAwards.length} awards retrieved`)
   }
 
   return allAwards

@@ -43,9 +43,19 @@ export async function POST(request: NextRequest) {
     console.log('[USAspending Capture Ingest] Starting ingestion...')
 
     // Step 1: Discover awards
+    // USAspending will intermittently 500 on heavy queries - discovery failures are non-fatal
     console.log('[USAspending Capture Ingest] Discovering awards...')
-    const discoveredAwards = await discoverAwards(body.filters, body.pagination)
-    console.log(`[USAspending Capture Ingest] Discovered ${discoveredAwards.length} awards`)
+    let discoveredAwards: any[] = []
+    try {
+      discoveredAwards = await discoverAwards(body.filters, body.pagination)
+      console.log(`[USAspending Capture Ingest] Discovered ${discoveredAwards.length} awards`)
+    } catch (error) {
+      // NEVER crash the pipeline on discovery failure
+      // Return empty array and continue with whatever we have in the database
+      console.error(`[USAspending Capture Ingest] Discovery failed (non-fatal):`, error instanceof Error ? error.message : String(error))
+      console.log(`[USAspending Capture Ingest] Continuing with existing awards in database...`)
+      discoveredAwards = []
+    }
 
     // Step 2: Save discovered awards (set enrichment_status = 'pending')
     let saved = 0
