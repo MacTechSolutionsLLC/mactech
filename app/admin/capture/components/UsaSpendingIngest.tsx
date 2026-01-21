@@ -129,11 +129,12 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">
         <div className="text-sm font-medium text-blue-900 mb-2">Default Filters:</div>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Date Range: 2022-01-01 to 2026-12-31</li>
+          <li>• Date Range: Last 12 months (to avoid API overload)</li>
           <li>• NAICS Codes: 541512, 541511, 541519</li>
           <li>• Award Types: Contracts and Grants (A, B)</li>
           <li>• Agency: Department of Defense</li>
-          <li>• Features: Relevance scoring, signal generation, AI linking</li>
+          <li>• Limit: 25 awards per page (max 5 pages = 125 awards)</li>
+          <li>• Features: Relevance scoring, signal generation, SAM.gov Entity API enrichment</li>
         </ul>
       </div>
 
