@@ -81,7 +81,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors"
-                placeholder="patrick, jonny, jimbo, bryan, or email"
+                placeholder="Enter username or email"
               />
             </div>
 

@@ -10,14 +10,28 @@ The admin panel uses NextAuth.js with credentials (email/password) authenticatio
 
 ### 1. Environment Variables
 
-Add the following environment variables to your `.env.local` file:
+**IMPORTANT: This is required for authentication to work!**
 
+Add the following environment variables:
+
+**For local development** (`.env.local` file):
 ```env
 AUTH_SECRET=your-secret-key-here
 # Generate with: openssl rand -base64 32
 ```
 
-For production (Railway), set `AUTH_SECRET` in your environment variables.
+**For production (Railway)**:
+1. Go to your Railway project dashboard
+2. Click on your service (mactech)
+3. Go to the **Variables** tab
+4. Click **+ New Variable**
+5. Add:
+   - **Name**: `AUTH_SECRET`
+   - **Value**: Generate a secret with `openssl rand -base64 32` or use any random string (at least 32 characters)
+6. Click **Add**
+7. Redeploy your service
+
+**Note**: Without `AUTH_SECRET` set, you'll see `[auth][error] MissingSecret` errors in your logs and authentication will not work.
 
 ### 2. Database Migration
 
