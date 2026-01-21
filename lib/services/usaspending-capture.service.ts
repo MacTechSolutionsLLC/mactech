@@ -218,10 +218,30 @@ export async function discoverAwards(
       }
 
       // Make request with display field names and valid sort
-      const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
+      let response: DiscoveryResponse
+      try {
+        response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        })
+      } catch (error) {
+        // If we get persistent 500 errors, it might be the API is down or the request is too complex
+        // Log the error and return what we have so far (graceful degradation)
+        if (error instanceof Error && error.message.includes('500')) {
+          console.error(`[USAspending Capture] API returned 500 error. This may indicate:`)
+          console.error(`  - USAspending API is experiencing issues`)
+          console.error(`  - The filter combination is too complex`)
+          console.error(`  - The date range or result set is too large`)
+          console.error(`  - Rate limiting or other API-side problems`)
+          console.error(`Returning ${allAwards.length} awards discovered so far.`)
+          
+          // Return what we have so far instead of failing completely
+          if (allAwards.length > 0) {
+            return allAwards
+          }
+        }
+        throw error
+      }
 
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
