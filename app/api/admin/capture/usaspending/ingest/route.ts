@@ -275,11 +275,24 @@ export async function POST(request: NextRequest) {
       signals: award.signals ? JSON.parse(award.signals) : [],
     }))
 
+    // USER FEEDBACK: Clear success message with filters used
+    const timePeriod = body.filters?.timePeriod
+    const filtersUsed = {
+      dateRange: timePeriod 
+        ? `${timePeriod.startDate} to ${timePeriod.endDate}`
+        : 'Last 6 months (default)',
+      awardTypes: body.filters?.awardTypeCodes || ['A'],
+      dataSource: 'USAspending.gov',
+    }
+
     return NextResponse.json({
       success: true,
       awards: awardsWithParsedSignals,
       total: saved,
       enriched,
+      discovered: discoveredAwards.length,
+      filtersUsed,
+      timestamp: new Date().toISOString(),
       errors: errors.length > 0 ? errors : undefined,
     })
   } catch (error) {

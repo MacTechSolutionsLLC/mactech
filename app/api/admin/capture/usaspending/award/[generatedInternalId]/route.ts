@@ -185,6 +185,16 @@ export async function GET(
         }
       : null
 
+    // Parse SAM.gov Entity API data (if available)
+    let entityData = null
+    if (award.recipient_entity_data) {
+      try {
+        entityData = JSON.parse(award.recipient_entity_data)
+      } catch (e) {
+        console.warn(`[USAspending Capture] Failed to parse recipient_entity_data for award ${award.id}`)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       award: {
@@ -216,6 +226,7 @@ export async function GET(
       transactionSummary,
       incumbent,
       recompeteIndicator,
+      entityData, // SAM.gov Entity API data (contextual, non-authoritative)
     })
   } catch (error) {
     console.error('[USAspending Capture] Error fetching award:', error)

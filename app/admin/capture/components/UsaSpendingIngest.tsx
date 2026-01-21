@@ -13,8 +13,15 @@ interface IngestionResult {
     batchId: string
     ingested: number
     saved: number
+    enriched?: number
     skipped: number
     errors: string[]
+    filtersUsed?: {
+      dateRange?: string
+      awardTypes?: string[]
+      dataSource?: string
+    }
+    timestamp?: string
     entityEnrichment?: {
       enriched: number
       failed: number
@@ -70,14 +77,21 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
         throw new Error(data.error || 'Ingestion failed')
       }
 
+      // USER FEEDBACK: Clear success message with filters and timestamp
+      const filtersUsed = data.filtersUsed || {}
+      const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString()
+      
       setResult({
         success: true,
         result: {
           batchId: `batch-${Date.now()}`,
-          ingested: data.total || 0,
+          ingested: data.discovered || data.total || 0,
           saved: data.total || 0,
+          enriched: data.enriched || 0,
           skipped: 0,
           errors: data.errors || [],
+          filtersUsed,
+          timestamp,
         },
       })
       
@@ -127,15 +141,18 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
 
       {/* Default Filters Info */}
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-        <div className="text-sm font-medium text-blue-900 mb-2">Default Filters:</div>
+        <div className="text-sm font-medium text-blue-900 mb-2">Discovery Configuration:</div>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Date Range: Last 12 months (to avoid API overload)</li>
-          <li>• NAICS Codes: 541512, 541511, 541519</li>
-          <li>• Award Types: Contracts and Grants (A, B)</li>
-          <li>• Agency: Department of Defense</li>
-          <li>• Limit: 25 awards per page (max 5 pages = 125 awards)</li>
-          <li>• Features: Relevance scoring, signal generation, SAM.gov Entity API enrichment</li>
+          <li>• <strong>Discovery:</strong> Minimal filters (award_type_codes + time_period only)</li>
+          <li>• <strong>Date Range:</strong> Last 6 months (default, configurable)</li>
+          <li>• <strong>Award Types:</strong> Contracts (A) - required by API</li>
+          <li>• <strong>Limit:</strong> 10 awards per page (max 5 pages = 50 awards)</li>
+          <li>• <strong>Post-Persistence Filtering:</strong> NAICS 541512/541511/541519, DoD agency</li>
+          <li>• <strong>Features:</strong> Relevance scoring, signal generation, SAM.gov Entity API enrichment</li>
         </ul>
+        <div className="mt-3 pt-3 border-t border-blue-200 text-xs text-blue-600">
+          <strong>Note:</strong> Discovery uses minimal filters for reliability. Filtering by NAICS/agency happens after data is saved to the database.
+        </div>
       </div>
 
       {/* Results */}
@@ -186,21 +203,59 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
                 {result.success ? 'Ingestion Completed' : 'Ingestion Failed'}
               </h3>
               {result.success && result.result && (
-                <div className="space-y-2 text-sm">
-                  <div className="text-neutral-700">
-                    <span className="font-medium">Fetched:</span> {result.result.ingested.toLocaleString()} awards
+                <div className="space-y-3 text-sm">
+                  {/* Success Message */}
+                  <div className="text-green-800 font-medium">
+                    ✅ {result.result.saved.toLocaleString()} awards ingested successfully
                   </div>
-                  <div className="text-neutral-700">
-                    <span className="font-medium">Saved:</span> {result.result.saved.toLocaleString()} awards
+                  
+                  {/* Statistics */}
+                  <div className="space-y-1 text-neutral-700">
+                    <div>
+                      <span className="font-medium">Discovered:</span> {result.result.ingested.toLocaleString()} awards
+                    </div>
+                    <div>
+                      <span className="font-medium">Saved:</span> {result.result.saved.toLocaleString()} awards
+                    </div>
+                    {result.result.enriched !== undefined && (
+                      <div>
+                        <span className="font-medium">Enriched:</span> {result.result.enriched.toLocaleString()} awards
+                      </div>
+                    )}
+                    {result.result.skipped > 0 && (
+                      <div>
+                        <span className="font-medium">Skipped:</span> {result.result.skipped.toLocaleString()} awards
+                      </div>
+                    )}
                   </div>
-                  {result.result.skipped > 0 && (
-                    <div className="text-neutral-700">
-                      <span className="font-medium">Skipped:</span> {result.result.skipped.toLocaleString()} awards
+
+                  {/* Filters Used */}
+                  {result.result.filtersUsed && (
+                    <div className="mt-3 pt-3 border-t border-green-200">
+                      <div className="font-medium text-green-900 mb-2">Filters Used:</div>
+                      <div className="space-y-1 text-green-700 text-xs">
+                        <div>
+                          <span className="font-medium">Date Range:</span> {result.result.filtersUsed.dateRange || 'Default'}
+                        </div>
+                        <div>
+                          <span className="font-medium">Award Types:</span> {Array.isArray(result.result.filtersUsed.awardTypes) ? result.result.filtersUsed.awardTypes.join(', ') : 'A'}
+                        </div>
+                        <div>
+                          <span className="font-medium">Data Source:</span> {result.result.filtersUsed.dataSource || 'USAspending.gov'}
+                        </div>
+                        {result.result.timestamp && (
+                          <div className="mt-2 pt-2 border-t border-green-200">
+                            <span className="font-medium">Ingested:</span> {result.result.timestamp}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
+
+                  {/* Entity API Enrichment */}
                   {result.result.entityEnrichment && (
                     <div className="mt-3 pt-3 border-t border-green-200">
-                      <div className="font-medium text-green-900 mb-1">Entity API Enrichment:</div>
+                      <div className="font-medium text-green-900 mb-1">SAM.gov Entity API Enrichment:</div>
                       <div className="text-green-700">
                         <span className="font-medium">Enriched:</span> {result.result.entityEnrichment.enriched.toLocaleString()} vendors
                       </div>
@@ -211,6 +266,8 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
                       )}
                     </div>
                   )}
+
+                  {/* Errors/Warnings */}
                   {result.result.errors && result.result.errors.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-yellow-200">
                       <div className="text-xs text-yellow-700">
@@ -218,6 +275,11 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+              {!result.success && result.result && result.result.ingested === 0 && (
+                <div className="text-sm text-neutral-600">
+                  No awards found for selected criteria (data source: USAspending.gov)
                 </div>
               )}
               {!result.success && result.error && (

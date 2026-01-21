@@ -35,6 +35,10 @@ const rateLimiter = new RateLimiter()
 
 /**
  * Make API request with error handling and retry logic
+ * 
+ * GRACEFUL 500 HANDLING: USAspending 500s are expected, not exceptional
+ * - Retry up to 3 times
+ * - If all retries fail → throw error (caller will handle gracefully)
  */
 async function makeRequest<T>(
   endpoint: string,
@@ -69,6 +73,19 @@ async function makeRequest<T>(
 
         // Log detailed error information for debugging
         const requestBody = options.body ? (typeof options.body === 'string' ? options.body.substring(0, 2000) : JSON.stringify(options.body).substring(0, 2000)) : 'N/A'
+        
+        // GRACEFUL 500 HANDLING: Retry up to 3 times, then throw (caller handles gracefully)
+        if (response.status === 500) {
+          if (attempt < retries - 1) {
+            console.warn(`[USAspending API] Retrying after 500 error (attempt ${attempt + 1}/${retries})...`)
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
+            continue
+          }
+          // All retries failed - throw error (caller will continue to next page)
+          throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText.substring(0, 500)}`)
+        }
+
+        // Log other errors
         console.error(`[USAspending API] Error ${response.status} on ${endpoint}:`, {
           status: response.status,
           statusText: response.statusText,
@@ -85,22 +102,16 @@ async function makeRequest<T>(
         if (response.status === 422) {
           throw new Error(`Validation error (422): ${JSON.stringify(errorData)} - Request: ${requestBody.substring(0, 1000)}`)
         }
-        if (response.status === 500) {
-          if (attempt < retries - 1) {
-            console.warn(`[USAspending API] Retrying after 500 error (attempt ${attempt + 1}/${retries})...`)
-            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
-            continue
-          }
-          throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText.substring(0, 500)} - Request: ${requestBody.substring(0, 500)}`)
-        }
         throw new Error(`HTTP error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)} - Request: ${requestBody.substring(0, 500)}`)
       }
 
       return await response.json()
     } catch (error) {
+      // If this is the last attempt, throw the error
       if (attempt === retries - 1) {
         throw error
       }
+      // Otherwise, wait and retry
       await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
     }
   }
@@ -209,12 +220,11 @@ export async function discoverAwards(
 
   while (hasNext && page <= effectiveMaxPages) {
     try {
-      // SAFE REQUEST ASSEMBLY
-      // Use minimal filters for discovery (mandatory award_type_codes + time_period)
-      // Sort by generated_internal_id (verified working format)
-      const body = {
+      // CANONICAL REQUEST CONSTRUCTION
+      // Always construct as a single object, never inline or with dynamic mutation
+      const requestBody = {
         filters: {
-          award_type_codes: apiFilters.award_type_codes,
+          award_type_codes: apiFilters.award_type_codes, // REQUIRED
           time_period: apiFilters.time_period,
         },
         fields: [
@@ -222,30 +232,24 @@ export async function discoverAwards(
           'Recipient Name',
           'Award Amount',
           'Description',
-          'generated_internal_id'
+          'generated_internal_id',
         ],
         limit: limitPerPage,
         page,
-        // Use 'generated_internal_id' as sort (verified working format)
         sort: 'generated_internal_id',
         order: 'desc' as const,
       }
 
-      // Log request details for first page to help debug
-      if (page === 1) {
-        console.log(`[USAspending Capture] Discovery request (page ${page}):`, {
-          filters: JSON.stringify(apiFilters).substring(0, 500),
-          fields: body.fields,
-          limit: body.limit,
-          sort: body.sort,
-          order: body.order,
-        })
-      }
+      // TRUTHFUL LOGGING (exact match to request sent)
+      console.info(
+        `[USAspending Capture] Discovery request (page ${page})`,
+        JSON.stringify(requestBody, null, 2)
+      )
 
       // Make request using verified API call format
       const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify(requestBody),
       })
 
       // Page succeeded - accumulate results
@@ -263,17 +267,20 @@ export async function discoverAwards(
         await new Promise(resolve => setTimeout(resolve, 200))
       }
     } catch (error) {
-      // Classify USAspending 500s as non-fatal upstream unavailability
+      // GRACEFUL 500 HANDLING: USAspending 500s are expected, not exceptional
+      // Retry up to 3 times (handled in makeRequest), then continue to next page
       const errorMessage = error instanceof Error ? error.message : String(error)
       const is500Error = errorMessage.includes('500') || errorMessage.includes('Server error')
       const isHtmlError = errorMessage.includes('<!doctype html>') || errorMessage.includes('<html')
       
       if (is500Error || isHtmlError) {
-        // Classify as "upstream_unavailable" - log once and stop pagination
+        // All retries failed (handled in makeRequest) - log warning and continue to next page
         encountered500 = true
-        console.warn(`[USAspending Capture] Upstream API unavailable (500) on page ${page}. Stopping pagination to preserve ${allAwards.length} awards already collected.`)
-        // STOP PAGINATION AFTER FIRST 500 - do NOT attempt page+1
-        break
+        console.warn(`[USAspending Capture] Upstream API unavailable (500) on page ${page} after retries. Continuing to next page...`)
+        // Continue to next page (don't break) - 500s are expected
+        page++
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Delay before next page
+        continue
       } else {
         // Other errors - log and stop pagination
         console.error(`[USAspending Capture] Error discovering awards on page ${page}:`, errorMessage)
@@ -282,17 +289,24 @@ export async function discoverAwards(
     }
   }
 
-  // Final success criteria
+  // Final success criteria with truthful logging
   if (pagesSucceeded === 0) {
     if (encountered500) {
-      console.warn(`[USAspending Capture] Discovery incomplete due to upstream API instability. No pages succeeded.`)
+      console.warn(`[USAspending Capture] Discovery incomplete: 0 pages succeeded due to upstream API instability (500 errors).`)
     } else {
-      console.warn(`[USAspending Capture] Discovery failed: No pages succeeded.`)
+      console.warn(`[USAspending Capture] Discovery incomplete: 0 pages succeeded.`)
     }
   } else if (encountered500) {
-    console.log(`[USAspending Capture] Discovery DEGRADED: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected. Upstream API returned 500 errors.`)
+    console.info(`[USAspending Capture] Discovery DEGRADED: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected. Some pages returned 500 errors (expected behavior).`)
   } else {
-    console.log(`[USAspending Capture] Discovery SUCCESSFUL: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected.`)
+    console.info(`[USAspending Capture] Discovery SUCCESSFUL: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected.`)
+  }
+  
+  // Discovery terminates cleanly if:
+  // - 0 awards returned on page 1, OR
+  // - hasNext === false
+  if (pagesSucceeded === 0 && page === 1) {
+    console.warn(`[USAspending Capture] Discovery terminated: No awards returned on page 1.`)
   }
 
   return allAwards

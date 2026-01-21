@@ -63,6 +63,19 @@ export default function AwardsFeed() {
 
   return (
     <div className="space-y-6">
+      {/* Data Source Header */}
+      <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-neutral-900">Historical Awards</h2>
+            <p className="text-sm text-neutral-600 mt-1">Data source: USAspending.gov</p>
+          </div>
+          <div className="text-sm text-neutral-500">
+            {awards.length} award{awards.length !== 1 ? 's' : ''} displayed
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="bg-white rounded-lg border border-neutral-200 p-6">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">Awards Filters</h2>
@@ -88,7 +101,10 @@ export default function AwardsFeed() {
         {loading ? (
           <div className="p-8 text-center text-neutral-600">Loading awards...</div>
         ) : awards.length === 0 ? (
-          <div className="p-8 text-center text-neutral-600">No awards found</div>
+          <div className="p-8 text-center">
+            <div className="text-neutral-600 mb-2">No awards found</div>
+            <div className="text-xs text-neutral-500">Data source: USAspending.gov</div>
+          </div>
         ) : (
           <div className="divide-y divide-neutral-200">
             {awards.map((award) => (

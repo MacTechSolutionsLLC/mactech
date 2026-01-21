@@ -22,6 +22,25 @@ interface AwardDetail {
   transactionCount: number | null
 }
 
+interface EntityData {
+  legalBusinessName?: string | null
+  registrationStatus?: string | null
+  ueiSAM?: string | null
+  cageCode?: string | null
+  entityStructureDesc?: string | null
+  profitStructureDesc?: string | null
+  organizationStructureDesc?: string | null
+  countryOfIncorporation?: string | null
+  businessTypeList?: string[]
+  primaryNaics?: string | null
+  naicsList?: Array<{ naicsCode?: string; naicsName?: string }>
+  pscList?: Array<{ pscCode?: string; pscName?: string }>
+  samRegistered?: string | null
+  registrationDate?: string | null
+  registrationExpirationDate?: string | null
+  pointsOfContact?: any
+}
+
 interface AwardDetailResponse {
   success: boolean
   award: AwardDetail
@@ -39,6 +58,7 @@ interface AwardDetailResponse {
     duns: string | null
   } | null
   recompeteIndicator: boolean
+  entityData?: EntityData | null // SAM.gov Entity API data (contextual, non-authoritative)
   error?: string
 }
 
@@ -121,7 +141,7 @@ export default function AwardDetailPage({
     )
   }
 
-  const { award, signals, relevanceScore, transactionSummary, incumbent, recompeteIndicator } = awardData
+  const { award, signals, relevanceScore, transactionSummary, incumbent, recompeteIndicator, entityData } = awardData
 
   const getSignalBadgeColor = (signal: string) => {
     switch (signal) {
@@ -290,7 +310,7 @@ export default function AwardDetailPage({
               </dl>
             </div>
 
-            {/* Incumbent Information */}
+            {/* Incumbent / Vendor Snapshot */}
             {incumbent && (
               <div className="bg-white rounded-lg border border-neutral-200 p-6">
                 <h3 className="text-lg font-semibold text-neutral-900 mb-4">Incumbent Vendor</h3>
@@ -312,6 +332,120 @@ export default function AwardDetailPage({
                     </div>
                   )}
                 </dl>
+              </div>
+            )}
+
+            {/* SAM.gov Entity API Data (Contextual, Non-Authoritative) */}
+            {entityData && (
+              <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-neutral-900">Vendor Snapshot</h3>
+                  <span className="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded">
+                    SAM.gov Entity API
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mb-4 italic">
+                  SAM.gov Entity data is contextual and non-authoritative. USAspending.gov is the primary source of truth.
+                </p>
+                <dl className="space-y-2">
+                  {entityData.legalBusinessName && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Legal Business Name</dt>
+                      <dd className="text-sm text-neutral-900">{entityData.legalBusinessName}</dd>
+                    </div>
+                  )}
+                  {entityData.registrationStatus && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">SAM Registration Status</dt>
+                      <dd className="text-sm text-neutral-900">{entityData.registrationStatus}</dd>
+                    </div>
+                  )}
+                  {entityData.ueiSAM && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">UEI SAM</dt>
+                      <dd className="text-sm text-neutral-900 font-mono">{entityData.ueiSAM}</dd>
+                    </div>
+                  )}
+                  {entityData.cageCode && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">CAGE Code</dt>
+                      <dd className="text-sm text-neutral-900 font-mono">{entityData.cageCode}</dd>
+                    </div>
+                  )}
+                  {entityData.entityStructureDesc && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Entity Structure</dt>
+                      <dd className="text-sm text-neutral-900">{entityData.entityStructureDesc}</dd>
+                    </div>
+                  )}
+                  {entityData.countryOfIncorporation && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Country of Incorporation</dt>
+                      <dd className="text-sm text-neutral-900">{entityData.countryOfIncorporation}</dd>
+                    </div>
+                  )}
+                  {entityData.registrationDate && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Registration Date</dt>
+                      <dd className="text-sm text-neutral-900">
+                        {new Date(entityData.registrationDate).toLocaleDateString()}
+                      </dd>
+                    </div>
+                  )}
+                  {entityData.registrationExpirationDate && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Registration Expires</dt>
+                      <dd className="text-sm text-neutral-900">
+                        {new Date(entityData.registrationExpirationDate).toLocaleDateString()}
+                      </dd>
+                    </div>
+                  )}
+                  {entityData.businessTypeList && entityData.businessTypeList.length > 0 && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Business Types</dt>
+                      <dd className="text-sm text-neutral-900">
+                        {entityData.businessTypeList.join(', ')}
+                      </dd>
+                    </div>
+                  )}
+                  {entityData.primaryNaics && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-700">Primary NAICS</dt>
+                      <dd className="text-sm text-neutral-900">{entityData.primaryNaics}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            )}
+
+            {/* Competitive Intelligence */}
+            {incumbent && (
+              <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Competitive Intelligence</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="font-medium text-blue-900 mb-1">Likely Incumbent</div>
+                    <div className="text-blue-700">
+                      Based on historical award data: <strong>{incumbent.name}</strong>
+                    </div>
+                  </div>
+                  {transactionSummary.total > 0 && (
+                    <div>
+                      <div className="font-medium text-neutral-700 mb-1">Award Activity</div>
+                      <div className="text-neutral-600">
+                        {transactionSummary.total} total transactions, {transactionSummary.recent} in last 180 days
+                      </div>
+                    </div>
+                  )}
+                  {award.amount && (
+                    <div>
+                      <div className="font-medium text-neutral-700 mb-1">Award Value</div>
+                      <div className="text-neutral-600">
+                        ${(award.amount / 1_000_000).toFixed(2)}M total obligation
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
