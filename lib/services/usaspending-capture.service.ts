@@ -528,36 +528,50 @@ export async function saveDiscoveredAward(discoveryAward: DiscoveryAward): Promi
       }
     }
 
-    // Upsert by generated_internal_id
-    const award = await prisma.usaSpendingAward.upsert({
+    // Upsert by generated_internal_id (use findUnique + create/update pattern for nullable unique fields)
+    const existingAward = await prisma.usaSpendingAward.findUnique({
       where: {
         generated_internal_id: String(generatedInternalId)
-      },
-      create: {
-        generated_internal_id: String(generatedInternalId),
-        human_award_id: humanAwardId || null,
-        award_id: humanAwardId || null, // Also store in existing field for compatibility
-        total_obligation: awardAmount || null,
-        recipient_name: recipientName || null,
-        awarding_agency_name: awardingAgency || null,
-        awarding_agency: awardingAgencyJson ? JSON.stringify(awardingAgencyJson) : null,
-        description: description || null,
-        enrichment_status: 'pending',
-        raw_data: JSON.stringify(discoveryAward),
-      },
-      update: {
-        human_award_id: humanAwardId || undefined,
-        award_id: humanAwardId || undefined,
-        total_obligation: awardAmount || undefined,
-        recipient_name: recipientName || undefined,
-        awarding_agency_name: awardingAgency || undefined,
-        awarding_agency: awardingAgencyJson ? JSON.stringify(awardingAgencyJson) : undefined,
-        description: description || undefined,
-        enrichment_status: 'pending', // Reset to pending if updating
-        raw_data: JSON.stringify(discoveryAward),
-        updated_at: new Date(),
-      },
+      }
     })
+
+    let award
+    if (existingAward) {
+      // Update existing award
+      award = await prisma.usaSpendingAward.update({
+        where: {
+          id: existingAward.id
+        },
+        data: {
+          human_award_id: humanAwardId || undefined,
+          award_id: humanAwardId || undefined,
+          total_obligation: awardAmount || undefined,
+          recipient_name: recipientName || undefined,
+          awarding_agency_name: awardingAgency || undefined,
+          awarding_agency: awardingAgencyJson ? JSON.stringify(awardingAgencyJson) : undefined,
+          description: description || undefined,
+          enrichment_status: 'pending', // Reset to pending if updating
+          raw_data: JSON.stringify(discoveryAward),
+          updated_at: new Date(),
+        },
+      })
+    } else {
+      // Create new award
+      award = await prisma.usaSpendingAward.create({
+        data: {
+          generated_internal_id: String(generatedInternalId),
+          human_award_id: humanAwardId || null,
+          award_id: humanAwardId || null, // Also store in existing field for compatibility
+          total_obligation: awardAmount || null,
+          recipient_name: recipientName || null,
+          awarding_agency_name: awardingAgency || null,
+          awarding_agency: awardingAgencyJson ? JSON.stringify(awardingAgencyJson) : null,
+          description: description || null,
+          enrichment_status: 'pending',
+          raw_data: JSON.stringify(discoveryAward),
+        },
+      })
+    }
 
     return { saved: true, awardId: award.id }
   } catch (error) {
