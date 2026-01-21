@@ -152,28 +152,53 @@ export async function discoverAwards(
   // Reduced to 25 to be more conservative and avoid API overload
   const limitPerPage = pagination.limitPerPage ?? 25
 
-  // Build filters with defaults
+  // BASELINE DISCOVERY FILTERS (REQUIRED - always included)
+  // These must always be present, even if client omits them
+  const baselineFilters = {
+    naics_codes: ['541512', '541511', '541519'],
+    award_type_codes: ['A', 'B'],
+    agencies: [
+      { type: 'awarding' as const, tier: 'toptier' as const, name: 'Department of Defense' }
+    ],
+  }
+
+  // Build USAspending API filters with explicit translation
+  // Client API shape ≠ USAspending API shape - all filters must be normalized
   const apiFilters: any = {
-    naics_codes: filters.naicsCodes || ['541512', '541511', '541519'],
-    award_type_codes: filters.awardTypeCodes || ['A', 'B'],
-    agencies: filters.agencies || [
-      { type: 'awarding', tier: 'toptier', name: 'Department of Defense' }
-    ],
-    time_period: filters.timePeriod ? [
-      { start_date: filters.timePeriod.startDate, end_date: filters.timePeriod.endDate }
-    ] : [
-      // Default to last 12 months to avoid 500 errors from heavy queries
-      // The 2022-2026 range is too heavy and causes consistent 500 errors
-      (() => {
-        const today = new Date()
-        const oneYearAgo = new Date()
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-        return {
-          start_date: oneYearAgo.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
-        }
-      })()
-    ],
+    // Baseline filters (always included)
+    naics_codes: filters.naicsCodes || baselineFilters.naics_codes,
+    award_type_codes: filters.awardTypeCodes || baselineFilters.award_type_codes,
+    agencies: filters.agencies || baselineFilters.agencies,
+  }
+
+  // Translate timePeriod from client format to USAspending format
+  // Client: { timePeriod: { startDate, endDate } }
+  // USAspending: { time_period: [{ start_date, end_date }] }
+  const timePeriod = filters.timePeriod
+  if (timePeriod) {
+    // Explicit translation: client format → USAspending format
+    apiFilters.time_period = [
+      {
+        start_date: timePeriod.startDate,
+        end_date: timePeriod.endDate,
+      }
+    ]
+  } else {
+    // Default to last 12 months if no time period provided
+    const today = new Date()
+    const oneYearAgo = new Date()
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+    apiFilters.time_period = [
+      {
+        start_date: oneYearAgo.toISOString().split('T')[0],
+        end_date: today.toISOString().split('T')[0]
+      }
+    ]
+  }
+
+  // Log if baseline filters were injected (when client only provided time filters)
+  if (timePeriod && !filters.naicsCodes && !filters.awardTypeCodes && !filters.agencies) {
+    console.log('[USAspending Capture] Baseline filters injected (client provided only time filters)')
   }
 
   // Hard limit total pages (USAspending can be unstable)
@@ -188,10 +213,16 @@ export async function discoverAwards(
 
   while (hasNext && page <= effectiveMaxPages) {
     try {
-      // Use exact format from verified API call
-      // NEVER sort by generated_internal_id (causes issues)
+      // SAFE REQUEST ASSEMBLY
+      // Final USAspending request with normalized filters
+      // Client API shape has been translated to USAspending API shape
       const body = {
-        filters: apiFilters,
+        filters: {
+          naics_codes: apiFilters.naics_codes,
+          award_type_codes: apiFilters.award_type_codes,
+          agencies: apiFilters.agencies,
+          time_period: apiFilters.time_period,
+        },
         fields: [
           'Award ID',
           'Recipient Name',
