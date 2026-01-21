@@ -6,9 +6,9 @@
  * 
  * Or with custom filters:
  *   npx tsx scripts/trigger-usaspending-ingest.ts --maxPages 3 --limitPerPage 50
+ * 
+ * Note: Uses built-in fetch (Node.js 18+)
  */
-
-import fetch from 'node-fetch'
 
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 const INGEST_ENDPOINT = `${API_URL}/api/admin/capture/usaspending/ingest`
