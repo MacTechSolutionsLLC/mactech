@@ -73,21 +73,14 @@ function ChangePasswordForm() {
         return
       }
 
-      // If password change was successful, sign out and redirect to sign in
-      // This ensures the session token is refreshed with the new mustChangePassword status
-      if (data.requiresReauth) {
-        // Sign out to clear the old session
-        const { signOut } = await import('next-auth/react')
-        await signOut({ redirect: false })
-        
-        // Redirect to sign in with a success message
-        router.push('/auth/signin?passwordChanged=true')
-      } else {
-        // Update session and redirect
-        await update()
-        router.push('/admin')
-        router.refresh()
-      }
+      // Update session to reflect password change
+      await update({
+        mustChangePassword: false
+      })
+
+      // Redirect to admin - the session should now have mustChangePassword: false
+      router.push('/admin')
+      router.refresh()
     } catch (err) {
       setError('An error occurred. Please try again.')
       setIsLoading(false)

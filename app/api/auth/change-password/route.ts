@@ -76,12 +76,9 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Return success - the user will need to sign in again to get updated token
-    // This ensures the mustChangePassword flag is updated in their session
     return NextResponse.json({
       success: true,
-      message: 'Password changed successfully. Please sign in again.',
-      requiresReauth: true
+      message: 'Password changed successfully'
     })
   } catch (error) {
     console.error('Error changing password:', error)
