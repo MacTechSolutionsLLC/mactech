@@ -161,14 +161,16 @@ export async function discoverAwards(
       const today = new Date().toISOString().split('T')[0]
       if (filters.timePeriod) {
         // Cap end_date at today to avoid future date issues with API
-        const endDate = filters.timePeriod.endDate > today ? today : filters.timePeriod.endDate
+        let endDate = filters.timePeriod.endDate
+        if (endDate > today) {
+          console.warn(`[USAspending Capture] Capping end_date from ${endDate} to ${today} (future dates not allowed)`)
+          endDate = today
+        }
         return [{ start_date: filters.timePeriod.startDate, end_date: endDate }]
       }
       // Default to last 2 years to avoid API timeouts with large date ranges
-      return [{ 
-        start_date: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
-        end_date: today
-      }]
+      const twoYearsAgo = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      return [{ start_date: twoYearsAgo, end_date: today }]
     })(),
   }
 
@@ -180,6 +182,7 @@ export async function discoverAwards(
     try {
       // Use display field names (as per requirements) with valid sort field
       // The API requires sort field to be in the fields array and use display names
+      // Try without sort first - if that fails, add a valid sort field
       let body: any = {
         filters: apiFilters,
         fields: [
@@ -194,10 +197,13 @@ export async function discoverAwards(
         ],
         limit: limitPerPage,
         page,
-        // Use 'generated_internal_id' as sort (it's in the valid sort fields list)
-        // This prevents API from defaulting to invalid 'award_id'
-        sort: 'generated_internal_id',
-        order: 'desc',
+      }
+      
+      // Only add sort for first page to reduce API load
+      // Use 'Award ID' which is definitely in the valid sort fields
+      if (page === 1) {
+        body.sort = 'Award ID'
+        body.order = 'desc'
       }
 
       // Log request details for first page to help debug
