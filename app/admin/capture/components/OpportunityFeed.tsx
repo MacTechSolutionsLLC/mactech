@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import OpportunityDetail from './OpportunityDetail'
+import AwardsFeed from './AwardsFeed'
 
 interface Opportunity {
   id: string
@@ -51,6 +52,7 @@ export default function OpportunityFeed() {
     status: 'all' as 'all' | 'flagged' | 'ignored' | 'pursuing',
   })
   const [sortBy, setSortBy] = useState<'score' | 'deadline' | 'date' | 'smart'>('score')
+  const [viewMode, setViewMode] = useState<'opportunities' | 'awards'>('opportunities')
 
   useEffect(() => {
     loadOpportunities()
@@ -118,6 +120,36 @@ export default function OpportunityFeed() {
 
   return (
     <div className="space-y-6">
+      {/* View Mode Toggle */}
+      <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('opportunities')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              viewMode === 'opportunities'
+                ? 'bg-accent-700 text-white'
+                : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+            }`}
+          >
+            Opportunities
+          </button>
+          <button
+            onClick={() => setViewMode('awards')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              viewMode === 'awards'
+                ? 'bg-accent-700 text-white'
+                : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+            }`}
+          >
+            Historical Awards
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'awards' ? (
+        <AwardsFeed />
+      ) : (
+        <>
       {/* Filters */}
       <div className="bg-white rounded-lg border border-neutral-200 p-6">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">Filters</h2>
@@ -381,6 +413,8 @@ export default function OpportunityFeed() {
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }

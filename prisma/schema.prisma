@@ -330,6 +330,14 @@ model UsaSpendingAward {
   // SAM.gov Entity API enrichment (vendor metadata)
   recipient_entity_data String? @db.Text // JSON: enriched vendor data from Entity API (UEI, NAICS, certifications, etc.)
 
+  // Capture intelligence fields
+  relevance_score       Float?   // Capture relevance score (0–100)
+  signals               String?  // JSON array of signal labels
+  enrichment_status     String?  // 'pending' | 'completed' | 'failed'
+  enriched_at           DateTime?
+  human_award_id        String? // Human-readable identifier (e.g. "HC102819F0141")
+  generated_internal_id String?  @unique // TRUE API primary key (must be unique)
+
   // Relationships
   transactions UsaSpendingTransaction[]
   opportunityLinks OpportunityAwardLink[]

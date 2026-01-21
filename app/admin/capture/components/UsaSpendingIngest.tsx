@@ -58,12 +58,10 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
     setResult(null)
 
     try {
-      const response = await fetch('/api/admin/usaspending/ingest', {
+      const response = await fetch('/api/admin/capture/usaspending/ingest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          enrichWithEntityApi: true,
-        }),
+        body: JSON.stringify({}),
       })
 
       const data = await response.json()
@@ -72,7 +70,16 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
         throw new Error(data.error || 'Ingestion failed')
       }
 
-      setResult(data)
+      setResult({
+        success: true,
+        result: {
+          batchId: `batch-${Date.now()}`,
+          ingested: data.total || 0,
+          saved: data.total || 0,
+          skipped: 0,
+          errors: data.errors || [],
+        },
+      })
       
       // Reload award count
       await loadAwardCount()
@@ -122,11 +129,11 @@ export default function UsaSpendingIngest({ onIngestComplete }: UsaSpendingInges
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">
         <div className="text-sm font-medium text-blue-900 mb-2">Default Filters:</div>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Date Range: 2024-01-01 to 2024-12-31</li>
-          <li>• NAICS Codes: 541512, 541511, 541519, 541513, 541330, 518210</li>
-          <li>• Award Type: Contracts only (Type A)</li>
-          <li>• Target: ~1,000 awards</li>
-          <li>• Entity API Enrichment: Enabled</li>
+          <li>• Date Range: 2022-01-01 to 2026-12-31</li>
+          <li>• NAICS Codes: 541512, 541511, 541519</li>
+          <li>• Award Types: Contracts and Grants (A, B)</li>
+          <li>• Agency: Department of Defense</li>
+          <li>• Features: Relevance scoring, signal generation, AI linking</li>
         </ul>
       </div>
 
