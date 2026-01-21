@@ -6,10 +6,10 @@
  *   npx tsx scripts/trigger-usaspending-ingest-small.ts
  */
 
-const API_URL = process.env.API_URL || process.env.RAILWAY_PUBLIC_DOMAIN 
+const SMALL_INGEST_API_URL = process.env.API_URL || (process.env.RAILWAY_PUBLIC_DOMAIN 
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-  : 'http://localhost:3000'
-const INGEST_ENDPOINT = `${API_URL}/api/admin/capture/usaspending/ingest`
+  : 'http://localhost:3000')
+const INGEST_ENDPOINT = `${SMALL_INGEST_API_URL}/api/admin/capture/usaspending/ingest`
 
 async function triggerSmallIngest() {
   console.log('🚀 Starting USAspending ingestion with smaller query...')
