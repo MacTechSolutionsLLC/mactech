@@ -56,6 +56,12 @@ export async function GET(
               generated_internal_id: generatedInternalId,
               enrichment_status: 'pending',
             },
+            include: {
+              transactions: {
+                orderBy: { action_date: 'desc' },
+                take: 100,
+              },
+            },
           })
         }
 
@@ -104,15 +110,17 @@ export async function GET(
         }
 
         // Calculate and update scoring
-        const relevanceScore = calculateRelevanceScore(award)
-        const txForSignals = (award?.transactions || []).map(tx => ({
-          'Issued Date': tx.action_date?.toISOString(),
-          'Transaction Amount': tx.federal_action_obligation,
-          'Mod': tx.transaction_id,
-        }))
-        const signals = generateSignals(txForSignals, award)
+        if (award) {
+          const relevanceScore = calculateRelevanceScore(award)
+          const txForSignals = (award.transactions || []).map(tx => ({
+            'Issued Date': tx.action_date?.toISOString(),
+            'Transaction Amount': tx.federal_action_obligation,
+            'Mod': tx.transaction_id,
+          }))
+          const signals = generateSignals(txForSignals, award)
 
-        await updateAwardScoring(generatedInternalId, relevanceScore, signals)
+          await updateAwardScoring(generatedInternalId, relevanceScore, signals)
+        }
 
         // Reload one more time to get updated scoring
         award = await prisma.usaSpendingAward.findUnique({
@@ -193,7 +201,6 @@ export async function GET(
           } catch {
             return null
           }
-        }
         })() : null,
         amount: award.total_obligation,
         popStart: award.start_date,

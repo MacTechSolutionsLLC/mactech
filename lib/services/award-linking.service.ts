@@ -230,10 +230,7 @@ export async function linkAwardsToBids(): Promise<{
     const activeBids = await prisma.governmentContractDiscovery.findMany({
       where: {
         capture_status: 'pursuing',
-        OR: [
-          { ignored: false },
-          { ignored: null },
-        ],
+        ignored: false,
       },
       select: {
         id: true,
@@ -295,7 +292,6 @@ export async function linkAwardsToBids(): Promise<{
                   award_id: award.id,
                   join_confidence: matchResult.confidence,
                   join_method: 'ai_assisted',
-                  relationship: 'historical_precedent',
                   matched_naics: matchResult.matchedNaics ? JSON.stringify(matchResult.matchedNaics) : null,
                   matched_agency: matchResult.matchedAgency || null,
                   title_similarity: matchResult.similarityScore || null,
@@ -303,7 +299,6 @@ export async function linkAwardsToBids(): Promise<{
                 update: {
                   join_confidence: matchResult.confidence,
                   join_method: 'ai_assisted',
-                  relationship: 'historical_precedent',
                   matched_naics: matchResult.matchedNaics ? JSON.stringify(matchResult.matchedNaics) : null,
                   matched_agency: matchResult.matchedAgency || null,
                   title_similarity: matchResult.similarityScore || null,
@@ -402,39 +397,36 @@ export async function linkBidToAwards(bidId: string): Promise<{
       if (matchResult.matchCount >= 2 && matchResult.confidence >= 0.7) {
         // Upsert link (create or update)
         await prisma.opportunityAwardLink.upsert({
-            where: {
-              opportunity_id_award_id: {
-                opportunity_id: bid.id,
-                award_id: award.id,
-              },
-            },
-            create: {
+          where: {
+            opportunity_id_award_id: {
               opportunity_id: bid.id,
               award_id: award.id,
+            },
+          },
+          create: {
+            opportunity_id: bid.id,
+            award_id: award.id,
               join_confidence: matchResult.confidence,
               join_method: 'ai_assisted',
-              relationship: 'historical_precedent',
               matched_naics: matchResult.matchedNaics ? JSON.stringify(matchResult.matchedNaics) : null,
               matched_agency: matchResult.matchedAgency || null,
               title_similarity: matchResult.similarityScore || null,
-            },
-            update: {
+          },
+          update: {
               join_confidence: matchResult.confidence,
               join_method: 'ai_assisted',
-              relationship: 'historical_precedent',
               matched_naics: matchResult.matchedNaics ? JSON.stringify(matchResult.matchedNaics) : null,
               matched_agency: matchResult.matchedAgency || null,
               title_similarity: matchResult.similarityScore || null,
-            },
-          })
+          },
+        })
 
-          createdLinks.push({
-            bidId: bid.id,
-            awardId: award.id,
-            confidence: matchResult.confidence,
-            relationship: 'historical_precedent',
-          })
-        }
+        createdLinks.push({
+          bidId: bid.id,
+          awardId: award.id,
+          confidence: matchResult.confidence,
+          relationship: 'historical_precedent', // Note: stored in join_method field
+        })
       }
     }
 
