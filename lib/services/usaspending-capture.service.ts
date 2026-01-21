@@ -178,8 +178,8 @@ export async function discoverAwards(
 
   while (hasNext && page <= maxPages) {
     try {
-      // Try with display field names first (as per requirements)
-      // If that fails with 500, fallback to API field names
+      // Use display field names (as per requirements) with valid sort field
+      // The API requires sort field to be in the fields array and use display names
       let body: any = {
         filters: apiFilters,
         fields: [
@@ -194,6 +194,10 @@ export async function discoverAwards(
         ],
         limit: limitPerPage,
         page,
+        // Use 'generated_internal_id' as sort (it's in the valid sort fields list)
+        // This prevents API from defaulting to invalid 'award_id'
+        sort: 'generated_internal_id',
+        order: 'desc',
       }
 
       // Log request details for first page to help debug
@@ -202,41 +206,16 @@ export async function discoverAwards(
           filters: JSON.stringify(apiFilters).substring(0, 500),
           fields: body.fields,
           limit: body.limit,
+          sort: body.sort,
+          order: body.order,
         })
       }
 
-      // Try with display field names first
-      let response: DiscoveryResponse
-      try {
-        response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        })
-      } catch (error) {
-        // If display field names fail with 500, try API field names as fallback
-        if (page === 1 && error instanceof Error && error.message.includes('500')) {
-          console.warn(`[USAspending Capture] Display field names failed, trying API field names as fallback...`)
-          body.fields = [
-            'award_id',
-            'generated_unique_award_id',
-            'total_obligation',
-            'awarding_agency',
-            'funding_agency',
-            'recipient',
-            'description',
-            'naics',
-            'psc',
-            'start_date',
-            'end_date',
-          ]
-          response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
-            method: 'POST',
-            body: JSON.stringify(body),
-          })
-        } else {
-          throw error
-        }
-      }
+      // Make request with display field names and valid sort
+      const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
 
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
