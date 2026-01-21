@@ -157,12 +157,19 @@ export async function discoverAwards(
     agencies: filters.agencies || [
       { type: 'awarding', tier: 'toptier', name: 'Department of Defense' }
     ],
-    time_period: filters.timePeriod ? [
-      { start_date: filters.timePeriod.startDate, end_date: filters.timePeriod.endDate }
-    ] : [
+    time_period: (() => {
+      const today = new Date().toISOString().split('T')[0]
+      if (filters.timePeriod) {
+        // Cap end_date at today to avoid future date issues with API
+        const endDate = filters.timePeriod.endDate > today ? today : filters.timePeriod.endDate
+        return [{ start_date: filters.timePeriod.startDate, end_date: endDate }]
+      }
       // Default to last 2 years to avoid API timeouts with large date ranges
-      { start_date: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], end_date: new Date().toISOString().split('T')[0] }
-    ],
+      return [{ 
+        start_date: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
+        end_date: today
+      }]
+    })(),
   }
 
   const allAwards: DiscoveryAward[] = []
@@ -171,7 +178,8 @@ export async function discoverAwards(
 
   while (hasNext && page <= maxPages) {
     try {
-      // Try with sort first, fallback to no sort if that fails
+      // Try with display field names first (as per requirements)
+      // If that fails with 500, fallback to API field names
       let body: any = {
         filters: apiFilters,
         fields: [
@@ -188,24 +196,16 @@ export async function discoverAwards(
         page,
       }
 
-      // Add sort only if not the first retry attempt (to avoid API issues)
-      // The API can be finicky with sort on large result sets
-      if (page === 1) {
-        body.sort = 'Award Amount'
-        body.order = 'desc'
-      }
-
       // Log request details for first page to help debug
       if (page === 1) {
         console.log(`[USAspending Capture] Discovery request (page ${page}):`, {
           filters: JSON.stringify(apiFilters).substring(0, 500),
           fields: body.fields,
           limit: body.limit,
-          sort: body.sort,
-          order: body.order,
         })
       }
 
+      // Try with display field names first
       let response: DiscoveryResponse
       try {
         response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
@@ -213,11 +213,22 @@ export async function discoverAwards(
           body: JSON.stringify(body),
         })
       } catch (error) {
-        // If first page fails with sort, try without sort as fallback
-        if (page === 1 && body.sort) {
-          console.warn(`[USAspending Capture] First attempt with sort failed, retrying without sort...`)
-          delete body.sort
-          delete body.order
+        // If display field names fail with 500, try API field names as fallback
+        if (page === 1 && error instanceof Error && error.message.includes('500')) {
+          console.warn(`[USAspending Capture] Display field names failed, trying API field names as fallback...`)
+          body.fields = [
+            'award_id',
+            'generated_unique_award_id',
+            'total_obligation',
+            'awarding_agency',
+            'funding_agency',
+            'recipient',
+            'description',
+            'naics',
+            'psc',
+            'start_date',
+            'end_date',
+          ]
           response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
             method: 'POST',
             body: JSON.stringify(body),
