@@ -160,7 +160,8 @@ export async function discoverAwards(
     time_period: filters.timePeriod ? [
       { start_date: filters.timePeriod.startDate, end_date: filters.timePeriod.endDate }
     ] : [
-      { start_date: '2022-01-01', end_date: '2026-12-31' }
+      // Default to last 2 years to avoid API timeouts with large date ranges
+      { start_date: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], end_date: new Date().toISOString().split('T')[0] }
     ],
   }
 
@@ -170,7 +171,8 @@ export async function discoverAwards(
 
   while (hasNext && page <= maxPages) {
     try {
-      const body = {
+      // Try with sort first, fallback to no sort if that fails
+      let body: any = {
         filters: apiFilters,
         fields: [
           'Award ID',
@@ -184,8 +186,13 @@ export async function discoverAwards(
         ],
         limit: limitPerPage,
         page,
-        sort: 'Award Amount',
-        order: 'desc' as const
+      }
+
+      // Add sort only if not the first retry attempt (to avoid API issues)
+      // The API can be finicky with sort on large result sets
+      if (page === 1) {
+        body.sort = 'Award Amount'
+        body.order = 'desc'
       }
 
       // Log request details for first page to help debug
@@ -199,10 +206,26 @@ export async function discoverAwards(
         })
       }
 
-      const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
+      let response: DiscoveryResponse
+      try {
+        response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        })
+      } catch (error) {
+        // If first page fails with sort, try without sort as fallback
+        if (page === 1 && body.sort) {
+          console.warn(`[USAspending Capture] First attempt with sort failed, retrying without sort...`)
+          delete body.sort
+          delete body.order
+          response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          })
+        } else {
+          throw error
+        }
+      }
 
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
