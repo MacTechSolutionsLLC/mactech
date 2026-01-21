@@ -84,10 +84,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 3: Enrich awards (get full details)
+    // All enrichment, filtering, and AI scoring happens AFTER persistence
+    // Discovery uses minimal filters, filtering happens in database after enrichment
     console.log('[USAspending Capture Ingest] Enriching awards...')
     let enriched = 0
 
     // Get all awards with pending enrichment status
+    // Filtering by NAICS/agency happens AFTER enrichment (in Step 5)
     const awardsToEnrich = await prisma.usaSpendingAward.findMany({
       where: {
         enrichment_status: 'pending',
@@ -165,7 +168,8 @@ export async function POST(request: NextRequest) {
               signals
             )
 
-            // Step 5: SAM.gov Entity API enrichment (SECONDARY, BEST-EFFORT)
+            // Step 6: SAM.gov Entity API enrichment (SECONDARY, BEST-EFFORT)
+            // Treat SAM.gov Entity API as secondary, best-effort context only
             // Only for awards with relevanceScore >= threshold AND recipient_name exists
             const ENTITY_ENRICHMENT_THRESHOLD = 60 // Configurable, default 60
 

@@ -138,6 +138,15 @@ interface DiscoveryResponse {
 /**
  * Discover awards using exact API contract
  */
+/**
+ * Discover awards using POST /search/spending_by_award
+ * 
+ * Strategy: Use minimal filters for discovery, do filtering/scoring after persistence
+ * - Mandatory: award_type_codes
+ * - Minimal: time_period only (no NAICS/agencies upfront)
+ * - Sort: generated_internal_id (verified working)
+ * - All enrichment, filtering, and AI scoring happens after persistence
+ */
 export async function discoverAwards(
   filters: {
     naicsCodes?: string[]
@@ -149,26 +158,14 @@ export async function discoverAwards(
 ): Promise<DiscoveryAward[]> {
   const maxPages = pagination.maxPages ?? 100
   // Use smaller limit per page to avoid 500 errors (verified working format uses 10)
-  // Reduced to 25 to be more conservative and avoid API overload
-  const limitPerPage = pagination.limitPerPage ?? 25
+  const limitPerPage = pagination.limitPerPage ?? 10
 
-  // BASELINE DISCOVERY FILTERS (REQUIRED - always included)
-  // These must always be present, even if client omits them
-  const baselineFilters = {
-    naics_codes: ['541512', '541511', '541519'],
-    award_type_codes: ['A', 'B'],
-    agencies: [
-      { type: 'awarding' as const, tier: 'toptier' as const, name: 'Department of Defense' }
-    ],
-  }
-
-  // Build USAspending API filters with explicit translation
-  // Client API shape ≠ USAspending API shape - all filters must be normalized
+  // MINIMAL DISCOVERY FILTERS
+  // Use POST /search/spending_by_award with mandatory award_type_codes and minimal filters
+  // All enrichment, filtering, and AI scoring happens AFTER persistence
   const apiFilters: any = {
-    // Baseline filters (always included)
-    naics_codes: filters.naicsCodes || baselineFilters.naics_codes,
-    award_type_codes: filters.awardTypeCodes || baselineFilters.award_type_codes,
-    agencies: filters.agencies || baselineFilters.agencies,
+    // MANDATORY: award_type_codes (required by USAspending API)
+    award_type_codes: filters.awardTypeCodes || ['A'],
   }
 
   // Translate timePeriod from client format to USAspending format
@@ -184,22 +181,21 @@ export async function discoverAwards(
       }
     ]
   } else {
-    // Default to last 12 months if no time period provided
+    // Default to last 6 months if no time period provided (lighter query)
     const today = new Date()
-    const oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+    const sixMonthsAgo = new Date()
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
     apiFilters.time_period = [
       {
-        start_date: oneYearAgo.toISOString().split('T')[0],
+        start_date: sixMonthsAgo.toISOString().split('T')[0],
         end_date: today.toISOString().split('T')[0]
       }
     ]
   }
 
-  // Log if baseline filters were injected (when client only provided time filters)
-  if (timePeriod && !filters.naicsCodes && !filters.awardTypeCodes && !filters.agencies) {
-    console.log('[USAspending Capture] Baseline filters injected (client provided only time filters)')
-  }
+  // NOTE: NAICS codes and agencies are NOT included in discovery filters
+  // These will be used for filtering AFTER persistence (in database queries)
+  // This allows broader discovery, then filtering/scoring happens post-persistence
 
   // Hard limit total pages (USAspending can be unstable)
   const MAX_PAGES = 5
@@ -214,29 +210,24 @@ export async function discoverAwards(
   while (hasNext && page <= effectiveMaxPages) {
     try {
       // SAFE REQUEST ASSEMBLY
-      // Final USAspending request with normalized filters
-      // Client API shape has been translated to USAspending API shape
+      // Use minimal filters for discovery (mandatory award_type_codes + time_period)
+      // Sort by generated_internal_id (verified working format)
       const body = {
         filters: {
-          naics_codes: apiFilters.naics_codes,
           award_type_codes: apiFilters.award_type_codes,
-          agencies: apiFilters.agencies,
           time_period: apiFilters.time_period,
         },
         fields: [
           'Award ID',
           'Recipient Name',
           'Award Amount',
-          'Awarding Agency',
-          'Awarding Sub Agency',
           'Description',
-          'generated_internal_id',
-          'internal_id'
+          'generated_internal_id'
         ],
         limit: limitPerPage,
         page,
-        // Use 'Award Amount' as sort (verified working format, NEVER use generated_internal_id)
-        sort: 'Award Amount',
+        // Use 'generated_internal_id' as sort (verified working format)
+        sort: 'generated_internal_id',
         order: 'desc' as const,
       }
 
