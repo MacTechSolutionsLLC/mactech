@@ -158,21 +158,12 @@ export async function discoverAwards(
     agencies: filters.agencies || [
       { type: 'awarding', tier: 'toptier', name: 'Department of Defense' }
     ],
-    time_period: (() => {
-      const today = new Date().toISOString().split('T')[0]
-      if (filters.timePeriod) {
-        // Cap end_date at today to avoid future date issues with API
-        let endDate = filters.timePeriod.endDate
-        if (endDate > today) {
-          console.warn(`[USAspending Capture] Capping end_date from ${endDate} to ${today} (future dates not allowed)`)
-          endDate = today
-        }
-        return [{ start_date: filters.timePeriod.startDate, end_date: endDate }]
-      }
-      // Default to last 2 years to avoid API timeouts with large date ranges
-      const twoYearsAgo = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      return [{ start_date: twoYearsAgo, end_date: today }]
-    })(),
+    time_period: filters.timePeriod ? [
+      { start_date: filters.timePeriod.startDate, end_date: filters.timePeriod.endDate }
+    ] : [
+      // Default date range matching verified API call format (2022-01-01 to 2026-12-31)
+      { start_date: '2022-01-01', end_date: '2026-12-31' }
+    ],
   }
 
   const allAwards: DiscoveryAward[] = []
