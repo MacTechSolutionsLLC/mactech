@@ -6,14 +6,14 @@ import bcrypt from 'bcryptjs'
 // This should be called manually or removed after initial setup
 export async function POST(req: NextRequest) {
   try {
-    // Check if any admin users exist
-    const existingAdmin = await prisma.user.findFirst({
+    // Check if we already have 4 admin users (initial setup complete)
+    const adminCount = await prisma.user.count({
       where: { role: 'ADMIN' }
     })
 
-    if (existingAdmin) {
+    if (adminCount >= 4) {
       return NextResponse.json(
-        { error: 'Admin user already exists. Use /api/admin/create-user instead.' },
+        { error: 'Initial admin users already created. Use /api/admin/create-user instead.' },
         { status: 400 }
       )
     }
