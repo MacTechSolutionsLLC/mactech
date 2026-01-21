@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 
 interface NavItem {
   href: string
@@ -51,6 +53,11 @@ const navItems: NavItem[] = [
 
 export default function AdminNavigation() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' })
+  }
 
   return (
     <nav className="bg-white border-b border-neutral-200 sticky top-0 z-40 shadow-sm">
@@ -87,6 +94,24 @@ export default function AdminNavigation() {
                 </Link>
               )
             })}
+          </div>
+
+          {/* User Info and Logout */}
+          <div className="flex items-center gap-4">
+            {session?.user && (
+              <div className="hidden sm:flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-neutral-900">{session.user.name || session.user.email}</p>
+                  <p className="text-xs text-neutral-500">{session.user.role}</p>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg transition-colors"
+            >
+              Logout
+            </button>
           </div>
 
           {/* Mobile: Show current page and dropdown */}

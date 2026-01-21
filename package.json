@@ -19,14 +19,16 @@
     "enrich:contracts": "tsx scripts/enrich-contracts.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^5.22.0",
     "@types/cheerio": "^0.22.35",
+    "bcryptjs": "^3.0.3",
     "cheerio": "^1.1.2",
     "docx": "^9.5.1",
     "mammoth": "^1.11.0",
     "next": "^14.0.4",
+    "next-auth": "^5.0.0-beta.30",
     "nodemailer": "^7.0.12",
-    "openai": "^4.20.0",
     "openai": "^6.15.0",
     "pdf-parse": "^2.4.5",
     "prisma": "^5.22.0",
@@ -36,6 +38,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.27",
     "@types/nodemailer": "^6.4.14",
     "@types/pdf-parse": "^1.1.5",

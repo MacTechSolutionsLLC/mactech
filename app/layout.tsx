@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Navigation from '@/components/Navigation'
-import Footer from '@/components/Footer'
-import FloatingChatButton from '@/components/FloatingChatButton'
+import SessionProvider from '@/components/SessionProvider'
+import ConditionalLayout from '@/components/ConditionalLayout'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -81,10 +80,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        <Navigation />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <FloatingChatButton />
+        <SessionProvider>
+          <ConditionalLayout>{children}</ConditionalLayout>
+        </SessionProvider>
       </body>
     </html>
   )
