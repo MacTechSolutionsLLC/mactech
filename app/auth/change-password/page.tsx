@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function ChangePasswordPage() {
+function ChangePasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, update } = useSession()
@@ -204,5 +204,32 @@ export default function ChangePasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-block">
+              <Image
+                src="/mactech.png"
+                alt="MacTech Solutions"
+                width={1800}
+                height={360}
+                className="h-16 w-auto mx-auto"
+              />
+            </Link>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8">
+            <p className="text-neutral-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ChangePasswordForm />
+    </Suspense>
   )
 }

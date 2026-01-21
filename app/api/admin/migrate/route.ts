@@ -1,19 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { execSync } from 'child_process'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * Admin endpoint to manually trigger database migrations
  * This is useful for baselining existing databases or applying new migrations
+ * Allows unauthenticated access during first-time setup (when no users exist)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Optional: Add authentication check here
-    // const authHeader = request.headers.get('authorization')
-    // if (authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Check if it's first-time setup (no users exist)
+    let isFirstSetup = false
+    try {
+      const userCount = await prisma.user.count()
+      isFirstSetup = userCount === 0
+    } catch (error: any) {
+      // If query fails, tables probably don't exist - this is first setup
+      if (error.message?.includes("does not exist") || error.message?.includes("relation")) {
+        isFirstSetup = true
+      }
+    }
+
+    // If not first setup, require admin authentication
+    if (!isFirstSetup) {
+      const session = await auth()
+      if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true },
+      })
+
+      if (user?.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden - Admin only" }, { status: 403 })
+      }
+    }
 
     console.log('[Migration API] Starting manual migration...')
 

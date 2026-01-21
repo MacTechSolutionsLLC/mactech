@@ -11,6 +11,11 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
+  // Allow API routes needed for first-time setup
+  if (pathname.startsWith("/api/admin/migrate") || pathname.startsWith("/api/admin/create-initial-admin")) {
+    return NextResponse.next()
+  }
+
   // Protect admin routes
   if (pathname.startsWith("/admin")) {
     if (!session) {
