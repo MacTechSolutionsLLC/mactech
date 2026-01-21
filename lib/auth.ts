@@ -71,17 +71,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.mustChangePassword = user.mustChangePassword
       }
       
-      // On every request, fetch latest mustChangePassword status from database
-      if (token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { mustChangePassword: true, role: true }
-        })
-        if (dbUser) {
-          token.mustChangePassword = dbUser.mustChangePassword
-          token.role = dbUser.role
-        }
-      }
+      // Note: We don't fetch from database here because middleware runs in Edge Runtime
+      // which doesn't support Prisma. The mustChangePassword status is stored in the token
+      // and will be updated when the user changes their password (which triggers a new login)
       
       return token
     },
