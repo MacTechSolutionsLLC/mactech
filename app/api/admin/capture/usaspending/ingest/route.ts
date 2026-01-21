@@ -58,19 +58,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: Save discovered awards (set enrichment_status = 'pending')
+    // Only save if we have results - never overwrite with zero results from 500 errors
     let saved = 0
     let errors: string[] = []
 
-    for (const discoveryAward of discoveredAwards) {
-      const result = await saveDiscoveredAward(discoveryAward)
-      if (result.saved) {
-        saved++
-      } else {
-        errors.push(`Failed to save award ${discoveryAward['Award ID'] || 'unknown'}: ${result.error}`)
+    if (discoveredAwards.length > 0) {
+      for (const discoveryAward of discoveredAwards) {
+        const result = await saveDiscoveredAward(discoveryAward)
+        if (result.saved) {
+          saved++
+        } else {
+          errors.push(`Failed to save award ${discoveryAward['Award ID'] || 'unknown'}: ${result.error}`)
+        }
       }
+      console.log(`[USAspending Capture Ingest] Saved ${saved} awards to database`)
+    } else {
+      console.log(`[USAspending Capture Ingest] No awards to save (upstream API may be unavailable)`)
     }
-
-    console.log(`[USAspending Capture Ingest] Saved ${saved} awards to database`)
 
     // Step 3: Enrich awards (get full details)
     console.log('[USAspending Capture Ingest] Enriching awards...')

@@ -166,11 +166,17 @@ export async function discoverAwards(
     ],
   }
 
+  // Hard limit total pages (USAspending can be unstable)
+  const MAX_PAGES = 5
+  const effectiveMaxPages = Math.min(maxPages, MAX_PAGES)
+
   const allAwards: DiscoveryAward[] = []
   let page = 1
   let hasNext = true
+  let pagesSucceeded = 0
+  let encountered500 = false
 
-  while (hasNext && page <= maxPages) {
+  while (hasNext && page <= effectiveMaxPages) {
     try {
       // Use exact format from verified API call
       // NEVER sort by generated_internal_id (causes issues)
@@ -205,12 +211,13 @@ export async function discoverAwards(
       }
 
       // Make request using verified API call format
-      // USAspending will intermittently 500 on heavy queries - handle gracefully
       const response = await makeRequest<DiscoveryResponse>('/search/spending_by_award/', {
         method: 'POST',
         body: JSON.stringify(body),
       })
 
+      // Page succeeded - accumulate results
+      pagesSucceeded++
       if (response.results && response.results.length > 0) {
         allAwards.push(...response.results)
         console.log(`[USAspending Capture] Page ${page}: Retrieved ${response.results.length} awards (total: ${allAwards.length})`)
@@ -224,43 +231,36 @@ export async function discoverAwards(
         await new Promise(resolve => setTimeout(resolve, 200))
       }
     } catch (error) {
-      // USAspending intermittently 500s on heavy queries - this is expected
-      // NEVER crash the pipeline on discovery failure
-      // NEVER assume page 1 must succeed - continue to next page if possible
+      // Classify USAspending 500s as non-fatal upstream unavailability
       const errorMessage = error instanceof Error ? error.message : String(error)
       const is500Error = errorMessage.includes('500') || errorMessage.includes('Server error')
+      const isHtmlError = errorMessage.includes('<!doctype html>') || errorMessage.includes('<html')
       
-      if (is500Error) {
-        console.warn(`[USAspending Capture] Intermittent 500 error on page ${page} (expected on heavy queries). Continuing...`)
+      if (is500Error || isHtmlError) {
+        // Classify as "upstream_unavailable" - log once and stop pagination
+        encountered500 = true
+        console.warn(`[USAspending Capture] Upstream API unavailable (500) on page ${page}. Stopping pagination to preserve ${allAwards.length} awards already collected.`)
+        // STOP PAGINATION AFTER FIRST 500 - do NOT attempt page+1
+        break
       } else {
+        // Other errors - log and stop pagination
         console.error(`[USAspending Capture] Error discovering awards on page ${page}:`, errorMessage)
-      }
-      
-      // If we have results, continue to next page (don't fail completely)
-      // If page 1 fails, try page 2 anyway (never assume page 1 must succeed)
-      if (allAwards.length > 0 || page === 1) {
-        // Continue to next page - don't fail the entire pipeline
-        page++
-        // Add delay before retrying next page
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        // Don't set hasNext = false - let it try the next page
-        continue
-      }
-      
-      // Only stop if we have no results and it's not page 1
-      // (Page 1 failures are expected and we should try page 2)
-      if (allAwards.length === 0 && page > 1) {
-        console.warn(`[USAspending Capture] No results after ${page - 1} pages. Stopping discovery.`)
-        hasNext = false
+        break
       }
     }
   }
 
-  // Return whatever we got - never crash the pipeline
-  if (allAwards.length === 0) {
-    console.warn(`[USAspending Capture] Discovery completed with 0 awards. This may indicate API issues or no matching awards.`)
+  // Final success criteria
+  if (pagesSucceeded === 0) {
+    if (encountered500) {
+      console.warn(`[USAspending Capture] Discovery incomplete due to upstream API instability. No pages succeeded.`)
+    } else {
+      console.warn(`[USAspending Capture] Discovery failed: No pages succeeded.`)
+    }
+  } else if (encountered500) {
+    console.log(`[USAspending Capture] Discovery DEGRADED: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected. Upstream API returned 500 errors.`)
   } else {
-    console.log(`[USAspending Capture] Discovery completed: ${allAwards.length} awards retrieved`)
+    console.log(`[USAspending Capture] Discovery SUCCESSFUL: ${pagesSucceeded} page(s) succeeded, ${allAwards.length} awards collected.`)
   }
 
   return allAwards
