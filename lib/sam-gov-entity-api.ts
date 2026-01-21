@@ -20,6 +20,9 @@ export interface EntitySearchParams {
   samRegistered?: 'Yes' | 'No' // v2: Yes only, v3/v4: Yes or No
   registrationStatus?: string // v3/v4: replaces samExtractCode
   includeSections?: string // Comma-separated list of sections to include
+  legalBusinessName?: string // v3: Legal business name search (partial allowed)
+  country?: string // ISO country code
+  purposeOfRegistrationCode?: string // Purpose of registration code
   
   // Entity information filters
   q?: string // Free text search
@@ -62,7 +65,13 @@ export interface EntityResponse {
 export interface EntityData {
   ueiSAM?: string
   entityRegistration?: {
+    legalBusinessName?: string
     registrationStatus?: string
+    ueiSAM?: string
+    cageCode?: string
+    samRegistered?: string
+    registrationDate?: string
+    registrationExpirationDate?: string
     evsSource?: string
     lastUpdateDate?: string
   }
@@ -73,9 +82,17 @@ export interface EntityData {
       entityDivision?: string
       divisionNumber?: string
     }
+    generalInformation?: {
+      entityStructureDesc?: string
+      profitStructureDesc?: string
+      organizationStructureDesc?: string
+      countryOfIncorporationDesc?: string
+    }
     physicalAddress?: Address
     mailingAddress?: Address
-    businessTypes?: string[]
+    businessTypes?: {
+      businessTypeList?: string[]
+    }
     naicsCodes?: Array<{
       naicsCode?: string
       naicsName?: string
@@ -84,6 +101,19 @@ export interface EntityData {
       pscCode?: string
       pscName?: string
     }>
+  }
+  assertions?: {
+    goodsAndServices?: {
+      primaryNaics?: string
+      naicsList?: Array<{
+        naicsCode?: string
+        naicsName?: string
+      }>
+      pscList?: Array<{
+        pscCode?: string
+        pscName?: string
+      }>
+    }
   }
   pointsOfContact?: Array<{
     firstName?: string
@@ -94,7 +124,9 @@ export interface EntityData {
     phone?: string // FOUO data
     fax?: string // FOUO data
     address?: Address
-  }>
+  }> | {
+    [key: string]: any
+  }
   // Additional sections available based on includeSections parameter
 }
 
@@ -321,6 +353,66 @@ export async function getEntityByUei(
     console.error(`[SAM.gov Entity API] Error fetching entity ${uei}:`, error)
     return null
   }
+}
+
+/**
+ * Search entities by legal business name (RESTRICTED - v3 only)
+ * 
+ * This function uses ONLY allowed parameters for SAM.gov Entity API v3.
+ * Forbidden parameters are hard rejected.
+ * 
+ * ALLOWED parameters only:
+ * - registrationStatus (ACTIVE | INACTIVE)
+ * - legalBusinessName (string, partial allowed)
+ * - country (ISO code, optional)
+ * - state (US only, optional)
+ * - purposeOfRegistrationCode (optional)
+ * - size (default: 5)
+ * - page (default: 0)
+ * 
+ * FORBIDDEN parameters (will be rejected):
+ * - uei, ueiSAM, entityName, businessType, duns, cageCode, naics, psc
+ * - Any /entities/{UEI} endpoint calls
+ * - Fuzzy search parameters
+ */
+export async function searchEntitiesByLegalBusinessName(
+  legalBusinessName: string,
+  options: {
+    registrationStatus?: 'ACTIVE' | 'INACTIVE'
+    country?: string
+    state?: string
+    purposeOfRegistrationCode?: string
+    size?: number
+    page?: number
+  } = {}
+): Promise<EntityResponse> {
+  // Validate that legalBusinessName is provided
+  if (!legalBusinessName || legalBusinessName.trim().length === 0) {
+    throw new Error('legalBusinessName is required and cannot be empty')
+  }
+
+  // Build params object with ONLY allowed parameters
+  const params: any = {
+    legalBusinessName: legalBusinessName.trim(),
+    registrationStatus: options.registrationStatus || 'ACTIVE',
+    size: options.size || 5,
+    page: options.page || 0,
+  }
+
+  // Add optional allowed parameters
+  if (options.country) {
+    params.country = options.country
+  }
+  if (options.state) {
+    params.state = options.state
+  }
+  if (options.purposeOfRegistrationCode) {
+    params.purposeOfRegistrationCode = options.purposeOfRegistrationCode
+  }
+
+  // Call the base search function with version 3
+  // Note: searchSamGovEntities will handle API key and authentication
+  return searchSamGovEntities(params, 3, false)
 }
 
 /**

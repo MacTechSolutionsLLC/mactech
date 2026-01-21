@@ -94,8 +94,10 @@ USAspending.gov Historical Data:
             if (enrichedVendors.length > 0) {
               dataSources.push('SAM.gov Entity API')
               entityApiContext = `
-SAM.gov Entity API Vendor Intelligence:
+Contextual SAM.gov Entity API information (non-authoritative):
 ${enrichedVendors.map((v: string, i: number) => `${i + 1}. ${v}`).join('\n')}
+
+Note: USAspending.gov remains the source of truth for incumbents, award history, competitive landscape, and recompete signals. Entity API data is contextual enrichment only.
               `.trim()
             }
           }
@@ -152,7 +154,15 @@ Focus on:
 - Competitive landscape considerations (use USAspending data if provided)
 - Likely incumbents from historical awards
 
-Be concise, actionable, and cite data sources (SAM.gov, USAspending.gov, SAM.gov Entity API).`,
+CRITICAL DATA SOURCE RULES:
+- USAspending.gov is the SOLE source of truth for incumbents, award history, competitive landscape, and recompete signals
+- SAM.gov Entity API data is CONTEXTUAL ONLY (non-authoritative enrichment)
+- Do NOT infer absence of entity data as risk
+- Do NOT infer small/large business status, certifications, or capabilities from entity data absence
+- Do NOT override USAspending data with Entity API data
+- Entity API data may be referenced as contextual information only
+
+Be concise, actionable, and cite data sources (SAM.gov, USAspending.gov as primary source of truth, SAM.gov Entity API as contextual enrichment only).`,
         },
         {
           role: 'user',

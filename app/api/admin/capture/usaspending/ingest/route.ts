@@ -16,6 +16,8 @@ import {
   updateAwardEnrichment,
   saveTransactions,
   updateAwardScoring,
+  enrichAwardWithEntityApi,
+  normalizeEntityData,
 } from '@/lib/services/usaspending-capture.service'
 import { prisma } from '@/lib/prisma'
 
@@ -141,6 +143,43 @@ export async function POST(request: NextRequest) {
               relevanceScore,
               signals
             )
+
+            // Step 5: SAM.gov Entity API enrichment (SECONDARY, BEST-EFFORT)
+            // Only for awards with relevanceScore >= threshold AND recipient_name exists
+            const ENTITY_ENRICHMENT_THRESHOLD = 60 // Configurable, default 60
+
+            if (updatedAward.relevance_score !== null &&
+                updatedAward.relevance_score >= ENTITY_ENRICHMENT_THRESHOLD &&
+                updatedAward.recipient_name) {
+              try {
+                const entityResult = await enrichAwardWithEntityApi(updatedAward)
+                
+                if (entityResult.success) {
+                  // Update award with entity data (null if empty results - VALID SUCCESS)
+                  await prisma.usaSpendingAward.update({
+                    where: { id: award.id },
+                    data: {
+                      recipient_entity_data: entityResult.entityData 
+                        ? JSON.stringify(normalizeEntityData(entityResult.entityData))
+                        : null,  // Empty results stored as null (valid success case)
+                      updated_at: new Date(),
+                    },
+                  })
+                  
+                  // Log empty results at info level (not warning)
+                  if (!entityResult.entityData) {
+                    console.info(`[Entity API] No entity data found for award ${award.id} (vendor: ${updatedAward.recipient_name})`)
+                  }
+                } else {
+                  // Log API error at warn level (API returned error response)
+                  console.warn(`[Entity API] Failed to enrich award ${award.id}: ${entityResult.error}`)
+                }
+              } catch (error) {
+                // Log network/unexpected failure at error level
+                console.error(`[Entity API] Error enriching award ${award.id}:`, error)
+                // Continue pipeline - Entity API is best-effort
+              }
+            }
           }
         } else {
           errors.push(`Failed to enrich award ${award.human_award_id || award.id}: ${updateResult.error}`)

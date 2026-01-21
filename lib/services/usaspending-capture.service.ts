@@ -612,3 +612,114 @@ export async function updateAwardScoring(
     throw error
   }
 }
+
+/**
+ * Normalize Entity API response to Prisma JSON format
+ * Uses AUTHORITATIVE field paths from SAM.gov Entity API v3
+ */
+export function normalizeEntityData(entityData: any): any {
+  return {
+    legalBusinessName: entityData.entityRegistration?.legalBusinessName || null,
+    registrationStatus: entityData.entityRegistration?.registrationStatus || null,
+    ueiSAM: entityData.entityRegistration?.ueiSAM || null,
+    cageCode: entityData.entityRegistration?.cageCode || null,
+    entityStructureDesc: entityData.coreData?.generalInformation?.entityStructureDesc || null,
+    profitStructureDesc: entityData.coreData?.generalInformation?.profitStructureDesc || null,
+    organizationStructureDesc: entityData.coreData?.generalInformation?.organizationStructureDesc || null,
+    countryOfIncorporation: entityData.coreData?.generalInformation?.countryOfIncorporationDesc || null,
+    businessTypeList: entityData.coreData?.businessTypes?.businessTypeList || [],
+    primaryNaics: entityData.assertions?.goodsAndServices?.primaryNaics || null,
+    naicsList: entityData.assertions?.goodsAndServices?.naicsList || [],
+    pscList: entityData.assertions?.goodsAndServices?.pscList || [],
+    samRegistered: entityData.entityRegistration?.samRegistered || null,
+    registrationDate: entityData.entityRegistration?.registrationDate || null,
+    registrationExpirationDate: entityData.entityRegistration?.registrationExpirationDate || null,
+    pointsOfContact: entityData.pointsOfContact || {},
+  }
+}
+
+/**
+ * Enrich award with SAM.gov Entity API v3 (SECONDARY, BEST-EFFORT)
+ * 
+ * This is a secondary enrichment layer that runs AFTER USAspending enrichment.
+ * Empty results are VALID and expected.
+ * 
+ * Rules:
+ * - Only enriches if recipient_name exists
+ * - Truncates vendor name only if >120 characters
+ * - Uses ONLY allowed Entity API parameters
+ * - Treats empty results as valid success
+ * - Does NOT retry on empty results
+ */
+export async function enrichAwardWithEntityApi(award: {
+  id: string
+  recipient_name: string | null
+  raw_data: string | null
+}): Promise<{
+  success: boolean
+  entityData: any | null
+  error?: string
+}> {
+  // Extract vendor name from award
+  let vendorName = award.recipient_name
+
+  // Fallback: Try to parse parent_recipient_name from raw_data
+  if (!vendorName && award.raw_data) {
+    try {
+      const rawData = JSON.parse(award.raw_data)
+      const recipient = rawData.recipient
+      vendorName = recipient?.parent_recipient_name || recipient?.recipient_name
+    } catch {
+      // Invalid JSON, skip fallback
+    }
+  }
+
+  // If no vendor name, return early (no enrichment possible)
+  if (!vendorName || vendorName.trim().length === 0) {
+    return {
+      success: true,
+      entityData: null,
+    }
+  }
+
+  // Truncate vendor name ONLY if >120 characters
+  const truncatedName = vendorName.length > 120
+    ? vendorName.slice(0, 120)
+    : vendorName
+
+  try {
+    // Import the restricted Entity API function
+    const { searchEntitiesByLegalBusinessName } = await import('../sam-gov-entity-api')
+
+    // Execute ONE Entity API query with ONLY allowed parameters
+    const response = await searchEntitiesByLegalBusinessName(truncatedName, {
+      registrationStatus: 'ACTIVE',
+      size: 5,
+      page: 0,
+    })
+
+    // Handle results
+    if (!response.entityData || response.entityData.length === 0) {
+      // Empty results are VALID SUCCESS CASE
+      return {
+        success: true,
+        entityData: null,
+      }
+    }
+
+    // Select FIRST entity (treat as contextual, not authoritative)
+    const firstEntity = response.entityData[0]
+    return {
+      success: true,
+      entityData: firstEntity,
+    }
+  } catch (error) {
+    // Log error but return failure (caller will handle logging at appropriate level)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return {
+      success: false,
+      entityData: null,
+      error: errorMessage,
+    }
+  }
+}
