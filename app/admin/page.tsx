@@ -132,14 +132,15 @@ export default function AdminPage() {
         <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-6">
           <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
           <p className="text-sm text-neutral-700 mb-4">
-            Run database migrations manually. Use this after deploying new schema changes.
+            Sync database schema and create missing tables (PhysicalAccessLog, EndpointInventory, etc.). 
+            This will ensure all CMMC compliance tables exist in the database.
           </p>
           <button
             onClick={handleMigrate}
             disabled={isMigrating}
             className="px-6 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isMigrating ? 'Running Migrations...' : 'Run Migrations'}
+            {isMigrating ? 'Running Migrations...' : 'Sync Database Schema'}
           </button>
           
           {migrationResult && (
