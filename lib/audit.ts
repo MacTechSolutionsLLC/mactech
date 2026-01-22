@@ -5,7 +5,7 @@
  */
 
 import { prisma } from "./prisma"
-import { getHeaders } from "next/headers"
+import { headers } from "next/headers"
 
 export type ActionType =
   | "login"
@@ -57,11 +57,11 @@ export interface EventFilters {
  */
 async function getRequestMetadata() {
   try {
-    const headers = await getHeaders()
-    const ip = headers.get("x-forwarded-for")?.split(",")[0] || 
-               headers.get("x-real-ip") || 
+    const headersList = await headers()
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || 
+               headersList.get("x-real-ip") || 
                "unknown"
-    const userAgent = headers.get("user-agent") || "unknown"
+    const userAgent = headersList.get("user-agent") || "unknown"
     return { ip, userAgent }
   } catch {
     return { ip: "unknown", userAgent: "unknown" }

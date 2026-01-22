@@ -95,7 +95,7 @@ export default async function ComplianceDashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-neutral-900 mb-4">Audit Checklist</h2>
             <p className="text-neutral-600 mb-4">
-              Step-by-step "show me" procedures for assessors.
+              Step-by-step &quot;show me&quot; procedures for assessors.
             </p>
             <Link
               href="/compliance/Internal-Audit-Checklist.md"

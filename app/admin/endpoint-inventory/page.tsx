@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 
 interface EndpointInventory {
   id: string
@@ -36,11 +36,7 @@ export default function EndpointInventoryPage() {
     notes: "",
   })
 
-  useEffect(() => {
-    loadEndpoints()
-  }, [filters])
-
-  const loadEndpoints = async () => {
+  const loadEndpoints = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -58,7 +54,11 @@ export default function EndpointInventoryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
+
+  useEffect(() => {
+    loadEndpoints()
+  }, [loadEndpoints])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

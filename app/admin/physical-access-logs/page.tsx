@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import CUIWarningBanner from "@/components/CUIWarningBanner"
 
@@ -45,11 +45,7 @@ export default function PhysicalAccessLogsPage() {
     notes: "",
   })
 
-  useEffect(() => {
-    loadLogs()
-  }, [filters])
-
-  const loadLogs = async () => {
+  const loadLogs = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -68,7 +64,11 @@ export default function PhysicalAccessLogsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
+
+  useEffect(() => {
+    loadLogs()
+  }, [loadLogs])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
