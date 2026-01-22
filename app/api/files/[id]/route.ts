@@ -54,10 +54,11 @@ export async function GET(
 
     // Return file with appropriate headers
     // Convert Buffer to ArrayBuffer for NextResponse
-    const arrayBuffer = file.data.buffer.slice(
-      file.data.byteOffset,
-      file.data.byteOffset + file.data.byteLength
-    )
+    const buffer = Buffer.from(file.data)
+    const arrayBuffer = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength
+    ) as ArrayBuffer
     
     return new NextResponse(arrayBuffer, {
       headers: {
