@@ -1,0 +1,8 @@
+# Evidence Export
+# Generated: 2026-01-22T09:21:12.120Z
+# System: MacTech Solutions Application
+# Exported By: system@mactechsolutions.com
+# Export Type: Audit Log
+
+Timestamp,Action Type,Actor Email,Actor Name,Target Type,Target ID,IP Address,User Agent,Success,Details
+2026-01-22T09:09:13.973Z,login,patrick@mactech.com,patrick,,,104.174.231.1,"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",Yes,

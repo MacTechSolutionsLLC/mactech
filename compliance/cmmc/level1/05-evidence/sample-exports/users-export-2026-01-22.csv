@@ -1,0 +1,11 @@
+# Evidence Export
+# Generated: 2026-01-22T09:21:11.965Z
+# System: MacTech Solutions Application
+# Exported By: system@mactechsolutions.com
+# Export Type: Users
+
+ID,Email,Name,Role,Disabled,Last Login,Created At
+cmknq4hjo00025q186slfwkdg,bryan@mactech.com,bryan,ADMIN,No,,2026-01-21
+cmknq4h9o00015q188mgnz50h,jimbo@mactech.com,jimbo,ADMIN,No,,2026-01-21
+cmknq4gzj00005q18we3dz5jf,jonny@mactech.com,jonny,ADMIN,No,,2026-01-21
+cmknq0fi700004qitjswoofc1,patrick@mactech.com,patrick,ADMIN,No,2026-01-22,2026-01-21

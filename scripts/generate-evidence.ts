@@ -177,7 +177,9 @@ async function exportPhysicalAccessLogs(
 ) {
   console.log("Exporting physical access logs...")
 
-  const logs = await prisma.physicalAccessLog.findMany({
+  let logs
+  try {
+    logs = await prisma.physicalAccessLog.findMany({
     where: {
       date: {
         gte: startDate,
@@ -193,7 +195,14 @@ async function exportPhysicalAccessLogs(
       },
     },
     orderBy: { date: "desc" },
-  })
+    })
+  } catch (error: any) {
+    if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+      console.log("⚠️  PhysicalAccessLog table does not exist, skipping...")
+      return null
+    }
+    throw error
+  }
 
   const headers = [
     "Date",
@@ -246,7 +255,9 @@ async function exportAuditLog(
 ) {
   console.log("Exporting audit log...")
 
-  const events = await prisma.appEvent.findMany({
+  let events
+  try {
+    events = await prisma.appEvent.findMany({
     where: {
       timestamp: {
         gte: startDate,
@@ -262,7 +273,14 @@ async function exportAuditLog(
       },
     },
     orderBy: { timestamp: "desc" },
-  })
+    })
+  } catch (error: any) {
+    if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+      console.log("⚠️  AppEvent table does not exist, skipping...")
+      return null
+    }
+    throw error
+  }
 
   const headers = [
     "Timestamp",
@@ -310,9 +328,18 @@ async function exportAuditLog(
 async function exportEndpointInventory(outputDir: string, exportedBy?: string) {
   console.log("Exporting endpoint inventory...")
 
-  const endpoints = await prisma.endpointInventory.findMany({
+  let endpoints
+  try {
+    endpoints = await prisma.endpointInventory.findMany({
     orderBy: { lastVerifiedDate: "desc" },
-  })
+    })
+  } catch (error: any) {
+    if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+      console.log("⚠️  EndpointInventory table does not exist, skipping...")
+      return null
+    }
+    throw error
+  }
 
   const headers = [
     "Device Identifier",
@@ -411,19 +438,22 @@ async function main() {
     // Export all evidence types
     const files: string[] = []
 
-    files.push(await exportUsers(options.outputDir, options.exportedBy))
-    files.push(
-      await exportPhysicalAccessLogs(
-        options.startDate!,
-        options.endDate!,
-        options.outputDir,
-        options.exportedBy
-      )
+    const userFile = await exportUsers(options.outputDir, options.exportedBy)
+    if (userFile) files.push(userFile)
+
+    const logFile = await exportPhysicalAccessLogs(
+      options.startDate!,
+      options.endDate!,
+      options.outputDir,
+      options.exportedBy
     )
-    files.push(
-      await exportAuditLog(options.startDate!, options.endDate!, options.outputDir, options.exportedBy)
-    )
-    files.push(await exportEndpointInventory(options.outputDir, options.exportedBy))
+    if (logFile) files.push(logFile)
+
+    const auditFile = await exportAuditLog(options.startDate!, options.endDate!, options.outputDir, options.exportedBy)
+    if (auditFile) files.push(auditFile)
+
+    const endpointFile = await exportEndpointInventory(options.outputDir, options.exportedBy)
+    if (endpointFile) files.push(endpointFile)
 
     console.log("")
     console.log("Evidence generation complete!")
