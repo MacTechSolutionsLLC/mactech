@@ -53,7 +53,13 @@ export async function GET(
     }
 
     // Return file with appropriate headers
-    return new NextResponse(file.data, {
+    // Convert Buffer to ArrayBuffer for NextResponse
+    const arrayBuffer = file.data.buffer.slice(
+      file.data.byteOffset,
+      file.data.byteOffset + file.data.byteLength
+    )
+    
+    return new NextResponse(arrayBuffer, {
       headers: {
         "Content-Type": file.mimeType,
         "Content-Disposition": `attachment; filename="${file.filename}"`,
