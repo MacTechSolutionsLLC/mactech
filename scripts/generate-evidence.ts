@@ -1,10 +1,14 @@
 #!/usr/bin/env tsx
 
 /**
- * Evidence Generation Script
+ * CMMC Evidence Generation Script
  * 
- * Generates CSV exports for CMMC Level 1 compliance evidence:
- * - Users list (sanitized)
+ * Generates operational evidence exports for CMMC Level 1 compliance.
+ * All exports include metadata headers (timestamp, system identifier, exporting admin).
+ * Evidence is generated on demand directly from the production system at the time of assessment.
+ * 
+ * Generates CSV exports for:
+ * - Users list
  * - Physical access logs (date range)
  * - Audit log (date range)
  * - Endpoint inventory
@@ -16,6 +20,10 @@
  *   --start-date YYYY-MM-DD    Start date for logs (default: 30 days ago)
  *   --end-date YYYY-MM-DD      End date for logs (default: today)
  *   --output-dir PATH          Output directory (default: compliance/cmmc/level1/05-evidence/sample-exports)
+ *   --exported-by EMAIL        Email of admin generating export (default: system)
+ * 
+ * Example:
+ *   tsx scripts/generate-evidence.ts --start-date 2026-01-01 --end-date 2026-01-31 --exported-by admin@mactechsolutions.com
  */
 
 import { PrismaClient } from "@prisma/client"
@@ -29,6 +37,7 @@ interface Options {
   startDate?: Date
   endDate?: Date
   outputDir: string
+  exportedBy?: string
 }
 
 function parseArgs(): Options {
@@ -46,6 +55,9 @@ function parseArgs(): Options {
       i++
     } else if (args[i] === "--output-dir" && args[i + 1]) {
       options.outputDir = args[i + 1]
+      i++
+    } else if (args[i] === "--exported-by" && args[i + 1]) {
+      options.exportedBy = args[i + 1]
       i++
     }
   }
@@ -78,7 +90,18 @@ function formatDate(date: Date | null): string {
   return date.toISOString().split("T")[0]
 }
 
-async function exportUsers(outputDir: string) {
+function generateMetadataHeader(exportType: string, exportedBy?: string): string[] {
+  return [
+    "# Evidence Export",
+    `# Generated: ${new Date().toISOString()}`,
+    "# System: MacTech Solutions Application",
+    exportedBy ? `# Exported By: ${exportedBy}` : "# Exported By: [System]",
+    `# Export Type: ${exportType}`,
+    "",
+  ]
+}
+
+async function exportUsers(outputDir: string, exportedBy?: string) {
   console.log("Exporting users list...")
 
   const users = await prisma.user.findMany({
@@ -115,7 +138,11 @@ async function exportUsers(outputDir: string) {
     formatDate(user.createdAt),
   ])
 
+  // Metadata headers
+  const metadataLines = generateMetadataHeader("Users", exportedBy)
+
   const csv = [
+    ...metadataLines,
     headers.join(","),
     ...rows.map((row) => row.map(escapeCsv).join(",")),
   ].join("\n")
@@ -131,7 +158,8 @@ async function exportUsers(outputDir: string) {
 async function exportPhysicalAccessLogs(
   startDate: Date,
   endDate: Date,
-  outputDir: string
+  outputDir: string,
+  exportedBy?: string
 ) {
   console.log("Exporting physical access logs...")
 
@@ -179,7 +207,11 @@ async function exportPhysicalAccessLogs(
     log.createdBy.email || log.createdBy.name || "unknown",
   ])
 
+  // Metadata headers
+  const metadataLines = generateMetadataHeader("Physical Access Logs", exportedBy)
+
   const csv = [
+    ...metadataLines,
     headers.join(","),
     ...rows.map((row) => row.map(escapeCsv).join(",")),
   ].join("\n")
@@ -195,7 +227,8 @@ async function exportPhysicalAccessLogs(
 async function exportAuditLog(
   startDate: Date,
   endDate: Date,
-  outputDir: string
+  outputDir: string,
+  exportedBy?: string
 ) {
   console.log("Exporting audit log...")
 
@@ -243,7 +276,11 @@ async function exportAuditLog(
     event.details || "",
   ])
 
+  // Metadata headers
+  const metadataLines = generateMetadataHeader("Audit Log", exportedBy)
+
   const csv = [
+    ...metadataLines,
     headers.join(","),
     ...rows.map((row) => row.map(escapeCsv).join(",")),
   ].join("\n")
@@ -256,7 +293,7 @@ async function exportAuditLog(
   return filename
 }
 
-async function exportEndpointInventory(outputDir: string) {
+async function exportEndpointInventory(outputDir: string, exportedBy?: string) {
   console.log("Exporting endpoint inventory...")
 
   const endpoints = await prisma.endpointInventory.findMany({
@@ -287,7 +324,11 @@ async function exportEndpointInventory(outputDir: string) {
     formatDate(endpoint.updatedAt),
   ])
 
+  // Metadata headers
+  const metadataLines = generateMetadataHeader("Endpoint Inventory", exportedBy)
+
   const csv = [
+    ...metadataLines,
     headers.join(","),
     ...rows.map((row) => row.map(escapeCsv).join(",")),
   ].join("\n")
@@ -320,18 +361,19 @@ async function main() {
     // Export all evidence types
     const files: string[] = []
 
-    files.push(await exportUsers(options.outputDir))
+    files.push(await exportUsers(options.outputDir, options.exportedBy))
     files.push(
       await exportPhysicalAccessLogs(
         options.startDate!,
         options.endDate!,
-        options.outputDir
+        options.outputDir,
+        options.exportedBy
       )
     )
     files.push(
-      await exportAuditLog(options.startDate!, options.endDate!, options.outputDir)
+      await exportAuditLog(options.startDate!, options.endDate!, options.outputDir, options.exportedBy)
     )
-    files.push(await exportEndpointInventory(options.outputDir))
+    files.push(await exportEndpointInventory(options.outputDir, options.exportedBy))
 
     console.log("")
     console.log("Evidence generation complete!")
@@ -339,12 +381,22 @@ async function main() {
     console.log("Generated files:")
     files.forEach((file) => console.log(`  - ${file}`))
     console.log("")
+    console.log("Evidence generation complete!")
+    console.log("")
+    console.log("All exports include metadata headers:")
+    console.log("  - Generated timestamp")
+    console.log("  - System identifier")
+    console.log(`  - Exported by: ${options.exportedBy || "[System]"}`)
+    console.log("")
     console.log(
       "⚠️  IMPORTANT: Review and redact personal data before sharing externally."
     )
     console.log(
-      "    See compliance/cmmc/level1/05-evidence/sample-exports/.gitkeep for instructions."
+      "    See compliance/cmmc/level1/05-evidence/sample-exports/README.md for instructions."
     )
+    console.log("")
+    console.log("Note: Evidence is generated on demand directly from the production system")
+    console.log("      at the time of assessment. All exports are immutable once generated.")
   } catch (error) {
     console.error("Error generating evidence:", error)
     process.exit(1)
