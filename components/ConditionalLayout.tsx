@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import FloatingChatButton from '@/components/FloatingChatButton'
 
 export default function ConditionalLayout({
   children,
@@ -22,7 +21,6 @@ export default function ConditionalLayout({
       <Navigation />
       <main className="min-h-screen">{children}</main>
       <Footer />
-      <FloatingChatButton />
     </>
   )
 }

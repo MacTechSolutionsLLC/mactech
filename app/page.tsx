@@ -1,11 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import Chatbot from '@/components/Chatbot'
 
 export default function HomePage() {
-  const [chatbotOpen, setChatbotOpen] = useState(false)
 
   return (
     <>
@@ -26,12 +23,12 @@ export default function HomePage() {
                 <Link href="/readiness" className="btn-primary inline-flex items-center justify-center">
                   Understand Your Readiness
                 </Link>
-                <button 
-                  onClick={() => setChatbotOpen(true)}
+                <Link 
+                  href="/contact"
                   className="btn-secondary inline-flex items-center justify-center"
                 >
-                  Talk to MacTech
-                </button>
+                  Contact Us
+                </Link>
               </div>
             </div>
             
@@ -382,8 +379,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Chatbot Component */}
-      <Chatbot isOpen={chatbotOpen} onClose={() => setChatbotOpen(false)} />
     </>
   )
 }
