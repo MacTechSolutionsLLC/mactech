@@ -46,7 +46,7 @@ function generateConfigSnapshot() {
 
   // Environment variables (sanitized)
   const envVars = {
-    NODE_ENV: process.env.NODE_ENV || '[NOT SET]',
+    NODE_ENV: (process.env.NODE_ENV || '[NOT SET]') as string,
     DATABASE_URL: sanitizeEnvVar(process.env.DATABASE_URL),
     AUTH_SECRET: sanitizeEnvVar(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET),
     FILE_SIGNING_SECRET: sanitizeEnvVar(process.env.FILE_SIGNING_SECRET),
