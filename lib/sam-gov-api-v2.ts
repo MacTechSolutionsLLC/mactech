@@ -122,7 +122,37 @@ export interface SamGovApiResponse {
 }
 
 /**
+ * Parse MM/DD/YYYY date string to Date object
+ */
+function parseDate(dateStr: string): Date {
+  const [month, day, year] = dateStr.split('/').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+/**
+ * Validate and adjust date range to ensure it's within SAM.gov API limits
+ * API requires date ranges to be less than 1 year (364 days max)
+ */
+function validateDateRange(from: string, to: string): { from: string; to: string } {
+  const fromDate = parseDate(from)
+  const toDate = parseDate(to)
+  const diffMs = toDate.getTime() - fromDate.getTime()
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000))
+  
+  // If range is 365 days or more, adjust to 364 days
+  if (diffDays >= 365) {
+    const adjustedFromDate = new Date(toDate.getTime() - 364 * 24 * 60 * 60 * 1000)
+    const adjustedFrom = adjustedFromDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+    console.warn(`[SAM.gov API v2] Date range adjusted from ${diffDays} days to 364 days to comply with API limits`)
+    return { from: adjustedFrom, to }
+  }
+  
+  return { from, to }
+}
+
+/**
  * Get date range helper
+ * Note: SAM.gov API has a limit on date ranges - must be less than 1 year
  */
 function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { from: string; to: string } {
   const today = new Date()
@@ -137,7 +167,8 @@ function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { f
       from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
       break
     case 'past_year':
-      from = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+      // SAM.gov API rejects exactly 1 year ranges, so use 364 days (just under 1 year)
+      from = new Date(today.getTime() - 364 * 24 * 60 * 60 * 1000)
       break
     default:
       from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000) // Default to past month
@@ -165,9 +196,14 @@ export async function searchSamGovV2(params: {
   limit?: number
   offset?: number
 }): Promise<SamGovApiResponse> {
-  const { from, to } = params.postedFrom && params.postedTo
+  let { from, to } = params.postedFrom && params.postedTo
     ? { from: params.postedFrom, to: params.postedTo }
     : getDateRange(params.dateRange)
+  
+  // Validate and adjust date range if needed (API limit: less than 1 year)
+  const validated = validateDateRange(from, to)
+  from = validated.from
+  to = validated.to
   
   // Build API URL - CORRECT endpoint (no /prod/)
   const apiUrl = new URL('https://api.sam.gov/opportunities/v2/search')

@@ -6,6 +6,7 @@
 import { searchSamGovV2, transformSamGovResultV2, SamGovApiResponse } from '../sam-gov-api-v2'
 
 // Helper to get date range (duplicated from sam-gov-api for use here)
+// Note: SAM.gov API has a limit on date ranges - must be less than 1 year
 function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { from: string; to: string } {
   const today = new Date()
   const to = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
@@ -19,7 +20,8 @@ function getDateRange(dateRange?: 'past_week' | 'past_month' | 'past_year'): { f
       from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
       break
     case 'past_year':
-      from = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+      // SAM.gov API rejects exactly 1 year ranges, so use 364 days (just under 1 year)
+      from = new Date(today.getTime() - 364 * 24 * 60 * 60 * 1000)
       break
     default:
       from = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000) // Default to past month
