@@ -24,7 +24,21 @@
  * 
  * Example:
  *   tsx scripts/generate-evidence.ts --start-date 2026-01-01 --end-date 2026-01-31 --exported-by admin@mactechsolutions.com
+ * 
+ * Note: Requires DATABASE_URL environment variable to be set (from .env file or environment)
  */
+
+// Load environment variables from .env files
+// Note: When running via Railway CLI, Railway's environment variables take precedence
+import { config } from "dotenv"
+import { resolve } from "path"
+
+// Only load .env files if DATABASE_URL is not already set (Railway sets it)
+if (!process.env.DATABASE_URL) {
+  // Try loading .env.local first (highest priority), then .env
+  config({ path: resolve(process.cwd(), ".env.local") })
+  config({ path: resolve(process.cwd(), ".env") })
+}
 
 import { PrismaClient } from "@prisma/client"
 import { writeFile, mkdir } from "fs/promises"
@@ -343,6 +357,41 @@ async function exportEndpointInventory(outputDir: string, exportedBy?: string) {
 
 async function main() {
   try {
+    // Check for DATABASE_URL
+    const dbUrl = process.env.DATABASE_URL
+    if (!dbUrl) {
+      console.error("❌ Error: DATABASE_URL environment variable is not set")
+      console.error("   Please set DATABASE_URL before running this script")
+      console.error("   Example: DATABASE_URL=postgresql://... npx tsx scripts/generate-evidence.ts")
+      console.error("   Or ensure .env or .env.local file exists with DATABASE_URL")
+      process.exit(1)
+    }
+    
+    // Validate DATABASE_URL format
+    const isPostgres = dbUrl.startsWith("postgresql://") || dbUrl.startsWith("postgres://")
+    const isSqlite = dbUrl.startsWith("file:")
+    
+    if (!isPostgres && !isSqlite) {
+      console.error("❌ Error: DATABASE_URL format not recognized")
+      console.error(`   Current value starts with: ${dbUrl.substring(0, 30)}...`)
+      console.error("   Supported formats: postgresql://, postgres://, or file:")
+      process.exit(1)
+    }
+    
+    if (isSqlite) {
+      console.error("❌ Error: This script requires PostgreSQL database")
+      console.error("   Your DATABASE_URL points to SQLite (local development)")
+      console.error("   CMMC evidence must be generated from production database")
+      console.error("")
+      console.error("   To run this script:")
+      console.error("   1. Set DATABASE_URL to your production PostgreSQL connection string")
+      console.error("   2. Or run this script in production environment")
+      console.error("")
+      console.error("   Example:")
+      console.error("     DATABASE_URL=postgresql://user:pass@host:port/db npx tsx scripts/generate-evidence.ts")
+      process.exit(1)
+    }
+
     const options = parseArgs()
 
     console.log("Evidence Generation Script")
@@ -350,6 +399,7 @@ async function main() {
     console.log(`Start Date: ${formatDate(options.startDate!)}`)
     console.log(`End Date: ${formatDate(options.endDate!)}`)
     console.log(`Output Directory: ${options.outputDir}`)
+    console.log(`Exported By: ${options.exportedBy || "[System]"}`)
     console.log("")
 
     // Ensure output directory exists
