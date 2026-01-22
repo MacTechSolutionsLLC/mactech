@@ -39,6 +39,8 @@ export type TargetType =
   | "contract"
   | "system"
   | "content"
+  | "endpoint_inventory"
+  | "physical_access_log"
 
 export interface EventFilters {
   startDate?: Date
