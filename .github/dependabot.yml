@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    # Group security updates together
+    groups:
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "security"
+    # Ignore major version updates (review manually)
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    # Commit message configuration
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    # Labels for PRs
+    labels:
+      - "dependencies"
+      - "security"

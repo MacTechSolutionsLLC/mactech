@@ -1,25 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { auth } from '@/lib/auth'
+import { requireAdmin } from '@/lib/authz'
+import { requireAdminReauth } from '@/lib/admin-reauth'
+import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
+import { monitorCUIKeywords } from '@/lib/cui-blocker'
+import { logAdminAction, logEvent } from '@/lib/audit'
 
 // API route to create admin users (protected - only existing admins can create new users)
+// Requires admin re-authentication for sensitive action
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth()
-    if (!session?.user || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    // Require admin re-auth for user creation
+    const session = await requireAdminReauth()
 
     const { email, password, name, role = 'ADMIN' } = await req.json()
 
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
+        { status: 400 }
+      )
+    }
+
+    // Monitor input for CUI keywords (monitoring-only, does not block)
+    await monitorCUIKeywords({ email, name, role }, "user_creation", session.user.id, session.user.email || null)
+
+    // Validate password against policy
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        {
+          error: 'Password does not meet requirements',
+          errors: passwordValidation.errors,
+        },
         { status: 400 }
       )
     }
@@ -36,8 +50,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10)
+    // Hash password with configured cost factor
+    const hashedPassword = await bcrypt.hash(password, PASSWORD_POLICY.bcryptRounds)
 
     // Create user
     const user = await prisma.user.create({
@@ -56,16 +70,50 @@ export async function POST(req: NextRequest) {
       }
     })
 
+    // Log admin action
+    await logAdminAction(
+      session.user.id,
+      session.user.email || "unknown",
+      "user_create",
+      { type: "user", id: user.id },
+      {
+        createdEmail: email,
+        createdRole: role,
+      }
+    )
+
+    // Log user creation event
+    await logEvent(
+      "user_create",
+      session.user.id,
+      session.user.email || null,
+      true,
+      "user",
+      user.id,
+      {
+        createdEmail: email,
+        createdRole: role,
+      }
+    )
+
     return NextResponse.json({
       success: true,
       user,
       message: 'User created successfully'
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating user:', error)
+
+    if (error.requiresReauth) {
+      return NextResponse.json(
+        { error: "Admin re-authentication required", requiresReauth: true },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
+      { error: error.message || 'Failed to create user' },
+      { status: error.message?.includes("Admin") || error.message?.includes("CUI") ? 400 : 500 }
     )
   }
 }

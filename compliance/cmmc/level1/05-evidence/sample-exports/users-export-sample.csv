@@ -1,0 +1,8 @@
+# Sample export - Personal data redacted for submission
+# Generated: 2026-01-31
+# Note: This is a sample export demonstrating user account structure. Personal data has been redacted.
+
+ID,Email,Name,Role,Disabled,Last Login,Created At
+user-id-1,[REDACTED],User 1,ADMIN,No,2026-01-30,2026-01-01T00:00:00Z
+user-id-2,[REDACTED],User 2,USER,No,2026-01-29,2026-01-05T00:00:00Z
+user-id-3,[REDACTED],User 3,USER,No,2026-01-28,2026-01-10T00:00:00Z

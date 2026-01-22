@@ -69,54 +69,6 @@ def generate_hardening_playbook(
             f.write("\n")
 
 
-def _format_nist_for_display(nist_id: str | None) -> str | None:
-    """
-    Format NIST control ID for display in task names and comments.
-    
-    Converts various formats to standard format (e.g., AU.5):
-    - "AU.02.b" -> "AU.2.b" (removes leading zeros)
-    - "AU-2" -> "AU.2"
-    - "OS-000023" -> "OS-000023" (keeps OS format)
-    - "CCI-000048" -> looks up in mapping if available
-    
-    Args:
-        nist_id: NIST control ID in various formats
-        
-    Returns:
-        Formatted NIST ID string or None if not available
-    """
-    if not nist_id:
-        return None
-    
-    # Keep OS- format as-is (e.g., OS-000023) - don't convert these
-    if nist_id.startswith("OS-"):
-        return nist_id
-    
-    # Handle AU.02.b format - remove leading zeros from control number
-    # Pattern: AU.02.b, AU.02, AU.02(3), etc.
-    dot_match = re.match(r'^([A-Z]{2})\.0*(\d+)(.*)$', nist_id)
-    if dot_match:
-        family = dot_match.group(1)
-        num = dot_match.group(2)  # Already has leading zeros removed by regex
-        suffix = dot_match.group(3)
-        return f"{family}.{num}{suffix}"
-    
-    # If it's already in standard format without leading zeros (AU.5, AU.2.b, etc.), return as-is
-    if re.match(r'^[A-Z]{2}\.\d+([a-z]|\([^)]+\))?$', nist_id):
-        return nist_id
-    
-    # Convert AU-2 format to AU.2
-    match = re.match(r'^([A-Z]{2})-(\d+)(.*)$', nist_id)
-    if match:
-        family = match.group(1)
-        num = match.group(2).lstrip('0') or '0'  # Remove leading zeros
-        suffix = match.group(3)
-        return f"{family}.{num}{suffix}"
-    
-    # Return as-is if we can't parse it
-    return nist_id
-
-
 def _get_playbook_name(stig_name: str, os_family: str) -> str:
     """Extract playbook name from STIG name or OS family."""
     stig_lower = stig_name.lower()
@@ -168,12 +120,12 @@ def _format_task_with_comments(control: StigControl, os_family: str) -> str:
     
     desc_lines = clean_text(control.description, 100)
     fix_lines = clean_text(control.fix_text, 100)
-    nist_display = _format_nist_for_display(control.nist_family_id)
+    nist_id = control.nist_family_id or "N/A"
 
     lines = [
         f"    # Category: {control.category}",
         f"    # STIG Severity: {control.severity}",
-        f"    # NIST Control: {nist_display or 'N/A'}",
+        f"    # NIST: {nist_id}",
     ]
     
     # Add description lines - ensure no YAML-breaking characters
@@ -201,14 +153,8 @@ def _format_task_with_comments(control: StigControl, os_family: str) -> str:
 
 def _generate_ansible_task(control: StigControl, os_family: str) -> list[str]:
     """Generate actual Ansible task implementation based on control."""
-    # Format NIST control ID for display (e.g., AU.5 instead of AU.02 or OS-000023)
-    nist_display = _format_nist_for_display(control.nist_family_id)
-    
     # Quote the name to handle colons and special characters
-    if nist_display:
-        task_name = f"{control.id} | {nist_display} | {control.title}"
-    else:
-        task_name = f"{control.id} | {control.title}"
+    task_name = f"{control.id} | {control.title}"
     # Escape quotes in the name
     task_name = task_name.replace("'", "''")
     lines = [f"    - name: '{task_name}'"]
@@ -235,26 +181,14 @@ def _generate_ansible_task(control: StigControl, os_family: str) -> list[str]:
     
     # Add tags
     scannability_tag = "scannable_with_nessus" if control.is_automatable else "not_scannable_with_nessus"
-    nist_display = _format_nist_for_display(control.nist_family_id)
-    
-    tags = [
+    lines.extend([
         "      tags:",
         "        - stig",
         f"        - {control.id}",
         f"        - {control.category}",
         f"        - severity_{control.severity}",
         f"        - {scannability_tag}",
-    ]
-    
-    # Add NIST control family tag if available
-    if nist_display:
-        # Extract family prefix (e.g., "AU" from "AU.5")
-        nist_family = nist_display.split('.')[0] if '.' in nist_display else nist_display.split('-')[0] if '-' in nist_display else None
-        if nist_family:
-            tags.append(f"        - nist_{nist_family.lower()}")
-        tags.append(f"        - nist_{nist_display.lower().replace('.', '_').replace('-', '_')}")
-    
-    lines.extend(tags)
+    ])
     
     return lines
 

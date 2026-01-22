@@ -1,0 +1,356 @@
+#!/usr/bin/env tsx
+
+/**
+ * Evidence Generation Script
+ * 
+ * Generates CSV exports for CMMC Level 1 compliance evidence:
+ * - Users list (sanitized)
+ * - Physical access logs (date range)
+ * - Audit log (date range)
+ * - Endpoint inventory
+ * 
+ * Usage:
+ *   tsx scripts/generate-evidence.ts [options]
+ * 
+ * Options:
+ *   --start-date YYYY-MM-DD    Start date for logs (default: 30 days ago)
+ *   --end-date YYYY-MM-DD      End date for logs (default: today)
+ *   --output-dir PATH          Output directory (default: compliance/cmmc/level1/05-evidence/sample-exports)
+ */
+
+import { PrismaClient } from "@prisma/client"
+import { writeFile, mkdir } from "fs/promises"
+import { join } from "path"
+import { existsSync } from "fs"
+
+const prisma = new PrismaClient()
+
+interface Options {
+  startDate?: Date
+  endDate?: Date
+  outputDir: string
+}
+
+function parseArgs(): Options {
+  const args = process.argv.slice(2)
+  const options: Options = {
+    outputDir: "compliance/cmmc/level1/05-evidence/sample-exports",
+  }
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--start-date" && args[i + 1]) {
+      options.startDate = new Date(args[i + 1])
+      i++
+    } else if (args[i] === "--end-date" && args[i + 1]) {
+      options.endDate = new Date(args[i + 1])
+      i++
+    } else if (args[i] === "--output-dir" && args[i + 1]) {
+      options.outputDir = args[i + 1]
+      i++
+    }
+  }
+
+  // Default to last 30 days if not specified
+  if (!options.endDate) {
+    options.endDate = new Date()
+  }
+  if (!options.startDate) {
+    options.startDate = new Date()
+    options.startDate.setDate(options.startDate.getDate() - 30)
+  }
+
+  return options
+}
+
+function escapeCsv(value: any): string {
+  if (value === null || value === undefined) {
+    return ""
+  }
+  const str = String(value)
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
+function formatDate(date: Date | null): string {
+  if (!date) return ""
+  return date.toISOString().split("T")[0]
+}
+
+async function exportUsers(outputDir: string) {
+  console.log("Exporting users list...")
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      disabled: true,
+      lastLoginAt: true,
+      createdAt: true,
+      // Exclude password hash
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  const headers = [
+    "ID",
+    "Email",
+    "Name",
+    "Role",
+    "Disabled",
+    "Last Login",
+    "Created At",
+  ]
+
+  const rows = users.map((user) => [
+    user.id,
+    user.email,
+    user.name || "",
+    user.role,
+    user.disabled ? "Yes" : "No",
+    formatDate(user.lastLoginAt),
+    formatDate(user.createdAt),
+  ])
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.map(escapeCsv).join(",")),
+  ].join("\n")
+
+  const filename = `users-export-${new Date().toISOString().split("T")[0]}.csv`
+  const filepath = join(outputDir, filename)
+  await writeFile(filepath, csv, "utf-8")
+
+  console.log(`✓ Exported ${users.length} users to ${filename}`)
+  return filename
+}
+
+async function exportPhysicalAccessLogs(
+  startDate: Date,
+  endDate: Date,
+  outputDir: string
+) {
+  console.log("Exporting physical access logs...")
+
+  const logs = await prisma.physicalAccessLog.findMany({
+    where: {
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      createdBy: {
+        select: {
+          email: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: { date: "desc" },
+  })
+
+  const headers = [
+    "Date",
+    "Time In",
+    "Time Out",
+    "Person Name",
+    "Purpose",
+    "Host/Escort",
+    "Location",
+    "Notes",
+    "Created At",
+    "Created By",
+  ]
+
+  const rows = logs.map((log) => [
+    formatDate(log.date),
+    log.timeIn,
+    log.timeOut || "",
+    log.personName,
+    log.purpose,
+    log.hostEscort || "",
+    log.location,
+    log.notes || "",
+    formatDate(log.createdAt),
+    log.createdBy.email || log.createdBy.name || "unknown",
+  ])
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.map(escapeCsv).join(",")),
+  ].join("\n")
+
+  const filename = `physical-access-logs-${formatDate(startDate)}-to-${formatDate(endDate)}.csv`
+  const filepath = join(outputDir, filename)
+  await writeFile(filepath, csv, "utf-8")
+
+  console.log(`✓ Exported ${logs.length} physical access log entries to ${filename}`)
+  return filename
+}
+
+async function exportAuditLog(
+  startDate: Date,
+  endDate: Date,
+  outputDir: string
+) {
+  console.log("Exporting audit log...")
+
+  const events = await prisma.appEvent.findMany({
+    where: {
+      timestamp: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      actor: {
+        select: {
+          email: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: { timestamp: "desc" },
+  })
+
+  const headers = [
+    "Timestamp",
+    "Action Type",
+    "Actor Email",
+    "Actor Name",
+    "Target Type",
+    "Target ID",
+    "IP Address",
+    "User Agent",
+    "Success",
+    "Details",
+  ]
+
+  const rows = events.map((event) => [
+    event.timestamp.toISOString(),
+    event.actionType,
+    event.actorEmail || "",
+    event.actor?.name || "",
+    event.targetType || "",
+    event.targetId || "",
+    event.ip || "",
+    event.userAgent || "",
+    event.success ? "Yes" : "No",
+    event.details || "",
+  ])
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.map(escapeCsv).join(",")),
+  ].join("\n")
+
+  const filename = `audit-log-${formatDate(startDate)}-to-${formatDate(endDate)}.csv`
+  const filepath = join(outputDir, filename)
+  await writeFile(filepath, csv, "utf-8")
+
+  console.log(`✓ Exported ${events.length} audit log entries to ${filename}`)
+  return filename
+}
+
+async function exportEndpointInventory(outputDir: string) {
+  console.log("Exporting endpoint inventory...")
+
+  const endpoints = await prisma.endpointInventory.findMany({
+    orderBy: { lastVerifiedDate: "desc" },
+  })
+
+  const headers = [
+    "Device Identifier",
+    "Owner",
+    "Operating System",
+    "AV Enabled",
+    "Last Verified Date",
+    "Verification Method",
+    "Notes",
+    "Created At",
+    "Updated At",
+  ]
+
+  const rows = endpoints.map((endpoint) => [
+    endpoint.deviceIdentifier,
+    endpoint.owner,
+    endpoint.os,
+    endpoint.avEnabled ? "Yes" : "No",
+    formatDate(endpoint.lastVerifiedDate),
+    endpoint.verificationMethod || "",
+    endpoint.notes || "",
+    formatDate(endpoint.createdAt),
+    formatDate(endpoint.updatedAt),
+  ])
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.map(escapeCsv).join(",")),
+  ].join("\n")
+
+  const filename = `endpoint-inventory-${new Date().toISOString().split("T")[0]}.csv`
+  const filepath = join(outputDir, filename)
+  await writeFile(filepath, csv, "utf-8")
+
+  console.log(`✓ Exported ${endpoints.length} endpoint inventory entries to ${filename}`)
+  return filename
+}
+
+async function main() {
+  try {
+    const options = parseArgs()
+
+    console.log("Evidence Generation Script")
+    console.log("==========================")
+    console.log(`Start Date: ${formatDate(options.startDate!)}`)
+    console.log(`End Date: ${formatDate(options.endDate!)}`)
+    console.log(`Output Directory: ${options.outputDir}`)
+    console.log("")
+
+    // Ensure output directory exists
+    if (!existsSync(options.outputDir)) {
+      await mkdir(options.outputDir, { recursive: true })
+      console.log(`Created output directory: ${options.outputDir}`)
+    }
+
+    // Export all evidence types
+    const files: string[] = []
+
+    files.push(await exportUsers(options.outputDir))
+    files.push(
+      await exportPhysicalAccessLogs(
+        options.startDate!,
+        options.endDate!,
+        options.outputDir
+      )
+    )
+    files.push(
+      await exportAuditLog(options.startDate!, options.endDate!, options.outputDir)
+    )
+    files.push(await exportEndpointInventory(options.outputDir))
+
+    console.log("")
+    console.log("Evidence generation complete!")
+    console.log("")
+    console.log("Generated files:")
+    files.forEach((file) => console.log(`  - ${file}`))
+    console.log("")
+    console.log(
+      "⚠️  IMPORTANT: Review and redact personal data before sharing externally."
+    )
+    console.log(
+      "    See compliance/cmmc/level1/05-evidence/sample-exports/.gitkeep for instructions."
+    )
+  } catch (error) {
+    console.error("Error generating evidence:", error)
+    process.exit(1)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+main()

@@ -6,6 +6,16 @@ export default auth((req) => {
   const { pathname } = req.nextUrl
   const session = req.auth
 
+  // Enforce HTTPS in production
+  if (process.env.NODE_ENV === "production") {
+    const protocol = req.headers.get("x-forwarded-proto") || req.nextUrl.protocol
+    if (protocol === "http") {
+      const httpsUrl = new URL(req.url)
+      httpsUrl.protocol = "https"
+      return NextResponse.redirect(httpsUrl, 301)
+    }
+  }
+
   // Allow access to auth pages and password change
   if (pathname.startsWith("/auth")) {
     return NextResponse.next()

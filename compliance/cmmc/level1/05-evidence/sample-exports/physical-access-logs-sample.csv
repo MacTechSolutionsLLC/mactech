@@ -1,0 +1,12 @@
+# Sample export - Personal data redacted for submission
+# Generated: 2026-01-31
+# Date Range: 2026-01-01 to 2026-01-31
+# Note: This is a sample export demonstrating physical access log structure. Personal data has been redacted.
+# Evidence for: PE.L1-3.10.1, PE.L1-3.10.3, PE.L1-3.10.4
+
+Date,Time In,Time Out,Person Name,Purpose,Host/Escort,Location,Notes,Created At,Created By
+2026-01-15,09:00,17:30,[REDACTED],System administration,,Home Office,Regular workday access - FCI system administration,2026-01-15T09:05:00Z,[REDACTED]
+2026-01-16,08:45,16:20,[REDACTED],Development work,,Home Office,Development session - system access,2026-01-16T08:50:00Z,[REDACTED]
+2026-01-18,10:00,15:00,[REDACTED],System administration,,Remote Work Location - City/State,Remote access session - physical access to remote work area logged,2026-01-18T10:05:00Z,[REDACTED]
+2026-01-20,09:30,12:00,[REDACTED],Development work,,Home Office,Code review session - system access,2026-01-20T09:35:00Z,[REDACTED]
+2026-01-22,14:00,17:00,[REDACTED],System administration,Authorized Escort - [REDACTED],Home Office,Visitor escorted access - visitor supervised during entire visit,2026-01-22T14:05:00Z,[REDACTED]

@@ -1,0 +1,384 @@
+# System & Information Integrity Policy - CMMC Level 1
+
+**Document Version:** 1.0  
+**Date:** 2026-01-21  
+**Classification:** Internal Use  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
+**Reference:** FAR 52.204-21
+
+**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+
+---
+
+## 1. Policy Statement
+
+MacTech Solutions maintains system and information integrity controls to protect Federal Contract Information (FCI) and system resources from malicious code, unauthorized changes, and vulnerabilities. This policy establishes requirements for malware protection, system patching, and vulnerability management.
+
+This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+
+---
+
+## 2. Scope
+
+This policy applies to:
+- All system components (application, database, infrastructure)
+- All software dependencies and libraries
+- All system updates and patches
+- All vulnerability management activities
+
+---
+
+## 3. Malware Protection
+
+### 3.1 Malware Protection (FAR 52.204-21(b)(3))
+
+**Requirement:** Systems must be protected from malicious code.
+
+**Implementation:**
+- Malware protection is provided by the Railway cloud platform
+- Railway platform includes malware protection and security scanning
+- Application dependencies are managed via npm package manager
+- No additional endpoint protection software is installed on application servers
+
+**Inherited Controls:**
+- Railway platform provides infrastructure-level malware protection
+- Platform security includes automated threat detection
+- Network-level protections against malicious traffic
+
+**Status:** Inherited control from Railway platform
+
+**Coverage:** All application and database infrastructure hosted on Railway
+
+---
+
+### 3.2 Application-Level Protections
+
+**Input Validation:**
+- All user inputs are validated using Zod schemas
+- SQL injection prevention via Prisma ORM (parameterized queries)
+- XSS risk mitigation via React framework output encoding
+- Evidence: Input validation throughout application code
+
+**Framework Protections:**
+- Next.js framework features are implemented as described
+- Framework-level protections are implemented. No additional CSRF controls are required for Level 1.
+- Session management via NextAuth.js with token-based authentication
+
+### 3.3 Endpoint Protection (SI.L1-3.14.2)
+
+**Requirement:** Endpoints used to access/administer the system must have antivirus/endpoint protection enabled and verified.
+
+**Implementation:**
+- Endpoint inventory module tracks all endpoints used to access/administer the system
+- Each endpoint entry includes:
+  - Device identifier (hostname, serial number, etc.)
+  - Owner name
+  - Operating system
+  - Antivirus enabled status (yes/no)
+  - **Last verification date:** Required field documenting when AV status was last verified
+  - **Verification method:** Required field documenting how verification was performed (e.g., "AV status check", "Defender screenshot", "EDR Dashboard", "Manual verification")
+  - Notes field for additional information
+
+**Verification Process:**
+- Endpoint antivirus status is verified using the Endpoint AV Verification template (`05-evidence/templates/endpoint-av-verification-template.md`)
+- Verification records document the verification method used (screenshot, EDR dashboard, Defender UI, etc.)
+- Completed verification records are stored with evidence
+- Endpoint inventory is updated with last verification date and verification method
+
+**Evidence:**
+- Endpoint inventory: `/admin/endpoint-inventory`
+- Database: `EndpointInventory` table (includes `lastVerifiedDate` and `verificationMethod` fields)
+- Endpoint AV Verification template: `05-evidence/templates/endpoint-av-verification-template.md`
+- Endpoint Protection document: `06-supporting-documents/MAC-SEC-101_Endpoint_Protection.md`
+
+**Status:** ✅ **Implemented** - Endpoint inventory module tracks endpoint AV status with verification evidence
+
+---
+
+## 4. System Patching
+
+### 4.1 Patching Responsibilities
+
+**Application Dependencies:**
+- Dependencies are managed via npm and `package.json`
+- Dependencies are updated during development cycles
+- Security updates are applied as they become available
+- Evidence: `package.json` (dependencies and devDependencies)
+
+**Infrastructure Patching:**
+- Railway platform manages infrastructure patching
+- Platform updates are managed by Railway platform
+- No manual infrastructure patching required by organization
+
+**Status:** Infrastructure patching is inherited from Railway platform
+
+---
+
+### 4.2 Dependency Management
+
+**Package Management:**
+- Dependencies are defined in `package.json`
+- Dependencies are installed via npm
+- Dependency versions are specified in `package.json`
+- Evidence: `package.json`
+
+**Key Dependencies:**
+- Next.js 14.0.4
+- NextAuth.js 5.0.0-beta.30
+- Prisma 5.22.0
+- bcryptjs 3.0.3
+- React 18.2.0
+- Evidence: `package.json` (lines 21-38)
+
+**Dependency Updates:**
+- Dependencies are reviewed and updated during development cycles
+- Security advisories are monitored
+- Updates are tested before deployment
+
+---
+
+### 4.3 Patching Process
+
+**Process:**
+1. Security advisories are reviewed
+2. Vulnerable dependencies are identified
+3. Updates are tested in development environment
+4. Updates are applied to production via deployment
+5. Deployment includes dependency updates
+
+**Deployment:**
+- Updates are deployed via Railway platform
+- Build process includes `npm install` to update dependencies
+- Evidence: `railway.json`, `package.json` build scripts
+
+---
+
+## 5. Vulnerability Management
+
+### 5.1 Vulnerability Awareness
+
+**Process:**
+- Dependencies are reviewed for known vulnerabilities
+- Security advisories are monitored
+- npm audit may be used to identify vulnerabilities
+- Vulnerabilities are addressed during development cycles
+
+**Vulnerability Sources:**
+- npm security advisories
+- GitHub security advisories
+- Framework and library security announcements
+- CVE databases
+
+---
+
+### 5.2 Vulnerability Response
+
+**Process:**
+1. Vulnerability is identified
+2. Severity is assessed
+3. Update or patch is identified
+4. Update is tested
+5. Update is deployed to production
+
+**Timeline:**
+- Critical vulnerabilities are addressed promptly
+- High-severity vulnerabilities are addressed in next development cycle
+- Medium and low-severity vulnerabilities are addressed as resources permit
+
+---
+
+### 5.3 Dependency Vulnerability Scanning
+
+**Tools:**
+- npm audit (available via npm)
+- GitHub Dependabot (enabled)
+- Manual review of security advisories
+
+**Process:**
+- Dependencies are automatically scanned for known vulnerabilities via GitHub Dependabot
+- Dependabot runs weekly scans (Mondays at 9:00 AM)
+- Security updates are automatically grouped and presented as pull requests
+- Vulnerabilities are documented in Dependabot alerts
+- Remediation plans are developed
+- Updates are applied and tested via pull request review process
+
+**Implementation:**
+- GitHub Dependabot is configured to scan npm dependencies weekly
+- Security updates are automatically identified and grouped
+- Pull requests are created for security updates
+- Major version updates are excluded (require manual review)
+- Evidence: `.github/dependabot.yml`
+
+**Status:** ✅ **Implemented** - Automated vulnerability scanning via GitHub Dependabot
+
+---
+
+## 6. System Integrity Monitoring
+
+### 6.1 Application Monitoring
+
+**Logging:**
+- Application logs are available through Railway platform
+- Errors are logged to console
+- Logs are accessible via Railway dashboard
+
+**Monitoring:**
+- Railway platform provides application monitoring
+- Performance metrics are available
+- Error tracking is available through platform
+
+**Status:** Monitoring is provided by Railway platform (inherited control)
+
+---
+
+### 6.2 Database Integrity
+
+**Database Management:**
+- Database is managed via Prisma ORM
+- Database migrations are version-controlled
+- Database schema is defined in `prisma/schema.prisma`
+- Evidence: `prisma/schema.prisma`, `prisma/migrations/`
+
+**Database Backups:**
+- Railway platform provides database backups
+- Backup retention is managed by Railway
+- Backup restoration is available through Railway
+
+**Status:** Database backups are provided by Railway platform (inherited control)
+
+---
+
+## 7. Change Management
+
+### 7.1 Code Changes
+
+**Version Control:**
+- All code changes are managed via Git
+- Source code is stored in GitHub
+- Changes are reviewed before merging
+- Evidence: GitHub repository
+
+**Deployment:**
+- Changes are deployed via Railway platform
+- Deployment process includes build and migration steps
+- Evidence: `railway.json`, `Procfile`
+
+---
+
+### 7.2 Configuration Changes
+
+**Configuration Management:**
+- Environment variables are managed via Railway platform
+- Configuration changes are documented
+- Configuration is version-controlled where possible
+
+**Security Configuration:**
+- Authentication secrets are stored as environment variables
+- Database connection strings are stored as environment variables
+- No secrets are committed to source code
+- Evidence: `.gitignore` excludes `.env` files
+
+---
+
+## 8. Compliance Risks & Open Items
+
+### 8.1 Automated Vulnerability Scanning
+
+**Status:** ✅ **Implemented** - Automated vulnerability scanning is implemented via GitHub Dependabot. Dependabot performs weekly scans of npm dependencies, automatically identifies security vulnerabilities, and creates pull requests for security updates. Dependencies are also reviewed manually and via npm audit as needed.
+
+**Evidence:** `.github/dependabot.yml`
+
+---
+
+### 8.2 Formal Patch Management Process
+
+**Status:** Patch management is performed during development cycles. Formal patch management procedures and schedules may be documented as a future enhancement.
+
+---
+
+### 8.3 Security Incident Response
+
+**Status:** Security incident response procedures may be documented as a future enhancement. Current focus is on vulnerability management and patching.
+
+---
+
+### 8.4 Non-Required Hardening Items (Out of Scope for Level 1)
+
+**Note:** The following items are not required for CMMC Level 1 and are mentioned for context only. They represent potential future enhancements but are not part of the current Level 1 assessment:
+- Security information and event management (SIEM) - Not required for Level 1
+- Intrusion detection systems (IDS) - Not required for Level 1
+- Formal security testing and penetration testing - Not required for Level 1
+
+**Current Implementation:** Automated dependency vulnerability scanning (Dependabot) is implemented. See Section 5.3 for details.
+
+---
+
+## 9. Procedures
+
+### 9.1 Dependency Update Procedure
+
+1. Review security advisories and vulnerability reports
+2. Identify dependencies requiring updates
+3. Test updates in development environment
+4. Update `package.json` with new versions
+5. Run `npm install` to update dependencies
+6. Test application functionality
+7. Deploy updates to production via Railway
+
+---
+
+### 9.2 Vulnerability Response Procedure
+
+1. Identify vulnerability (via advisory, scan, or report)
+2. Assess severity and impact
+3. Identify available patch or update
+4. Test patch or update in development
+5. Deploy patch or update to production
+6. Verify patch or update is effective
+7. Document resolution
+
+---
+
+### 9.3 System Update Procedure
+
+1. Review available updates
+2. Test updates in development environment
+3. Update code and dependencies
+4. Run database migrations if needed
+5. Deploy updates via Railway platform
+6. Verify system functionality
+7. Monitor for issues
+
+---
+
+## 10. Document Control
+
+**Prepared By:** MacTech Solutions Compliance Team  
+**Reviewed By:** [To be completed]  
+**Approved By:** [To be completed]  
+**Next Review Date:** [To be completed]
+
+**Change History:**
+- Version 1.0 (2026-01-21): Initial document creation
+
+---
+
+## Appendix A: Evidence Locations
+
+| Control | Evidence Location |
+|---------|------------------|
+| Dependencies | `package.json` |
+| Automated Vulnerability Scanning | `.github/dependabot.yml` |
+| Database Schema | `prisma/schema.prisma` |
+| Database Migrations | `prisma/migrations/` |
+| Deployment Config | `railway.json`, `Procfile` |
+| Environment Variables | Railway platform configuration |
+| Source Code | GitHub repository |
+
+## Appendix B: FAR 52.204-21 Mapping
+
+| FAR Clause | Control | Implementation |
+|------------|---------|----------------|
+| 52.204-21(b)(3) | Malware protection | Railway platform (inherited) |
+| 52.204-21(b)(3) | System patching | Dependency management via npm |
+| 52.204-21(b)(3) | Vulnerability management | Automated scanning (Dependabot), manual review, and npm audit |

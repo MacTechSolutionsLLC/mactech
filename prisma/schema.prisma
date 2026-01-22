@@ -20,10 +20,22 @@ model User {
   image             String?
   emailVerified     DateTime?
   mustChangePassword Boolean  @default(false) // Force password change on next login
+  lastLoginAt       DateTime? // Last successful login timestamp
+  disabled          Boolean   @default(false) // Account disabled flag
+  securityAcknowledgmentVersion String? // Version of security acknowledgment accepted
+  securityAcknowledgmentAcceptedAt DateTime? // When security acknowledgment was accepted
+  securityAcknowledgmentRequired Boolean @default(true) // Whether acknowledgment is required
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
+  // Relations
+  events            AppEvent[] // Events created by this user
+  uploadedFiles     StoredFile[] // Files uploaded by this user
+  physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
+
   @@index([email])
+  @@index([disabled])
+  @@index([lastLoginAt])
 }
 
 model ReadinessAssessment {
@@ -857,4 +869,110 @@ model PerformanceReview {
 
   @@index([teamMemberId])
   @@index([reviewDate])
+}
+
+// ============================================================================
+// CMMC Level 1 Compliance Models
+// ============================================================================
+
+// Application event logging for audit trail
+model AppEvent {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  actorUserId String?  // User ID who performed the action
+  actorEmail  String?  // User email (denormalized for easier querying)
+  actionType  String   // login, logout, user_create, user_disable, file_upload, file_download, admin_action, etc.
+  targetType  String?  // Type of target (user, file, contract, etc.)
+  targetId    String?  // ID of target entity
+  ip          String?  // IP address of request
+  userAgent   String?  // User agent string
+  success     Boolean  @default(true) // Whether action succeeded
+  details     String?  @db.Text // JSON string with additional details
+
+  // Relations
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([actorUserId])
+  @@index([actionType])
+  @@index([targetType, targetId])
+  @@index([success])
+}
+
+// Stored files (replaces /public/uploads)
+model StoredFile {
+  id                String    @id @default(cuid())
+  userId            String    // User who uploaded the file
+  filename          String    // Original filename
+  mimeType          String    // MIME type
+  size              Int       // File size in bytes
+  data              Bytes     // File content (BYTEA in PostgreSQL)
+  uploadedAt        DateTime  @default(now())
+  deletedAt         DateTime? // Logical deletion timestamp
+  signedUrlExpiresAt DateTime? // Expiration for signed URL
+  metadata          String?   @db.Text // JSON metadata (non-sensitive)
+
+  // Relations
+  uploader          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([uploadedAt])
+  @@index([deletedAt])
+}
+
+// Public content approval (for public release control)
+model PublicContent {
+  id          String    @id @default(cuid())
+  content     String    @db.Text // Content to be made public
+  contentType String    // Type of content (post, page, etc.)
+  approvedBy  String?   // User ID who approved
+  approvedAt  DateTime? // When approved
+  isPublic    Boolean   @default(false) // Whether content is public
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublic])
+  @@index([approvedAt])
+}
+
+// Physical access logs for PE.L1-3.10.4 compliance
+// Immutable after creation (tamper-evident)
+model PhysicalAccessLog {
+  id              String   @id @default(cuid())
+  date            DateTime // Date of access
+  timeIn          String   // Time in (HH:mm format)
+  timeOut         String?  // Time out (HH:mm format, optional)
+  personName      String   // Name of person accessing
+  purpose         String   // Purpose of access
+  hostEscort      String?  // Host/escort name (optional)
+  location        String   // Location identifier (e.g., "Home Office", "Workstation Area")
+  notes           String?  @db.Text // Additional notes
+  createdAt       DateTime @default(now()) // Immutable creation timestamp
+  createdByUserId String   // User who created the entry (immutable)
+
+  // Relations
+  createdBy       User     @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([date])
+  @@index([location])
+  @@index([createdAt])
+  @@index([createdByUserId])
+}
+
+// Endpoint inventory for SI.L1-3.14.2 malware protection compliance
+model EndpointInventory {
+  id                String    @id @default(cuid())
+  deviceIdentifier  String    // Device identifier (hostname, serial number, etc.)
+  owner              String    // Device owner name
+  os                 String    // Operating system
+  avEnabled          Boolean   @default(false) // Antivirus enabled (yes/no)
+  lastVerifiedDate   DateTime? // Last verification date
+  verificationMethod String?   // Verification method (e.g., "Screenshot", "EDR Dashboard", "Defender UI")
+  notes              String?   @db.Text // Additional notes
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([deviceIdentifier])
+  @@index([owner])
+  @@index([lastVerifiedDate])
 }

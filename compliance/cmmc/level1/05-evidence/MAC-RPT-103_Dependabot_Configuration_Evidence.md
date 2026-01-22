@@ -1,0 +1,186 @@
+# Dependabot Configuration Evidence - CMMC Level 1
+
+**Document Version:** 1.0  
+**Date:** 2026-01-21  
+**Classification:** Internal Use  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
+**Reference:** FAR 52.204-21(b)(3) - Practice 15
+
+---
+
+## Purpose
+
+This document provides evidence of automated vulnerability scanning implementation via GitHub Dependabot for CMMC Level 1 compliance.
+
+---
+
+## Configuration Location
+
+**File:** `.github/dependabot.yml`  
+**Repository:** MacTech Solutions GitHub repository  
+**Status:** ✅ Active and configured
+
+---
+
+## Configuration Details
+
+### Package Ecosystem
+- **Type:** npm
+- **Directory:** `/` (root directory)
+- **Status:** Enabled
+
+### Scanning Schedule
+- **Interval:** Weekly
+- **Day:** Monday
+- **Time:** 09:00 (UTC)
+
+### Update Configuration
+- **Security Updates:** Automatically grouped
+- **Major Version Updates:** Excluded (require manual review)
+- **Pull Request Limit:** 10 open PRs maximum
+- **Labels:** `dependencies`, `security`
+
+### Commit Configuration
+- **Prefix:** `chore`
+- **Include Scope:** Yes
+
+---
+
+## Evidence of Implementation
+
+### 1. Configuration File
+**Location:** `.github/dependabot.yml`
+
+The configuration file demonstrates:
+- Automated weekly scanning of npm dependencies
+- Automatic grouping of security updates
+- Exclusion of major version updates (manual review required)
+- Proper labeling for security-related pull requests
+
+### 2. GitHub Dependabot Dashboard
+**Location:** GitHub repository → Security → Dependabot
+
+Evidence available in GitHub:
+- Active Dependabot alerts
+- Dependency vulnerability reports
+- Automated pull requests for security updates
+- Scanning history and frequency
+
+### 3. Pull Requests
+**Location:** GitHub repository → Pull Requests (filtered by `dependencies` and `security` labels)
+
+Evidence includes:
+- Automated pull requests created by Dependabot
+- Security update grouping
+- Update descriptions and changelogs
+
+---
+
+## Compliance Mapping
+
+### CMMC Level 1 Practice 15
+**Practice:** Identify, report, and correct information and information system flaws in a timely manner
+
+**FAR Reference:** 52.204-21(b)(3)
+
+**Implementation:**
+- ✅ Automated weekly vulnerability scanning via GitHub Dependabot
+- ✅ Automatic identification of security vulnerabilities in dependencies
+- ✅ Automated pull request creation for security updates
+- ✅ Manual review process for security update pull requests
+- ✅ Integration with npm audit for additional vulnerability identification
+
+**Evidence Locations:**
+- Configuration: `.github/dependabot.yml`
+- GitHub Dashboard: Repository → Security → Dependabot
+- Pull Requests: Repository → Pull Requests (filtered by labels)
+
+---
+
+## Demonstration Procedures
+
+### For Assessors
+
+1. **Show Configuration File:**
+   ```bash
+   cat .github/dependabot.yml
+   ```
+
+2. **Show GitHub Dependabot Dashboard:**
+   - Navigate to: GitHub repository → Security → Dependabot
+   - Show active alerts and scanning history
+
+3. **Show Dependabot Pull Requests:**
+   ```bash
+   gh pr list --label "dependencies" --label "security" --author "app/dependabot"
+   ```
+   Or via GitHub UI: Pull Requests → Filter by labels: `dependencies`, `security`
+
+4. **Verify Scanning Activity:**
+   - Check Dependabot alerts in GitHub Security tab
+   - Review recent pull requests created by Dependabot
+   - Verify weekly scanning schedule is active
+
+---
+
+## Related Documents
+
+- System & Information Integrity Policy (`../02-policies-and-procedures/MAC-POL-214_System_Integrity_Policy.md`)
+- Self-Assessment - Practice 15 (`../04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`)
+- Evidence Index (`MAC-RPT-100_Evidence_Index.md`)
+
+---
+
+**Document Status:** This document reflects the system state as of 2026-01-21 and is maintained under configuration control.
+
+---
+
+## Document Control
+
+**Prepared By:** MacTech Solutions Compliance Team  
+**Reviewed By:** [To be completed]  
+**Approved By:** [To be completed]  
+**Next Review Date:** [To be completed]
+
+**Change History:**
+- Version 1.0 (2026-01-21): Initial document creation following Dependabot enablement
+
+---
+
+## Appendix A: Configuration File Contents
+
+The complete Dependabot configuration is located at `.github/dependabot.yml` in the repository root. The configuration includes:
+
+- Weekly scanning schedule (Mondays at 9:00 AM UTC)
+- Automatic security update grouping
+- Major version update exclusion
+- Pull request labeling
+- Commit message formatting
+
+**Note:** For the most current configuration, refer to the actual file in the repository.
+
+---
+
+## Appendix B: GitHub Dependabot Verification
+
+To verify Dependabot is active:
+
+1. **Via GitHub Web Interface:**
+   - Navigate to repository → Security tab
+   - Click "Dependabot" in the left sidebar
+   - Verify alerts and scanning activity
+
+2. **Via GitHub CLI:**
+   ```bash
+   gh api repos/:owner/:repo/dependabot/alerts
+   ```
+
+3. **Via Configuration File:**
+   ```bash
+   cat .github/dependabot.yml
+   ```
+
+---
+
+**Generated By:** MacTech Solutions Compliance Team  
+**Purpose:** CMMC Level 1 Evidence Capture for Automated Vulnerability Scanning

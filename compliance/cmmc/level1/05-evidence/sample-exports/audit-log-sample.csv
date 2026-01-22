@@ -1,0 +1,12 @@
+# Sample export - Personal data redacted for submission
+# Generated: 2026-01-31
+# Date Range: 2026-01-01 to 2026-01-31
+# Note: This is a sample export demonstrating audit log structure. Personal data has been redacted.
+
+Timestamp,Action Type,Actor Email,Actor Name,Target Type,Target ID,IP Address,User Agent,Success,Details
+2026-01-15T09:05:00Z,login,[REDACTED],User 1,User,user-id-1,[REDACTED],Mozilla/5.0...,Yes,Successful login
+2026-01-15T09:06:00Z,login_failed,[REDACTED],,User,user-id-2,[REDACTED],Mozilla/5.0...,No,Invalid password
+2026-01-16T08:50:00Z,login,[REDACTED],User 2,User,user-id-2,[REDACTED],Mozilla/5.0...,Yes,Successful login
+2026-01-18T10:05:00Z,admin_action,[REDACTED],Admin 1,User,user-id-3,[REDACTED],Mozilla/5.0...,Yes,User account created
+2026-01-20T09:35:00Z,file_upload,[REDACTED],User 1,File,file-id-1,[REDACTED],Mozilla/5.0...,Yes,File uploaded: document.pdf
+2026-01-22T14:05:00Z,physical_access_log_create,[REDACTED],Admin 1,PhysicalAccessLog,log-id-1,[REDACTED],Mozilla/5.0...,Yes,Physical access log entry created

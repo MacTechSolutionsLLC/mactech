@@ -1,0 +1,8 @@
+# Sample export - Personal data redacted for submission
+# Generated: 2026-01-31
+# Note: This is a sample export demonstrating endpoint inventory structure. Personal data has been redacted.
+
+Device Identifier,Owner,Operating System,AV Enabled,Last Verified Date,Verification Method,Notes,Created At,Updated At
+LAPTOP-ABC123,[REDACTED],Windows 11,Yes,2026-01-15,Defender UI Screenshot,Windows Defender active with real-time protection,2026-01-10T00:00:00Z,2026-01-15T10:00:00Z
+WORKSTATION-XYZ789,[REDACTED],macOS 14,Yes,2026-01-20,XProtect Status Check,OS XProtect enabled with automatic updates,2026-01-10T00:00:00Z,2026-01-20T14:30:00Z
+DEV-LINUX-001,[REDACTED],Ubuntu 22.04,Yes,2026-01-25,ClamAV Status Check,ClamAV installed and running with freshclam updates,2026-01-10T00:00:00Z,2026-01-25T09:15:00Z

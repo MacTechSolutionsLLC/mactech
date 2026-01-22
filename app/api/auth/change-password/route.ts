@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { auth } from '@/lib/auth'
+import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
+import { logEvent } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,9 +25,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (newPassword.length < 8) {
+    // Validate password against policy
+    const passwordValidation = validatePassword(newPassword)
+    if (!passwordValidation.valid) {
       return NextResponse.json(
-        { error: 'New password must be at least 8 characters long' },
+        { 
+          error: 'Password does not meet requirements',
+          errors: passwordValidation.errors
+        },
         { status: 400 }
       )
     }
@@ -64,8 +71,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    // Hash new password with configured cost factor
+    const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_POLICY.bcryptRounds)
 
     // Update password and clear mustChangePassword flag
     await prisma.user.update({
@@ -75,6 +82,16 @@ export async function POST(req: NextRequest) {
         mustChangePassword: false,
       }
     })
+
+    // Log password change event
+    await logEvent(
+      "password_change",
+      session.user.id,
+      session.user.email || null,
+      true,
+      "user",
+      user.id
+    )
 
     return NextResponse.json({
       success: true,

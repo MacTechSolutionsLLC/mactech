@@ -1,0 +1,312 @@
+# Media Handling & Data Disposal Policy - CMMC Level 1
+
+**Document Version:** 1.0  
+**Date:** 2026-01-21  
+**Classification:** Internal Use  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
+**Reference:** FAR 52.204-21
+
+**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+
+---
+
+## 1. Policy Statement
+
+MacTech Solutions maintains controls over media handling and data disposal to protect Federal Contract Information (FCI). This policy establishes requirements for media usage, data storage, and secure data disposal procedures.
+
+This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+
+---
+
+## 2. Scope
+
+This policy applies to:
+- All media used to store or process FCI
+- All data storage mechanisms (database, file systems, cloud storage)
+- All data disposal and deletion procedures
+- All personnel who handle FCI
+
+---
+
+## 3. Media Usage
+
+### 3.1 Removable Media (FAR 52.204-21(b)(2))
+
+**Requirement:** Removable media must be properly handled and protected.
+
+**Implementation:**
+- **No removable media is used** for storing FCI
+- All FCI is stored in cloud-based PostgreSQL database
+- No USB drives, external hard drives, or other removable media are used for FCI storage
+- Source code is stored in GitHub (cloud-based version control)
+
+**FCI Storage Locations:**
+- PostgreSQL database (Railway cloud platform)
+- No local file storage of FCI
+- No removable media storage of FCI
+
+**User Requirements:**
+- All users must complete User Access and FCI Handling Acknowledgement before system access
+- Acknowledgment explicitly prohibits upload of CUI and other prohibited data types
+- Users are procedurally required to protect FCI and not use removable media
+
+**Evidence:**
+- Database schema: `prisma/schema.prisma`
+- FCI models: `GovernmentContractDiscovery`, `UsaSpendingAward`, `OpportunityAwardLink`
+- All FCI stored in database, not on removable media
+
+**Related Documents:**
+- User Access and FCI Handling Acknowledgement (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`) - Required user acknowledgment
+- FCI Scope and Data Boundary Statement (`../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`) - Prohibited data types and boundary enforcement
+
+---
+
+### 3.2 Cloud-Based Storage
+
+**Primary Storage:** PostgreSQL database hosted on Railway cloud platform
+
+**Source Code Storage:** GitHub repositories (cloud-based)
+
+**File Storage:** Limited file uploads stored in `/public/uploads/` (see Section 7.1)
+
+**No Removable Media:** All data storage is cloud-based or within application runtime
+
+---
+
+### 3.3 Source Code Storage
+
+**Location:** GitHub repositories
+
+**Access:** Restricted to authorized personnel
+
+**Version Control:** Git-based version control system
+
+**Backup:** GitHub provides repository backup and redundancy
+
+**Evidence:** Source code is managed via Git and stored in GitHub
+
+---
+
+## 4. Data Storage
+
+### 4.1 Database Storage
+
+**Technology:** PostgreSQL database
+
+**Location:** Railway cloud platform
+
+**FCI Storage:**
+- All FCI is stored in PostgreSQL database
+- Database tables for FCI:
+  - `GovernmentContractDiscovery`: SAM.gov opportunities
+  - `UsaSpendingAward`: Historical award data
+  - `OpportunityAwardLink`: Links between opportunities and awards
+- Evidence: `prisma/schema.prisma`
+
+**Database Security:**
+- Database security capabilities (inherited from Railway PostgreSQL service, relied upon operationally, not independently assessed)
+- Access controlled via application authentication
+- No direct database access for regular users
+- Evidence: Railway platform configuration
+
+---
+
+### 4.2 File Storage
+
+**Location:** `/public/uploads/` directory within application runtime
+
+**Content:** Limited to non-sensitive content (not FCI)
+
+**Storage Type:** Local file system within application runtime environment
+
+**Note:** See Section 7.1 for compliance risk discussion
+
+---
+
+## 5. Data Disposal
+
+### 5.1 Secure Deletion (FAR 52.204-21(b)(2))
+
+**Requirement:** FCI must be securely deleted when no longer needed.
+
+**Implementation:**
+- Data deletion is performed via Prisma ORM delete operations
+- Database records are permanently deleted from PostgreSQL
+- No data remains in database after deletion operation
+
+**Deletion Methods:**
+- Prisma `delete()` operations
+- Prisma `deleteMany()` operations for bulk deletion
+- Database-level deletion (permanent removal)
+
+**Evidence:** All deletion operations use Prisma ORM, which performs permanent database deletions
+
+---
+
+### 5.2 Database Record Deletion
+
+**Process:**
+1. Authorized user initiates deletion (via admin interface or API)
+2. System verifies user authorization
+3. System performs Prisma delete operation
+4. Database record is permanently removed
+5. No backup or recovery of deleted records (unless database backups exist)
+
+**Deletion Operations:**
+- Single record deletion: `prisma.model.delete({ where: { id } })`
+- Bulk deletion: `prisma.model.deleteMany({ where: { condition } })`
+- Cascade deletion: Related records deleted via Prisma relations
+
+**Evidence:** Prisma ORM provides delete operations that permanently remove records from database
+
+---
+
+### 5.3 Source Code Disposal
+
+**Process:**
+- Source code is managed via Git version control
+- Deleted files are removed from repository
+- Git history may retain deleted file information (standard Git behavior)
+- Sensitive information should not be committed to Git repositories
+
+**Best Practices:**
+- No FCI or sensitive data in source code
+- Environment variables used for sensitive configuration
+- `.gitignore` prevents committing sensitive files
+- Evidence: `.gitignore` file excludes sensitive files
+
+---
+
+## 6. Media Sanitization
+
+### 6.1 Cloud Storage Sanitization
+
+**Database Records:**
+- Deleted records are permanently removed from database
+- Database backups may retain deleted records until backup retention expires
+- Railway platform manages backup retention policies
+
+**File Storage:**
+- Files in `/public/uploads/` are deleted via file system operations
+- Deleted files are removed from file system
+- No special sanitization required for non-sensitive content
+
+---
+
+### 6.2 Development Environment Sanitization
+
+**Local Development:**
+- Local development databases may contain test data
+- Test data should not contain real FCI
+- Local databases can be reset or deleted as needed
+
+**Evidence:** `scripts/reset-database.ts` provides database reset functionality
+
+---
+
+## 7. Compliance Risks & Open Items
+
+### 7.1 File Upload Storage
+
+**Risk Description:** Uploaded files are currently stored locally within the application runtime in `/public/uploads/` directory. These files are limited to non-sensitive content and are not FCI.
+
+**Current Implementation:**
+- Files stored in `/public/uploads/` directory
+- Files are within application runtime environment
+- No removable media is used
+- Files are limited to non-sensitive content
+
+**Mitigation:**
+- No FCI is stored in file uploads
+- Files are stored within secure application runtime
+- No removable media is used for file storage
+- Future architectural changes may migrate uploads to managed cloud storage
+
+**Status:** Acceptable for Level 1 compliance; enhancement opportunity for future architecture
+
+**Evidence:** `.gitignore` (lines 43-44) shows `/public/uploads/*` is excluded from version control
+
+---
+
+### 7.2 Database Backup Retention
+
+**Status:** Database backups are managed by Railway platform. Backup retention policies are inherited from Railway. Explicit backup retention and disposal procedures may be documented as a future enhancement.
+
+---
+
+### 7.3 Secure Deletion Verification
+
+**Status:** Deletion operations use Prisma ORM which performs permanent database deletions. Explicit verification procedures for secure deletion may be implemented as a future enhancement.
+
+---
+
+### 7.4 Non-Required Hardening Items (Out of Scope for Level 1)
+The following items are not required for CMMC Level 1 but represent potential future enhancements:
+- Cryptographic erasure procedures
+- Multi-pass overwrite procedures (not applicable to cloud storage)
+- Physical media destruction procedures (not applicable, no physical media)
+
+---
+
+## 8. Procedures
+
+### 8.1 Data Disposal Procedure
+
+**For Database Records:**
+1. Identify records to be deleted
+2. Verify user authorization for deletion
+3. Perform Prisma delete operation
+4. Verify deletion completed successfully
+5. Record deletion in audit log (if implemented)
+
+**For File Storage:**
+1. Identify files to be deleted
+2. Verify user authorization for deletion
+3. Delete files from file system
+4. Verify deletion completed successfully
+
+---
+
+### 8.2 Media Handling Procedure
+
+**For Cloud Storage:**
+- No special handling required (cloud-based, no physical media)
+- Access controlled via authentication
+- Encryption provided by platform
+
+**For Source Code:**
+- Source code stored in GitHub
+- Access controlled via GitHub authentication
+- No removable media used
+
+---
+
+## 9. Document Control
+
+**Prepared By:** MacTech Solutions Compliance Team  
+**Reviewed By:** [To be completed]  
+**Approved By:** [To be completed]  
+**Next Review Date:** [To be completed]
+
+**Change History:**
+- Version 1.0 (2026-01-21): Initial document creation
+
+---
+
+## Appendix A: Evidence Locations
+
+| Control | Evidence Location |
+|---------|------------------|
+| Database Schema | `prisma/schema.prisma` |
+| FCI Models | `prisma/schema.prisma` (GovernmentContractDiscovery, UsaSpendingAward models) |
+| File Storage | `.gitignore` (lines 43-44) |
+| Database Reset | `scripts/reset-database.ts` |
+| No Removable Media | Architecture: All storage is cloud-based |
+
+## Appendix B: FAR 52.204-21 Mapping
+
+| FAR Clause | Control | Implementation |
+|------------|---------|----------------|
+| 52.204-21(b)(2) | Removable media handling | No removable media used |
+| 52.204-21(b)(2) | Secure deletion | Prisma ORM delete operations |
+| 52.204-21(b)(2) | Data disposal | Database record deletion |
