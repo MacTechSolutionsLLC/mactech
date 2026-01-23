@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // Get all awards
+    // Get awards for time series (using user-selected date range)
     const awards = await prisma.usaSpendingAward.findMany({
       where: {
         awarding_date: {
@@ -75,6 +75,64 @@ export async function GET(request: NextRequest) {
         naics_code: true,
       },
     })
+    
+    // Get awards for competitive analysis (use longer time window - 365 days for meaningful statistics)
+    const competitiveStartDate = new Date()
+    competitiveStartDate.setDate(competitiveStartDate.getDate() - 365)
+    
+    const competitiveAwards = await prisma.usaSpendingAward.findMany({
+      where: {
+        awarding_date: {
+          gte: competitiveStartDate,
+        },
+      },
+      select: {
+        id: true,
+        awarding_date: true,
+        total_obligation: true,
+        recipient_name: true,
+        awarding_agency_name: true,
+        naics_code: true,
+      },
+    })
+    
+    // Also get awards linked to opportunities (via OpportunityAwardLink) for more comprehensive competitor data
+    // First get opportunity IDs that aren't dismissed
+    const activeOpportunityIds = opportunities.map(opp => opp.id)
+    
+    const linkedAwards = await prisma.opportunityAwardLink.findMany({
+      where: {
+        opportunity_id: {
+          in: activeOpportunityIds,
+        },
+      },
+      include: {
+        award: {
+          select: {
+            id: true,
+            awarding_date: true,
+            total_obligation: true,
+            recipient_name: true,
+            awarding_agency_name: true,
+            naics_code: true,
+          },
+        },
+      },
+    })
+    
+    // Combine competitive awards from both sources, deduplicating by award ID
+    const allAwardsMap = new Map<string, typeof competitiveAwards[0]>()
+    competitiveAwards.forEach(award => {
+      if (award.id && award.recipient_name) {
+        allAwardsMap.set(award.id, award)
+      }
+    })
+    linkedAwards.forEach(link => {
+      if (link.award?.id && link.award.recipient_name) {
+        allAwardsMap.set(link.award.id, link.award)
+      }
+    })
+    const allAwards = Array.from(allAwardsMap.values())
 
     // Get ingestion status
     const ingestionStatus = await prisma.ingestionStatus.findFirst({
@@ -193,12 +251,13 @@ export async function GET(request: NextRequest) {
     const averageAwardValue = awards.length > 0 ? totalAwardValue / awards.length : 0
 
     // Competitive intelligence: Top vendors
+    // Use allAwards which includes both recent awards and awards linked to opportunities
     const vendorStats = new Map<
       string,
       { name: string; count: number; value: number }
     >()
-    awards.forEach((award) => {
-      if (award.recipient_name) {
+    allAwards.forEach((award) => {
+      if (award.recipient_name && award.recipient_name.trim() !== '') {
         const existing = vendorStats.get(award.recipient_name) || {
           name: award.recipient_name,
           count: 0,

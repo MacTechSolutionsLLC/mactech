@@ -10,7 +10,8 @@ import {
   UsaSpendingSearchParams, 
   UsaSpendingFilters,
   UsaSpendingAward,
-  getAward
+  getAward,
+  AwardTypeCode
 } from '../usaspending-api'
 import { prisma } from '../prisma'
 import { IngestionResult, IngestionBatch, IngestionFilters } from './types'
@@ -202,7 +203,25 @@ async function saveAward(award: UsaSpendingAward, batchId: string, isFirstAward:
  * Build filters from ingestion options
  */
 function buildFilters(filters?: IngestionFilters): UsaSpendingFilters {
-  const usaspendingFilters: UsaSpendingFilters = {}
+  // CRITICAL: award_type_codes is REQUIRED by USAspending API
+  // Always ensure it's present, defaulting to ['A'] (contracts) if not provided
+  let awardTypeCodes: AwardTypeCode[] = ['A'] // Default to contracts
+  
+  if (filters?.awardTypes && filters.awardTypes.length > 0) {
+    // Filter out invalid award type codes (like 'IDV' which requires specific types like 'IDV_A')
+    // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
+    const apiValidTypes = ['A', 'B', 'C', 'D', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
+                           'IDV_A', 'IDV_B', 'IDV_B_A', 'IDV_B_B', 'IDV_B_C', 'IDV_C', 'IDV_D', 'IDV_E', 
+                           '-1', 'no intersection']
+    const filteredTypes = filters.awardTypes.filter(type => apiValidTypes.includes(String(type)))
+    if (filteredTypes.length > 0) {
+      awardTypeCodes = filteredTypes as AwardTypeCode[]
+    }
+  }
+  
+  const usaspendingFilters: UsaSpendingFilters = {
+    award_type_codes: awardTypeCodes, // Always include required field
+  }
 
   if (filters?.naicsCodes && filters.naicsCodes.length > 0) {
     // USAspending API expects naics_codes as array of strings, not objects
@@ -218,18 +237,6 @@ function buildFilters(filters?: IngestionFilters): UsaSpendingFilters {
     usaspendingFilters.agencies = filters.agencies.map(agencyId => ({
       toptier_agency_id: agencyId,
     }))
-  }
-
-  if (filters?.awardTypes && filters.awardTypes.length > 0) {
-    // Filter out invalid award type codes (like 'IDV' which requires specific types like 'IDV_A')
-    // Valid values: 'A', 'B', 'C', 'D', '02'-'11', 'IDV_A', 'IDV_B', etc., '-1', 'no intersection'
-    const apiValidTypes = ['A', 'B', 'C', 'D', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
-                           'IDV_A', 'IDV_B', 'IDV_B_A', 'IDV_B_B', 'IDV_B_C', 'IDV_C', 'IDV_D', 'IDV_E', 
-                           '-1', 'no intersection']
-    const filteredTypes = filters.awardTypes.filter(type => apiValidTypes.includes(String(type)))
-    if (filteredTypes.length > 0) {
-      usaspendingFilters.award_type_codes = filteredTypes as any[]
-    }
   }
 
   if (filters?.startDate || filters?.endDate) {

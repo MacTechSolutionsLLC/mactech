@@ -43,7 +43,10 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Build filters
-    const filters: UsaSpendingFilters = {}
+    // NOTE: award_type_codes is REQUIRED by USAspending API - always include it
+    const filters: UsaSpendingFilters = {
+      award_type_codes: award_types && award_types.length > 0 ? (award_types as any[]) : ['A'], // Default to contracts ('A')
+    }
 
     if (naics_codes && naics_codes.length > 0) {
       // USAspending API expects naics_codes as array of strings, not objects
@@ -59,10 +62,6 @@ export async function POST(request: NextRequest) {
       filters.agencies = agencies.map(agencyId => ({
         toptier_agency_id: agencyId,
       }))
-    }
-
-    if (award_types && award_types.length > 0) {
-      filters.award_type_codes = award_types as any[]
     }
 
     if (recipient_search) {

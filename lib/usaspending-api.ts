@@ -471,6 +471,15 @@ export async function searchAwards(
     titleSimilarity,
   } = params
   
+  // CRITICAL: award_type_codes is REQUIRED by USAspending API
+  // Always ensure it's present, defaulting to ['A'] (contracts) if not provided
+  const filtersWithRequired: UsaSpendingFilters = {
+    ...filters,
+    award_type_codes: filters.award_type_codes && filters.award_type_codes.length > 0 
+      ? filters.award_type_codes 
+      : ['A'], // Default to contracts if not specified
+  }
+  
   // Explicitly ensure sort and order are undefined if not provided
   // This prevents any default values from being used
   const sortToUse = sort || undefined
@@ -523,7 +532,7 @@ export async function searchAwards(
   }
 
   const body: any = {
-    filters,
+    filters: filtersWithRequired, // Use filters with required award_type_codes
     page,
     limit: Math.min(limit, 500), // Max 500 per page
     subawards,
