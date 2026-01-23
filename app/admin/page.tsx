@@ -9,8 +9,23 @@ import IngestionStatus from '@/app/admin/capture/components/IngestionStatus'
 import UsaSpendingIngest from '@/app/admin/capture/components/UsaSpendingIngest'
 
 export default function AdminPage() {
+  // All hooks must be called unconditionally at the top
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [migrationResult, setMigrationResult] = useState<{
+    success: boolean
+    message: string
+    results: string[]
+    timestamp?: string
+  } | null>(null)
+  const [isGeneratingEvidence, setIsGeneratingEvidence] = useState(false)
+  const [evidenceResult, setEvidenceResult] = useState<{
+    success: boolean
+    message: string
+    files?: Array<{ filename: string; url: string }>
+    timestamp?: string
+  } | null>(null)
 
   // Redirect non-admin users immediately
   useEffect(() => {
@@ -41,13 +56,6 @@ export default function AdminPage() {
   if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
     return null
   }
-  const [isMigrating, setIsMigrating] = useState(false)
-  const [migrationResult, setMigrationResult] = useState<{
-    success: boolean
-    message: string
-    results: string[]
-    timestamp?: string
-  } | null>(null)
 
   const handleMigrate = async () => {
     if (!confirm('Are you sure you want to run database migrations? This may take a moment.')) {
@@ -75,14 +83,6 @@ export default function AdminPage() {
       setIsMigrating(false)
     }
   }
-
-  const [isGeneratingEvidence, setIsGeneratingEvidence] = useState(false)
-  const [evidenceResult, setEvidenceResult] = useState<{
-    success: boolean
-    message: string
-    files?: Array<{ filename: string; url: string }>
-    timestamp?: string
-  } | null>(null)
 
   const handleGenerateEvidence = async () => {
     if (!confirm('Generate all CMMC evidence exports? This will create CSV files for users, audit logs, physical access logs, and endpoint inventory.')) {
