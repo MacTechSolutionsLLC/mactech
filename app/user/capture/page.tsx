@@ -17,6 +17,8 @@ export default function CaptureDashboardPage() {
     highPriority: number
     ignored: number
   } | null>(null)
+  const [intelligenceRunning, setIntelligenceRunning] = useState(false)
+  const [intelligenceMessage, setIntelligenceMessage] = useState<string | null>(null)
 
   useEffect(() => {
     loadStats()
@@ -31,6 +33,36 @@ export default function CaptureDashboardPage() {
       }
     } catch (error) {
       console.error('Error loading stats:', error)
+    }
+  }
+
+  const handleRunIntelligencePass = async () => {
+    setIntelligenceRunning(true)
+    setIntelligenceMessage(null)
+    try {
+      const response = await fetch('/api/admin/pipeline/intelligence-pass', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force_recalculate: false }),
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        const processed = data.results?.filter((r: any) => r.intelligence_calculated).length || 0
+        const total = data.results?.length || 0
+        setIntelligenceMessage(
+          `Intelligence computed for ${processed} of ${total} opportunities. ${data.errors?.length || 0} errors.`
+        )
+        // Reload stats to show updated data
+        await loadStats()
+      } else {
+        setIntelligenceMessage(`Error: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error running intelligence pass:', error)
+      setIntelligenceMessage('Failed to run intelligence pass. Check console for details.')
+    } finally {
+      setIntelligenceRunning(false)
     }
   }
 
@@ -77,6 +109,37 @@ export default function CaptureDashboardPage() {
           </div>
         </section>
       )}
+
+      {/* Intelligence Pass Trigger */}
+      <section className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-900 mb-2">Intelligence Computation</h2>
+              <p className="text-sm text-neutral-600">
+                Compute intelligence signals (incumbent risk, agency behavior, award realism) for existing opportunities.
+                Processes up to 100 opportunities at a time.
+              </p>
+            </div>
+            <button
+              onClick={handleRunIntelligencePass}
+              disabled={intelligenceRunning}
+              className="px-6 py-2 bg-purple-700 text-white rounded-lg text-sm font-medium hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {intelligenceRunning ? 'Computing...' : 'Run Intelligence Pass'}
+            </button>
+          </div>
+          {intelligenceMessage && (
+            <div className={`mt-4 p-4 rounded-lg border ${
+              intelligenceMessage.includes('Error') || intelligenceMessage.includes('Failed')
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-green-50 border-green-200 text-green-700'
+            }`}>
+              <p className="text-sm">{intelligenceMessage}</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Tab Navigation */}
       <section className="bg-white border-b border-neutral-200">
