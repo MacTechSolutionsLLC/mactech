@@ -25,30 +25,77 @@ export async function GET(
     const { id } = await Promise.resolve(params)
 
     let opportunity: any
+    let hasCapabilityFields = true
+    
     try {
       // Try to fetch with all fields (will work after migration runs)
       opportunity = await prisma.governmentContractDiscovery.findUnique({
         where: { id },
       })
     } catch (error: any) {
-      // If columns don't exist yet, use raw SQL to fetch without capability match fields
-      if (error.code === 'P2022' || error.message?.includes('does not exist')) {
-        const rows = await prisma.$queryRaw<Array<any>>`
-          SELECT 
-            id, notice_id, title, agency, description, relevance_score, deadline,
-            ai_summary, ai_analysis, flagged, ignored, naics_codes, set_aside,
-            detected_keywords, ai_key_requirements, points_of_contact, url,
-            solicitation_number, created_at, resource_links, scraped, scraped_at,
-            scraped_text_content, scraped_html_content, ai_parsed_data, ai_parsed_at,
-            usaspending_enrichment, usaspending_enriched_at, usaspending_enrichment_status,
-            incumbent_vendors, competitive_landscape_summary, requirements,
-            estimated_value, period_of_performance, place_of_performance,
-            sow_attachment_url, sow_attachment_type
-          FROM "GovernmentContractDiscovery" 
-          WHERE id = ${id} 
-          LIMIT 1
-        `
-        opportunity = rows[0] || null
+      // If columns don't exist yet, fetch without capability match fields
+      if (error.code === 'P2022' || error.message?.includes('does not exist') || error.message?.includes('capability_match')) {
+        console.warn('[API] Capability match columns not found, using fallback query. Migration may need to run.')
+        hasCapabilityFields = false
+        
+        // Fetch without capability match fields using select
+        opportunity = await prisma.governmentContractDiscovery.findUnique({
+          where: { id },
+          select: {
+            id: true,
+            notice_id: true,
+            title: true,
+            agency: true,
+            description: true,
+            relevance_score: true,
+            deadline: true,
+            aiSummary: true,
+            aiAnalysis: true,
+            flagged: true,
+            ignored: true,
+            naics_codes: true,
+            set_aside: true,
+            detected_keywords: true,
+            aiKeyRequirements: true,
+            points_of_contact: true,
+            url: true,
+            solicitation_number: true,
+            created_at: true,
+            resource_links: true,
+            scraped: true,
+            scraped_at: true,
+            scraped_text_content: true,
+            scraped_html_content: true,
+            aiParsedData: true,
+            aiParsedAt: true,
+            usaspending_enrichment: true,
+            usaspending_enriched_at: true,
+            usaspending_enrichment_status: true,
+            incumbent_vendors: true,
+            competitive_landscape_summary: true,
+            requirements: true,
+            estimated_value: true,
+            period_of_performance: true,
+            place_of_performance: true,
+            sow_attachment_url: true,
+            sow_attachment_type: true,
+            // Exclude capability match fields
+          },
+        })
+        
+        // Add null capability match fields
+        if (opportunity) {
+          opportunity = {
+            ...opportunity,
+            matched_resume_skills: null,
+            matched_services: null,
+            matched_showcases: null,
+            capability_match_breakdown: null,
+            capability_match_score: null,
+            primary_pillar: null,
+            capability_match_calculated_at: null,
+          }
+        }
       } else {
         throw error
       }
