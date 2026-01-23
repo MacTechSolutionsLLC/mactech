@@ -5,8 +5,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AdminNavigation from '@/components/admin/AdminNavigation'
-import IngestionStatus from '@/app/admin/capture/components/IngestionStatus'
-import UsaSpendingIngest from '@/app/admin/capture/components/UsaSpendingIngest'
+import IngestionStatus from '@/app/user/capture/components/IngestionStatus'
+import UsaSpendingIngest from '@/app/user/capture/components/UsaSpendingIngest'
 
 export default function AdminPage() {
   // All hooks must be called unconditionally at the top

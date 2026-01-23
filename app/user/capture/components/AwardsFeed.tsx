@@ -138,7 +138,7 @@ export default function AwardsFeed() {
                       ))}
                     </div>
                     <Link
-                      href={`/admin/capture/award/${award.generated_internal_id}`}
+                      href={`/user/capture/award/${award.generated_internal_id}`}
                       className="text-lg font-semibold text-neutral-900 hover:text-accent-700 mb-2 block"
                     >
                       {award.description?.substring(0, 200) || 'Untitled Award'}

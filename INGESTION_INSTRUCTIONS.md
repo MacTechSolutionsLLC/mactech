@@ -2,9 +2,9 @@
 
 ## Option 1: Via Admin Portal (Recommended)
 
-1. Navigate to the admin capture dashboard:
-   - Production: `https://mactech-production.up.railway.app/admin/capture`
-   - Local: `http://localhost:3000/admin/capture`
+1. Navigate to the capture dashboard:
+   - Production: `https://mactech-production.up.railway.app/user/capture`
+   - Local: `http://localhost:3000/user/capture`
 
 2. Click the **"Fetch USAspending Awards"** button
 

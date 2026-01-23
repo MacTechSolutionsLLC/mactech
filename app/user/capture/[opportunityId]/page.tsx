@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import AdminNavigation from '@/components/admin/AdminNavigation'
+import UserNavigation from '@/components/user/UserNavigation'
 import DecisionSummary from '@/components/capture/DecisionSummary'
 import AgencyBehaviorSection from '@/components/capture/AgencyBehaviorSection'
 import CompetitiveRiskSection from '@/components/capture/CompetitiveRiskSection'
@@ -137,7 +137,7 @@ export default function OpportunityDetailPage({ params }: PageProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: 'User dismissed' }),
       })
-      router.push('/admin/capture')
+      router.push('/user/capture')
     } catch (error) {
       console.error('Error ignoring opportunity:', error)
     }
@@ -160,7 +160,7 @@ export default function OpportunityDetailPage({ params }: PageProps) {
   if (loading) {
     return (
       <div className="bg-neutral-50 min-h-screen">
-        <AdminNavigation />
+        <UserNavigation />
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
           <div className="bg-white rounded-lg border border-neutral-200 p-12 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-700 mx-auto mb-4"></div>
@@ -174,12 +174,12 @@ export default function OpportunityDetailPage({ params }: PageProps) {
   if (!opportunity) {
     return (
       <div className="bg-neutral-50 min-h-screen">
-        <AdminNavigation />
+        <UserNavigation />
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
           <div className="bg-white rounded-lg border border-neutral-200 p-12 text-center">
             <p className="text-neutral-600 mb-4">Opportunity not found</p>
             <Link
-              href="/admin/capture"
+              href="/user/capture"
               className="text-accent-700 hover:text-accent-800 font-medium"
             >
               ← Back to Dashboard
@@ -203,7 +203,7 @@ export default function OpportunityDetailPage({ params }: PageProps) {
 
   return (
     <div className="bg-neutral-50 min-h-screen">
-      <AdminNavigation />
+      <UserNavigation />
 
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">
@@ -211,7 +211,7 @@ export default function OpportunityDetailPage({ params }: PageProps) {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Link
-                href="/admin/capture"
+                href="/user/capture"
                 className="text-sm text-neutral-600 hover:text-neutral-900 mb-2 inline-block"
               >
                 ← Back to Dashboard
