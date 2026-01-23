@@ -44,6 +44,21 @@ export const SCORING_WEIGHTS = {
   // Response deadline proximity
   DEADLINE_URGENT: 10,       // +10 if deadline < 7 days
   DEADLINE_NEAR: 5,          // +5 if deadline < 14 days
+  
+  // Capability matching (new)
+  CAPABILITY_MATCH_MAX: 20,  // Maximum points from capability matching (scaled from 0-100 to 0-20)
+} as const
+
+/**
+ * Capability match scoring weights
+ * These determine how much each capability category contributes to the overall capability score
+ */
+export const CAPABILITY_MATCH_WEIGHTS = {
+  RESUME_SKILL_MATCH: 15,        // +15 for strong resume skill match (if capability score > 70)
+  SERVICE_OFFERING_MATCH: 10,    // +10 for matching service offering (if capability score > 60)
+  SHOWCASE_TOOL_MATCH: 8,        // +8 for relevant tool/platform (if capability score > 50)
+  PILLAR_DOMAIN_MATCH: 12,       // +12 for primary pillar alignment (if capability score > 65)
+  AI_SEMANTIC_MATCH_BONUS: 5,    // +5 bonus for AI-confirmed match (if AI was used)
 } as const
 
 /**

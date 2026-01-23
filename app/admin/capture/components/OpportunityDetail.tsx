@@ -177,6 +177,16 @@ export default function OpportunityDetail({
   const aiKeyRequirements: string[] = parseJsonField<string>(opportunity.aiKeyRequirements, [])
   const pointsOfContact: PointOfContact[] = parseJsonField<PointOfContact>(opportunity.points_of_contact, [])
   const naicsCodes: string[] = parseJsonField<string>(opportunity.naics_codes, [])
+  
+  // Capability match data
+  const matchedResumeSkills: string[] = parseJsonField<string>(opportunity.matched_resume_skills, [])
+  const matchedServices: string[] = parseJsonField<string>(opportunity.matched_services, [])
+  const matchedShowcases: string[] = parseJsonField<string>(opportunity.matched_showcases, [])
+  const capabilityBreakdown = opportunity.capability_match_breakdown
+    ? typeof opportunity.capability_match_breakdown === 'string'
+      ? JSON.parse(opportunity.capability_match_breakdown)
+      : opportunity.capability_match_breakdown
+    : null
   const setAside: string[] = parseJsonField<string>(opportunity.set_aside, [])
   const detectedKeywords: string[] = parseJsonField<string>(opportunity.detected_keywords, [])
 
@@ -483,6 +493,123 @@ export default function OpportunityDetail({
                       <p className="text-body-sm text-neutral-700 leading-relaxed">
                         {aiAnalysis.relevanceReasoning}
                       </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Capability Match Card */}
+            {(opportunity.capability_match_score !== null && opportunity.capability_match_score !== undefined) && (
+              <div className="card p-6 shadow-lg bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">💼</span>
+                  <h2 className="heading-3 text-blue-900">Capability Match</h2>
+                </div>
+                <div>
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-body-sm font-medium text-neutral-700">Match Score</span>
+                      <span className="text-3xl font-bold text-blue-700">
+                        {opportunity.capability_match_score.toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-neutral-200 rounded-full h-4 shadow-inner">
+                      <div
+                        className={`h-4 rounded-full transition-all duration-500 ${
+                          opportunity.capability_match_score >= 70 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                          opportunity.capability_match_score >= 40 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 
+                          'bg-gradient-to-r from-red-500 to-red-600'
+                        }`}
+                        style={{ width: `${opportunity.capability_match_score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  {opportunity.primary_pillar && (
+                    <div className="mb-4 pb-4 border-b border-blue-200">
+                      <p className="text-body-xs font-medium text-neutral-700 mb-2">Primary Pillar</p>
+                      <span className="inline-block px-3 py-1 rounded-full text-body-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">
+                        {opportunity.primary_pillar}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {capabilityBreakdown && (
+                    <div className="mb-4 pb-4 border-b border-blue-200">
+                      <p className="text-body-xs font-medium text-neutral-700 mb-2">Match Breakdown</p>
+                      <div className="space-y-2">
+                        {capabilityBreakdown.resume !== undefined && (
+                          <div className="flex justify-between text-body-xs">
+                            <span className="text-neutral-600">Resume Skills</span>
+                            <span className="font-medium">{capabilityBreakdown.resume.toFixed(0)}%</span>
+                          </div>
+                        )}
+                        {capabilityBreakdown.service !== undefined && (
+                          <div className="flex justify-between text-body-xs">
+                            <span className="text-neutral-600">Services</span>
+                            <span className="font-medium">{capabilityBreakdown.service.toFixed(0)}%</span>
+                          </div>
+                        )}
+                        {capabilityBreakdown.showcase !== undefined && (
+                          <div className="flex justify-between text-body-xs">
+                            <span className="text-neutral-600">Tools/Platforms</span>
+                            <span className="font-medium">{capabilityBreakdown.showcase.toFixed(0)}%</span>
+                          </div>
+                        )}
+                        {capabilityBreakdown.pillar !== undefined && (
+                          <div className="flex justify-between text-body-xs">
+                            <span className="text-neutral-600">Pillar Alignment</span>
+                            <span className="font-medium">{capabilityBreakdown.pillar.toFixed(0)}%</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {matchedResumeSkills.length > 0 && (
+                    <div className="mb-4 pb-4 border-b border-blue-200">
+                      <p className="text-body-xs font-medium text-neutral-700 mb-2">Matched Resume Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {matchedResumeSkills.slice(0, 5).map((skill, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-body-xs rounded border border-blue-200">
+                            {skill}
+                          </span>
+                        ))}
+                        {matchedResumeSkills.length > 5 && (
+                          <span className="px-2 py-1 text-blue-600 text-body-xs">
+                            +{matchedResumeSkills.length - 5} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {matchedServices.length > 0 && (
+                    <div className="mb-4 pb-4 border-b border-blue-200">
+                      <p className="text-body-xs font-medium text-neutral-700 mb-2">Matched Services</p>
+                      <ul className="space-y-1">
+                        {matchedServices.map((service, idx) => (
+                          <li key={idx} className="text-body-xs text-neutral-700 flex items-start gap-2">
+                            <span className="text-blue-600 mt-1">•</span>
+                            <span>{service}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {matchedShowcases.length > 0 && (
+                    <div>
+                      <p className="text-body-xs font-medium text-neutral-700 mb-2">Relevant Tools/Platforms</p>
+                      <ul className="space-y-1">
+                        {matchedShowcases.map((showcase, idx) => (
+                          <li key={idx} className="text-body-xs text-neutral-700 flex items-start gap-2">
+                            <span className="text-blue-600 mt-1">•</span>
+                            <span>{showcase}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>

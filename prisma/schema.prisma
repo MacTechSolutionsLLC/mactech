@@ -12,25 +12,25 @@ datasource db {
 
 // Authentication User model
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  name              String?
-  password          String?   // Encrypted password (bcrypt hash)
-  role              String    @default("USER") // USER, ADMIN
-  image             String?
-  emailVerified     DateTime?
-  mustChangePassword Boolean  @default(false) // Force password change on next login
-  lastLoginAt       DateTime? // Last successful login timestamp
-  disabled          Boolean   @default(false) // Account disabled flag
-  securityAcknowledgmentVersion String? // Version of security acknowledgment accepted
+  id                               String    @id @default(cuid())
+  email                            String    @unique
+  name                             String?
+  password                         String? // Encrypted password (bcrypt hash)
+  role                             String    @default("USER") // USER, ADMIN
+  image                            String?
+  emailVerified                    DateTime?
+  mustChangePassword               Boolean   @default(false) // Force password change on next login
+  lastLoginAt                      DateTime? // Last successful login timestamp
+  disabled                         Boolean   @default(false) // Account disabled flag
+  securityAcknowledgmentVersion    String? // Version of security acknowledgment accepted
   securityAcknowledgmentAcceptedAt DateTime? // When security acknowledgment was accepted
-  securityAcknowledgmentRequired Boolean @default(true) // Whether acknowledgment is required
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  securityAcknowledgmentRequired   Boolean   @default(true) // Whether acknowledgment is required
+  createdAt                        DateTime  @default(now())
+  updatedAt                        DateTime  @updatedAt
 
   // Relations
-  events            AppEvent[] // Events created by this user
-  uploadedFiles     StoredFile[] // Files uploaded by this user
+  events             AppEvent[] // Events created by this user
+  uploadedFiles      StoredFile[] // Files uploaded by this user
   physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
 
   @@index([email])
@@ -166,30 +166,39 @@ model GovernmentContractDiscovery {
   period_of_performance String? // POP dates
   place_of_performance  String? // Location/place of performance
   resource_links        String? // JSON array of all links: [{url, type, name, description}]
-  
+
   // USAspending enrichment fields
-  usaspending_enrichment       String?  @db.Text // JSON field to store enrichment data and AI analysis
-  usaspending_enriched_at      DateTime? // Timestamp of when enrichment was performed
+  usaspending_enrichment        String?   @db.Text // JSON field to store enrichment data and AI analysis
+  usaspending_enriched_at       DateTime? // Timestamp of when enrichment was performed
   usaspending_enrichment_status String? // Status: 'pending', 'completed', 'failed'
-  
+
   // Capture dashboard fields
-  incumbent_vendors            String?  @db.Text // JSON array of likely incumbents from USAspending
-  competitive_landscape_summary String?  @db.Text // AI-generated competitive landscape summary
-  capture_status               String? // 'flagged', 'monitoring', 'ignored', 'pursuing'
-  
+  incumbent_vendors             String? @db.Text // JSON array of likely incumbents from USAspending
+  competitive_landscape_summary String? @db.Text // AI-generated competitive landscape summary
+  capture_status                String? // 'flagged', 'monitoring', 'ignored', 'pursuing'
+
   // Smart Sort fields (optional caching)
-  smart_sort_score             Float? // 0-100 composite score for AI-enhanced sorting
-  smart_sort_reasoning         String? @db.Text // AI reasoning for the smart sort score
-  smart_sort_calculated_at     DateTime? // When smart sort was last calculated
-  
+  smart_sort_score         Float? // 0-100 composite score for AI-enhanced sorting
+  smart_sort_reasoning     String?   @db.Text // AI reasoning for the smart sort score
+  smart_sort_calculated_at DateTime? // When smart sort was last calculated
+
+  // Capability matching fields
+  capability_match_score         Float? // 0-100 overall capability match score
+  matched_resume_skills          String?   @db.Text // JSON array of matched skills from leadership resumes
+  matched_services               String?   @db.Text // JSON array of matched service IDs/names
+  matched_showcases              String?   @db.Text // JSON array of matched tool/platform IDs/names
+  primary_pillar                 String? // Security, Infrastructure, Quality, Governance
+  capability_match_breakdown     String?   @db.Text // JSON breakdown of match scores by category
+  capability_match_calculated_at DateTime? // When capability match was last calculated
+
   // Unified Pipeline Status fields
-  pipeline_status              String  @default("discovered") // discovered, scraping, scraped, enriching, enriched, analyzing, analyzed, ready, flagged, ignored
-  pipeline_stage               String? // Current stage identifier
-  pipeline_errors              String  @default("[]") // JSON array of errors encountered
-  auto_processed               Boolean @default(false) // Whether auto-processing was attempted
-  pipeline_started_at          DateTime? // When pipeline processing started
-  pipeline_completed_at        DateTime? // When pipeline processing completed
-  
+  pipeline_status       String    @default("discovered") // discovered, scraping, scraped, enriching, enriched, analyzing, analyzed, ready, flagged, ignored
+  pipeline_stage        String? // Current stage identifier
+  pipeline_errors       String    @default("[]") // JSON array of errors encountered
+  auto_processed        Boolean   @default(false) // Whether auto-processing was attempted
+  pipeline_started_at   DateTime? // When pipeline processing started
+  pipeline_completed_at DateTime? // When pipeline processing completed
+
   // Relationships
   awardLinks OpportunityAwardLink[]
 }
@@ -212,27 +221,27 @@ model IgnoredOpportunity {
 // Links between SAM.gov opportunities and USAspending awards
 // Enables deterministic joins for competitive intelligence
 model OpportunityAwardLink {
-  id             String   @id @default(cuid())
-  opportunity_id String   // GovernmentContractDiscovery ID
-  award_id       String   // UsaSpendingAward ID
-  
+  id             String @id @default(cuid())
+  opportunity_id String // GovernmentContractDiscovery ID
+  award_id       String // UsaSpendingAward ID
+
   // Join metadata
-  join_confidence Float?  // 0-1 confidence in the match
-  join_method     String? // 'agency_naics', 'title_similarity', 'manual'
+  join_confidence  Float? // 0-1 confidence in the match
+  join_method      String? // 'agency_naics', 'title_similarity', 'manual'
   similarity_score Float? // Title similarity score if applicable
-  
+
   // Match criteria used
-  matched_naics     String? // JSON array of matched NAICS codes
-  matched_agency    String? // Matched agency name/ID
-  title_similarity  Float? // Cosine similarity score
-  
+  matched_naics    String? // JSON array of matched NAICS codes
+  matched_agency   String? // Matched agency name/ID
+  title_similarity Float? // Cosine similarity score
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  
+
   // Relationships
   opportunity GovernmentContractDiscovery? @relation(fields: [opportunity_id], references: [id], onDelete: Cascade)
-  award       UsaSpendingAward?           @relation(fields: [award_id], references: [id], onDelete: Cascade)
-  
+  award       UsaSpendingAward?            @relation(fields: [award_id], references: [id], onDelete: Cascade)
+
   @@unique([opportunity_id, award_id])
   @@index([opportunity_id])
   @@index([award_id])
@@ -242,39 +251,39 @@ model OpportunityAwardLink {
 // Track ingestion runs and SAM.gov outage states
 model IngestionStatus {
   id String @id @default(cuid())
-  
+
   // Status tracking
-  status String // 'running', 'completed', 'paused', 'failed', 'outage'
+  status   String // 'running', 'completed', 'paused', 'failed', 'outage'
   batch_id String? // Current or last batch ID
-  
+
   // SAM.gov outage detection
-  sam_gov_outage Boolean @default(false)
+  sam_gov_outage             Boolean   @default(false)
   sam_gov_outage_detected_at DateTime?
   sam_gov_outage_resolved_at DateTime?
-  sam_gov_outage_reason String? // e.g., 'State: SUSPENDED'
-  
+  sam_gov_outage_reason      String? // e.g., 'State: SUSPENDED'
+
   // Ingestion metrics
-  last_run_started_at DateTime?
+  last_run_started_at   DateTime?
   last_run_completed_at DateTime?
-  last_run_duration_ms Int? // Duration in milliseconds
-  
+  last_run_duration_ms  Int? // Duration in milliseconds
+
   // Last run results
-  last_fetched Int @default(0)
-  last_deduplicated Int @default(0)
-  last_passed_filters Int @default(0)
+  last_fetched         Int @default(0)
+  last_deduplicated    Int @default(0)
+  last_passed_filters  Int @default(0)
   last_scored_above_50 Int @default(0)
-  
+
   // Error tracking
-  last_error String? @db.Text
-  error_count Int @default(0)
-  
+  last_error  String? @db.Text
+  error_count Int     @default(0)
+
   // Retry tracking
-  retry_count Int @default(0)
+  retry_count   Int       @default(0)
   next_retry_at DateTime?
-  
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  
+
   @@index([status])
   @@index([sam_gov_outage])
   @@index([last_run_started_at])
@@ -359,15 +368,15 @@ model UsaSpendingAward {
   recipient_entity_data String? @db.Text // JSON: enriched vendor data from Entity API (UEI, NAICS, certifications, etc.)
 
   // Capture intelligence fields
-  relevance_score       Float?   // Capture relevance score (0–100)
-  signals               String?  // JSON array of signal labels
-  enrichment_status     String?  // 'pending' | 'completed' | 'failed'
+  relevance_score       Float? // Capture relevance score (0–100)
+  signals               String? // JSON array of signal labels
+  enrichment_status     String? // 'pending' | 'completed' | 'failed'
   enriched_at           DateTime?
   human_award_id        String? // Human-readable identifier (e.g. "HC102819F0141")
-  generated_internal_id String?  @unique // TRUE API primary key (must be unique)
+  generated_internal_id String?   @unique // TRUE API primary key (must be unique)
 
   // Relationships
-  transactions UsaSpendingTransaction[]
+  transactions     UsaSpendingTransaction[]
   opportunityLinks OpportunityAwardLink[]
 
   // Indexes for common queries
@@ -879,18 +888,18 @@ model PerformanceReview {
 model AppEvent {
   id          String   @id @default(cuid())
   timestamp   DateTime @default(now())
-  actorUserId String?  // User ID who performed the action
-  actorEmail  String?  // User email (denormalized for easier querying)
-  actionType  String   // login, logout, user_create, user_disable, file_upload, file_download, admin_action, etc.
-  targetType  String?  // Type of target (user, file, contract, etc.)
-  targetId    String?  // ID of target entity
-  ip          String?  // IP address of request
-  userAgent   String?  // User agent string
+  actorUserId String? // User ID who performed the action
+  actorEmail  String? // User email (denormalized for easier querying)
+  actionType  String // login, logout, user_create, user_disable, file_upload, file_download, admin_action, etc.
+  targetType  String? // Type of target (user, file, contract, etc.)
+  targetId    String? // ID of target entity
+  ip          String? // IP address of request
+  userAgent   String? // User agent string
   success     Boolean  @default(true) // Whether action succeeded
   details     String?  @db.Text // JSON string with additional details
 
   // Relations
-  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
 
   @@index([timestamp])
   @@index([actorUserId])
@@ -901,19 +910,19 @@ model AppEvent {
 
 // Stored files (replaces /public/uploads)
 model StoredFile {
-  id                String    @id @default(cuid())
-  userId            String    // User who uploaded the file
-  filename          String    // Original filename
-  mimeType          String    // MIME type
-  size              Int       // File size in bytes
-  data              Bytes     // File content (BYTEA in PostgreSQL)
-  uploadedAt        DateTime  @default(now())
-  deletedAt         DateTime? // Logical deletion timestamp
+  id                 String    @id @default(cuid())
+  userId             String // User who uploaded the file
+  filename           String // Original filename
+  mimeType           String // MIME type
+  size               Int // File size in bytes
+  data               Bytes // File content (BYTEA in PostgreSQL)
+  uploadedAt         DateTime  @default(now())
+  deletedAt          DateTime? // Logical deletion timestamp
   signedUrlExpiresAt DateTime? // Expiration for signed URL
-  metadata          String?   @db.Text // JSON metadata (non-sensitive)
+  metadata           String?   @db.Text // JSON metadata (non-sensitive)
 
   // Relations
-  uploader          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  uploader User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([uploadedAt])
@@ -924,8 +933,8 @@ model StoredFile {
 model PublicContent {
   id          String    @id @default(cuid())
   content     String    @db.Text // Content to be made public
-  contentType String    // Type of content (post, page, etc.)
-  approvedBy  String?   // User ID who approved
+  contentType String // Type of content (post, page, etc.)
+  approvedBy  String? // User ID who approved
   approvedAt  DateTime? // When approved
   isPublic    Boolean   @default(false) // Whether content is public
   createdAt   DateTime  @default(now())
@@ -940,18 +949,18 @@ model PublicContent {
 model PhysicalAccessLog {
   id              String   @id @default(cuid())
   date            DateTime // Date of access
-  timeIn          String   // Time in (HH:mm format)
-  timeOut         String?  // Time out (HH:mm format, optional)
-  personName      String   // Name of person accessing
-  purpose         String   // Purpose of access
-  hostEscort      String?  // Host/escort name (optional)
-  location        String   // Location identifier (e.g., "Home Office", "Workstation Area")
+  timeIn          String // Time in (HH:mm format)
+  timeOut         String? // Time out (HH:mm format, optional)
+  personName      String // Name of person accessing
+  purpose         String // Purpose of access
+  hostEscort      String? // Host/escort name (optional)
+  location        String // Location identifier (e.g., "Home Office", "Workstation Area")
   notes           String?  @db.Text // Additional notes
   createdAt       DateTime @default(now()) // Immutable creation timestamp
-  createdByUserId String   // User who created the entry (immutable)
+  createdByUserId String // User who created the entry (immutable)
 
   // Relations
-  createdBy       User     @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdBy User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([date])
   @@index([location])
@@ -961,13 +970,13 @@ model PhysicalAccessLog {
 
 // Endpoint inventory for SI.L1-3.14.2 malware protection compliance
 model EndpointInventory {
-  id                String    @id @default(cuid())
-  deviceIdentifier  String    // Device identifier (hostname, serial number, etc.)
-  owner              String    // Device owner name
-  os                 String    // Operating system
+  id                 String    @id @default(cuid())
+  deviceIdentifier   String // Device identifier (hostname, serial number, etc.)
+  owner              String // Device owner name
+  os                 String // Operating system
   avEnabled          Boolean   @default(false) // Antivirus enabled (yes/no)
   lastVerifiedDate   DateTime? // Last verification date
-  verificationMethod String?   // Verification method (e.g., "Screenshot", "EDR Dashboard", "Defender UI")
+  verificationMethod String? // Verification method (e.g., "Screenshot", "EDR Dashboard", "Defender UI")
   notes              String?   @db.Text // Additional notes
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt

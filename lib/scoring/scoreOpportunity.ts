@@ -12,7 +12,10 @@ import {
   SCORING_WEIGHTS,
   CYBER_KEYWORDS,
   MIN_SCORE_THRESHOLD,
+  CAPABILITY_MATCH_WEIGHTS,
 } from './scoringConstants'
+import { CapabilityMatchResult } from './capabilityData'
+import { calculateCapabilityScore } from './calculateCapabilityScore'
 
 export interface ScoreBreakdown {
   base: number
@@ -21,6 +24,7 @@ export interface ScoreBreakdown {
   lifecycle: number
   keywords: number
   deadline: number
+  capability: number
   total: number
 }
 
@@ -199,12 +203,61 @@ function calculateDeadlineScore(opportunity: SamGovOpportunity): number {
 }
 
 /**
+ * Calculate capability match score component
+ * Converts capability match result (0-100) to scoring points (0-20 max)
+ */
+function calculateCapabilityScoreComponent(capabilityMatch: CapabilityMatchResult | null): number {
+  if (!capabilityMatch) {
+    return 0
+  }
+
+  let score = 0
+
+  // Resume skill match bonus
+  if (capabilityMatch.resumeMatch.score > 70) {
+    score += CAPABILITY_MATCH_WEIGHTS.RESUME_SKILL_MATCH
+  } else if (capabilityMatch.resumeMatch.score > 50) {
+    score += CAPABILITY_MATCH_WEIGHTS.RESUME_SKILL_MATCH * 0.5
+  }
+
+  // Service offering match bonus
+  if (capabilityMatch.serviceMatch.score > 60) {
+    score += CAPABILITY_MATCH_WEIGHTS.SERVICE_OFFERING_MATCH
+  } else if (capabilityMatch.serviceMatch.score > 40) {
+    score += CAPABILITY_MATCH_WEIGHTS.SERVICE_OFFERING_MATCH * 0.5
+  }
+
+  // Showcase tool match bonus
+  if (capabilityMatch.showcaseMatch.score > 50) {
+    score += CAPABILITY_MATCH_WEIGHTS.SHOWCASE_TOOL_MATCH
+  } else if (capabilityMatch.showcaseMatch.score > 30) {
+    score += CAPABILITY_MATCH_WEIGHTS.SHOWCASE_TOOL_MATCH * 0.5
+  }
+
+  // Pillar domain match bonus
+  if (capabilityMatch.pillarMatch.score > 65) {
+    score += CAPABILITY_MATCH_WEIGHTS.PILLAR_DOMAIN_MATCH
+  } else if (capabilityMatch.pillarMatch.score > 40) {
+    score += CAPABILITY_MATCH_WEIGHTS.PILLAR_DOMAIN_MATCH * 0.5
+  }
+
+  // Cap overall capability score contribution to max points
+  return Math.min(score, SCORING_WEIGHTS.CAPABILITY_MATCH_MAX)
+}
+
+/**
  * Score an opportunity
  * 
  * @param opportunity - SAM.gov opportunity to score
+ * @param capabilityMatch - Optional pre-calculated capability match result
  * @returns Scoring result with score, breakdown, and pass/fail status
  */
-export function scoreOpportunity(opportunity: SamGovOpportunity): ScoringResult {
+export function scoreOpportunity(
+  opportunity: SamGovOpportunity,
+  capabilityMatch?: CapabilityMatchResult | null
+): ScoringResult {
+  const capabilityScore = calculateCapabilityScoreComponent(capabilityMatch || null)
+
   const breakdown: ScoreBreakdown = {
     base: BASE_SCORE,
     naics: calculateNaicsScore(opportunity),
@@ -212,6 +265,7 @@ export function scoreOpportunity(opportunity: SamGovOpportunity): ScoringResult 
     lifecycle: calculateLifecycleScore(opportunity),
     keywords: countCyberKeywordMatches(opportunity) * SCORING_WEIGHTS.CYBER_KEYWORD_MATCH,
     deadline: calculateDeadlineScore(opportunity),
+    capability: capabilityScore,
     total: 0,
   }
   
@@ -222,7 +276,8 @@ export function scoreOpportunity(opportunity: SamGovOpportunity): ScoringResult 
     breakdown.setAside +
     breakdown.lifecycle +
     breakdown.keywords +
-    breakdown.deadline
+    breakdown.deadline +
+    breakdown.capability
   ))
   
   return {

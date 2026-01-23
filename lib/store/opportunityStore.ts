@@ -274,31 +274,9 @@ export async function storeNormalizedOpportunities(
         created++
       }
 
-      // Automatically scrape the contract page to enrich the data (async, non-blocking)
-      // Only scrape if not already scraped or if scraped more than 24 hours ago
-      if (!existing || !existing.scraped || (existing.scraped_at && new Date(existing.scraped_at).getTime() < Date.now() - 24 * 60 * 60 * 1000)) {
-        // Scrape asynchronously - don't await to avoid blocking ingestion
-        scrapeContractPage(url, {
-          description: normalized.rawPayload.description,
-          links: normalized.rawPayload.links,
-          additionalInfoLink: normalized.rawPayload.additionalInfoLink,
-          title: normalized.title,
-        })
-          .then(async (scrapeResult) => {
-            if (scrapeResult.success) {
-              try {
-                await saveScrapedContract(contractId, scrapeResult)
-                console.log(`[OpportunityStore] Auto-scraped contract ${noticeId}`)
-              } catch (error) {
-                console.error(`[OpportunityStore] Error saving scraped data for ${noticeId}:`, error)
-              }
-            }
-          })
-          .catch((error) => {
-            console.error(`[OpportunityStore] Error auto-scraping ${noticeId}:`, error)
-            // Don't throw - scraping failures shouldn't break ingestion
-          })
-      }
+      // Note: Scraping is now handled explicitly in Stage 7.5 of the ingestion pipeline
+      // This ensures better error handling and logging
+      // Removed async auto-scraping here to avoid race conditions and ensure proper sequencing
     } catch (error) {
       console.error(`[OpportunityStore] Error storing opportunity:`, error)
       // Continue with next opportunity

@@ -135,11 +135,12 @@ export async function scrapeContractPage(
       analysis,
     }
   } catch (error) {
-    console.error(`[Scraper] Error scraping ${url}:`, error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`[Scraper] Error scraping ${url}:`, errorMessage)
     
     // If we have API data as fallback, use it
     if (apiData) {
-      console.log(`[Scraper] Using API data as fallback due to scraping error`)
+      console.log(`[Scraper] Using API data as fallback due to scraping error: ${errorMessage}`)
       const textContent = apiData.description || ''
       const sowAttachment = findSOWFromApiLinks(apiData.links || [], apiData.additionalInfoLink)
       const analysis = analyzeContractFromApiData(apiData, sowAttachment)
@@ -156,7 +157,7 @@ export async function scrapeContractPage(
     
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorMessage,
     }
   }
 }

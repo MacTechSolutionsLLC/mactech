@@ -46,6 +46,11 @@ export async function GET(
       aiKeyRequirements: safeJsonParse(opportunity.aiKeyRequirements, []),
       points_of_contact: safeJsonParse(opportunity.points_of_contact, []),
       requirements: safeJsonParse(opportunity.requirements, []),
+      // Capability match fields
+      matched_resume_skills: safeJsonParse(opportunity.matched_resume_skills, []),
+      matched_services: safeJsonParse(opportunity.matched_services, []),
+      matched_showcases: safeJsonParse(opportunity.matched_showcases, []),
+      capability_match_breakdown: safeJsonParse(opportunity.capability_match_breakdown, {}),
     }
 
     return NextResponse.json({

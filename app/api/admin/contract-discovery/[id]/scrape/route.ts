@@ -100,8 +100,24 @@ export async function POST(
       }
     }
 
+    // Determine URL to scrape - prefer url field, fallback to constructing from noticeId
+    let urlToScrape = contract.url
+    if (!urlToScrape && contract.notice_id) {
+      urlToScrape = `https://sam.gov/opp/${contract.notice_id}`
+    }
+    
+    if (!urlToScrape || !urlToScrape.startsWith('http')) {
+      return NextResponse.json(
+        {
+          error: 'Invalid or missing contract URL',
+          details: `URL: ${urlToScrape}, Notice ID: ${contract.notice_id}`,
+        },
+        { status: 400 }
+      )
+    }
+
     // Scrape the contract page (will use API data if available)
-    const scrapeResult = await scrapeContractPage(contract.url, apiData)
+    const scrapeResult = await scrapeContractPage(urlToScrape, apiData)
 
     if (!scrapeResult.success) {
       return NextResponse.json(

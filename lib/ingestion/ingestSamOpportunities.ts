@@ -28,6 +28,8 @@ import { enrichOpportunity } from '../services/award-enrichment'
 import { scrapeContractPage } from '../contract-scraper'
 import { parseContractText, ParsedContract } from '../ai/contract-parser'
 import { calculateSmartSortScore, OpportunityWithEnrichment } from '../ai/smartSort'
+import { calculateCapabilityScore, loadCompanyCapabilities } from '../scoring/calculateCapabilityScore'
+import { CapabilityMatchResult } from '../scoring/capabilityData'
 import * as cheerio from 'cheerio'
 
 /**
@@ -489,6 +491,51 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     const { created, updated } = await storeNormalizedOpportunities(scoredOpportunities, batchId)
     console.log(`[Ingest] Stored: ${created} created, ${updated} updated`)
     
+    // Stage 6.5: Calculate capability matches for high-scoring opportunities (non-blocking)
+    console.log(`[Ingest] Stage 6.5: Calculating capability matches`)
+    let capabilityMatchCount = 0
+    const capabilities = await loadCompanyCapabilities()
+    
+    // Calculate capability matches for opportunities scoring >= 50
+    const opportunitiesForCapabilityMatch = scoredOpportunities.filter(item => item.score >= MIN_SCORE_THRESHOLD)
+    
+    for (const item of opportunitiesForCapabilityMatch.slice(0, 100)) { // Limit to first 100 to avoid timeout
+      try {
+        // Find corresponding raw opportunity
+        const rawOpp = passedRaw.find(raw => raw.noticeId === item.normalized.noticeId)
+        if (!rawOpp) continue
+        
+        const capabilityMatch = await calculateCapabilityScore(rawOpp, capabilities)
+        
+        if (capabilityMatch) {
+          // Update opportunity with capability match data
+          await prisma.governmentContractDiscovery.updateMany({
+            where: { notice_id: item.normalized.noticeId },
+            data: {
+              capability_match_score: capabilityMatch.overallScore,
+              matched_resume_skills: JSON.stringify(capabilityMatch.resumeMatch.matchedSkills),
+              matched_services: JSON.stringify(capabilityMatch.serviceMatch.matchedServices),
+              matched_showcases: JSON.stringify(capabilityMatch.showcaseMatch.matchedShowcases),
+              primary_pillar: capabilityMatch.pillarMatch.primaryPillar || null,
+              capability_match_breakdown: JSON.stringify({
+                resume: capabilityMatch.resumeMatch.score,
+                service: capabilityMatch.serviceMatch.score,
+                showcase: capabilityMatch.showcaseMatch.score,
+                pillar: capabilityMatch.pillarMatch.score
+              }),
+              capability_match_calculated_at: new Date(),
+            },
+          })
+          capabilityMatchCount++
+        }
+      } catch (error) {
+        console.error(`[Ingest] Error calculating capability match for ${item.normalized.noticeId}:`, error)
+        // Continue with other opportunities
+      }
+    }
+    
+    console.log(`[Ingest] Calculated capability matches for ${capabilityMatchCount} opportunities`)
+    
     // Stage 7: USAspending enrichment with Entity API (BEFORE AI Analysis, as per diagram)
     // Enrich high-scoring opportunities (score ≥ 70) to provide competitive intelligence for AI
     console.log(`[Ingest] Stage 7: USAspending enrichment with Entity API (before AI analysis)`)
@@ -536,33 +583,82 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     
     console.log(`[Ingest] Auto-enriched ${enrichedCount} high-scoring opportunities`)
     
-    // Stage 7.5: Scrape and AI parse high-scoring opportunities (score >= 70)
-    console.log(`[Ingest] Stage 7.5: Scraping and AI parsing high-scoring opportunities`)
+    // Stage 7.5: Scrape and AI parse opportunities that passed minimum threshold (score >= 50)
+    // This ensures we have HTML content for Contract Detail pages
+    console.log(`[Ingest] Stage 7.5: Scraping and AI parsing opportunities (score >= ${MIN_SCORE_THRESHOLD})`)
+    const opportunitiesToScrape = scoredOpportunities.filter(item => item.score >= MIN_SCORE_THRESHOLD)
+    console.log(`[Ingest] Found ${opportunitiesToScrape.length} opportunities to scrape (score >= ${MIN_SCORE_THRESHOLD})`)
+    
     let scrapedCount = 0
     let parsedCount = 0
+    let skippedCount = 0
+    let errorCount = 0
+    let alreadyScrapedCount = 0
+    let noUrlCount = 0
+    let notFoundCount = 0
     
-    for (const item of scoredOpportunities) {
-      if (item.score >= 70 && item.normalized.uiLink) {
-        try {
-          const opportunity = await prisma.governmentContractDiscovery.findFirst({
-            where: { notice_id: item.normalized.noticeId },
-          })
-          
-          if (!opportunity || opportunity.scraped) {
-            continue // Skip if already scraped
+    // Process opportunities with a small delay to avoid rate limiting
+    const BATCH_SIZE = 10
+    const DELAY_MS = 500 // 500ms delay between batches
+    
+    for (let i = 0; i < opportunitiesToScrape.length; i++) {
+      const item = opportunitiesToScrape[i]
+      
+      // Add delay between batches to avoid overwhelming SAM.gov
+      if (i > 0 && i % BATCH_SIZE === 0) {
+        console.log(`[Ingest] Processed ${i}/${opportunitiesToScrape.length}, pausing ${DELAY_MS}ms...`)
+        await new Promise(resolve => setTimeout(resolve, DELAY_MS))
+      }
+      try {
+        const opportunity = await prisma.governmentContractDiscovery.findFirst({
+          where: { notice_id: item.normalized.noticeId },
+        })
+        
+        if (!opportunity) {
+          notFoundCount++
+          console.warn(`[Ingest] Opportunity ${item.normalized.noticeId} not found in database`)
+          continue
+        }
+        
+        // Check if already scraped AND has actual content
+        // If scraped but no content, re-scrape to get the HTML/text
+        if (opportunity.scraped && opportunity.scraped_html_content && opportunity.scraped_text_content) {
+          alreadyScrapedCount++
+          // Log first few to understand why they're already scraped
+          if (alreadyScrapedCount <= 3) {
+            console.log(`[Ingest] Skipping ${item.normalized.noticeId}: Already scraped with content at ${opportunity.scraped_at}`)
           }
-          
-          // Scrape the contract page
-          console.log(`[Ingest] Scraping ${item.normalized.noticeId}: ${item.normalized.uiLink}`)
-          const scrapeResult = await scrapeContractPage(item.normalized.uiLink, {
-            description: item.normalized.rawPayload?.description,
+          continue
+        }
+        
+        // If marked as scraped but missing content, log and re-scrape
+        if (opportunity.scraped && (!opportunity.scraped_html_content || !opportunity.scraped_text_content)) {
+          console.log(`[Ingest] Re-scraping ${item.normalized.noticeId}: Marked as scraped but missing content`)
+        }
+        
+        // Determine URL to scrape - prefer uiLink, fallback to url field, then construct from noticeId
+        let urlToScrape = item.normalized.uiLink || opportunity.url
+        if (!urlToScrape && item.normalized.noticeId) {
+          urlToScrape = `https://sam.gov/opp/${item.normalized.noticeId}`
+        }
+        
+        if (!urlToScrape || !urlToScrape.startsWith('http')) {
+          noUrlCount++
+          console.warn(`[Ingest] Skipping ${item.normalized.noticeId}: Invalid URL: ${urlToScrape}`)
+          continue
+        }
+        
+        // Scrape the contract page
+        console.log(`[Ingest] Scraping ${item.normalized.noticeId} (score: ${item.score}): ${urlToScrape}`)
+          const scrapeResult = await scrapeContractPage(urlToScrape, {
+            description: item.normalized.rawPayload?.description || opportunity.description,
             links: item.normalized.rawPayload?.links,
             additionalInfoLink: item.normalized.rawPayload?.additionalInfoLink,
-            title: item.normalized.title,
+            title: item.normalized.title || opportunity.title,
           })
           
           if (scrapeResult.success) {
-            // Save scraped content
+            // Save scraped content (even if it's just API data fallback)
             await prisma.governmentContractDiscovery.update({
               where: { id: opportunity.id },
               data: {
@@ -572,9 +668,19 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                 scraped_text_content: scrapeResult.textContent || null,
                 sow_attachment_url: scrapeResult.sowAttachmentUrl || null,
                 sow_attachment_type: scrapeResult.sowAttachmentType || null,
+                // Update description if we got better content from scraping
+                description: scrapeResult.textContent && scrapeResult.textContent.length > (opportunity.description?.length || 0)
+                  ? scrapeResult.textContent.substring(0, 10000) // Store first 10k chars
+                  : opportunity.description,
               },
             })
             scrapedCount++
+            
+            if (scrapeResult.htmlContent) {
+              console.log(`[Ingest] Successfully scraped HTML for ${item.normalized.noticeId} (${scrapeResult.htmlContent.length} chars)`)
+            } else if (scrapeResult.textContent) {
+              console.log(`[Ingest] Using API fallback for ${item.normalized.noticeId} (${scrapeResult.textContent.length} chars)`)
+            }
             
             // AI parse the scraped text if available
             if (scrapeResult.textContent && scrapeResult.textContent.length > 500) {
@@ -645,15 +751,20 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
                 // Continue - scraping is still valuable even if parsing fails
               }
             }
+          } else {
+            // Scraping failed - log the error
+            console.warn(`[Ingest] Scraping failed for ${item.normalized.noticeId}: ${scrapeResult.error || 'Unknown error'}`)
+            errorCount++
           }
         } catch (scrapeError) {
           console.error(`[Ingest] Error scraping ${item.normalized.noticeId}:`, scrapeError)
+          errorCount++
           // Continue with next opportunity
         }
-      }
     }
     
-    console.log(`[Ingest] Scraped ${scrapedCount} and AI parsed ${parsedCount} high-scoring opportunities`)
+    console.log(`[Ingest] Scraping complete: ${scrapedCount} scraped, ${parsedCount} parsed`)
+    console.log(`[Ingest] Scraping stats: ${alreadyScrapedCount} already scraped, ${notFoundCount} not found, ${noUrlCount} no URL, ${errorCount} errors`)
     
     // Stage 8: AI analyze opportunities with enrichment context (as per diagram: Enrichment → AI Analysis → Executive Summaries)
     console.log(`[Ingest] Stage 8: AI analysis with enrichment context (Executive Summaries)`)
