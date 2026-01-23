@@ -4,12 +4,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../lib/prisma'
+import { prisma } from '@/lib/prisma'
 import {
   calculateIncumbentConcentration,
   calculateAwardSizeRealism,
   calculateRecompeteLikelihood,
-} from '../../../../../lib/services/intelligence-pass'
+} from '@/lib/services/intelligence-pass'
 
 export async function GET(
   request: NextRequest,

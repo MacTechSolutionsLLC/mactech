@@ -4,8 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
-import { runIntelligencePass } from '../../../../lib/services/intelligence-pass'
+import { prisma } from '@/lib/prisma'
+import { runIntelligencePass } from '@/lib/services/intelligence-pass'
 
 interface RequestBody {
   opportunity_ids?: string[]
