@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server'
 
 // Test endpoint to verify Zapier webhook integration
+// DISABLED: This endpoint was sending test emails on every redeploy
+// To re-enable for testing, uncomment the code below and ensure it's only called manually
 export async function GET() {
+  // Disabled to prevent emails on redeploy
+  return NextResponse.json({
+    success: false,
+    message: 'Test endpoint disabled to prevent emails on redeploy. Contact form submissions still work normally.',
+    note: 'This endpoint was sending test emails on every deployment. It has been disabled.',
+  }, { status: 403 })
+
+  /* ORIGINAL CODE - DISABLED
   const zapierWebhookUrl = process.env.ZAPIER_WEBHOOK_URL || 'https://hooks.zapier.com/hooks/catch/17370933/uwfrwd6/'
   
   const testPayload = {
@@ -43,6 +53,7 @@ export async function GET() {
       webhookUrl: zapierWebhookUrl,
     }, { status: 500 })
   }
+  */
 }
 
 
