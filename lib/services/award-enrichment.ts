@@ -204,6 +204,9 @@ export async function enrichOpportunity(
       return null
     }
 
+    console.log(`[Award Enrichment] Starting enrichment for opportunity ${opportunityId} (${opportunity.notice_id || 'unknown notice'})`)
+    console.log(`[Award Enrichment] Using ${useDatabase ? 'database' : 'USAspending API'} for award lookup`)
+
     // Parse NAICS codes
     let naicsCodes: string[] = []
     try {
@@ -392,7 +395,9 @@ export async function enrichOpportunity(
         },
       }
     } else {
-      // Search API with title similarity if available
+      // Search USAspending API with title similarity if available
+      console.log(`[Award Enrichment] Calling USAspending API to search for similar awards`)
+      console.log(`[Award Enrichment] Filters: NAICS=${naicsCodes.length > 0 ? naicsCodes.join(',') : 'none'}, Agency=${opportunity.agency || 'none'}`)
       const response = await searchAwards({
         filters,
         limit: limit * 2, // Get more results for filtering
@@ -409,6 +414,7 @@ export async function enrichOpportunity(
       })
 
       let similarAwards = response.results || []
+      console.log(`[Award Enrichment] USAspending API returned ${similarAwards.length} similar awards`)
       
       // If title similarity matches were found, prioritize them
       if (response.titleSimilarityMatches && response.titleSimilarityMatches.length > 0) {
@@ -452,7 +458,7 @@ export async function enrichOpportunity(
       ).slice(0, 10) // Limit to top 10 to avoid too many API calls
       
       if (awardsNeedingEnrichment.length > 0) {
-        console.log(`[Award Enrichment] Fetching award details for ${awardsNeedingEnrichment.length} awards missing recipient data`)
+        console.log(`[Award Enrichment] Fetching award details from USAspending API for ${awardsNeedingEnrichment.length} awards missing recipient data`)
         const { enrichAward } = await import('./usaspending-capture.service')
         
         for (let i = 0; i < awardsNeedingEnrichment.length; i++) {

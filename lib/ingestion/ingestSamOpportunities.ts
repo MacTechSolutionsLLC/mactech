@@ -583,11 +583,11 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
     
     console.log(`[Ingest] Auto-enriched ${enrichedCount} high-scoring opportunities`)
     
-    // Stage 7.5: Scrape and AI parse opportunities that passed minimum threshold (score >= 50)
-    // This ensures we have HTML content for Contract Detail pages
-    console.log(`[Ingest] Stage 7.5: Scraping and AI parsing opportunities (score >= ${MIN_SCORE_THRESHOLD})`)
-    const opportunitiesToScrape = scoredOpportunities.filter(item => item.score >= MIN_SCORE_THRESHOLD)
-    console.log(`[Ingest] Found ${opportunitiesToScrape.length} opportunities to scrape (score >= ${MIN_SCORE_THRESHOLD})`)
+    // Stage 7.5: Scrape and AI parse ALL opportunities that passed filters
+    // This ensures we have comprehensive HTML content for all Contract Detail pages
+    console.log(`[Ingest] Stage 7.5: Scraping and AI parsing all filtered opportunities`)
+    const opportunitiesToScrape = scoredOpportunities // Scrape all opportunities that passed filters
+    console.log(`[Ingest] Found ${opportunitiesToScrape.length} opportunities to scrape (all filtered opportunities)`)
     
     let scrapedCount = 0
     let parsedCount = 0

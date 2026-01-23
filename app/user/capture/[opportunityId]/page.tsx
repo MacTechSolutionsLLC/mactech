@@ -262,6 +262,59 @@ export default function OpportunityDetailPage({ params }: PageProps) {
         </section>
       )}
 
+      {/* Scraped Content Section */}
+      {opportunity && (opportunity.scraped_html_content || opportunity.scraped_text_content) && (
+        <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-8">
+          <div className="bg-white rounded-lg border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Full Scraped Content</h2>
+            <p className="text-sm text-neutral-600 mb-4">
+              Complete text and HTML content scraped from the opportunity URL
+              {opportunity.scraped_at && (
+                <span className="ml-2">(scraped {new Date(opportunity.scraped_at).toLocaleDateString()})</span>
+              )}
+            </p>
+            
+            {opportunity.scraped_text_content && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Text Content</h3>
+                <div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 max-h-96 overflow-y-auto">
+                  <pre className="text-xs text-neutral-700 whitespace-pre-wrap font-sans">
+                    {opportunity.scraped_text_content.substring(0, 50000)}
+                    {opportunity.scraped_text_content.length > 50000 && (
+                      <span className="text-neutral-500 italic">
+                        {'\n\n... (content truncated for display, full content stored in database)'}
+                      </span>
+                    )}
+                  </pre>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">
+                  {opportunity.scraped_text_content.length.toLocaleString()} characters total
+                </p>
+              </div>
+            )}
+            
+            {opportunity.scraped_html_content && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">HTML Content</h3>
+                <div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 max-h-96 overflow-y-auto">
+                  <pre className="text-xs text-neutral-600 whitespace-pre-wrap font-mono">
+                    {opportunity.scraped_html_content.substring(0, 100000)}
+                    {opportunity.scraped_html_content.length > 100000 && (
+                      <span className="text-neutral-500 italic">
+                        {'\n\n... (HTML truncated for display, full content stored in database)'}
+                      </span>
+                    )}
+                  </pre>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">
+                  {opportunity.scraped_html_content.length.toLocaleString()} characters total
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Fallback if intelligence not calculated */}
       {!fullIntel && (
         <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">

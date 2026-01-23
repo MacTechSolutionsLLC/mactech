@@ -93,8 +93,33 @@ export async function scrapeContractPage(
     
     // Extract text content (remove scripts, styles, etc.)
     $('script, style, noscript').remove()
-    let textContent = $('body').text()
+    
+    // Extract text from body with better structure preservation
+    // Get text from all content areas, not just body text
+    let textContent = ''
+    
+    // Extract from main content areas first
+    const contentSelectors = [
+      'main', 'article', '[role="main"]', '.content', '.main-content',
+      '#content', '#main-content', '.opportunity-details', '.contract-details'
+    ]
+    
+    for (const selector of contentSelectors) {
+      const content = $(selector).text()
+      if (content && content.length > textContent.length) {
+        textContent = content
+      }
+    }
+    
+    // Fallback to body if no specific content areas found
+    if (!textContent || textContent.length < 100) {
+      textContent = $('body').text()
+    }
+    
+    // Clean up whitespace but preserve some structure
+    textContent = textContent
       .replace(/\s+/g, ' ')
+      .replace(/\n\s*\n/g, '\n\n') // Preserve paragraph breaks
       .trim()
     
     // If we have API description and HTML text is very short, prefer API description
@@ -104,7 +129,8 @@ export async function scrapeContractPage(
       textContent = apiData.description + '\n\n' + textContent
     }
     
-    textContent = textContent.substring(0, 50000) // Limit to 50k chars
+    // Increased limit to 150k chars for comprehensive content capture
+    textContent = textContent.substring(0, 150000)
 
     // Find SOW attachment - check HTML first, then API links as fallback
     let sowAttachment = findSOWAttachment($, url, textContent)
@@ -128,7 +154,7 @@ export async function scrapeContractPage(
 
     return {
       success: true,
-      htmlContent: htmlContent.substring(0, 200000), // Increased limit for richer content
+      htmlContent: htmlContent.substring(0, 300000), // Increased limit to 300k for comprehensive HTML storage
       textContent,
       sowAttachmentUrl: sowAttachment?.url,
       sowAttachmentType: sowAttachment?.type,

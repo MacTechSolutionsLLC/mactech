@@ -871,11 +871,13 @@ export async function enrichAwardWithEntityApi(award: {
     : vendorName
 
   try {
+    console.log(`[Entity API] Enriching award ${award.id} with vendor: ${vendorName}`)
     // Import the restricted Entity API function
     const { searchEntitiesByLegalBusinessName } = await import('../sam-gov-entity-api')
 
     // Execute ONE Entity API query with ONLY allowed parameters
     // Add timeout wrapper to prevent hanging (5 seconds max)
+    console.log(`[Entity API] Calling SAM.gov Entity API for vendor: ${truncatedName}`)
     const response = await Promise.race([
       searchEntitiesByLegalBusinessName(truncatedName, {
         registrationStatus: 'ACTIVE',
@@ -893,12 +895,14 @@ export async function enrichAwardWithEntityApi(award: {
     // Handle results
     if (!response.entityData || response.entityData.length === 0) {
       // Empty results are VALID SUCCESS CASE
+      console.log(`[Entity API] No entity data found for vendor: ${truncatedName} (vendor may not be registered in SAM.gov)`)
       return {
         success: true,
         entityData: null,
       }
     }
 
+    console.log(`[Entity API] Found ${response.entityData.length} entity record(s) for vendor: ${truncatedName}`)
     // Select FIRST entity (treat as contextual, not authoritative)
     const firstEntity = response.entityData[0]
 
@@ -931,6 +935,7 @@ export async function enrichAwardWithEntityApi(award: {
       }
     }
 
+    console.log(`[Entity API] Successfully enriched award ${award.id} with Entity API data (UEI: ${firstEntity?.entityRegistration?.ueiSAM || 'none'})`)
     return {
       success: true,
       entityData: firstEntity,
