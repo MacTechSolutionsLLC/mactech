@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { searchAwards, UsaSpendingFilters } from '@/lib/usaspending-api'
+import { enrichOpportunity } from '@/lib/services/award-enrichment'
 
 export const dynamic = 'force-dynamic'
 
 interface EnrichRequestBody {
   opportunity_id: string // GovernmentContractDiscovery ID
-  naics_codes?: string[]
-  psc_codes?: string[]
-  agency?: string
   limit?: number
+  use_database?: boolean
 }
 
 /**
- * Find similar historical awards for a SAM.gov opportunity
+ * Enrich opportunity with USAspending data and Entity API
+ * This uses the proper enrichOpportunity function that includes Entity API enrichment
  */
 export async function POST(request: NextRequest) {
   try {
     const body: EnrichRequestBody = await request.json()
-    const { opportunity_id, naics_codes, psc_codes, agency, limit = 10 } = body
+    const { opportunity_id, limit = 10, use_database = false } = body
 
     // Get the opportunity from database
     const opportunity = await prisma.governmentContractDiscovery.findUnique({
@@ -32,86 +31,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Build filters based on opportunity
-    const filters: UsaSpendingFilters = {
-      award_type_codes: ['A', 'B', 'C', 'D', 'IDV'], // Contracts and IDVs
-    }
-
-    // Use provided NAICS codes or parse from opportunity
-    if (naics_codes && naics_codes.length > 0) {
-      filters.naics_codes = naics_codes.map(code => ({ code }))
-    } else {
-      try {
-        const oppNaics = JSON.parse(opportunity.naics_codes || '[]')
-        if (Array.isArray(oppNaics) && oppNaics.length > 0) {
-          filters.naics_codes = oppNaics.map((code: string) => ({ code }))
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    }
-
-    // Use provided PSC codes or try to extract from opportunity
-    if (psc_codes && psc_codes.length > 0) {
-      filters.psc_codes = psc_codes.map(code => ({ code }))
-    }
-
-    // Use provided agency or extract from opportunity
-    if (agency) {
-      filters.agencies = [{ toptier_agency_id: agency }]
-    } else if (opportunity.agency) {
-      // Try to match agency name (this is approximate)
-      // In a real implementation, you'd want an agency name to ID mapping
-      filters.agencies = [{ name: opportunity.agency }]
-    }
-
-    // Search for similar awards
-    const response = await searchAwards({
-      filters,
+    // Use the proper enrichment function that includes Entity API
+    const enrichment = await enrichOpportunity(opportunity_id, {
       limit,
-      sort: 'total_obligation',
-      order: 'desc',
+      useDatabase: use_database,
+      createLinks: true,
     })
 
-    const similarAwards = response.results || []
+    if (!enrichment) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to enrich opportunity' },
+        { status: 500 }
+      )
+    }
 
-    // Calculate statistics
-    const obligations = similarAwards
-      .map(a => a.total_obligation)
-      .filter((v): v is number => v !== undefined && v !== null)
-    
-    const avgObligation = obligations.length > 0
-      ? obligations.reduce((a, b) => a + b, 0) / obligations.length
-      : null
-    
-    const minObligation = obligations.length > 0 ? Math.min(...obligations) : null
-    const maxObligation = obligations.length > 0 ? Math.max(...obligations) : null
-
-    // Get unique recipients
-    const recipients = new Set(
-      similarAwards
-        .map(a => a.recipient?.name)
-        .filter((v): v is string => v !== undefined && v !== null)
-    )
-
-    // Get unique agencies
-    const agencies = new Set(
-      similarAwards
-        .map(a => a.awarding_agency?.name || a.awarding_agency?.toptier_agency?.name)
-        .filter((v): v is string => v !== undefined && v !== null)
-    )
+    // Store enrichment result in database
+    await prisma.governmentContractDiscovery.update({
+      where: { id: opportunity_id },
+      data: {
+        usaspending_enrichment: JSON.stringify(enrichment),
+        usaspending_enriched_at: new Date(),
+        usaspending_enrichment_status: 'completed',
+      },
+    })
 
     return NextResponse.json({
       success: true,
       opportunity_id,
-      similar_awards: similarAwards,
-      statistics: {
-        count: similarAwards.length,
-        average_obligation: avgObligation,
-        min_obligation: minObligation,
-        max_obligation: maxObligation,
-        unique_recipients: Array.from(recipients),
-        unique_agencies: Array.from(agencies),
+      enrichment: {
+        similar_awards: enrichment.similar_awards,
+        statistics: enrichment.statistics,
       },
     })
   } catch (error) {
