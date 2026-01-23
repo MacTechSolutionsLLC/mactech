@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        if (agencyBehavior?.new_vendor_acceptance_rate !== null && agencyBehavior.new_vendor_acceptance_rate < 0.2) {
+        if (agencyBehavior != null && agencyBehavior.new_vendor_acceptance_rate != null && agencyBehavior.new_vendor_acceptance_rate < 0.2) {
           signals.push('AGENCY_RARELY_AWARDS_TO_NEW_VENDORS')
         }
 
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        if (setAsideReality?.enforcement_strength === 'WEAK') {
+        if (setAsideReality != null && setAsideReality.enforcement_strength === 'WEAK') {
           signals.push('SET_ASIDE_ENFORCEMENT_WEAK')
         }
 
