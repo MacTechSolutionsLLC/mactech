@@ -137,7 +137,7 @@ export default function CreateUserForm() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => setShowForm(true)}
-          className="px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors shadow-sm hover:shadow"
+          className="px-6 py-2.5 bg-accent-700 text-white rounded-lg hover:bg-accent-800 font-medium transition-colors shadow-sm hover:shadow"
         >
           + Create New User
         </button>
@@ -289,7 +289,7 @@ export default function CreateUserForm() {
           <button
             type="submit"
             disabled={loading || Object.keys(fieldErrors).length > 0}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-accent-700 text-white rounded-lg hover:bg-accent-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Creating...' : 'Create User'}
           </button>
