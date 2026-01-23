@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     const naics = searchParams.get('naics')
     const setAside = searchParams.get('setAside')
     const status = searchParams.get('status') || 'all'
+    const intelligenceSignals = searchParams.get('intelligence_signals')?.split(',') || []
+    const sortByIntelligence = searchParams.get('sort_by_intelligence')
 
     const where: any = {
       dismissed: false,
@@ -46,8 +48,46 @@ export async function GET(request: NextRequest) {
     //   where.capture_status = 'pursuing'
     // }
 
+    // Intelligence signal filters
+    if (intelligenceSignals.length > 0) {
+      const intelligenceWhere: any[] = []
+      
+      for (const signal of intelligenceSignals) {
+        switch (signal) {
+          case 'HIGH_INCUMBENT_LOCK_IN':
+            intelligenceWhere.push({ incumbent_concentration_score: { gt: 0.5 } })
+            break
+          case 'SAM_VALUE_INFLATED':
+            intelligenceWhere.push({ award_size_realism_ratio: { gt: 2.0 } })
+            break
+          case 'LIKELY_RECOMPETE':
+            intelligenceWhere.push({ recompete_likelihood: { gt: 0.6 } })
+            break
+          case 'EARLY_STAGE_SHAPE':
+            intelligenceWhere.push({ lifecycle_stage_classification: 'SOURCES_SOUGHT' })
+            break
+          case 'AGENCY_RARELY_AWARDS_TO_NEW_VENDORS':
+            // This requires parsing agency_behavior_profile, handled in post-processing
+            break
+          case 'SET_ASIDE_ENFORCEMENT_WEAK':
+            // This requires parsing set_aside_enforcement_reality, handled in post-processing
+            break
+        }
+      }
+      
+      if (intelligenceWhere.length > 0) {
+        where.OR = intelligenceWhere
+      }
+    }
+
     const orderBy: any = {}
-    if (sortBy === 'score') {
+    if (sortByIntelligence === 'incumbent_risk') {
+      orderBy.incumbent_concentration_score = 'desc'
+    } else if (sortByIntelligence === 'recompete_likelihood') {
+      orderBy.recompete_likelihood = 'desc'
+    } else if (sortByIntelligence === 'award_realism') {
+      orderBy.award_size_realism_ratio = 'desc'
+    } else if (sortBy === 'score') {
       orderBy.relevance_score = 'desc'
     } else if (sortBy === 'deadline') {
       // Enhanced deadline sort: consider parsed deadline data and urgency
@@ -101,8 +141,53 @@ export async function GET(request: NextRequest) {
         sow_attachment_type: true,
         smart_sort_score: true,
         smart_sort_reasoning: true,
+        // Intelligence fields
+        opportunity_fingerprint: true,
+        lifecycle_stage_classification: true,
+        agency_behavior_profile: true,
+        incumbent_concentration_score: true,
+        award_size_realism_ratio: true,
+        recompete_likelihood: true,
+        set_aside_enforcement_reality: true,
+        intelligence_data: true,
+        intelligence_calculated_at: true,
       },
     })
+
+    // Post-process intelligence signal filters that require JSON parsing
+    if (intelligenceSignals.length > 0) {
+      opportunities = opportunities.filter(opp => {
+        for (const signal of intelligenceSignals) {
+          if (signal === 'AGENCY_RARELY_AWARDS_TO_NEW_VENDORS') {
+            if (opp.agency_behavior_profile) {
+              try {
+                const profile = JSON.parse(opp.agency_behavior_profile)
+                if (profile.new_vendor_acceptance_rate !== null && profile.new_vendor_acceptance_rate < 0.2) {
+                  return true
+                }
+              } catch {
+                // Invalid JSON, skip
+              }
+            }
+          } else if (signal === 'SET_ASIDE_ENFORCEMENT_WEAK') {
+            if (opp.set_aside_enforcement_reality) {
+              try {
+                const reality = JSON.parse(opp.set_aside_enforcement_reality)
+                if (reality.enforcement_strength === 'WEAK') {
+                  return true
+                }
+              } catch {
+                // Invalid JSON, skip
+              }
+            }
+          } else {
+            // Other signals already filtered in where clause
+            return true
+          }
+        }
+        return false
+      })
+    }
 
     // Apply smart sort if requested
     if (sortBy === 'smart') {

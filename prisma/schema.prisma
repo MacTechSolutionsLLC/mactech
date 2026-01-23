@@ -199,8 +199,24 @@ model GovernmentContractDiscovery {
   pipeline_started_at   DateTime? // When pipeline processing started
   pipeline_completed_at DateTime? // When pipeline processing completed
 
+  // Intelligence fields
+  opportunity_fingerprint           String?   @unique // SHA256 hash for deduplication
+  lifecycle_stage_classification    String?   // 'SOURCES_SOUGHT' | 'PRE_SOLICITATION' | 'SOLICITATION' | 'AWARD' | 'UNKNOWN'
+  agency_behavior_profile          String?   @db.Text // JSON: new_vendor_acceptance_rate, typical_award_size_avg, etc.
+  incumbent_concentration_score    Float?    // 0-1 HHI score
+  award_size_realism_ratio        Float?    // SAM value / historical average
+  recompete_likelihood             Float?    // 0-1 probability
+  set_aside_enforcement_reality    String?   @db.Text // JSON: compliance_rate, enforcement_strength
+  intelligence_data                 String?   @db.Text // JSON: complete intelligence payload
+  intelligence_calculated_at       DateTime?
+
   // Relationships
   awardLinks OpportunityAwardLink[]
+
+  @@index([opportunity_fingerprint])
+  @@index([lifecycle_stage_classification])
+  @@index([incumbent_concentration_score])
+  @@index([recompete_likelihood])
 }
 
 // Ignored opportunities from ingestion pipeline
@@ -287,6 +303,50 @@ model IngestionStatus {
   @@index([status])
   @@index([sam_gov_outage])
   @@index([last_run_started_at])
+}
+
+// ============================================================================
+// Intelligence Cache Models
+// Cached intelligence data for agencies and vendors
+// ============================================================================
+
+// Agency intelligence cache (composite key: agency_id + naics_code)
+model AgencyIntelligenceCache {
+  id                    String   @id @default(cuid())
+  agency_id             String   // Normalized agency identifier
+  agency_name           String
+  naics_code            String
+  behavior_profile      String   @db.Text // JSON: agency_behavior_profile structure
+  last_calculated_at    DateTime @default(now())
+  award_count           Int      // Number of awards used in calculation
+  calculation_version   Int      @default(1) // For cache invalidation
+
+  @@unique([agency_id, naics_code], name: "agency_id_naics_code")
+  @@index([agency_id])
+  @@index([naics_code])
+  @@index([last_calculated_at])
+}
+
+// Vendor intelligence cache (composite key: vendor_uei + agency_id + naics_code)
+model VendorIntelligenceCache {
+  id                      String   @id @default(cuid())
+  vendor_uei              String
+  vendor_name             String
+  agency_id               String
+  naics_code              String
+  market_share            Float    // 0-1: wins / total awards
+  total_awards             Int
+  total_obligation         Float
+  capability_fingerprint   String   @db.Text // JSON: {naics: [], psc: []}
+  certification_advantages String   @db.Text // JSON: ['SDVOSB', 'VOSB', etc.]
+  last_calculated_at      DateTime @default(now())
+  calculation_version     Int      @default(1)
+
+  @@unique([vendor_uei, agency_id, naics_code], name: "vendor_uei_agency_id_naics_code")
+  @@index([vendor_uei])
+  @@index([agency_id])
+  @@index([naics_code])
+  @@index([market_share])
 }
 
 // ============================================================================

@@ -18,6 +18,11 @@ import {
   matchAwardsByTitle
 } from '../usaspending-api'
 import { batchLookupEntities, getEntityByUei } from '../sam-gov-entity-api'
+import {
+  calculateIncumbentConcentration,
+  calculateAwardSizeRealism,
+  calculateRecompeteLikelihood,
+} from './intelligence-pass'
 
 export interface EnrichmentResult {
   similar_awards: any[]
@@ -36,6 +41,11 @@ export interface EnrichmentResult {
     agency_patterns?: any[]
     naics_trends?: any[]
     psc_trends?: any[]
+  }
+  intelligence?: {
+    incumbent_concentration_score: number | null
+    award_size_realism_ratio: number | null
+    recompete_likelihood: number | null
   }
 }
 
@@ -353,6 +363,16 @@ export async function enrichOpportunity(
           .filter((v): v is string => v !== null && v !== undefined)
       )
 
+      // Calculate intelligence metrics
+      const incumbentConcentration = calculateIncumbentConcentration(enrichedAwards)
+      const awardSizeRealism = calculateAwardSizeRealism(
+        opportunity.estimated_value,
+        enrichedObligations.length > 0
+          ? enrichedObligations.reduce((a, b) => a + b, 0) / enrichedObligations.length
+          : null
+      )
+      const recompeteLikelihood = calculateRecompeteLikelihood(enrichedAwards)
+
       return {
         similar_awards: enrichedAwards,
         statistics: {
@@ -364,6 +384,11 @@ export async function enrichOpportunity(
           max_obligation: enrichedObligations.length > 0 ? Math.max(...enrichedObligations) : null,
           unique_recipients: Array.from(enrichedRecipients),
           unique_agencies: Array.from(enrichedAgencies),
+        },
+        intelligence: {
+          incumbent_concentration_score: incumbentConcentration,
+          award_size_realism_ratio: awardSizeRealism,
+          recompete_likelihood: recompeteLikelihood,
         },
       }
     } else {
@@ -589,6 +614,16 @@ export async function enrichOpportunity(
         }
       }
 
+      // Calculate intelligence metrics
+      const incumbentConcentration = calculateIncumbentConcentration(enrichedAwards)
+      const awardSizeRealism = calculateAwardSizeRealism(
+        opportunity.estimated_value,
+        obligations.length > 0
+          ? obligations.reduce((a, b) => a + b, 0) / obligations.length
+          : null
+      )
+      const recompeteLikelihood = calculateRecompeteLikelihood(enrichedAwards)
+
       // Update result with enriched awards
       const result: EnrichmentResult = {
         similar_awards: enrichedAwards,
@@ -601,6 +636,11 @@ export async function enrichOpportunity(
           max_obligation: obligations.length > 0 ? Math.max(...obligations) : null,
           unique_recipients: Array.from(recipients),
           unique_agencies: Array.from(agencies),
+        },
+        intelligence: {
+          incumbent_concentration_score: incumbentConcentration,
+          award_size_realism_ratio: awardSizeRealism,
+          recompete_likelihood: recompeteLikelihood,
         },
       }
 

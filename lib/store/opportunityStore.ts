@@ -10,6 +10,10 @@ import { SamGovOpportunity } from '../sam-gov-api-v2'
 import { NormalizedOpportunity, AIAnalysisResult } from '../sam/samTypes'
 import { getAllIgnored } from './ignoredOpportunities'
 import { scrapeContractPage, saveScrapedContract } from '../contract-scraper'
+import {
+  computeOpportunityFingerprint,
+  classifyLifecycleStage,
+} from '../services/intelligence-pass'
 
 /**
  * Get description from SAM.gov payload, fetching from API if description is a URL
@@ -177,6 +181,15 @@ export async function storeNormalizedOpportunities(
       const description = await getDescriptionFromPayload(normalized.rawPayload)
       const snippet = description ? description.substring(0, 500) : (normalized.rawPayload.description?.substring(0, 500) || null)
 
+      // Compute intelligence fields
+      const fingerprint = computeOpportunityFingerprint({
+        agency: normalized.agencyPath,
+        naics_codes: normalized.naics.all,
+        title: normalized.title,
+        solicitation_number: normalized.solicitationNumber,
+      })
+      const lifecycleStage = classifyLifecycleStage(normalized.rawPayload)
+
       const dbData = {
         google_query: `SAM.gov Ingestion Batch ${batchId}`,
         service_category: null,
@@ -246,6 +259,9 @@ export async function storeNormalizedOpportunities(
         ingested_at: new Date(normalized.ingestedAt),
         aiAnalysis: aiAnalysis ? JSON.stringify(aiAnalysis) : null,
         aiAnalysisGeneratedAt: aiAnalysis ? new Date() : null,
+        // Intelligence fields
+        opportunity_fingerprint: fingerprint,
+        lifecycle_stage_classification: lifecycleStage,
       }
 
       // Upsert by noticeId (using url as unique constraint fallback)

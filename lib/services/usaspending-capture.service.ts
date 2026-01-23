@@ -760,6 +760,65 @@ export function normalizeEntityData(entityData: any): any {
 }
 
 /**
+ * Update vendor intelligence cache with Entity API data
+ */
+async function updateVendorIntelligenceCache(data: {
+  vendor_uei: string
+  vendor_name: string
+  agency_id?: string
+  naics_code?: string
+  capability_fingerprint?: { naics: any[]; psc: any[] }
+  certification_advantages?: string[]
+}): Promise<void> {
+  try {
+    if (!data.vendor_uei || !data.vendor_name) {
+      return
+    }
+
+    // If agency_id and naics_code are provided, update specific cache entry
+    if (data.agency_id && data.naics_code) {
+      await prisma.vendorIntelligenceCache.upsert({
+        where: {
+          vendor_uei_agency_id_naics_code: {
+            vendor_uei: data.vendor_uei,
+            agency_id: data.agency_id,
+            naics_code: data.naics_code,
+          },
+        },
+        create: {
+          vendor_uei: data.vendor_uei,
+          vendor_name: data.vendor_name,
+          agency_id: data.agency_id,
+          naics_code: data.naics_code,
+          market_share: 0,
+          total_awards: 0,
+          total_obligation: 0,
+          capability_fingerprint: data.capability_fingerprint
+            ? JSON.stringify(data.capability_fingerprint)
+            : JSON.stringify({ naics: [], psc: [] }),
+          certification_advantages: data.certification_advantages
+            ? JSON.stringify(data.certification_advantages)
+            : JSON.stringify([]),
+        },
+        update: {
+          vendor_name: data.vendor_name,
+          capability_fingerprint: data.capability_fingerprint
+            ? JSON.stringify(data.capability_fingerprint)
+            : undefined,
+          certification_advantages: data.certification_advantages
+            ? JSON.stringify(data.certification_advantages)
+            : undefined,
+          last_calculated_at: new Date(),
+        },
+      })
+    }
+  } catch (error) {
+    // Non-blocking: log but don't fail
+    console.warn(`[Vendor Intelligence Cache] Error updating cache:`, error)
+  }
+}
+
+/**
  * Enrich award with SAM.gov Entity API v3 (SECONDARY, BEST-EFFORT)
  * 
  * This is a secondary enrichment layer that runs AFTER USAspending enrichment.
@@ -776,6 +835,9 @@ export async function enrichAwardWithEntityApi(award: {
   id: string
   recipient_name: string | null
   raw_data: string | null
+  awarding_agency_id?: string | null
+  awarding_agency_name?: string | null
+  naics_code?: string | null
 }): Promise<{
   success: boolean
   entityData: any | null
@@ -839,6 +901,36 @@ export async function enrichAwardWithEntityApi(award: {
 
     // Select FIRST entity (treat as contextual, not authoritative)
     const firstEntity = response.entityData[0]
+
+    // Update vendor intelligence cache if we have Entity API data
+    if (firstEntity?.entityRegistration?.ueiSAM) {
+      const uei = firstEntity.entityRegistration.ueiSAM
+      const entityName = firstEntity.coreData?.entityInformation?.entityName || vendorName
+      const businessTypes = firstEntity.coreData?.businessTypes?.businessTypeList || []
+      const naicsCodes = firstEntity.coreData?.naicsCodes || []
+      const pscCodes = firstEntity.coreData?.pscCodes || []
+
+      // Extract certification advantages
+      const certificationAdvantages = businessTypes.filter((bt: string) =>
+        ['SDVOSB', 'VOSB', '8A', 'WOSB', 'EDWOSB', 'HUBZone'].includes(bt)
+      )
+
+      // Update cache if we have agency and NAICS context
+      if (award.awarding_agency_id && award.naics_code) {
+        await updateVendorIntelligenceCache({
+          vendor_uei: uei,
+          vendor_name: entityName,
+          agency_id: award.awarding_agency_id,
+          naics_code: award.naics_code,
+          capability_fingerprint: {
+            naics: naicsCodes.map((n: any) => n.naicsCode || n),
+            psc: pscCodes.map((p: any) => p.pscCode || p),
+          },
+          certification_advantages: certificationAdvantages,
+        })
+      }
+    }
+
     return {
       success: true,
       entityData: firstEntity,

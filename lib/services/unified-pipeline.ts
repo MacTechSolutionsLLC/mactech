@@ -13,6 +13,7 @@ import { prisma } from '../prisma'
 import { scrapeContractPage, saveScrapedContract, ScrapeResult } from '../contract-scraper'
 import { enrichOpportunity, EnrichmentResult } from '../services/award-enrichment'
 import { analyzeEnrichmentComplete, EnrichmentAnalysisResult } from '../ai/enrichment-analysis'
+import { runIntelligencePass } from '../services/intelligence-pass'
 
 export type PipelineStatus = 
   | 'discovered' 
@@ -20,6 +21,7 @@ export type PipelineStatus =
   | 'scraped' 
   | 'enriching' 
   | 'enriched' 
+  | 'intelligence_pass'
   | 'analyzing' 
   | 'analyzed' 
   | 'ready' 
@@ -33,6 +35,7 @@ export interface PipelineResult {
   stages: {
     scraping: { completed: boolean; error?: string }
     enrichment: { completed: boolean; error?: string }
+    intelligence: { completed: boolean; error?: string }
     analysis: { completed: boolean; error?: string }
   }
   finalStatus: PipelineStatus
@@ -68,6 +71,7 @@ export async function processContractPipeline(
     stages: {
       scraping: { completed: false },
       enrichment: { completed: false },
+      intelligence: { completed: false },
       analysis: { completed: false },
     },
     finalStatus: 'discovered',
@@ -167,6 +171,7 @@ export async function processContractPipeline(
             statistics: enrichment.statistics,
             similar_awards: enrichment.similar_awards.slice(0, 10),
             trends: enrichment.trends,
+            intelligence: enrichment.intelligence,
           }
 
           await prisma.governmentContractDiscovery.update({
@@ -175,6 +180,10 @@ export async function processContractPipeline(
               usaspending_enrichment: JSON.stringify(enrichmentData),
               usaspending_enriched_at: new Date(),
               usaspending_enrichment_status: 'completed',
+              // Store intelligence fields from enrichment
+              incumbent_concentration_score: enrichment.intelligence?.incumbent_concentration_score ?? null,
+              award_size_realism_ratio: enrichment.intelligence?.award_size_realism_ratio ?? null,
+              recompete_likelihood: enrichment.intelligence?.recompete_likelihood ?? null,
             },
           })
 
@@ -204,7 +213,76 @@ export async function processContractPipeline(
       currentStatus = 'enriched'
     }
 
-    // Stage 3: AI Analysis
+    // Stage 3: Intelligence Pass
+    if (currentStatus === 'enriched' && !contract.intelligence_data) {
+      try {
+        currentStatus = 'intelligence_pass'
+        await updatePipelineStatus(contractId, currentStatus, 'intelligence_pass', pipelineErrors)
+
+        console.log(`[Pipeline] Running intelligence pass for contract ${contractId}...`)
+
+        const intelligence = await runIntelligencePass(contractId)
+
+        // Parse existing enrichment to add intelligence fields
+        let enrichmentData: any = {}
+        if (contract.usaspending_enrichment) {
+          try {
+            enrichmentData = JSON.parse(contract.usaspending_enrichment)
+          } catch {
+            // Invalid JSON, start fresh
+          }
+        }
+
+        // Add intelligence fields from enrichment if available
+        if (enrichmentData.intelligence) {
+          await prisma.governmentContractDiscovery.update({
+            where: { id: contractId },
+            data: {
+              intelligence_data: JSON.stringify(intelligence),
+              intelligence_calculated_at: new Date(),
+              incumbent_concentration_score: enrichmentData.intelligence.incumbent_concentration_score ?? null,
+              award_size_realism_ratio: enrichmentData.intelligence.award_size_realism_ratio ?? null,
+              recompete_likelihood: enrichmentData.intelligence.recompete_likelihood ?? null,
+              agency_behavior_profile: intelligence.agency_behavior_profile
+                ? JSON.stringify(intelligence.agency_behavior_profile)
+                : null,
+              set_aside_enforcement_reality: intelligence.set_aside_enforcement_reality
+                ? JSON.stringify(intelligence.set_aside_enforcement_reality)
+                : null,
+            },
+          })
+        } else {
+          // No enrichment intelligence yet, just store agency intelligence
+          await prisma.governmentContractDiscovery.update({
+            where: { id: contractId },
+            data: {
+              intelligence_data: JSON.stringify(intelligence),
+              intelligence_calculated_at: new Date(),
+              agency_behavior_profile: intelligence.agency_behavior_profile
+                ? JSON.stringify(intelligence.agency_behavior_profile)
+                : null,
+              set_aside_enforcement_reality: intelligence.set_aside_enforcement_reality
+                ? JSON.stringify(intelligence.set_aside_enforcement_reality)
+                : null,
+            },
+          })
+        }
+
+        result.stages.intelligence.completed = true
+        await updatePipelineStatus(contractId, 'enriched', 'intelligence_pass_complete', pipelineErrors)
+        console.log(`[Pipeline] ✓ Intelligence pass completed for contract ${contractId}`)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown intelligence error'
+        console.error(`[Pipeline] ✗ Intelligence pass failed for ${contractId}:`, errorMessage)
+        pipelineErrors.push(`Intelligence: ${errorMessage}`)
+        result.stages.intelligence.error = errorMessage
+        // Continue pipeline even if intelligence fails
+      }
+    } else {
+      result.stages.intelligence.completed = true
+    }
+
+    // Stage 4: AI Analysis
     if (!contract.aiAnalysis || forceAnalysis) {
       try {
         currentStatus = 'analyzing'
@@ -262,6 +340,7 @@ export async function processContractPipeline(
     if (
       result.stages.scraping.completed &&
       result.stages.enrichment.completed &&
+      result.stages.intelligence.completed &&
       result.stages.analysis.completed
     ) {
       currentStatus = 'ready'
@@ -316,6 +395,7 @@ export async function processContractsPipeline(
         stages: {
           scraping: { completed: false },
           enrichment: { completed: false },
+          intelligence: { completed: false },
           analysis: { completed: false },
         },
         finalStatus: 'error',
