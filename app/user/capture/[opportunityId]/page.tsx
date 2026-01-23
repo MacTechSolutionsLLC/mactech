@@ -246,6 +246,123 @@ export default function OpportunityDetailPage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* Parsed Data Quick Summary */}
+      {opportunity && (() => {
+        let parsedData: any = null
+        let parsedSummary = {
+          requirementsCount: 0,
+          deliverablesCount: 0,
+          pointsOfContactCount: 0,
+          linksCount: 0,
+          sowLinksCount: 0,
+          keywordsCount: 0,
+          skillsCount: 0,
+        }
+
+        if (opportunity.aiParsedData) {
+          try {
+            parsedData = typeof opportunity.aiParsedData === 'string' 
+              ? JSON.parse(opportunity.aiParsedData) 
+              : opportunity.aiParsedData
+            
+            if (parsedData) {
+              parsedSummary.requirementsCount = Array.isArray(parsedData.requirements) ? parsedData.requirements.length : 0
+              parsedSummary.deliverablesCount = Array.isArray(parsedData.deliverables) ? parsedData.deliverables.length : 0
+              parsedSummary.pointsOfContactCount = Array.isArray(parsedData.pointsOfContact) ? parsedData.pointsOfContact.length : 0
+              parsedSummary.linksCount = Array.isArray(parsedData.links) ? parsedData.links.length : 0
+              parsedSummary.sowLinksCount = Array.isArray(parsedData.links) 
+                ? parsedData.links.filter((l: any) => l.type === 'SOW').length 
+                : 0
+              parsedSummary.keywordsCount = Array.isArray(parsedData.keywords) ? parsedData.keywords.length : 0
+              parsedSummary.skillsCount = Array.isArray(parsedData.skills) ? parsedData.skills.length : 0
+            }
+          } catch {}
+        }
+
+        // Fallback parsing
+        if (parsedSummary.requirementsCount === 0 && opportunity.requirements) {
+          try {
+            const reqs = typeof opportunity.requirements === 'string' 
+              ? JSON.parse(opportunity.requirements) 
+              : opportunity.requirements
+            if (Array.isArray(reqs)) parsedSummary.requirementsCount = reqs.length
+          } catch {}
+        }
+
+        if (parsedSummary.pointsOfContactCount === 0 && opportunity.points_of_contact) {
+          try {
+            const pocs = typeof opportunity.points_of_contact === 'string' 
+              ? JSON.parse(opportunity.points_of_contact) 
+              : opportunity.points_of_contact
+            if (Array.isArray(pocs)) parsedSummary.pointsOfContactCount = pocs.length
+          } catch {}
+        }
+
+        if (parsedSummary.linksCount === 0 && opportunity.resource_links) {
+          try {
+            const links = typeof opportunity.resource_links === 'string' 
+              ? JSON.parse(opportunity.resource_links) 
+              : opportunity.resource_links
+            if (Array.isArray(links)) {
+              parsedSummary.linksCount = links.length
+              parsedSummary.sowLinksCount = links.filter((l: any) => l.type === 'SOW').length
+            }
+          } catch {}
+        }
+
+        const hasData = parsedSummary.requirementsCount > 0 || parsedSummary.deliverablesCount > 0 || 
+                       parsedSummary.pointsOfContactCount > 0 || parsedSummary.linksCount > 0 ||
+                       parsedSummary.keywordsCount > 0 || parsedSummary.skillsCount > 0
+
+        if (!hasData) return null
+
+        return (
+          <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
+            <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-lg border border-blue-200 p-6">
+              <h2 className="text-lg font-semibold text-neutral-900 mb-4">Parsed Data Summary</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {parsedSummary.requirementsCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-blue-200">
+                    <div className="text-2xl font-bold text-blue-700">{parsedSummary.requirementsCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">Requirements</div>
+                  </div>
+                )}
+                {parsedSummary.deliverablesCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-green-200">
+                    <div className="text-2xl font-bold text-green-700">{parsedSummary.deliverablesCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">Deliverables</div>
+                  </div>
+                )}
+                {parsedSummary.pointsOfContactCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-purple-200">
+                    <div className="text-2xl font-bold text-purple-700">{parsedSummary.pointsOfContactCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">POCs</div>
+                  </div>
+                )}
+                {parsedSummary.sowLinksCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-amber-200">
+                    <div className="text-2xl font-bold text-amber-700">{parsedSummary.sowLinksCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">SOW Links</div>
+                  </div>
+                )}
+                {parsedSummary.keywordsCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-indigo-200">
+                    <div className="text-2xl font-bold text-indigo-700">{parsedSummary.keywordsCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">Keywords</div>
+                  </div>
+                )}
+                {parsedSummary.skillsCount > 0 && (
+                  <div className="bg-white rounded-lg p-3 border border-teal-200">
+                    <div className="text-2xl font-bold text-teal-700">{parsedSummary.skillsCount}</div>
+                    <div className="text-xs text-neutral-600 mt-1">Skills</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )
+      })()}
+
       {/* Decision Summary */}
       {fullIntel && (
         <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
