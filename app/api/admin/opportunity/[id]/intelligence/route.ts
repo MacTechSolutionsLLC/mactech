@@ -111,7 +111,7 @@ export async function GET(
     }
 
     // Agency rarely awards to new vendors
-    if (agencyBehavior?.new_vendor_acceptance_rate !== null && agencyBehavior.new_vendor_acceptance_rate < 0.2) {
+    if (agencyBehavior != null && agencyBehavior.new_vendor_acceptance_rate != null && agencyBehavior.new_vendor_acceptance_rate < 0.2) {
       signals.push('AGENCY_RARELY_AWARDS_TO_NEW_VENDORS')
       reasoning.push(`New vendor acceptance rate: ${(agencyBehavior.new_vendor_acceptance_rate * 100).toFixed(1)}%`)
       if (recommendation !== 'NO_BID') {
@@ -141,13 +141,13 @@ export async function GET(
     }
 
     // Set-aside enforcement weak
-    if (setAsideReality?.enforcement_strength === 'WEAK') {
+    if (setAsideReality?.enforcement_strength === 'WEAK' && setAsideReality.compliance_rate != null) {
       signals.push('SET_ASIDE_ENFORCEMENT_WEAK')
       reasoning.push(`Set-aside compliance rate: ${(setAsideReality.compliance_rate * 100).toFixed(1)}%`)
     }
 
     // If no negative signals and good agency behavior, recommend BID
-    if (signals.length === 0 && agencyBehavior?.new_vendor_acceptance_rate !== null && agencyBehavior.new_vendor_acceptance_rate >= 0.3) {
+    if (signals.length === 0 && agencyBehavior != null && agencyBehavior.new_vendor_acceptance_rate != null && agencyBehavior.new_vendor_acceptance_rate >= 0.3) {
       recommendation = 'BID'
       confidence = 0.6
       reasoning.push('No significant risk signals detected')
