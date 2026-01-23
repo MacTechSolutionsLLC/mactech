@@ -430,7 +430,8 @@ export async function enrichOpportunity(
         console.log(`[Award Enrichment] Fetching award details for ${awardsNeedingEnrichment.length} awards missing recipient data`)
         const { enrichAward } = await import('./usaspending-capture.service')
         
-        for (const award of awardsNeedingEnrichment) {
+        for (let i = 0; i < awardsNeedingEnrichment.length; i++) {
+          const award = awardsNeedingEnrichment[i]
           try {
             const generatedId = award.generated_internal_id || award.generated_unique_award_id
             if (!generatedId) continue
@@ -444,6 +445,11 @@ export async function enrichOpportunity(
                 name: detailData.recipient?.name || award.recipient?.name,
                 uei: detailData.recipient.uei,
               }
+            }
+            
+            // Small delay between API calls to avoid rate limiting (except for last item)
+            if (i < awardsNeedingEnrichment.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, 200))
             }
           } catch (error) {
             console.warn(`[Award Enrichment] Failed to fetch details for award ${award.generated_internal_id || award.generated_unique_award_id}:`, error)
