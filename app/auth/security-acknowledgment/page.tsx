@@ -44,8 +44,12 @@ export default function SecurityAcknowledgmentPage() {
       // Update session
       await update()
 
-      // Redirect to admin portal or home
-      router.push('/admin')
+      // Redirect based on user role
+      if (session?.user?.role === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/user')
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred')
       setSubmitting(false)

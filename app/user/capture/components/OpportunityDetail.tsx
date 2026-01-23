@@ -1,0 +1,671 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import CaptureActions from './CaptureActions'
+
+interface OpportunityDetailProps {
+  opportunityId: string
+  onBack: () => void
+  onUpdate: () => void
+}
+
+interface Opportunity {
+  id: string
+  notice_id?: string
+  title: string
+  agency?: string
+  description?: string
+  relevance_score: number
+  deadline?: string
+  aiSummary?: string
+  aiAnalysis?: any
+  flagged: boolean
+  ignored: boolean
+  naics_codes: string
+  set_aside: string
+  // Explicit information fields
+  points_of_contact?: string | null
+  url?: string
+  solicitation_number?: string | null
+  created_at?: string
+  resource_links?: string | null
+  // Enriched data
+  scraped?: boolean
+  scraped_at?: string
+  scraped_text_content?: string | null
+  aiParsedData?: string | null
+  aiParsedAt?: string | null
+  usaspending_enrichment?: any
+  usaspending_enriched_at?: string | null
+  usaspending_enrichment_status?: string | null
+  incumbent_vendors?: string | null
+  competitive_landscape_summary?: string | null
+  requirements?: string | null
+  estimated_value?: string | null
+  period_of_performance?: string | null
+  place_of_performance?: string | null
+  sow_attachment_url?: string | null
+  sow_attachment_type?: string | null
+}
+
+export default function OpportunityDetail({
+  opportunityId,
+  onBack,
+  onUpdate,
+}: OpportunityDetailProps) {
+  const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [generatingAnalysis, setGeneratingAnalysis] = useState(false)
+
+  useEffect(() => {
+    loadOpportunity()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opportunityId])
+
+  const loadOpportunity = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/admin/capture/opportunities/${opportunityId}`)
+      const data = await response.json()
+      if (data.success) {
+        setOpportunity(data.opportunity)
+      }
+    } catch (error) {
+      console.error('Error loading opportunity:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGenerateAnalysis = async () => {
+    setGeneratingAnalysis(true)
+    try {
+      const response = await fetch(
+        `/api/admin/capture/opportunities/${opportunityId}/analyze`,
+        { method: 'POST' }
+      )
+      const data = await response.json()
+      if (data.success) {
+        await loadOpportunity()
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Error generating analysis:', error)
+    } finally {
+      setGeneratingAnalysis(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg border border-neutral-200 p-8">
+        <div className="text-center text-neutral-600">Loading opportunity details...</div>
+      </div>
+    )
+  }
+
+  if (!opportunity) {
+    return (
+      <div className="bg-white rounded-lg border border-neutral-200 p-8">
+        <div className="text-center text-red-600">Opportunity not found</div>
+        <button
+          onClick={onBack}
+          className="mt-4 px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg"
+        >
+          Back
+        </button>
+      </div>
+    )
+  }
+
+  const aiAnalysis = opportunity.aiAnalysis
+    ? typeof opportunity.aiAnalysis === 'string'
+      ? JSON.parse(opportunity.aiAnalysis)
+      : opportunity.aiAnalysis
+    : null
+
+  const enrichment = opportunity.usaspending_enrichment
+    ? typeof opportunity.usaspending_enrichment === 'string'
+      ? JSON.parse(opportunity.usaspending_enrichment)
+      : opportunity.usaspending_enrichment
+    : null
+
+  const parsedData = opportunity.aiParsedData
+    ? typeof opportunity.aiParsedData === 'string'
+      ? JSON.parse(opportunity.aiParsedData)
+      : opportunity.aiParsedData
+    : null
+
+  const incumbentVendors = opportunity.incumbent_vendors
+    ? typeof opportunity.incumbent_vendors === 'string'
+      ? JSON.parse(opportunity.incumbent_vendors)
+      : opportunity.incumbent_vendors
+    : null
+
+  const requirements = opportunity.requirements
+    ? typeof opportunity.requirements === 'string'
+      ? JSON.parse(opportunity.requirements)
+      : opportunity.requirements
+    : null
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg border border-neutral-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 text-sm font-medium text-neutral-700 bg-neutral-100 rounded-lg hover:bg-neutral-200"
+          >
+            ← Back to List
+          </button>
+          {!aiAnalysis && (
+            <button
+              onClick={handleGenerateAnalysis}
+              disabled={generatingAnalysis}
+              className="px-4 py-2 text-sm font-medium text-white bg-accent-700 rounded-lg hover:bg-accent-800 disabled:opacity-50"
+            >
+              {generatingAnalysis ? 'Generating...' : 'Generate AI Analysis'}
+            </button>
+          )}
+        </div>
+        <h1 className="text-2xl font-bold text-neutral-900 mb-2">{opportunity.title}</h1>
+        <div className="flex items-center gap-4 text-sm text-neutral-600 mb-3">
+          {opportunity.agency && <span>Agency: {opportunity.agency}</span>}
+          <span>Score: {opportunity.relevance_score}</span>
+          {opportunity.deadline && (
+            <span>Deadline: {new Date(opportunity.deadline).toLocaleDateString()}</span>
+          )}
+        </div>
+        {/* Enrichment Status Badges */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {opportunity.scraped && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
+              📄 HTML Scraped {opportunity.scraped_at && `(${new Date(opportunity.scraped_at).toLocaleDateString()})`}
+            </span>
+          )}
+          {parsedData && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+              🤖 AI Parsed {opportunity.aiParsedAt && `(${new Date(opportunity.aiParsedAt).toLocaleDateString()})`}
+            </span>
+          )}
+          {opportunity.usaspending_enrichment_status === 'completed' && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800">
+              💰 USAspending Enriched {opportunity.usaspending_enriched_at && `(${new Date(opportunity.usaspending_enriched_at).toLocaleDateString()})`}
+            </span>
+          )}
+          {incumbentVendors && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-teal-100 text-teal-800">
+              🏢 Entity API Enriched
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Explicit Information Sections */}
+      <div className="space-y-4">
+        {/* Contract Information */}
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Contract Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-neutral-700">Name:</span>
+              <span className="ml-2 text-neutral-600">{opportunity.title}</span>
+            </div>
+            {opportunity.notice_id && (
+              <div>
+                <span className="font-medium text-neutral-700">Notice ID:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.notice_id}</span>
+              </div>
+            )}
+            {opportunity.solicitation_number && (
+              <div>
+                <span className="font-medium text-neutral-700">Solicitation Number:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.solicitation_number}</span>
+              </div>
+            )}
+            {opportunity.agency && (
+              <div>
+                <span className="font-medium text-neutral-700">Agency:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.agency}</span>
+              </div>
+            )}
+            {opportunity.set_aside && (() => {
+              try {
+                const setAside = JSON.parse(opportunity.set_aside)
+                if (Array.isArray(setAside) && setAside.length > 0) {
+                  return (
+                    <div>
+                      <span className="font-medium text-neutral-700">Set-Aside:</span>
+                      <span className="ml-2 text-neutral-600">{setAside.join(', ')}</span>
+                    </div>
+                  )
+                }
+              } catch (e) {}
+              return null
+            })()}
+            {opportunity.url && (
+              <div className="md:col-span-2">
+                <span className="font-medium text-neutral-700">Contract Link:</span>
+                <a
+                  href={opportunity.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-accent-700 hover:text-accent-800 underline"
+                >
+                  {opportunity.url}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Dates Section */}
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Important Dates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            {opportunity.created_at && (
+              <div>
+                <span className="font-medium text-neutral-700">Posted Date:</span>
+                <span className="ml-2 text-neutral-600">
+                  {new Date(opportunity.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            {opportunity.deadline && (
+              <div>
+                <span className="font-medium text-neutral-700">Response Deadline:</span>
+                <span className="ml-2 text-neutral-600">
+                  {new Date(opportunity.deadline).toLocaleDateString()}
+                  {(() => {
+                    const daysRemaining = Math.ceil(
+                      (new Date(opportunity.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                    )
+                    return daysRemaining >= 0 ? (
+                      <span className="ml-2 text-xs text-neutral-500">({daysRemaining} days remaining)</span>
+                    ) : (
+                      <span className="ml-2 text-xs text-red-600">(Expired)</span>
+                    )
+                  })()}
+                </span>
+              </div>
+            )}
+            {opportunity.period_of_performance && (
+              <div>
+                <span className="font-medium text-neutral-700">Period of Performance:</span>
+                <span className="ml-2 text-neutral-600">{opportunity.period_of_performance}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Points of Contact */}
+        {opportunity.points_of_contact && (() => {
+          try {
+            const pocs = JSON.parse(opportunity.points_of_contact)
+            if (Array.isArray(pocs) && pocs.length > 0) {
+              return (
+                <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Points of Contact</h2>
+                  <div className="space-y-3">
+                    {pocs.map((poc: any, idx: number) => (
+                      <div key={idx} className="border border-neutral-200 rounded p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-neutral-700">{poc.name || 'N/A'}</span>
+                          {poc.role && (
+                            <span className="text-xs text-neutral-500">({poc.role})</span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm text-neutral-600">
+                          {poc.email && (
+                            <span>
+                              Email: <a href={`mailto:${poc.email}`} className="text-accent-700 hover:text-accent-800">{poc.email}</a>
+                            </span>
+                          )}
+                          {poc.phone && <span>Phone: {poc.phone}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          } catch (e) {}
+          return null
+        })()}
+
+        {/* Links & Attachments */}
+        {opportunity.resource_links && (() => {
+          try {
+            const links = JSON.parse(opportunity.resource_links)
+            if (Array.isArray(links) && links.length > 0) {
+              const sowLinks = links.filter((l: any) => l.type === 'SOW')
+              const attachments = links.filter((l: any) => l.type === 'Attachment')
+              const resources = links.filter((l: any) => l.type === 'Resource')
+              const additionalInfo = links.filter((l: any) => l.type === 'Additional Info')
+              
+              return (
+                <div className="bg-white rounded-lg border border-neutral-200 p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Links & Attachments</h2>
+                  <div className="space-y-4">
+                    {sowLinks.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">SOW Documents</h3>
+                        <ul className="space-y-1">
+                          {sowLinks.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url} ({link.type})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {attachments.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Attachments</h3>
+                        <ul className="space-y-1">
+                          {attachments.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url} ({link.type})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {resources.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Resources</h3>
+                        <ul className="space-y-1">
+                          {resources.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {additionalInfo.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-700 mb-2">Additional Information</h3>
+                        <ul className="space-y-1">
+                          {additionalInfo.map((link: any, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-700 hover:text-accent-800 underline"
+                              >
+                                • {link.name || link.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            }
+          } catch (e) {}
+          return null
+        })()}
+
+        {/* Vendor Information */}
+        {incumbentVendors && Array.isArray(incumbentVendors) && incumbentVendors.length > 0 && (
+          <div className="bg-white rounded-lg border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Vendor Information</h2>
+            <div>
+              <span className="text-sm font-medium text-neutral-700">Likely Incumbents:</span>
+              <div className="mt-2 text-sm text-neutral-600">
+                {incumbentVendors.join(', ')}
+              </div>
+              <p className="mt-2 text-xs text-neutral-500">
+                From USAspending/Entity API enrichment
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* AI Summary */}
+      {aiAnalysis && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">AI Summary</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-neutral-700 mb-2">Executive Summary</h3>
+              <p className="text-sm text-neutral-600">{aiAnalysis.relevanceSummary || opportunity.aiSummary}</p>
+            </div>
+            {aiAnalysis.whyThisMatters && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Why This Matters</h3>
+                <p className="text-sm text-neutral-600">{aiAnalysis.whyThisMatters}</p>
+              </div>
+            )}
+            {aiAnalysis.relevanceScore !== undefined && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Relevance Score</h3>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-neutral-200 rounded-full h-2">
+                    <div
+                      className="bg-accent-700 h-2 rounded-full"
+                      style={{ width: `${aiAnalysis.relevanceScore}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-neutral-900">
+                    {aiAnalysis.relevanceScore}/100
+                  </span>
+                </div>
+                {aiAnalysis.relevanceReasoning && (
+                  <p className="text-xs text-neutral-600 mt-2">{aiAnalysis.relevanceReasoning}</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* AI Parsed Data */}
+      {parsedData && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">AI Parsed Contract Data</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {parsedData.summary && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Summary</h3>
+                <p className="text-sm text-neutral-600">{parsedData.summary}</p>
+              </div>
+            )}
+            {parsedData.scope && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Scope</h3>
+                <p className="text-sm text-neutral-600">{parsedData.scope}</p>
+              </div>
+            )}
+            {parsedData.objectives && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Objectives</h3>
+                <p className="text-sm text-neutral-600">{parsedData.objectives}</p>
+              </div>
+            )}
+            {parsedData.requirements && parsedData.requirements.length > 0 && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Requirements</h3>
+                <ul className="list-disc list-inside text-sm text-neutral-600 space-y-1">
+                  {parsedData.requirements.map((req: string, idx: number) => (
+                    <li key={idx}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {parsedData.deliverables && parsedData.deliverables.length > 0 && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Deliverables</h3>
+                <ul className="list-disc list-inside text-sm text-neutral-600 space-y-1">
+                  {parsedData.deliverables.map((del: string, idx: number) => (
+                    <li key={idx}>{del}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {parsedData.timeline && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Timeline</h3>
+                <p className="text-sm text-neutral-600">{parsedData.timeline}</p>
+              </div>
+            )}
+            {parsedData.estimatedValue && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-700 mb-2">Estimated Value</h3>
+                <p className="text-sm text-neutral-600">{parsedData.estimatedValue}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scraped Content */}
+      {opportunity.scraped_text_content && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Scraped Content</h2>
+          <div className="max-h-96 overflow-y-auto">
+            <p className="text-sm text-neutral-600 whitespace-pre-wrap">
+              {opportunity.scraped_text_content.substring(0, 5000)}
+              {opportunity.scraped_text_content.length > 5000 && '...'}
+            </p>
+          </div>
+          {opportunity.sow_attachment_url && (
+            <div className="mt-4">
+              <a
+                href={opportunity.sow_attachment_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-accent-700 hover:text-accent-800 underline"
+              >
+                📎 View SOW Attachment ({opportunity.sow_attachment_type || 'Document'})
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Competitive Intelligence */}
+      {(enrichment || aiAnalysis?.competitiveLandscape || incumbentVendors) && (
+        <div className="bg-white rounded-lg border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">
+            Competitive Intelligence
+          </h2>
+          {enrichment?.statistics && (
+            <div className="space-y-3 mb-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-neutral-600">Similar Awards Found</div>
+                  <div className="text-lg font-semibold text-neutral-900">
+                    {enrichment.statistics.count}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-neutral-600">Average Award Value</div>
+                  <div className="text-lg font-semibold text-neutral-900">
+                    {enrichment.statistics.average_obligation
+                      ? `$${enrichment.statistics.average_obligation.toLocaleString()}`
+                      : 'N/A'}
+                  </div>
+                </div>
+              </div>
+              {enrichment.similar_awards && enrichment.similar_awards.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-neutral-700 mb-2">Similar Awards (with Entity API data)</div>
+                  <div className="space-y-2">
+                    {enrichment.similar_awards.slice(0, 5).map((award: any, idx: number) => (
+                      <div key={idx} className="border border-neutral-200 rounded p-3">
+                        <div className="text-sm font-medium text-neutral-900">
+                          {award.recipient?.name || award.recipient_name || 'Unknown'}
+                        </div>
+                        {award.total_obligation && (
+                          <div className="text-xs text-neutral-600">
+                            ${award.total_obligation.toLocaleString()}
+                          </div>
+                        )}
+                        {award.recipient_entity_data && (
+                          <div className="mt-2 text-xs text-neutral-600">
+                            <div>Entity: {award.recipient_entity_data.entityName || 'N/A'}</div>
+                            {award.recipient_entity_data.socioEconomicStatus && award.recipient_entity_data.socioEconomicStatus.length > 0 && (
+                              <div>Certifications: {award.recipient_entity_data.socioEconomicStatus.join(', ')}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {enrichment.statistics.unique_recipients && (
+                <div>
+                  <div className="text-sm text-neutral-600 mb-2">Previous Awardees</div>
+                  <div className="text-sm text-neutral-900">
+                    {enrichment.statistics.unique_recipients.slice(0, 5).join(', ')}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {incumbentVendors && Array.isArray(incumbentVendors) && incumbentVendors.length > 0 && (
+            <div className="mb-4">
+              <div className="text-sm font-medium text-neutral-700 mb-2">Likely Incumbents (from Entity API)</div>
+              <div className="text-sm text-neutral-600">
+                {incumbentVendors.join(', ')}
+              </div>
+            </div>
+          )}
+          {opportunity.competitive_landscape_summary && (
+            <div>
+              <div className="text-sm font-medium text-neutral-700 mb-2">Competitive Landscape</div>
+              <p className="text-sm text-neutral-600">{opportunity.competitive_landscape_summary}</p>
+            </div>
+          )}
+          {aiAnalysis?.competitiveLandscape && (
+            <div className="space-y-2">
+              {aiAnalysis.competitiveLandscape.likelyIncumbents && (
+                <div>
+                  <div className="text-sm font-medium text-neutral-700 mb-1">
+                    Likely Incumbents
+                  </div>
+                  <div className="text-sm text-neutral-600">
+                    {aiAnalysis.competitiveLandscape.likelyIncumbents.join(', ')}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Capture Actions */}
+      <CaptureActions opportunityId={opportunityId} opportunity={opportunity} onUpdate={onUpdate} />
+    </div>
+  )
+}
+

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import CUIWarningBanner from "@/components/CUIWarningBanner"
+import AdminNavigation from "@/components/admin/AdminNavigation"
 
 interface PhysicalAccessLog {
   id: string
@@ -143,6 +144,7 @@ export default function PhysicalAccessLogsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AdminNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>

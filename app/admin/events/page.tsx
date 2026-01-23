@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { getEvents, exportEventsCSV } from "@/lib/audit"
 import EventLogTable from "@/components/admin/EventLogTable"
 import EventFilters from "@/components/admin/EventFilters"
+import AdminNavigation from "@/components/admin/AdminNavigation"
 
 export default async function EventsPage({
   searchParams,
@@ -42,6 +43,7 @@ export default async function EventsPage({
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AdminNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>

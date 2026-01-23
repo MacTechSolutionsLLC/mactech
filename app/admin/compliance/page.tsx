@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import AdminNavigation from "@/components/admin/AdminNavigation"
 
 export default async function ComplianceDashboardPage() {
   const session = await auth()
@@ -11,6 +12,7 @@ export default async function ComplianceDashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AdminNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900">Compliance Dashboard</h1>

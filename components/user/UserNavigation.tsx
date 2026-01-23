@@ -15,56 +15,38 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    href: '/admin',
+    href: '/user',
     label: 'Portal',
     description: 'Overview and quick access',
-    icon: '⚙️',
+    icon: '🏠',
   },
   {
-    href: '/admin/users',
-    label: 'Users',
-    description: 'Manage user accounts',
-    icon: '👥',
+    href: '/user/capture',
+    label: 'Capture',
+    description: 'Federal contract opportunities',
+    icon: '📊',
   },
   {
-    href: '/admin/compliance',
-    label: 'Compliance',
-    description: 'CMMC compliance dashboard',
-    icon: '🛡️',
+    href: '/user/contract-discovery',
+    label: 'Discovery',
+    description: 'Search SAM.gov opportunities',
+    icon: '🔍',
   },
   {
-    href: '/admin/events',
-    label: 'Events',
-    description: 'Audit log and events',
-    icon: '📝',
+    href: '/user/contract-discovery/dashboard',
+    label: 'Dashboard',
+    description: 'Manage all contracts',
+    icon: '📋',
   },
   {
-    href: '/admin/physical-access-logs',
-    label: 'Physical Access',
-    description: 'Physical access logs',
-    icon: '🚪',
-  },
-  {
-    href: '/admin/endpoint-inventory',
-    label: 'Endpoints',
-    description: 'Endpoint inventory',
-    icon: '💻',
-  },
-  {
-    href: '/admin/files',
-    label: 'Files',
-    description: 'File management',
-    icon: '📁',
-  },
-  {
-    href: '/admin/generate-proposal',
-    label: 'Proposals',
-    description: 'Generate proposals from SOW (Admin only)',
-    icon: '📄',
+    href: '/user/usaspending',
+    label: 'Awards',
+    description: 'View award history',
+    icon: '🏆',
   },
 ]
 
-export default function AdminNavigation() {
+export default function UserNavigation() {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
@@ -94,14 +76,14 @@ export default function AdminNavigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Home Link */}
           <Link 
-            href="/admin" 
+            href="/user" 
             className="flex items-center gap-3 group"
           >
             <div className="flex items-center justify-center w-10 h-10 bg-accent-600 rounded-lg group-hover:bg-accent-700 transition-colors">
-              <span className="text-xl">⚙️</span>
+              <span className="text-xl">📋</span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-white font-semibold text-sm">Admin Portal</p>
+              <p className="text-white font-semibold text-sm">User Portal</p>
               <p className="text-neutral-400 text-xs">MacTech Solutions</p>
             </div>
           </Link>
@@ -110,7 +92,7 @@ export default function AdminNavigation() {
           <div className="hidden lg:flex items-center gap-1 bg-neutral-800/50 rounded-lg p-1 backdrop-blur-sm">
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
-                (item.href !== '/admin' && pathname.startsWith(item.href))
+                (item.href !== '/user' && pathname.startsWith(item.href))
               
               return (
                 <Link

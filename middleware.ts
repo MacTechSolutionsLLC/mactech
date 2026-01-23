@@ -26,7 +26,24 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
-  // Protect admin routes
+  // Protect user portal routes (require authentication, allow all roles)
+  if (pathname.startsWith("/user")) {
+    if (!session) {
+      // Redirect to sign in if not authenticated
+      const signInUrl = new URL("/auth/signin", req.url)
+      signInUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(signInUrl)
+    }
+
+    // Check if password change is required
+    if (session.user?.mustChangePassword && pathname !== "/auth/change-password") {
+      const changePasswordUrl = new URL("/auth/change-password", req.url)
+      changePasswordUrl.searchParams.set("required", "true")
+      return NextResponse.redirect(changePasswordUrl)
+    }
+  }
+
+  // Protect admin routes (require ADMIN role)
   if (pathname.startsWith("/admin")) {
     if (!session) {
       // Redirect to sign in if not authenticated

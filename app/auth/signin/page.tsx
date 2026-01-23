@@ -28,10 +28,24 @@ export default function SignInPage() {
       if (result?.error) {
         setError('Invalid username or password')
       } else {
-        // Redirect to admin - middleware will check for password change requirement
-        // and redirect to change-password if needed
-        router.push('/admin')
-        router.refresh()
+        // Fetch user role to determine redirect
+        try {
+          const userResponse = await fetch('/api/auth/session')
+          const sessionData = await userResponse.json()
+          
+          // Redirect based on role - middleware will check for password change requirement
+          // and redirect to change-password if needed
+          if (sessionData?.user?.role === 'ADMIN') {
+            router.push('/admin')
+          } else {
+            router.push('/user')
+          }
+          router.refresh()
+        } catch {
+          // Fallback: redirect to user portal
+          router.push('/user')
+          router.refresh()
+        }
       }
     } catch (err) {
       setError('An error occurred. Please try again.')
@@ -58,9 +72,9 @@ export default function SignInPage() {
 
         {/* Sign In Form */}
         <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8">
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Admin Sign In</h1>
+          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Sign In</h1>
           <p className="text-sm text-neutral-600 mb-6">
-            Sign in to access the admin panel
+            Sign in to access your portal
           </p>
 
           {error && (
