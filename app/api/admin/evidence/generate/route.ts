@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/authz"
 import { prisma } from "@/lib/prisma"
 import { logAdminAction } from "@/lib/audit"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
+import { storeFile } from "@/lib/file-storage"
 
 /**
  * POST /api/admin/evidence/generate
@@ -30,12 +28,6 @@ export async function POST(req: NextRequest) {
           return date
         })()
     const exportedBy = body.exportedBy || session.user.email || session.user.id
-
-    // Output directory (in public folder for downloads)
-    const outputDir = join(process.cwd(), "public", "output")
-    if (!existsSync(outputDir)) {
-      await mkdir(outputDir, { recursive: true })
-    }
 
     function escapeCsv(value: any): string {
       if (value === null || value === undefined) {
@@ -64,7 +56,7 @@ export async function POST(req: NextRequest) {
       ]
     }
 
-    const files: Array<{ filename: string; path: string }> = []
+    const files: Array<{ filename: string; fileId: string }> = []
 
     // 1. Export Users
     console.log("Exporting users...")
@@ -99,9 +91,13 @@ export async function POST(req: NextRequest) {
     ].join("\n")
 
     const userFilename = `users-export-${new Date().toISOString().split("T")[0]}.csv`
-    const userPath = join(outputDir, userFilename)
-    await writeFile(userPath, userCsv, "utf-8")
-    files.push({ filename: userFilename, path: userPath })
+    const userFile = new File([userCsv], userFilename, { type: "text/csv" })
+    const userResult = await storeFile(session.user.id, userFile, {
+      exportType: "users",
+      exportedBy,
+      generatedAt: new Date().toISOString(),
+    })
+    files.push({ filename: userFilename, fileId: userResult.fileId })
 
     // 2. Export Physical Access Logs
     console.log("Exporting physical access logs...")
@@ -156,9 +152,15 @@ export async function POST(req: NextRequest) {
     ].join("\n")
 
     const logFilename = `physical-access-logs-${formatDate(startDate)}-to-${formatDate(endDate)}.csv`
-    const logPath = join(outputDir, logFilename)
-    await writeFile(logPath, logCsv, "utf-8")
-    files.push({ filename: logFilename, path: logPath })
+    const logFile = new File([logCsv], logFilename, { type: "text/csv" })
+    const logResult = await storeFile(session.user.id, logFile, {
+      exportType: "physical-access-logs",
+      exportedBy,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      generatedAt: new Date().toISOString(),
+    })
+    files.push({ filename: logFilename, fileId: logResult.fileId })
 
     // 3. Export Audit Log
     console.log("Exporting audit log...")
@@ -213,9 +215,15 @@ export async function POST(req: NextRequest) {
     ].join("\n")
 
     const eventFilename = `audit-log-${formatDate(startDate)}-to-${formatDate(endDate)}.csv`
-    const eventPath = join(outputDir, eventFilename)
-    await writeFile(eventPath, eventCsv, "utf-8")
-    files.push({ filename: eventFilename, path: eventPath })
+    const eventFile = new File([eventCsv], eventFilename, { type: "text/csv" })
+    const eventResult = await storeFile(session.user.id, eventFile, {
+      exportType: "audit-log",
+      exportedBy,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      generatedAt: new Date().toISOString(),
+    })
+    files.push({ filename: eventFilename, fileId: eventResult.fileId })
 
     // 4. Export Endpoint Inventory
     console.log("Exporting endpoint inventory...")
@@ -254,9 +262,13 @@ export async function POST(req: NextRequest) {
     ].join("\n")
 
     const endpointFilename = `endpoint-inventory-${new Date().toISOString().split("T")[0]}.csv`
-    const endpointPath = join(outputDir, endpointFilename)
-    await writeFile(endpointPath, endpointCsv, "utf-8")
-    files.push({ filename: endpointFilename, path: endpointPath })
+    const endpointFile = new File([endpointCsv], endpointFilename, { type: "text/csv" })
+    const endpointResult = await storeFile(session.user.id, endpointFile, {
+      exportType: "endpoint-inventory",
+      exportedBy,
+      generatedAt: new Date().toISOString(),
+    })
+    files.push({ filename: endpointFilename, fileId: endpointResult.fileId })
 
     // Log the action
     await logAdminAction(
@@ -273,10 +285,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Generated ${files.length} evidence files`,
+      message: `Generated ${files.length} evidence files and uploaded to /admin/files`,
       files: files.map((f) => ({
         filename: f.filename,
-        url: `/output/${f.filename}`,
+        fileId: f.fileId,
+        url: `/admin/files`, // Link to file management page
       })),
       metadata: {
         generated: new Date().toISOString(),

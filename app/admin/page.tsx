@@ -366,17 +366,20 @@ export default function AdminPage() {
                 </p>
                 {evidenceResult.files && evidenceResult.files.length > 0 && (
                   <div className="mt-3 space-y-2">
-                    <p className="text-sm font-medium text-green-800">Generated Files:</p>
-                    {evidenceResult.files.map((file, index) => (
-                      <a
-                        key={index}
-                        href={file.url}
-                        download
-                        className="block text-sm text-green-700 hover:text-green-800 underline"
-                      >
-                        📄 {file.filename}
-                      </a>
-                    ))}
+                    <p className="text-sm font-medium text-green-800">Generated Files (uploaded to /admin/files):</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {evidenceResult.files.map((file, index) => (
+                        <li key={index} className="text-sm text-green-700">
+                          📄 {file.filename}
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      href="/admin/files"
+                      className="inline-block mt-3 px-4 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 transition-colors"
+                    >
+                      View Files in /admin/files →
+                    </a>
                   </div>
                 )}
               </div>
