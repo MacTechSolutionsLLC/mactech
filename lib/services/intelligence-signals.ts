@@ -31,11 +31,8 @@ export function generateIntelligenceSignals(
   const signals: SignalInfo[] = []
 
   // High Incumbent Lock-In Risk
-  if (
-    opportunity.incumbent_concentration_score !== null &&
-    opportunity.incumbent_concentration_score !== undefined &&
-    opportunity.incumbent_concentration_score > 0.5
-  ) {
+  const incumbentScore = opportunity.incumbent_concentration_score
+  if (incumbentScore != null && incumbentScore > 0.5) {
     signals.push({
       signal: 'HIGH_INCUMBENT_LOCK_IN',
       severity: 'high',
@@ -65,16 +62,13 @@ export function generateIntelligenceSignals(
   }
 
   // SAM Value Inflated vs Historical Awards
-  if (
-    opportunity.award_size_realism_ratio !== null &&
-    opportunity.award_size_realism_ratio !== undefined &&
-    opportunity.award_size_realism_ratio > 2.0
-  ) {
+  const realismRatio = opportunity.award_size_realism_ratio
+  if (realismRatio != null && realismRatio > 2.0) {
     signals.push({
       signal: 'SAM_VALUE_INFLATED',
       severity: 'medium',
       message: 'SAM Value Inflated vs Historical Awards',
-      tooltip: `Award size realism ratio: ${opportunity.award_size_realism_ratio.toFixed(2)}x historical average. SAM.gov value may be aspirational or include options.`,
+      tooltip: `Award size realism ratio: ${realismRatio.toFixed(2)}x historical average. SAM.gov value may be aspirational or include options.`,
     })
   }
 
@@ -89,16 +83,13 @@ export function generateIntelligenceSignals(
   }
 
   // Likely Recompete
-  if (
-    opportunity.recompete_likelihood !== null &&
-    opportunity.recompete_likelihood !== undefined &&
-    opportunity.recompete_likelihood > 0.6
-  ) {
+  const recompeteLikelihood = opportunity.recompete_likelihood
+  if (recompeteLikelihood != null && recompeteLikelihood > 0.6) {
     signals.push({
       signal: 'LIKELY_RECOMPETE',
       severity: 'medium',
       message: 'Likely Recompete',
-      tooltip: `Recompete likelihood: ${(opportunity.recompete_likelihood * 100).toFixed(1)}%. Same vendor has won recent awards for this agency+NAICS combination.`,
+      tooltip: `Recompete likelihood: ${(recompeteLikelihood * 100).toFixed(1)}%. Same vendor has won recent awards for this agency+NAICS combination.`,
     })
   }
 
