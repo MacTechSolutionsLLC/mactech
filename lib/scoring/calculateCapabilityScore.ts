@@ -63,16 +63,7 @@ export async function calculateCapabilityScore(
 
     const title = opportunity.title || ''
     const description = opportunity.description || ''
-    const requirements: string[] = []
-    
-    // Extract requirements if available in raw payload
-    if (opportunity.rawPayload?.requirements) {
-      if (Array.isArray(opportunity.rawPayload.requirements)) {
-        requirements.push(...opportunity.rawPayload.requirements)
-      } else if (typeof opportunity.rawPayload.requirements === 'string') {
-        requirements.push(opportunity.rawPayload.requirements)
-      }
-    }
+    const requirements: string[] = [] // Requirements extracted from description or other sources if available
 
     // Use hybrid matching
     const matchResult = await hybridMatchCapabilities(

@@ -651,10 +651,10 @@ export async function ingestSamOpportunities(): Promise<IngestionResult> {
         // Scrape the contract page
         console.log(`[Ingest] Scraping ${item.normalized.noticeId} (score: ${item.score}): ${urlToScrape}`)
           const scrapeResult = await scrapeContractPage(urlToScrape, {
-            description: item.normalized.rawPayload?.description || opportunity.description,
+            description: item.normalized.rawPayload?.description || opportunity.description || undefined,
             links: item.normalized.rawPayload?.links,
             additionalInfoLink: item.normalized.rawPayload?.additionalInfoLink,
-            title: item.normalized.title || opportunity.title,
+            title: item.normalized.title || opportunity.title || undefined,
           })
           
           if (scrapeResult.success) {

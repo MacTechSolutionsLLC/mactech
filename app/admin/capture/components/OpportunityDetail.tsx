@@ -56,6 +56,14 @@ interface Opportunity {
   place_of_performance?: string | null
   sow_attachment_url?: string | null
   sow_attachment_type?: string | null
+  // Capability matching fields
+  capability_match_score?: number | null
+  matched_resume_skills?: string | string[] | null
+  matched_services?: string | string[] | null
+  matched_showcases?: string | string[] | null
+  primary_pillar?: string | null
+  capability_match_breakdown?: string | any | null
+  capability_match_calculated_at?: string | null
 }
 
 export default function OpportunityDetail({
