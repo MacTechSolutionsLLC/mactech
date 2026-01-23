@@ -24,12 +24,12 @@ export default function Footer() {
             <p className="mt-6 text-body-sm text-neutral-500">
               SDVOSB (Pending) | Veteran-Owned
             </p>
-            {/* Admin Login Button */}
+            {/* User Login Button */}
             <Link 
               href="/auth/signin" 
               className="inline-block mt-6 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium rounded-lg transition-colors duration-gentle"
             >
-              Admin Login
+              User Login
             </Link>
           </div>
           
