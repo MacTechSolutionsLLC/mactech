@@ -33,6 +33,7 @@ export function generateIntelligenceSignals(
   // High Incumbent Lock-In Risk
   if (
     opportunity.incumbent_concentration_score !== null &&
+    opportunity.incumbent_concentration_score !== undefined &&
     opportunity.incumbent_concentration_score > 0.5
   ) {
     signals.push({
@@ -66,6 +67,7 @@ export function generateIntelligenceSignals(
   // SAM Value Inflated vs Historical Awards
   if (
     opportunity.award_size_realism_ratio !== null &&
+    opportunity.award_size_realism_ratio !== undefined &&
     opportunity.award_size_realism_ratio > 2.0
   ) {
     signals.push({
@@ -89,6 +91,7 @@ export function generateIntelligenceSignals(
   // Likely Recompete
   if (
     opportunity.recompete_likelihood !== null &&
+    opportunity.recompete_likelihood !== undefined &&
     opportunity.recompete_likelihood > 0.6
   ) {
     signals.push({
