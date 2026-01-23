@@ -292,15 +292,23 @@ export async function createUser(
       },
     })
 
-    // Log admin action
+    // Log admin action with detailed information
     await logAdminAction(
       adminId,
       adminEmail,
       "user_create",
       { type: "user", id: user.id },
       {
-        createdEmail: userData.email,
-        createdRole: userData.role || "USER",
+        what: "User creation",
+        toWhom: {
+          targetType: "user",
+          targetId: user.id,
+          targetName: user.name,
+          createdEmail: userData.email,
+          createdRole: userData.role || "USER",
+          createdName: userData.name || null,
+        },
+        message: `Created new user: ${userData.email} (${userData.role || "USER"})`,
       }
     )
 
@@ -313,8 +321,16 @@ export async function createUser(
       "user",
       user.id,
       {
-        createdEmail: userData.email,
-        createdRole: userData.role || "USER",
+        what: "User creation",
+        toWhom: {
+          targetType: "user",
+          targetId: user.id,
+          targetName: user.name,
+          createdEmail: userData.email,
+          createdRole: userData.role || "USER",
+          createdName: userData.name || null,
+        },
+        message: `Created new user: ${userData.email} (${userData.role || "USER"})`,
       }
     )
 

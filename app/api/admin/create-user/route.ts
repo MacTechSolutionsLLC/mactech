@@ -69,15 +69,23 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Log admin action
+    // Log admin action with detailed information
     await logAdminAction(
       session.user.id,
       session.user.email || "unknown",
       "user_create",
       { type: "user", id: user.id },
       {
-        createdEmail: email,
-        createdRole: role,
+        what: "User creation",
+        toWhom: {
+          targetType: "user",
+          targetId: user.id,
+          targetName: user.name,
+          createdEmail: email,
+          createdRole: role || "USER",
+          createdName: name || null,
+        },
+        message: `Created new user: ${email} (${role || "USER"})`,
       }
     )
 
@@ -90,8 +98,16 @@ export async function POST(req: NextRequest) {
       "user",
       user.id,
       {
-        createdEmail: email,
-        createdRole: role,
+        what: "User creation",
+        toWhom: {
+          targetType: "user",
+          targetId: user.id,
+          targetName: user.name,
+          createdEmail: email,
+          createdRole: role || "USER",
+          createdName: name || null,
+        },
+        message: `Created new user: ${email} (${role || "USER"})`,
       }
     )
 

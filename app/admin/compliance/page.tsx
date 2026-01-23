@@ -105,6 +105,20 @@ export default async function ComplianceDashboardPage() {
               View Checklist →
             </Link>
           </div>
+
+          {/* System Security Plan Card */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4">System Security Plan</h2>
+            <p className="text-neutral-600 mb-4">
+              Comprehensive security documentation for CMMC Level 1 compliance.
+            </p>
+            <Link
+              href="/admin/compliance/system-security-plan"
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
+              View Document →
+            </Link>
+          </div>
         </div>
 
         {/* System Boundary Section */}

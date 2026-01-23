@@ -83,14 +83,23 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Log password change event
+    // Log password change event with detailed information
     await logEvent(
       "password_change",
       session.user.id,
       session.user.email || null,
       true,
       "user",
-      user.id
+      user.id,
+      {
+        what: "Password change",
+        toWhom: {
+          targetType: "user",
+          targetId: user.id,
+          targetEmail: user.email,
+        },
+        message: `User ${user.email} changed their password`,
+      }
     )
 
     return NextResponse.json({

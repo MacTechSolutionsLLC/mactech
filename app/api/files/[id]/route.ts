@@ -42,11 +42,12 @@ export async function GET(
       file = await getFile(id, userId, undefined, session.user.role)
     }
 
-    // Log file download
+    // Log file download with detailed file information
     if (userId) {
+      const session = await requireAuth()
       await logFileDownload(
-        userId,
-        file.uploader.email || "unknown",
+        session.user.id,
+        session.user.email || "unknown",
         file.id,
         file.filename
       )
@@ -116,7 +117,7 @@ export async function DELETE(
       },
     })
 
-    // Log file deletion
+    // Log file deletion with detailed file information
     await logEvent(
       "file_delete",
       session.user.id,
@@ -125,8 +126,18 @@ export async function DELETE(
       "file",
       id,
       {
-        filename: file.filename,
-        uploadedBy: file.uploader.email,
+        what: "File deletion",
+        file: {
+          fileId: file.id,
+          filename: file.filename,
+          mimeType: file.mimeType,
+          size: file.size,
+          uploadedAt: file.uploadedAt.toISOString(),
+          uploadedBy: {
+            userEmail: file.uploader.email,
+          },
+        },
+        message: `Deleted file: ${file.filename} (ID: ${file.id}, Size: ${file.size} bytes, Type: ${file.mimeType})`,
       }
     )
 

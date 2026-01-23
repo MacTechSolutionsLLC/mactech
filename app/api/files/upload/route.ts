@@ -45,14 +45,16 @@ export async function POST(req: NextRequest) {
     // Store file (this will validate filename and metadata for CUI keywords)
     const result = await storeFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined)
 
-    // Log file upload
+    // Log file upload with detailed file information
     await logFileUpload(
       session.user.id,
       session.user.email || "unknown",
       result.fileId,
       file.name,
       file.size,
-      true
+      true,
+      undefined, // error
+      file.type // mimeType
     )
 
     return NextResponse.json({
@@ -77,7 +79,8 @@ export async function POST(req: NextRequest) {
           file.name,
           file.size,
           false,
-          error.message
+          error.message,
+          file.type // mimeType
         )
       }
     } catch (logError) {
