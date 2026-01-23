@@ -38,6 +38,24 @@ interface Opportunity {
   usaspending_enrichment_status?: string | null
   incumbent_vendors?: string | null
   competitive_landscape_summary?: string | null
+  // Parsed data summary
+  parsedSummary?: {
+    requirementsCount: number
+    deliverablesCount: number
+    pointsOfContactCount: number
+    linksCount: number
+    sowLinksCount: number
+    keywordsCount: number
+    skillsCount: number
+    hasSummary: boolean
+    hasBackground: boolean
+    hasScope: boolean
+    hasDeadline: boolean
+    hasEstimatedValue: boolean
+    dataCompleteness: number
+  }
+  topKeywords?: string[]
+  topSkills?: string[]
 }
 
 export default function OpportunityFeed() {
@@ -50,6 +68,7 @@ export default function OpportunityFeed() {
     naics: '',
     setAside: '',
     status: 'all' as 'all' | 'flagged' | 'ignored' | 'pursuing',
+    minCompleteness: 0, // 0-100
   })
   const [sortBy, setSortBy] = useState<'score' | 'deadline' | 'date' | 'smart'>('score')
   const [viewMode, setViewMode] = useState<'opportunities' | 'awards'>('opportunities')
@@ -69,13 +88,21 @@ export default function OpportunityFeed() {
         ...(filters.naics && { naics: filters.naics }),
         ...(filters.setAside && { setAside: filters.setAside }),
         ...(filters.status !== 'all' && { status: filters.status }),
+        ...(filters.minCompleteness > 0 && { minCompleteness: filters.minCompleteness.toString() }),
       })
 
       const response = await fetch(`/api/admin/capture/opportunities?${params}`)
       const data = await response.json()
 
       if (data.success) {
-        setOpportunities(data.opportunities || [])
+        let opps = data.opportunities || []
+        // Filter by data completeness on client side (since API doesn't filter yet)
+        if (filters.minCompleteness > 0) {
+          opps = opps.filter((opp: Opportunity) => 
+            opp.parsedSummary && opp.parsedSummary.dataCompleteness >= filters.minCompleteness
+          )
+        }
+        setOpportunities(opps)
       }
     } catch (error) {
       console.error('Error loading opportunities:', error)
@@ -163,7 +190,7 @@ export default function OpportunityFeed() {
       {/* Filters */}
       <div className="bg-white rounded-lg border border-neutral-200 p-6">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">Filters</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-2">
               Min Score
@@ -223,6 +250,27 @@ export default function OpportunityFeed() {
               <option value="date">Posted Date</option>
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Min Data Completeness
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={filters.minCompleteness}
+              onChange={(e) =>
+                setFilters({ ...filters, minCompleteness: parseInt(e.target.value) || 0 })
+              }
+              placeholder="0-100"
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm"
+            />
+            {filters.minCompleteness > 0 && (
+              <div className="text-xs text-neutral-500 mt-1">
+                Showing opportunities with ≥{filters.minCompleteness}% parsed data
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -264,6 +312,21 @@ export default function OpportunityFeed() {
                           Ignored
                         </span>
                       )}
+                      {/* Data Completeness Badge */}
+                      {opp.parsedSummary && opp.parsedSummary.dataCompleteness > 0 && (
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            opp.parsedSummary.dataCompleteness >= 80
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : opp.parsedSummary.dataCompleteness >= 50
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-orange-100 text-orange-800'
+                          }`}
+                          title={`Data completeness: ${opp.parsedSummary.dataCompleteness}%`}
+                        >
+                          {opp.parsedSummary.dataCompleteness}% Complete
+                        </span>
+                      )}
                       {/* Enrichment indicators */}
                       {opp.scraped && (
                         <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800" title="HTML scraped">
@@ -289,6 +352,62 @@ export default function OpportunityFeed() {
                     <h3 className="text-lg font-semibold text-neutral-900 mb-3">
                       {opp.title}
                     </h3>
+                    
+                    {/* Parsed Data Highlights */}
+                    {opp.parsedSummary && (opp.parsedSummary.requirementsCount > 0 || opp.parsedSummary.deliverablesCount > 0 || opp.parsedSummary.pointsOfContactCount > 0 || opp.topKeywords?.length > 0 || opp.topSkills?.length > 0) && (
+                      <div className="flex flex-wrap items-center gap-2 mb-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                        {opp.parsedSummary.requirementsCount > 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded text-xs font-medium text-neutral-700">
+                            <span className="text-blue-600">📋</span>
+                            <span>{opp.parsedSummary.requirementsCount} Requirements</span>
+                          </div>
+                        )}
+                        {opp.parsedSummary.deliverablesCount > 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded text-xs font-medium text-neutral-700">
+                            <span className="text-green-600">✓</span>
+                            <span>{opp.parsedSummary.deliverablesCount} Deliverables</span>
+                          </div>
+                        )}
+                        {opp.parsedSummary.pointsOfContactCount > 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded text-xs font-medium text-neutral-700">
+                            <span className="text-purple-600">👤</span>
+                            <span>{opp.parsedSummary.pointsOfContactCount} POC{opp.parsedSummary.pointsOfContactCount > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                        {opp.parsedSummary.sowLinksCount > 0 && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded text-xs font-medium text-neutral-700">
+                            <span className="text-amber-600">📄</span>
+                            <span>{opp.parsedSummary.sowLinksCount} SOW{opp.parsedSummary.sowLinksCount > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                        {opp.topKeywords && opp.topKeywords.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-medium text-neutral-600">Keywords:</span>
+                            {opp.topKeywords.slice(0, 3).map((keyword, idx) => (
+                              <span key={idx} className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs">
+                                {keyword}
+                              </span>
+                            ))}
+                            {opp.topKeywords.length > 3 && (
+                              <span className="text-xs text-neutral-500">+{opp.topKeywords.length - 3} more</span>
+                            )}
+                          </div>
+                        )}
+                        {opp.topSkills && opp.topSkills.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-medium text-neutral-600">Skills:</span>
+                            {opp.topSkills.slice(0, 3).map((skill, idx) => (
+                              <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">
+                                {skill}
+                              </span>
+                            ))}
+                            {opp.topSkills.length > 3 && (
+                              <span className="text-xs text-neutral-500">+{opp.topSkills.length - 3} more</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     
                     {/* Explicit Information Sections */}
                     <div className="space-y-2 mb-3">
