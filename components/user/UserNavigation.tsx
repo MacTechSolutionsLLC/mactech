@@ -56,6 +56,20 @@ export default function UserNavigation() {
     e.preventDefault()
     setIsLoggingOut(true)
     try {
+      // Log logout event before signing out
+      if (session?.user) {
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        } catch (logError) {
+          console.error('Failed to log logout event:', logError)
+          // Continue with logout even if logging fails
+        }
+      }
+      
+      // Sign out and redirect
       await signOut({ 
         callbackUrl: '/',
         redirect: true 

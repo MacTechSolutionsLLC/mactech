@@ -136,6 +136,54 @@ export async function logLogin(
 }
 
 /**
+ * Log logout event with comprehensive details
+ */
+export async function logLogout(
+  userId: string,
+  email: string,
+  name: string | null,
+  role: string,
+  ip?: string,
+  userAgent?: string
+) {
+  try {
+    const metadata = ip && userAgent 
+      ? { ip, userAgent }
+      : await getRequestMetadata()
+    
+    await prisma.appEvent.create({
+      data: {
+        actionType: "logout",
+        actorUserId: userId,
+        actorEmail: email,
+        targetType: "user",
+        targetId: userId,
+        ip: metadata.ip,
+        userAgent: metadata.userAgent,
+        success: true,
+        details: JSON.stringify({
+          userId,
+          userEmail: email,
+          userName: name,
+          userRole: role,
+          timestamp: new Date().toISOString(),
+          ipAddress: metadata.ip,
+          userAgent: metadata.userAgent,
+          action: "user_logout",
+          impact: {
+            type: "session_termination",
+            affectedUser: userId,
+            affectedUserEmail: email,
+          },
+        }),
+      },
+    })
+  } catch (error) {
+    console.error("Failed to log logout event:", error)
+  }
+}
+
+/**
  * Log admin action
  */
 export async function logAdminAction(

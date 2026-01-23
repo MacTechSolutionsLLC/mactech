@@ -85,18 +85,35 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                 </td>
                 <td className="px-6 py-4 text-sm text-neutral-900">
                   <div className="flex flex-col gap-1">
-                    <code className="bg-neutral-100 px-2 py-1 rounded text-xs">
+                    <code className="bg-neutral-100 px-2 py-1 rounded text-xs font-medium">
                       {event.actionType}
                     </code>
-                    {event.details && event.actionType === "admin_action" && (
-                      <div className="text-xs text-neutral-600 mt-1">
+                    {event.details && (
+                      <div className="text-xs text-neutral-600 mt-1 space-y-1">
                         {(() => {
                           try {
                             const details = JSON.parse(event.details)
-                            if (details.action) {
+                            
+                            // Logout event details
+                            if (event.actionType === "logout") {
                               return (
-                                <span>
-                                  Action: <code className="text-xs bg-neutral-50 px-1 rounded">{details.action}</code>
+                                <div className="space-y-1 bg-blue-50 p-2 rounded border border-blue-200">
+                                  <div><strong>Who:</strong> {details.userName || details.userEmail || "Unknown"} ({details.userRole})</div>
+                                  <div><strong>What:</strong> User logout - Session terminated</div>
+                                  <div><strong>Impact:</strong> {details.impact?.type || "session_termination"} - User {details.impact?.affectedUserEmail || details.userEmail} logged out</div>
+                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
+                                  {details.ipAddress && <div><strong>IP:</strong> {details.ipAddress}</div>}
+                                </div>
+                              )
+                            }
+                            
+                            // Admin action details
+                            if (event.actionType === "admin_action" && details.action) {
+                              return (
+                                <div className="space-y-1">
+                                  <span>
+                                    Action: <code className="text-xs bg-neutral-50 px-1 rounded">{details.action}</code>
+                                  </span>
                                   {details.attemptedAction && (
                                     <span className="ml-2">
                                       Attempted: <code className="text-xs bg-neutral-50 px-1 rounded">{details.attemptedAction}</code>
@@ -107,9 +124,10 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                                       Reason: {details.reason}
                                     </span>
                                   )}
-                                </span>
+                                </div>
                               )
                             }
+                            
                             return null
                           } catch {
                             return null
@@ -119,14 +137,24 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                  {event.actorEmail || event.actor?.email || "System"}
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-neutral-900">
+                      {event.actor?.name || event.actorEmail || event.actor?.email || "System"}
+                    </span>
+                    {event.actor?.role && (
+                      <span className="text-xs text-neutral-500">{event.actor.role}</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                   {event.targetType && event.targetId ? (
-                    <span>
-                      {event.targetType}: <code className="text-xs">{event.targetId.substring(0, 8)}...</code>
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-neutral-700">{event.targetType}</span>
+                      <code className="text-xs text-neutral-500">{event.targetId.substring(0, 12)}...</code>
+                    </div>
+                  ) : event.actionType === "logout" ? (
+                    <span className="text-neutral-400 italic">Session termination</span>
                   ) : (
                     "-"
                   )}
