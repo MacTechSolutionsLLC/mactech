@@ -421,6 +421,37 @@ export async function enrichOpportunity(
       )
 
       // Enrich vendor information using Entity API (as per diagram: Entity API → USAspending Enrichment)
+      // First, fetch award details for awards missing recipient data (search endpoint often returns null recipient)
+      const awardsNeedingEnrichment = similarAwards.filter(award => 
+        !award.recipient?.uei && (award.generated_internal_id || award.generated_unique_award_id)
+      ).slice(0, 10) // Limit to top 10 to avoid too many API calls
+      
+      if (awardsNeedingEnrichment.length > 0) {
+        console.log(`[Award Enrichment] Fetching award details for ${awardsNeedingEnrichment.length} awards missing recipient data`)
+        const { enrichAward } = await import('./usaspending-capture.service')
+        
+        for (const award of awardsNeedingEnrichment) {
+          try {
+            const generatedId = award.generated_internal_id || award.generated_unique_award_id
+            if (!generatedId) continue
+            
+            const detailData = await enrichAward(generatedId)
+            if (detailData?.recipient?.uei) {
+              // Update award with recipient data from detail endpoint
+              award.recipient = {
+                ...award.recipient,
+                ...detailData.recipient,
+                name: detailData.recipient?.name || award.recipient?.name,
+                uei: detailData.recipient.uei,
+              }
+            }
+          } catch (error) {
+            console.warn(`[Award Enrichment] Failed to fetch details for award ${award.generated_internal_id || award.generated_unique_award_id}:`, error)
+            // Continue with other awards
+          }
+        }
+      }
+      
       const recipientUeis = new Set<string>()
       for (const award of similarAwards) {
         const uei = award.recipient?.uei
