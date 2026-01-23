@@ -262,23 +262,108 @@ export async function enrichOpportunity(
           .filter((v): v is string => v !== null && v !== undefined)
       )
 
-      return {
-        similar_awards: awards.map(award => ({
+      // Enrich with Entity API data for awards that don't have it yet
+      const recipientUeis = new Set<string>()
+      for (const award of awards) {
+        const uei = award.recipient_uei
+        if (uei && !award.recipient_entity_data) {
+          recipientUeis.add(uei)
+        }
+      }
+
+      // Batch lookup entities for awards missing Entity API data
+      let entityDataMap = new Map<string, any>()
+      if (recipientUeis.size > 0) {
+        try {
+          console.log(`[Award Enrichment] Enriching ${recipientUeis.size} vendors via Entity API (database path)`)
+          entityDataMap = await batchLookupEntities(Array.from(recipientUeis), {
+            batchSize: 10,
+            delayBetweenBatches: 500,
+            includeSections: 'entityRegistration,coreData',
+          })
+          console.log(`[Award Enrichment] Enriched ${entityDataMap.size} vendors with Entity API data`)
+        } catch (entityError) {
+          console.warn(`[Award Enrichment] Entity API enrichment failed (non-blocking):`, entityError)
+          // Continue without entity data - enrichment is still valuable
+        }
+      }
+
+      // Map awards with Entity API data
+      const enrichedAwards = awards.map(award => {
+        // Parse existing entity data if available
+        let recipientEntityData = null
+        if (award.recipient_entity_data) {
+          try {
+            recipientEntityData = typeof award.recipient_entity_data === 'string'
+              ? JSON.parse(award.recipient_entity_data)
+              : award.recipient_entity_data
+          } catch (e) {
+            // Invalid JSON, will try to enrich below
+          }
+        }
+
+        // If no entity data exists, try to enrich with newly fetched data
+        if (!recipientEntityData && award.recipient_uei) {
+          const entityData = entityDataMap.get(award.recipient_uei)
+          if (entityData) {
+            const businessTypeList = entityData.coreData?.businessTypes?.businessTypeList || []
+            recipientEntityData = {
+              entityName: entityData.coreData?.entityInformation?.entityName,
+              dbaName: entityData.coreData?.entityInformation?.dbaName,
+              registrationStatus: entityData.entityRegistration?.registrationStatus,
+              businessTypes: businessTypeList,
+              naicsCodes: entityData.coreData?.naicsCodes || [],
+              pscCodes: entityData.coreData?.pscCodes || [],
+              socioEconomicStatus: businessTypeList.filter((bt: string) => 
+                ['SDVOSB', 'VOSB', '8A', 'WOSB', 'EDWOSB', 'HUBZone'].includes(bt)
+              ),
+            }
+          }
+        }
+
+        return {
           ...award,
+          award_id: award.award_id || award.generated_unique_award_id,
+          recipient: {
+            name: award.recipient_name,
+            uei: award.recipient_uei,
+          },
           awarding_agency: award.awarding_agency ? JSON.parse(award.awarding_agency) : null,
           funding_agency: award.funding_agency ? JSON.parse(award.funding_agency) : null,
           recipient_location: award.recipient_location ? JSON.parse(award.recipient_location) : null,
           place_of_performance: award.place_of_performance ? JSON.parse(award.place_of_performance) : null,
-        })),
+          recipient_entity_data: recipientEntityData,
+        }
+      })
+
+      // Recalculate statistics from enriched awards
+      const enrichedObligations = enrichedAwards
+        .map(a => a.total_obligation)
+        .filter((v): v is number => v !== null && v !== undefined)
+
+      const enrichedRecipients = new Set(
+        enrichedAwards
+          .map(a => a.recipient?.name || a.recipient_name)
+          .filter((v): v is string => v !== null && v !== undefined)
+      )
+
+      const enrichedAgencies = new Set(
+        enrichedAwards
+          .map(a => a.awarding_agency?.name || a.awarding_agency_name)
+          .filter((v): v is string => v !== null && v !== undefined)
+      )
+
+      return {
+        similar_awards: enrichedAwards,
         statistics: {
-          count: awards.length,
-          average_obligation: obligations.length > 0
-            ? obligations.reduce((a, b) => a + b, 0) / obligations.length
+          count: enrichedAwards.length,
+          average_obligation: enrichedObligations.length > 0
+            ? enrichedObligations.reduce((a, b) => a + b, 0) / enrichedObligations.length
             : null,
-          min_obligation: obligations.length > 0 ? Math.min(...obligations) : null,
-          max_obligation: obligations.length > 0 ? Math.max(...obligations) : null,
-          unique_recipients: Array.from(recipients),
-          unique_agencies: Array.from(agencies),
+          min_obligation: enrichedObligations.length > 0 ? Math.min(...enrichedObligations) : null,
+          max_obligation: enrichedObligations.length > 0 ? Math.max(...enrichedObligations) : null,
+          unique_recipients: Array.from(enrichedRecipients),
+          unique_agencies: Array.from(enrichedAgencies),
         },
       }
     } else {
@@ -348,17 +433,23 @@ export async function enrichOpportunity(
       let entityDataMap = new Map<string, any>()
       if (recipientUeis.size > 0) {
         try {
-          console.log(`[Award Enrichment] Enriching ${recipientUeis.size} vendors via Entity API`)
-          entityDataMap = await batchLookupEntities(Array.from(recipientUeis), {
+          console.log(`[Award Enrichment] Enriching ${recipientUeis.size} vendors via Entity API (API path)`)
+          const ueiArray = Array.from(recipientUeis)
+          entityDataMap = await batchLookupEntities(ueiArray, {
             batchSize: 10,
             delayBetweenBatches: 500,
             includeSections: 'entityRegistration,coreData',
           })
-          console.log(`[Award Enrichment] Enriched ${entityDataMap.size} vendors with Entity API data`)
+          console.log(`[Award Enrichment] Successfully enriched ${entityDataMap.size} of ${recipientUeis.size} vendors with Entity API data`)
+          if (entityDataMap.size < recipientUeis.size) {
+            console.log(`[Award Enrichment] Note: ${recipientUeis.size - entityDataMap.size} vendors did not return Entity API data (may not be registered or may have different UEIs)`)
+          }
         } catch (entityError) {
           console.warn(`[Award Enrichment] Entity API enrichment failed (non-blocking):`, entityError)
           // Continue without entity data - enrichment is still valuable
         }
+      } else {
+        console.log(`[Award Enrichment] No UEIs found in awards - skipping Entity API enrichment`)
       }
 
       // Attach entity data to awards (preserve original award structure)
@@ -369,17 +460,20 @@ export async function enrichOpportunity(
         return {
           ...award,
           // Add entity data as a separate property (doesn't affect original award structure)
-          recipient_entity_data: entityData ? {
-            entityName: entityData.coreData?.entityInformation?.entityName,
-            dbaName: entityData.coreData?.entityInformation?.dbaName,
-            registrationStatus: entityData.entityRegistration?.registrationStatus,
-            businessTypes: entityData.coreData?.businessTypes || [],
-            naicsCodes: entityData.coreData?.naicsCodes || [],
-            pscCodes: entityData.coreData?.pscCodes || [],
-            socioEconomicStatus: entityData.coreData?.businessTypes?.filter((bt: string) => 
-              ['SDVOSB', 'VOSB', '8A', 'WOSB', 'EDWOSB', 'HUBZone'].includes(bt)
-            ) || [],
-          } : null,
+          recipient_entity_data: entityData ? (() => {
+            const businessTypeList = entityData.coreData?.businessTypes?.businessTypeList || []
+            return {
+              entityName: entityData.coreData?.entityInformation?.entityName,
+              dbaName: entityData.coreData?.entityInformation?.dbaName,
+              registrationStatus: entityData.entityRegistration?.registrationStatus,
+              businessTypes: businessTypeList,
+              naicsCodes: entityData.coreData?.naicsCodes || [],
+              pscCodes: entityData.coreData?.pscCodes || [],
+              socioEconomicStatus: businessTypeList.filter((bt: string) => 
+                ['SDVOSB', 'VOSB', '8A', 'WOSB', 'EDWOSB', 'HUBZone'].includes(bt)
+              ),
+            }
+          })() : null,
         } as any // Type assertion to allow recipient_entity_data property
       })
 
