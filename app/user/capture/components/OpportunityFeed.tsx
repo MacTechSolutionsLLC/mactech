@@ -354,7 +354,7 @@ export default function OpportunityFeed() {
                     </h3>
                     
                     {/* Parsed Data Highlights */}
-                    {opp.parsedSummary && (opp.parsedSummary.requirementsCount > 0 || opp.parsedSummary.deliverablesCount > 0 || opp.parsedSummary.pointsOfContactCount > 0 || opp.topKeywords?.length > 0 || opp.topSkills?.length > 0) && (
+                    {opp.parsedSummary && (opp.parsedSummary.requirementsCount > 0 || opp.parsedSummary.deliverablesCount > 0 || opp.parsedSummary.pointsOfContactCount > 0 || (opp.topKeywords && opp.topKeywords.length > 0) || (opp.topSkills && opp.topSkills.length > 0)) && (
                       <div className="flex flex-wrap items-center gap-2 mb-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                         {opp.parsedSummary.requirementsCount > 0 && (
                           <div className="flex items-center gap-1.5 px-2 py-1 bg-white rounded text-xs font-medium text-neutral-700">
