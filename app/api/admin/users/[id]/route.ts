@@ -116,23 +116,51 @@ export async function PATCH(
         : "user_enable"
       : "user_update"
 
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { email: true, name: true },
+    })
+
     await logAdminAction(
       session.user.id,
       session.user.email || "unknown",
       action,
       { type: "user", id },
       {
-        targetEmail: currentUser.email,
+        who: {
+          adminId: session.user.id,
+          adminEmail: session.user.email,
+          adminName: session.user.name,
+          adminRole: session.user.role,
+        },
+        what: `User ${action.replace('_', ' ')}`,
+        targetUser: {
+          userId: id,
+          userEmail: targetUser?.email || currentUser.email,
+          userName: targetUser?.name || null,
+        },
         changes: updateData,
         previousState: {
           role: currentUser.role,
           disabled: currentUser.disabled,
         },
+        impact: {
+          type: action,
+          affectedUser: id,
+          affectedUserEmail: targetUser?.email || currentUser.email,
+          changes: updateData,
+        },
+        timestamp: new Date().toISOString(),
       }
     )
 
     // Log role change event if role changed
     if (body.role !== undefined && body.role !== currentUser.role) {
+      const targetUser = await prisma.user.findUnique({
+        where: { id },
+        select: { email: true, name: true },
+      })
+      
       await logEvent(
         "role_change",
         session.user.id,
@@ -141,8 +169,30 @@ export async function PATCH(
         "user",
         id,
         {
-          previousRole: currentUser.role,
-          newRole: body.role,
+          who: {
+            adminId: session.user.id,
+            adminEmail: session.user.email,
+            adminName: session.user.name,
+            adminRole: session.user.role,
+          },
+          what: "Role change",
+          targetUser: {
+            userId: id,
+            userEmail: targetUser?.email || currentUser.email,
+            userName: targetUser?.name || null,
+          },
+          change: {
+            from: currentUser.role,
+            to: body.role,
+          },
+          impact: {
+            type: "role_modification",
+            affectedUser: id,
+            affectedUserEmail: targetUser?.email || currentUser.email,
+            previousRole: currentUser.role,
+            newRole: body.role,
+          },
+          timestamp: new Date().toISOString(),
         }
       )
     }
@@ -227,6 +277,11 @@ export async function DELETE(
       data: { disabled: true },
     })
 
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { email: true, name: true },
+    })
+
     // Log admin action
     await logAdminAction(
       session.user.id,
@@ -234,8 +289,25 @@ export async function DELETE(
       "user_disable",
       { type: "user", id },
       {
-        targetEmail: user.email,
+        who: {
+          adminId: session.user.id,
+          adminEmail: session.user.email,
+          adminName: session.user.name,
+          adminRole: session.user.role,
+        },
+        what: "User disable",
+        targetUser: {
+          userId: id,
+          userEmail: targetUser?.email || user.email,
+          userName: targetUser?.name || null,
+        },
+        impact: {
+          type: "user_disable",
+          affectedUser: id,
+          affectedUserEmail: targetUser?.email || user.email,
+        },
         reason: "Admin action",
+        timestamp: new Date().toISOString(),
       }
     )
 

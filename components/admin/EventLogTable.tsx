@@ -107,22 +107,50 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                               )
                             }
                             
+                            // Role change details
+                            if (event.actionType === "role_change") {
+                              return (
+                                <div className="space-y-1 bg-purple-50 p-2 rounded border border-purple-200">
+                                  <div><strong>Who:</strong> {details.who?.adminName || details.who?.adminEmail || "Unknown"} ({details.who?.adminRole || "ADMIN"})</div>
+                                  <div><strong>What:</strong> Role change</div>
+                                  <div><strong>Target User:</strong> {details.targetUser?.userName || details.targetUser?.userEmail || "Unknown"} ({details.targetUser?.userEmail})</div>
+                                  <div><strong>Change:</strong> {details.change?.from || details.previousRole} → {details.change?.to || details.newRole}</div>
+                                  <div><strong>Impact:</strong> {details.impact?.type || "role_modification"} - User {details.impact?.affectedUserEmail || details.targetUser?.userEmail} role changed from {details.impact?.previousRole || details.change?.from} to {details.impact?.newRole || details.change?.to}</div>
+                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
+                                  {event.ip && <div><strong>IP:</strong> {event.ip}</div>}
+                                </div>
+                              )
+                            }
+                            
                             // Admin action details
                             if (event.actionType === "admin_action" && details.action) {
                               return (
-                                <div className="space-y-1">
-                                  <span>
-                                    Action: <code className="text-xs bg-neutral-50 px-1 rounded">{details.action}</code>
-                                  </span>
+                                <div className="space-y-1 bg-indigo-50 p-2 rounded border border-indigo-200">
+                                  <div><strong>Who:</strong> {details.who?.adminName || details.who?.adminEmail || "Unknown"} ({details.who?.adminRole || "ADMIN"})</div>
+                                  <div><strong>What:</strong> {details.what || details.action.replace('_', ' ')}</div>
+                                  {details.targetUser && (
+                                    <div><strong>Target User:</strong> {details.targetUser.userName || details.targetUser.userEmail || "Unknown"} ({details.targetUser.userEmail})</div>
+                                  )}
+                                  {details.changes && Object.keys(details.changes).length > 0 && (
+                                    <div><strong>Changes:</strong> {JSON.stringify(details.changes, null, 2)}</div>
+                                  )}
+                                  {details.previousState && (
+                                    <div><strong>Previous State:</strong> Role: {details.previousState.role}, Disabled: {details.previousState.disabled ? "Yes" : "No"}</div>
+                                  )}
+                                  {details.impact && (
+                                    <div><strong>Impact:</strong> {details.impact.type} - {details.impact.affectedUserEmail || details.targetUser?.userEmail}</div>
+                                  )}
+                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
+                                  {event.ip && <div><strong>IP:</strong> {event.ip}</div>}
                                   {details.attemptedAction && (
-                                    <span className="ml-2">
-                                      Attempted: <code className="text-xs bg-neutral-50 px-1 rounded">{details.attemptedAction}</code>
-                                    </span>
+                                    <div className="text-orange-600">
+                                      <strong>Attempted:</strong> {details.attemptedAction}
+                                    </div>
                                   )}
                                   {details.reason && (
-                                    <span className="ml-2 text-red-600">
-                                      Reason: {details.reason}
-                                    </span>
+                                    <div className="text-red-600">
+                                      <strong>Reason:</strong> {details.reason}
+                                    </div>
                                   )}
                                 </div>
                               )

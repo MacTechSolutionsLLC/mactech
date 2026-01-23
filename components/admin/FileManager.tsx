@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import CUIWarningBanner from '@/components/CUIWarningBanner'
 
 interface File {
   id: string
@@ -23,6 +24,8 @@ interface FileManagerProps {
 export default function FileManager({ files }: FileManagerProps) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -59,8 +62,69 @@ export default function FileManager({ files }: FileManagerProps) {
     window.open(`/api/files/${fileId}`, '_blank')
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/files/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload file')
+      }
+
+      // Refresh the page to show the new file
+      router.refresh()
+      
+      // Reset the input
+      e.target.value = ''
+    } catch (error: any) {
+      setUploadError(error.message || 'Failed to upload file')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
-    <div className="overflow-x-auto">
+    <div>
+      <CUIWarningBanner />
+      
+      <div className="mb-6 p-4 bg-white border border-neutral-200 rounded-lg">
+        <h2 className="text-lg font-semibold text-neutral-900 mb-3">Upload File</h2>
+        <div className="flex items-center gap-4">
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.json,.jpg,.jpeg,.png,.gif"
+            />
+            <span className="px-4 py-2 bg-accent-700 text-white rounded-lg hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-block">
+              {uploading ? 'Uploading...' : 'Choose File'}
+            </span>
+          </label>
+          {uploadError && (
+            <span className="text-sm text-red-600">{uploadError}</span>
+          )}
+        </div>
+        <p className="mt-2 text-sm text-neutral-500">
+          Allowed types: PDF, Word, Excel, Text, CSV, JSON, Images (max 10MB)
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-neutral-200">
         <thead className="bg-neutral-50">
           <tr>
@@ -131,6 +195,7 @@ export default function FileManager({ files }: FileManagerProps) {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

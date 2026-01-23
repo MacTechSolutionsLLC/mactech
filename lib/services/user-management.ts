@@ -159,23 +159,61 @@ export async function updateUser(
         : "user_enable"
       : "user_update"
 
+    const adminUser = await prisma.user.findUnique({
+      where: { id: adminId },
+      select: { email: true, name: true, role: true },
+    })
+    
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, name: true },
+    })
+
     await logAdminAction(
       adminId,
       adminEmail,
       action,
       { type: "user", id: userId },
       {
-        targetEmail: currentUser.email,
+        who: {
+          adminId: adminId,
+          adminEmail: adminEmail,
+          adminName: adminUser?.name || null,
+          adminRole: adminUser?.role || "ADMIN",
+        },
+        what: `User ${action.replace('_', ' ')}`,
+        targetUser: {
+          userId: userId,
+          userEmail: targetUser?.email || currentUser.email,
+          userName: targetUser?.name || null,
+        },
         changes: updateData,
         previousState: {
           role: currentUser.role,
           disabled: currentUser.disabled,
         },
+        impact: {
+          type: action,
+          affectedUser: userId,
+          affectedUserEmail: targetUser?.email || currentUser.email,
+          changes: updateData,
+        },
+        timestamp: new Date().toISOString(),
       }
     )
 
     // Log role change event if role changed
     if (updateData.role !== undefined && updateData.role !== currentUser.role) {
+      const adminUser = await prisma.user.findUnique({
+        where: { id: adminId },
+        select: { email: true, name: true, role: true },
+      })
+      
+      const targetUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      })
+      
       await logEvent(
         "role_change",
         adminId,
@@ -184,8 +222,30 @@ export async function updateUser(
         "user",
         userId,
         {
-          previousRole: currentUser.role,
-          newRole: updateData.role,
+          who: {
+            adminId: adminId,
+            adminEmail: adminEmail,
+            adminName: adminUser?.name || null,
+            adminRole: adminUser?.role || "ADMIN",
+          },
+          what: "Role change",
+          targetUser: {
+            userId: userId,
+            userEmail: targetUser?.email || currentUser.email,
+            userName: targetUser?.name || null,
+          },
+          change: {
+            from: currentUser.role,
+            to: updateData.role,
+          },
+          impact: {
+            type: "role_modification",
+            affectedUser: userId,
+            affectedUserEmail: targetUser?.email || currentUser.email,
+            previousRole: currentUser.role,
+            newRole: updateData.role,
+          },
+          timestamp: new Date().toISOString(),
         }
       )
     }
