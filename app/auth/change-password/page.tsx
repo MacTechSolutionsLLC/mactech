@@ -78,8 +78,12 @@ function ChangePasswordForm() {
         mustChangePassword: false
       })
 
-      // Redirect to admin - the session should now have mustChangePassword: false
-      router.push('/admin')
+      // Redirect based on user role
+      if (session?.user?.role === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/user/contract-discovery')
+      }
       router.refresh()
     } catch (err) {
       setError('An error occurred. Please try again.')

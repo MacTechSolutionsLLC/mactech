@@ -1,12 +1,46 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AdminNavigation from '@/components/admin/AdminNavigation'
 import IngestionStatus from '@/app/admin/capture/components/IngestionStatus'
 import UsaSpendingIngest from '@/app/admin/capture/components/UsaSpendingIngest'
 
 export default function AdminPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  // Redirect non-admin users immediately
+  useEffect(() => {
+    if (status === 'authenticated') {
+      if (session?.user?.role !== 'ADMIN') {
+        router.push('/user/contract-discovery')
+        return
+      }
+    } else if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=/admin')
+      return
+    }
+  }, [session, status, router])
+
+  // Show loading state while checking auth
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-700 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render admin content if not admin (redirect will happen)
+  if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
+    return null
+  }
   const [isMigrating, setIsMigrating] = useState(false)
   const [migrationResult, setMigrationResult] = useState<{
     success: boolean

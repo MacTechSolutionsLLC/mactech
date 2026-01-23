@@ -38,12 +38,13 @@ export default function SignInPage() {
           if (sessionData?.user?.role === 'ADMIN') {
             router.push('/admin')
           } else {
-            router.push('/user')
+            // Redirect regular users to contract discovery
+            router.push('/user/contract-discovery')
           }
           router.refresh()
         } catch {
-          // Fallback: redirect to user portal
-          router.push('/user')
+          // Fallback: redirect to contract discovery
+          router.push('/user/contract-discovery')
           router.refresh()
         }
       }
@@ -119,7 +120,7 @@ export default function SignInPage() {
               disabled={isLoading}
               className="w-full py-2.5 bg-accent-700 text-white rounded-lg font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Signing in...' : 'User Login'}
             </button>
           </form>
 

@@ -48,7 +48,7 @@ export default function SecurityAcknowledgmentPage() {
       if (session?.user?.role === 'ADMIN') {
         router.push('/admin')
       } else {
-        router.push('/user')
+        router.push('/user/contract-discovery')
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred')

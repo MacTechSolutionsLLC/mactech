@@ -85,8 +85,7 @@ export default async function ComplianceDashboardPage() {
               Mapping of 17 FAR practices to controls and evidence.
             </p>
             <Link
-              href="/compliance/Evidence-Index.md"
-              target="_blank"
+              href="/admin/compliance/evidence-index"
               className="text-primary-600 hover:text-primary-700 font-medium"
             >
               View Document →
@@ -100,8 +99,7 @@ export default async function ComplianceDashboardPage() {
               Step-by-step &quot;show me&quot; procedures for assessors.
             </p>
             <Link
-              href="/compliance/Internal-Audit-Checklist.md"
-              target="_blank"
+              href="/admin/compliance/internal-audit-checklist"
               className="text-primary-600 hover:text-primary-700 font-medium"
             >
               View Checklist →

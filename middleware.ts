@@ -54,8 +54,8 @@ export default auth((req) => {
 
     // Check if user is admin
     if (session.user?.role !== "ADMIN") {
-      // Redirect to home if not admin
-      return NextResponse.redirect(new URL("/", req.url))
+      // Redirect to user contract discovery if not admin
+      return NextResponse.redirect(new URL("/user/contract-discovery", req.url))
     }
 
     // Check if password change is required

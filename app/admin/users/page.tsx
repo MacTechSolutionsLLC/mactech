@@ -50,7 +50,7 @@ export default async function UsersPage() {
           <div className="flex gap-3">
             <a
               href="/api/admin/users/export"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors"
+              className="px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 font-medium transition-colors"
             >
               Export CSV (Quarterly Review)
             </a>
@@ -81,7 +81,10 @@ export default async function UsersPage() {
           </div>
         </div>
 
-        <CreateUserForm />
+        {/* Create User Form - Always visible button, form appears below when opened */}
+        <div className="mb-6">
+          <CreateUserForm />
+        </div>
 
         <div className="bg-white rounded-lg shadow">
           <UserTable users={users} />

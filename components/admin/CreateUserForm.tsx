@@ -134,12 +134,17 @@ export default function CreateUserForm() {
 
   if (!showForm) {
     return (
-      <button
-        onClick={() => setShowForm(true)}
-        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors"
-      >
-        Create User
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors shadow-sm hover:shadow"
+        >
+          + Create New User
+        </button>
+        <p className="text-sm text-neutral-500">
+          Add a new user account to the system
+        </p>
+      </div>
     )
   }
 
