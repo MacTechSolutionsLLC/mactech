@@ -275,5 +275,6 @@ For questions or issues, contact the development team.
 
 Proprietary - MacTech Solutions LLC
 
+## Deployment
 
-
+Deployed on Railway. Auto-deploys on push to main branch.
