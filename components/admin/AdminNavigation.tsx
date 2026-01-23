@@ -21,6 +21,18 @@ const navItems: NavItem[] = [
     icon: '⚙️',
   },
   {
+    href: '/user/capture',
+    label: 'Capture',
+    description: 'Federal Capture Dashboard',
+    icon: '📊',
+  },
+  {
+    href: '/user/contract-discovery',
+    label: 'Discovery',
+    description: 'Search SAM.gov opportunities',
+    icon: '🔍',
+  },
+  {
     href: '/admin/users',
     label: 'Users',
     description: 'Manage user accounts',

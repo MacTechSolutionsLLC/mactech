@@ -22,14 +22,6 @@ export default function UserPage() {
       color: 'bg-green-50 border-green-200 hover:border-green-300',
       iconBg: 'bg-green-100',
     },
-    {
-      href: '/user/contract-discovery/dashboard',
-      title: 'Contract Dashboard',
-      description: 'Unified dashboard for all contract opportunities with scoring, filtering, and management',
-      icon: '📋',
-      color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
-      iconBg: 'bg-purple-100',
-    },
   ]
 
   return (

@@ -26,18 +26,12 @@ const navItems: NavItem[] = [
     description: 'Federal contract opportunities',
     icon: '📊',
   },
-  {
-    href: '/user/contract-discovery',
-    label: 'Discovery',
-    description: 'Search SAM.gov opportunities',
-    icon: '🔍',
-  },
-  {
-    href: '/user/contract-discovery/dashboard',
-    label: 'Dashboard',
-    description: 'Manage all contracts',
-    icon: '📋',
-  },
+    {
+      href: '/user/contract-discovery',
+      label: 'Discovery',
+      description: 'Search SAM.gov opportunities',
+      icon: '🔍',
+    },
   {
     href: '/user/usaspending',
     label: 'Awards',
