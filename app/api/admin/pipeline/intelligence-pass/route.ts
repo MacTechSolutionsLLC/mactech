@@ -50,6 +50,16 @@ export async function POST(request: NextRequest) {
       opportunitiesToProcess = opportunities
     }
 
+    if (opportunitiesToProcess.length === 0) {
+      return NextResponse.json({
+        success: true,
+        processed: 0,
+        errors: [],
+        results: [],
+        message: 'No opportunities found that need intelligence computation.',
+      })
+    }
+
     const results: Array<{
       opportunity_id: string
       intelligence_calculated: boolean
@@ -138,7 +148,8 @@ export async function POST(request: NextRequest) {
           signals_generated: signals,
         })
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        const errorMessage = error instanceof Error ? error.message : String(error) || 'Unknown error'
+        console.error(`[Intelligence Pass API] Error processing opportunity ${opp.id}:`, error)
         errors.push({
           opportunity_id: opp.id,
           error: errorMessage,
@@ -153,16 +164,23 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
+      success: true,
       processed: results.length,
       errors,
       results,
     })
   } catch (error) {
     console.error('[Intelligence Pass API] Error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('[Intelligence Pass API] Error details:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      error,
+    })
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
       },
       { status: 500 }
     )
