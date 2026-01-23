@@ -40,6 +40,7 @@ export default function OpportunityDetailPage({ params }: PageProps) {
       loadOpportunity()
       loadIntelligence()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opportunityId])
 
   const loadOpportunity = async () => {

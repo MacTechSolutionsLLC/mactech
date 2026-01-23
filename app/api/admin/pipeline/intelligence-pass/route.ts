@@ -77,27 +77,37 @@ export async function POST(request: NextRequest) {
           },
         })
 
+        if (!opportunity) {
+          results.push({
+            opportunity_id: opp.id,
+            intelligence_calculated: false,
+            signals_generated: [],
+            error: 'Opportunity not found',
+          })
+          continue
+        }
+
         // Generate signal list
         const signals: string[] = []
 
-        if (opportunity?.incumbent_concentration_score !== null && opportunity.incumbent_concentration_score > 0.5) {
+        if (opportunity.incumbent_concentration_score !== null && opportunity.incumbent_concentration_score > 0.5) {
           signals.push('HIGH_INCUMBENT_LOCK_IN')
         }
 
-        if (opportunity?.award_size_realism_ratio !== null && opportunity.award_size_realism_ratio > 2.0) {
+        if (opportunity.award_size_realism_ratio !== null && opportunity.award_size_realism_ratio > 2.0) {
           signals.push('SAM_VALUE_INFLATED')
         }
 
-        if (opportunity?.recompete_likelihood !== null && opportunity.recompete_likelihood > 0.6) {
+        if (opportunity.recompete_likelihood !== null && opportunity.recompete_likelihood > 0.6) {
           signals.push('LIKELY_RECOMPETE')
         }
 
-        if (opportunity?.lifecycle_stage_classification === 'SOURCES_SOUGHT') {
+        if (opportunity.lifecycle_stage_classification === 'SOURCES_SOUGHT') {
           signals.push('EARLY_STAGE_SHAPE')
         }
 
         let agencyBehavior: any = null
-        if (opportunity?.agency_behavior_profile) {
+        if (opportunity.agency_behavior_profile) {
           try {
             agencyBehavior = JSON.parse(opportunity.agency_behavior_profile)
           } catch {
@@ -110,7 +120,7 @@ export async function POST(request: NextRequest) {
         }
 
         let setAsideReality: any = null
-        if (opportunity?.set_aside_enforcement_reality) {
+        if (opportunity.set_aside_enforcement_reality) {
           try {
             setAsideReality = JSON.parse(opportunity.set_aside_enforcement_reality)
           } catch {

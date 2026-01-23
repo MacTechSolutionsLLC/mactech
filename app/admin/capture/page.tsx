@@ -20,6 +20,7 @@ export default function CaptureDashboardPage() {
   useEffect(() => {
     loadStats()
     loadOpportunities()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intentFilters])
 
   const loadStats = async () => {
