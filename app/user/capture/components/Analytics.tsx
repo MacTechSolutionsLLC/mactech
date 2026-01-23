@@ -180,7 +180,7 @@ export default function Analytics() {
           <div className="text-red-600 mb-2">Error loading analytics</div>
           <div className="text-sm text-neutral-600 mb-4">{error}</div>
           <button
-            onClick={loadAnalytics}
+            onClick={() => loadAnalytics()}
             className="px-4 py-2 bg-accent-700 text-white rounded-lg hover:bg-accent-800"
           >
             Retry
