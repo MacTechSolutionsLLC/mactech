@@ -30,14 +30,6 @@ export default function UserPage() {
       color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
       iconBg: 'bg-purple-100',
     },
-    {
-      href: '/user/usaspending',
-      title: 'USAspending Awards',
-      description: 'View historical award data and analyze past contract awards',
-      icon: '🏆',
-      color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-300',
-      iconBg: 'bg-yellow-100',
-    },
   ]
 
   return (

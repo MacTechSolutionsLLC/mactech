@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import UserNavigation from '@/components/user/UserNavigation'
-import RunIngestButton from '@/app/admin/sam-dashboard/components/RunIngestButton'
 import QueryManager from '@/app/admin/sam-dashboard/components/QueryManager'
 import ContractFilters from './components/ContractFilters'
 import SortableTable from './components/SortableTable'
@@ -490,10 +489,6 @@ export default function ContractDashboardPage() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
-                  <RunIngestButton onIngestComplete={loadContracts} />
-                </div>
-                
                 <div className="bg-white rounded-2xl shadow-lg shadow-neutral-200/50 border border-neutral-100 p-6">
                   <QueryManager onQueryComplete={loadContracts} />
                 </div>
