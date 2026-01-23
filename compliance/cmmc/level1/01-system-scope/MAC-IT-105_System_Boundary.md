@@ -29,21 +29,26 @@ This system processes and stores **Federal Contract Information (FCI) only**, as
                        │ HTTPS/TLS (Railway)
                        ↓
 ┌─────────────────────────────────────────────────────────────┐
-│          Next.js Application (Railway Platform)              │
+│     PUBLIC NETWORK SEGMENT (Railway Platform)                │
+│          Next.js Application (Public Tier)                   │
 │  - Authentication & Authorization                           │
 │  - Input validation & CUI blocking                           │
 │  - Event logging                                             │
 │  - File upload handling                                      │
+│  - Publicly accessible network segment                       │
 └──────────────────────┬──────────────────────────────────────┘
-                       │ Encrypted Connection
+                       │ Encrypted Connection (Internal Network)
+                       │ Network Boundary (Railway Managed)
                        ↓
 ┌─────────────────────────────────────────────────────────────┐
-│         PostgreSQL Database (Railway Platform)               │
+│     INTERNAL NETWORK SEGMENT (Railway Platform)              │
+│         PostgreSQL Database (Internal Tier)                  │
 │  - FCI storage (GovernmentContractDiscovery, etc.)          │
 │  - User accounts & authentication                            │
 │  - Event logs (AppEvent table)                               │
 │  - File storage (StoredFile table - BYTEA)                  │
-│  - Database security capabilities (Railway managed, relied upon operationally) │
+│  - Database security capabilities (Railway managed)          │
+│  - Not directly accessible from internet                      │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ↓
@@ -53,6 +58,12 @@ This system processes and stores **Federal Contract Information (FCI) only**, as
 │  - Access logged in AppEvent table                           │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Network Segmentation:**
+- **Public Network Segment:** Next.js application operates in publicly accessible network tier (accepts HTTPS from internet)
+- **Internal Network Segment:** PostgreSQL database operates in internal network tier (not directly accessible from internet)
+- **Network Boundary:** Railway platform manages network boundaries and access controls between tiers
+- **Logical Separation:** Application and database are logically separated in different network segments
 
 ---
 
@@ -152,6 +163,23 @@ This system processes and stores **Federal Contract Information (FCI) only**, as
 - **Third-party services** - SAM.gov API, USAspending.gov API (read-only, public APIs)
 - **End-user browsers** - Client-side devices
 - **Railway infrastructure** - Physical security, network infrastructure (inherited controls)
+
+### 5.3 Network Architecture
+
+**Network Segmentation (FAR 52.204-21(b)(1)(xi)):**
+- Railway platform provides network infrastructure with logical network segmentation
+- **Public Network Segment:** Next.js application operates in publicly accessible network tier
+  - Accepts HTTPS connections from internet
+  - Handles user authentication and application logic
+  - No direct database access from internet
+- **Internal Network Segment:** PostgreSQL database operates in internal network tier
+  - Accessible only from application tier via Railway-managed network
+  - Not directly accessible from internet
+  - Encrypted connections between application and database
+- **Network Boundaries:** Railway manages network boundaries and access controls between tiers
+- **Logical Separation:** Application and database are logically separated in different network segments
+
+**Evidence:** Railway platform network architecture, logical separation of application and database services. See Inherited Controls documentation for detailed reliance statement.
 
 ---
 

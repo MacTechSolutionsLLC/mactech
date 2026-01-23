@@ -137,6 +137,29 @@ The following security controls are **inherited** from the Railway platform. The
 
 ---
 
+### 3.6 Network Segmentation
+
+**Control:** Network infrastructure and logical network segmentation for publicly accessible system components.
+
+**Railway Implementation:**
+- Railway platform provides network infrastructure with logical network segmentation
+- Public-facing application tier (Next.js) operates in a publicly accessible network segment
+- Internal database tier (PostgreSQL) operates in an internal network segment with controlled access
+- Network boundaries and access controls are managed by Railway
+- Logical separation between application and database tiers
+
+**Organization Reliance:**
+- Organization relies on Railway for network infrastructure and segmentation
+- Organization does not manage network infrastructure or segmentation configuration
+- Organization does not claim responsibility for Railway's network architecture
+- Security capabilities are relied upon operationally but are not independently verified
+
+**Status:** Inherited control from Railway platform.
+
+**Evidence:** Railway platform provides network infrastructure. Application and database operate in separate network tiers with logical separation. Organization does not manage network infrastructure.
+
+---
+
 ## 4. Organization Responsibilities
 
 ### 4.1 Application-Level Controls
@@ -200,6 +223,7 @@ The following security controls are **inherited** from the Railway platform. The
 | Infrastructure Security | Railway | Reliance only | Railway platform |
 | Database Security | Railway | Reliance only | Railway PostgreSQL service |
 | Malware Protection (Infrastructure) | Railway | Reliance only | Railway platform |
+| Network Segmentation | Railway | Reliance only | Railway platform network architecture |
 
 **Note:** "Reliance only" means organization relies on Railway for the control but does not claim responsibility for Railway's implementation.
 

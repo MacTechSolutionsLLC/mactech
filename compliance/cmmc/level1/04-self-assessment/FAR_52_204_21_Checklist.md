@@ -211,7 +211,27 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
-### 11. Control and manage the use of administrative privileges
+### 11. Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks
+
+**FAR Reference:** 52.204-21(b)(1)(xi)  
+**CMMC Practice:** SC.L1-3.13.2  
+**Status:** ✅ Inherited
+
+**Implementation:**
+- Railway platform provides network infrastructure with logical network segmentation
+- Public-facing application tier (Next.js) is logically separated from internal database tier (PostgreSQL)
+- Network boundaries and segmentation provided by Railway cloud platform
+- Application and database services operate in separate network tiers with controlled access
+
+**Evidence:**
+- Railway platform network architecture (inherited)
+- Logical separation: Application tier (public-facing) and Database tier (internal)
+- Network boundary documentation: `01-system-scope/MAC-IT-301_System_Description_and_Architecture.md`
+- Inherited Controls Statement: `03-control-responsibility/MAC-SEC-310_Inherited_Control_Statement_Railway.md`
+
+---
+
+### 12. Control and manage the use of administrative privileges
 
 **FAR Reference:** 52.204-21(b)(1)(x)  
 **CMMC Practice:** AC.L1-3.1.5  
@@ -230,7 +250,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
-### 12. Use encryption for Federal Contract Information in transit
+### 13. Use encryption for Federal Contract Information in transit
 
 **FAR Reference:** 52.204-21(b)(3)(i)  
 **CMMC Practice:** SC.L1-3.13.1  
@@ -249,7 +269,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
-### 13. Use encryption for Federal Contract Information at rest
+### 14. Use encryption for Federal Contract Information at rest
 
 **FAR Reference:** 52.204-21(b)(3)(ii)  
 **CMMC Practice:** SC.L1-3.13.5  
@@ -268,7 +288,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
-### 14. Employ malicious code protection mechanisms at information system entry and exit points
+### 15. Employ malicious code protection mechanisms at information system entry and exit points
 
 **FAR Reference:** 52.204-21(b)(4)(i)  
 **CMMC Practice:** SI.L1-3.14.1  
@@ -286,7 +306,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
-### 15. Identify, report, and correct information and information system flaws in a timely manner
+### 16. Identify, report, and correct information and information system flaws in a timely manner
 
 **FAR Reference:** 52.204-21(b)(4)(ii)  
 **CMMC Practice:** Practice 15 (Vulnerability Management)  
@@ -377,8 +397,8 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **Total FAR 52.204-21 Requirements:** 15  
 **Total CMMC Level 1 Practices:** 17  
-**Requirements Implemented:** 15  
-**Requirements Inherited:** 3 (TLS/HTTPS, Database Encryption, Malware Protection)  
+**Requirements Implemented:** 12  
+**Requirements Inherited:** 4 (TLS/HTTPS, Database Encryption, Malware Protection, Network Segmentation)  
 **Requirements Not Implemented:** 0
 
 **All 15 FAR 52.204-21 basic safeguarding requirements are either implemented or inherited. All 17 CMMC Level 1 practices are either implemented or inherited.**

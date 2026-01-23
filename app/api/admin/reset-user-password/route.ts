@@ -5,16 +5,43 @@ import { requireAdmin } from '@/lib/authz'
 import { requireAdminReauth } from '@/lib/admin-reauth'
 import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
 import { monitorCUIKeywords } from '@/lib/cui-blocker'
-import { logAdminAction } from '@/lib/audit'
+import { logAdminAction, logEvent } from '@/lib/audit'
 
 // Admin endpoint to reset a user's password
 // Requires admin re-authentication for sensitive action
 export async function POST(req: NextRequest) {
   try {
-    // Require admin re-auth for password reset
-    const session = await requireAdminReauth()
-
-    const { email, newPassword } = await req.json()
+    // Read request body once
+    const body = await req.json()
+    const { email, newPassword } = body
+    
+    // Check if re-auth is required (before attempting)
+    let session
+    try {
+      session = await requireAdminReauth()
+    } catch (error: any) {
+      // Log that re-auth was required but not provided
+      if (error.requiresReauth) {
+        const authSession = await requireAdmin()
+        
+        await logEvent(
+          "admin_action",
+          authSession.user.id,
+          authSession.user.email || "unknown",
+          false,
+          "user",
+          undefined,
+          {
+            action: "admin_reauth_required",
+            attemptedAction: "password_reset",
+            targetEmail: email,
+            reason: "Re-authentication required but not verified"
+          }
+        )
+      }
+      
+      throw error
+    }
 
     if (!email || !newPassword) {
       return NextResponse.json(
@@ -75,6 +102,7 @@ export async function POST(req: NextRequest) {
       { type: "user", id: user.id },
       {
         targetEmail: user.email,
+        reauthVerified: true, // Indicate that re-auth was verified for this action
       }
     )
 

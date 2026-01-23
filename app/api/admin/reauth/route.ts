@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { requireAdmin } from "@/lib/authz"
 import { verifyAdminReauth } from "@/lib/admin-reauth"
-import { logAdminAction } from "@/lib/audit"
+import { logAdminAction, logEvent } from "@/lib/audit"
 
 /**
  * POST /api/admin/reauth
@@ -27,13 +27,15 @@ export async function POST(req: NextRequest) {
     const isValid = await verifyAdminReauth(password)
 
     if (!isValid) {
-      // Log failed re-auth attempt
-      await logAdminAction(
+      // Log failed re-auth attempt (with success: false)
+      await logEvent(
+        "admin_action",
         session.user.id,
         session.user.email || "unknown",
-        "admin_reauth_failed",
+        false, // success: false for failed attempts
+        "system",
         undefined,
-        { reason: "Invalid password" }
+        { action: "admin_reauth_failed", reason: "Invalid password" }
       )
 
       return NextResponse.json(
@@ -47,7 +49,8 @@ export async function POST(req: NextRequest) {
       session.user.id,
       session.user.email || "unknown",
       "admin_reauth_success",
-      undefined
+      { type: "system" },
+      { timestamp: new Date().toISOString() }
     )
 
     // Return success

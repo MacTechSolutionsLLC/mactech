@@ -83,10 +83,41 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                   {formatDate(event.timestamp)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                  <code className="bg-neutral-100 px-2 py-1 rounded text-xs">
-                    {event.actionType}
-                  </code>
+                <td className="px-6 py-4 text-sm text-neutral-900">
+                  <div className="flex flex-col gap-1">
+                    <code className="bg-neutral-100 px-2 py-1 rounded text-xs">
+                      {event.actionType}
+                    </code>
+                    {event.details && event.actionType === "admin_action" && (
+                      <div className="text-xs text-neutral-600 mt-1">
+                        {(() => {
+                          try {
+                            const details = JSON.parse(event.details)
+                            if (details.action) {
+                              return (
+                                <span>
+                                  Action: <code className="text-xs bg-neutral-50 px-1 rounded">{details.action}</code>
+                                  {details.attemptedAction && (
+                                    <span className="ml-2">
+                                      Attempted: <code className="text-xs bg-neutral-50 px-1 rounded">{details.attemptedAction}</code>
+                                    </span>
+                                  )}
+                                  {details.reason && (
+                                    <span className="ml-2 text-red-600">
+                                      Reason: {details.reason}
+                                    </span>
+                                  )}
+                                </span>
+                              )
+                            }
+                            return null
+                          } catch {
+                            return null
+                          }
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                   {event.actorEmail || event.actor?.email || "System"}

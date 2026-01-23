@@ -15,8 +15,34 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Require admin re-auth for sensitive actions
-    const session = await requireAdminReauth()
+    // Check if re-auth is required (before attempting)
+    let session
+    try {
+      session = await requireAdminReauth()
+    } catch (error: any) {
+      // Log that re-auth was required but not provided
+      if (error.requiresReauth) {
+        const authSession = await requireAdmin()
+        const { id } = await context.params
+        const body = await req.json()
+        
+        await logEvent(
+          "admin_action",
+          authSession.user.id,
+          authSession.user.email || "unknown",
+          false,
+          "user",
+          id,
+          {
+            action: "admin_reauth_required",
+            attemptedAction: body.role !== undefined ? "role_change" : body.disabled !== undefined ? "user_disable" : "user_update",
+            reason: "Re-authentication required but not verified"
+          }
+        )
+      }
+      
+      throw error
+    }
 
     const { id } = await context.params
     const body = await req.json()
@@ -87,6 +113,7 @@ export async function PATCH(
           role: currentUser.role,
           disabled: currentUser.disabled,
         },
+        reauthVerified: true, // Indicate that re-auth was verified for this action
       }
     )
 

@@ -61,13 +61,26 @@ The system processes, stores, and manages Federal Contract Information (FCI) rel
 ┌─────────────────────────────────────────────────────────┐
 │                  System Boundary                       │
 │                                                         │
-│  ┌──────────────┐    ┌──────────────┐                │
-│  │   Next.js    │    │  PostgreSQL  │                │
-│  │  Application │◄───►│   Database   │                │
-│  │  (Railway)   │    │   (Railway)   │                │
-│  └──────────────┘    └──────────────┘                │
+│  ┌──────────────────────────────────────────────┐   │
+│  │     PUBLIC NETWORK SEGMENT (Railway)            │   │
+│  │  ┌──────────────┐                              │   │
+│  │  │   Next.js    │                              │   │
+│  │  │  Application │                              │   │
+│  │  │  (Railway)   │                              │   │
+│  │  └──────────────┘                              │   │
+│  └──────────────┬─────────────────────────────────┘   │
+│                 │ Network Boundary (Railway Managed)   │
+│                 │ Encrypted Internal Connection        │
+│  ┌──────────────▼─────────────────────────────────┐   │
+│  │     INTERNAL NETWORK SEGMENT (Railway)           │   │
+│  │  ┌──────────────┐                              │   │
+│  │  │  PostgreSQL  │                              │   │
+│  │  │   Database   │                              │   │
+│  │  │   (Railway)   │                              │   │
+│  │  └──────────────┘                              │   │
+│  └─────────────────────────────────────────────────┘   │
 │         │                                             │
-│         │ HTTPS/TLS                                   │
+│         │ HTTPS/TLS (Public Network)                  │
 │         ▼                                             │
 │  ┌──────────────┐                                     │
 │  │    Users     │                                     │
@@ -79,6 +92,12 @@ The system processes, stores, and manages Federal Contract Information (FCI) rel
 │  - USAspending.gov API                                 │
 └─────────────────────────────────────────────────────────┘
 ```
+
+**Network Segmentation (FAR 52.204-21(b)(1)(xi)):**
+- Railway platform provides logical network separation between publicly accessible and internal components
+- Public network segment: Next.js application (accepts HTTPS from internet)
+- Internal network segment: PostgreSQL database (not directly accessible from internet)
+- Network boundaries and access controls managed by Railway (inherited control)
 
 ---
 
@@ -167,6 +186,8 @@ The system processes, stores, and manages Federal Contract Information (FCI) rel
 - TLS/HTTPS termination
 - Network security capabilities (relied upon operationally, not independently assessed)
 - Network-level security
+- Network segmentation: Logical separation between public-facing application tier and internal database tier
+- Network boundaries and access controls managed by Railway
 
 **Platform Security:**
 - Platform patching and updates

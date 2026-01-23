@@ -274,9 +274,35 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ---
 
-### Practice 11: Control and manage the use of administrative privileges
+### Practice 11: Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks
 
-**FAR Reference:** 52.204-21(b)(1)
+**FAR Reference:** 52.204-21(b)(1)(xi)
+
+**Status:** ✅ **Inherited**
+
+**Implementation:**
+- Network infrastructure and segmentation provided by Railway platform
+- Public-facing application tier (Next.js) operates in publicly accessible network segment
+- Internal database tier (PostgreSQL) operates in internal network segment with controlled access
+- Network boundaries and access controls managed by Railway
+- Logical separation between application and database tiers
+
+**Network Architecture:**
+- Public network segment: Next.js application accepts HTTPS connections from internet
+- Internal network segment: PostgreSQL database not directly accessible from internet
+- Network boundaries: Railway manages network boundaries and access controls
+- Logical separation: Application and database operate in separate network tiers
+
+**Evidence Locations:**
+- Network Segmentation: Railway platform (inherited control)
+- Network Architecture: `01-system-scope/MAC-IT-301_System_Description_and_Architecture.md` (Section 5.5)
+- Inherited Controls: `03-control-responsibility/MAC-SEC-310_Inherited_Control_Statement_Railway.md` (Section 3.6)
+
+---
+
+### Practice 12: Control and manage the use of administrative privileges
+
+**FAR Reference:** 52.204-21(b)(1)(x)
 
 **Status:** ✅ **Implemented**
 
@@ -298,9 +324,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ---
 
-### Practice 12: Use encryption for FCI in transit
+### Practice 13: Use encryption for FCI in transit
 
-**FAR Reference:** 52.204-21(b)(3)
+**FAR Reference:** 52.204-21(b)(3)(i)
 
 **Note:** This practice (originally written for CUI) is applied to FCI in this system. The system does not process, store, or transmit CUI.
 
@@ -325,9 +351,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ---
 
-### Practice 13: Use encryption for FCI at rest
+### Practice 14: Use encryption for FCI at rest
 
-**FAR Reference:** 52.204-21(b)(3)
+**FAR Reference:** 52.204-21(b)(3)(ii)
 
 **Note:** This practice (originally written for CUI) is applied to FCI in this system. The system does not process, store, or transmit CUI.
 
@@ -350,9 +376,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ---
 
-### Practice 14: Employ malicious code protection mechanisms at information system entry and exit points
+### Practice 15: Employ malicious code protection mechanisms at information system entry and exit points
 
-**FAR Reference:** 52.204-21(b)(3)
+**FAR Reference:** 52.204-21(b)(4)(i)
 
 **Status:** ✅ **Inherited**
 
@@ -372,9 +398,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ---
 
-### Practice 15: Identify, report, and correct information and information system flaws in a timely manner
+### Practice 16: Identify, report, and correct information and information system flaws in a timely manner
 
-**FAR Reference:** 52.204-21(b)(3)
+**FAR Reference:** 52.204-21(b)(4)(ii)
 
 **Status:** ✅ **Implemented**
 
@@ -448,8 +474,8 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 | Status | Count |
 |--------|-------|
-| ✅ Implemented | 13 |
-| ✅ Inherited | 4 |
+| ✅ Implemented | 12 |
+| ✅ Inherited | 5 |
 | ⚠️ Not Implemented | 0 | 0% |
 | **Total Practices** | **17** | **100%** |
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 interface User {
   id: string
@@ -16,11 +17,61 @@ interface UserActionsProps {
 
 export default function UserActions({ user }: UserActionsProps) {
   const router = useRouter()
+  const { update: updateSession } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPasswordReset, setShowPasswordReset] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [showReauth, setShowReauth] = useState(false)
+  const [reauthPassword, setReauthPassword] = useState('')
+  const [reauthError, setReauthError] = useState<string | null>(null)
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
+
+  const handleReauth = async () => {
+    if (!reauthPassword) {
+      setReauthError('Password is required')
+      return
+    }
+
+    setReauthError(null)
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/admin/reauth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: reauthPassword }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setReauthError(data.error || 'Re-authentication failed')
+        return
+      }
+
+      // Update session to set re-auth flag
+      await updateSession({ adminReauthVerified: true })
+
+      // Close re-auth modal
+      setShowReauth(false)
+      setReauthPassword('')
+      setReauthError(null)
+
+      // Retry pending action if any
+      if (pendingAction) {
+        await pendingAction()
+        setPendingAction(null)
+      }
+    } catch (err: any) {
+      setReauthError(err.message || 'Re-authentication failed')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDisable = async () => {
     if (!confirm(`Are you sure you want to ${user.disabled ? 'enable' : 'disable'} ${user.email}?`)) {
@@ -44,7 +95,8 @@ export default function UserActions({ user }: UserActionsProps) {
       if (!response.ok) {
         const data = await response.json()
         if (data.requiresReauth) {
-          setError("Admin re-authentication required. Please re-authenticate and try again.")
+          setPendingAction(() => () => handleDisable())
+          setShowReauth(true)
           return
         }
         throw new Error(data.error || 'Failed to update user')
@@ -80,7 +132,8 @@ export default function UserActions({ user }: UserActionsProps) {
       if (!response.ok) {
         const data = await response.json()
         if (data.requiresReauth) {
-          setError("Admin re-authentication required. Please re-authenticate and try again.")
+          setPendingAction(() => () => handleRoleChange(newRole))
+          setShowReauth(true)
           return
         }
         throw new Error(data.error || 'Failed to update user')
@@ -125,7 +178,14 @@ export default function UserActions({ user }: UserActionsProps) {
 
       if (!response.ok) {
         if (data.requiresReauth) {
-          setError("Admin re-authentication required. Please re-authenticate and try again.")
+          // Capture the password value for retry
+          const capturedPassword = newPassword
+          setPendingAction(() => async () => {
+            // Temporarily set the password back for the retry
+            setNewPassword(capturedPassword)
+            await handlePasswordReset()
+          })
+          setShowReauth(true)
           return
         }
         throw new Error(data.error || 'Failed to reset password')
@@ -150,6 +210,63 @@ export default function UserActions({ user }: UserActionsProps) {
       {error && (
         <div className="text-xs text-red-600">{error}</div>
       )}
+      
+      {/* Re-authentication Modal */}
+      {showReauth && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Admin Re-authentication Required</h3>
+            <p className="text-sm text-neutral-600 mb-4">
+              Please enter your password to continue with this sensitive action.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                value={reauthPassword}
+                onChange={(e) => {
+                  setReauthPassword(e.target.value)
+                  setReauthError(null)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && reauthPassword) {
+                    handleReauth()
+                  }
+                }}
+                className="w-full px-3 py-2 text-sm border border-neutral-300 rounded focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                placeholder="Enter your password"
+                autoFocus
+              />
+              {reauthError && (
+                <p className="text-xs text-red-600 mt-1">{reauthError}</p>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => {
+                  setShowReauth(false)
+                  setReauthPassword('')
+                  setReauthError(null)
+                  setPendingAction(null)
+                }}
+                className="px-4 py-2 text-sm font-medium text-neutral-700 bg-neutral-100 rounded hover:bg-neutral-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReauth}
+                disabled={loading || !reauthPassword}
+                className="px-4 py-2 text-sm font-medium bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying...' : 'Re-authenticate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={handleDisable}

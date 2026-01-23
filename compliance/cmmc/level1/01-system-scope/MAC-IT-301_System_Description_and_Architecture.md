@@ -111,6 +111,16 @@ The following security controls are inherited from the Railway cloud platform:
 - **Provider:** Railway PostgreSQL service
 - **Coverage:** Security capabilities are relied upon operationally from the service provider but are not independently assessed as part of this CMMC Level 1 self-assessment
 
+### 4.5 Network Segmentation
+- **Control:** Network infrastructure and logical network segmentation
+- **Provider:** Railway platform
+- **Coverage:** Railway provides network infrastructure with logical separation between publicly accessible system components (application tier) and internal network components (database tier)
+- **Architecture:** 
+  - Public-facing application tier (Next.js) operates in a publicly accessible network segment
+  - Internal database tier (PostgreSQL) operates in an internal network segment with controlled access
+  - Network boundaries and access controls are managed by Railway
+- **Evidence:** Railway platform network architecture, logical separation of application and database services
+
 **Note:** These inherited controls satisfy certain CMMC Level 1 requirements. The organization relies on Railway platform for these controls. See `Inherited_Control_Statement_Railway.md` for detailed inherited control statement.
 
 ---
@@ -140,6 +150,19 @@ The following security controls are inherited from the Railway cloud platform:
 - **Configuration:** `railway.json`, `Procfile`
 - **Database:** Railway PostgreSQL service
 - **Environment:** Production environment on Railway infrastructure
+
+### 5.5 Network Architecture
+- **Network Segmentation:** Railway platform provides logical network separation
+- **Public Tier:** Next.js application operates in publicly accessible network segment
+  - Accepts HTTPS connections from internet
+  - Handles user authentication and application logic
+  - No direct database access from internet
+- **Internal Tier:** PostgreSQL database operates in internal network segment
+  - Accessible only from application tier via Railway-managed network
+  - Not directly accessible from internet
+  - Encrypted connections between application and database
+- **Network Boundaries:** Railway manages network boundaries and access controls
+- **Evidence:** Railway platform architecture, logical separation of services
 
 ---
 
