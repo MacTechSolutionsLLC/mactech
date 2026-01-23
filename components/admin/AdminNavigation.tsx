@@ -87,16 +87,17 @@ export default function AdminNavigation() {
         }
       }
       
-      // Sign out and redirect
+      // Sign out without redirect (we'll handle it manually)
       await signOut({ 
-        callbackUrl: '/',
-        redirect: true 
+        redirect: false 
       })
+      
+      // Manually redirect to home page using current domain
+      window.location.href = '/'
     } catch (error) {
       console.error('Logout error:', error)
       // Fallback: redirect manually
-      router.push('/')
-      router.refresh()
+      window.location.href = '/'
     } finally {
       setIsLoggingOut(false)
     }
