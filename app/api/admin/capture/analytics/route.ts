@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/authz'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,9 @@ interface ScoreRange {
 
 export async function GET(request: NextRequest) {
   try {
+    // Require admin authentication
+    await requireAdmin()
+    
     const searchParams = request.nextUrl.searchParams
     const days = parseInt(searchParams.get('days') || '30')
     const startDate = new Date()

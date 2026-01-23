@@ -176,7 +176,8 @@ export function verifySignedUrl(
 export async function getFile(
   fileId: string,
   userId?: string,
-  signedUrlParams?: { expires: string; sig: string }
+  signedUrlParams?: { expires: string; sig: string },
+  userRole?: string
 ) {
   const file = await prisma.storedFile.findUnique({
     where: { id: fileId },
@@ -200,15 +201,15 @@ export async function getFile(
     throw new Error("File has been deleted")
   }
 
-  // Access control: user can access their own files, or use signed URL
+  // Access control: user can access their own files, admin can access any file, or use signed URL
   if (signedUrlParams) {
     // Verify signed URL
     if (!verifySignedUrl(fileId, signedUrlParams.expires, signedUrlParams.sig)) {
       throw new Error("Invalid or expired signed URL")
     }
   } else if (userId) {
-    // Check if user owns the file
-    if (file.userId !== userId) {
+    // Check if user owns the file OR is admin
+    if (file.userId !== userId && userRole !== "ADMIN") {
       throw new Error("Access denied")
     }
   } else {
@@ -221,7 +222,7 @@ export async function getFile(
 /**
  * Delete file (logical deletion)
  */
-export async function deleteFile(fileId: string, userId: string): Promise<void> {
+export async function deleteFile(fileId: string, userId: string, userRole?: string): Promise<void> {
   // Verify user owns the file or is admin
   const file = await prisma.storedFile.findUnique({
     where: { id: fileId },
@@ -231,8 +232,8 @@ export async function deleteFile(fileId: string, userId: string): Promise<void> 
     throw new Error("File not found")
   }
 
-  if (file.userId !== userId) {
-    // Check if user is admin (would need to check role separately)
+  // Check if user owns the file OR is admin
+  if (file.userId !== userId && userRole !== "ADMIN") {
     throw new Error("Access denied")
   }
 

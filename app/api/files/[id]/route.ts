@@ -38,8 +38,8 @@ export async function GET(
       const session = await requireAuth()
       userId = session.user.id
 
-      // Get file with user access check
-      file = await getFile(id, userId)
+      // Get file with user access check (admin users can access any file)
+      file = await getFile(id, userId, undefined, session.user.role)
     }
 
     // Log file download

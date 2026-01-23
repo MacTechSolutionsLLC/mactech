@@ -1,6 +1,6 @@
-# User Access and FCI Handling Acknowledgement - CMMC Level 1
+# User Access and FCI Handling Acknowledgement - Brian
 
-**Document Version:** 2.0  
+**Document Version:** 1.0  
 **Date:** 2026-01-22  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
@@ -12,19 +12,21 @@
 
 ## Purpose
 
-This acknowledgment form documents that users understand their responsibilities for protecting Federal Contract Information (FCI) and the prohibition on uploading Controlled Unclassified Information (CUI) or other prohibited data types. This acknowledgment is required before system access is granted.
+This acknowledgment form documents that the user understands their responsibilities for protecting Federal Contract Information (FCI) and the prohibition on uploading Controlled Unclassified Information (CUI) or other prohibited data types. This acknowledgment is required before system access is granted.
 
-**Note:** This form must be completed and signed by each user before system access is provisioned.
+**Note:** This form must be completed and signed by the user before system access is provisioned.
 
 ---
 
 ## User Information
 
-**User Name:** _________________________________
+**User Name:** Brian
 
-**Email Address:** _________________________________
+**Email Address:** brian@mactechsolutionsllc.com
 
-**Date:** _________________________________
+**Role:** ADMIN
+
+**Date:** _________________________
 
 ---
 
@@ -81,7 +83,22 @@ By signing below, I acknowledge that I have read and understand the following:
 - Maintain endpoint inventory (for endpoints I use to access the system)
 - Complete annual re-acknowledgement of these requirements
 - Notify administrators of role changes or access need changes
-- Fulfill administrative responsibilities (if I have ADMIN role)
+- **Fulfill administrative responsibilities (ADMIN role):**
+  - Review user access periodically
+  - Conduct least privilege audits
+  - Revoke access when triggers occur (within 24 hours)
+  - Maintain account lifecycle documentation
+  - Review and approve access requests
+  - Monitor system security events
+  - Review audit logs periodically
+  - Respond to security incidents
+  - Maintain system documentation
+  - Coordinate with Security Contact on security matters
+  - Maintain physical access logs
+  - Maintain endpoint inventory
+  - Export audit logs for evidence (as needed)
+  - Maintain user acknowledgement forms
+  - Document access reviews and audits
 
 **I acknowledge that I have read and understand:** `MAC-POL-217_Ongoing_Stakeholder_Requirements.md`
 
@@ -104,6 +121,7 @@ By signing below, I certify that:
 2. I agree to comply with all requirements stated in this acknowledgment
 3. I understand the consequences of non-compliance
 4. I will seek clarification if I have any questions about my responsibilities
+5. I have read and understand the Ongoing Stakeholder Requirements document (`MAC-POL-217_Ongoing_Stakeholder_Requirements.md`)
 
 **User Signature:** _________________________
 
@@ -119,11 +137,13 @@ By signing below, I certify that:
 
 **Acknowledgment On File:** ☐ Yes ☐ No
 
+**Next Annual Re-Acknowledgement Due:** _________________________________
+
 **Notes:** _________________________________
 
 ---
 
-**Document Status:** This document reflects the system state as of 2026-01-21 and is maintained under configuration control.
+**Document Status:** This document reflects the system state as of 2026-01-22 and is maintained under configuration control.
 
 ---
 
@@ -135,15 +155,14 @@ By signing below, I certify that:
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 2.0 (2026-01-22): Enhanced with ongoing compliance requirements section referencing MAC-POL-217
-- Version 1.0 (2026-01-21): Initial document creation to address assessor finding L1-AT-03
+- Version 1.0 (2026-01-22): Initial individual user agreement form for Brian
 
 ---
 
 ## Appendix A: Related Documents
 
-- FCI Scope and Data Boundary Statement (`../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`)
-- Access Control Policy (`MAC-POL-210_Access_Control_Policy.md`)
-- Media Handling Policy (`MAC-POL-213_Media_Handling_Policy.md`)
-- System Description (`../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md`)
-- **Ongoing Stakeholder Requirements** (`MAC-POL-217_Ongoing_Stakeholder_Requirements.md`) - **Required reading for all users**
+- FCI Scope and Data Boundary Statement (`../../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`)
+- Access Control Policy (`../MAC-POL-210_Access_Control_Policy.md`)
+- Media Handling Policy (`../MAC-POL-213_Media_Handling_Policy.md`)
+- System Description (`../../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md`)
+- **Ongoing Stakeholder Requirements** (`../MAC-POL-217_Ongoing_Stakeholder_Requirements.md`) - **Required reading**

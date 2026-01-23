@@ -7,6 +7,7 @@ import IngestionStatus from './components/IngestionStatus'
 import OpportunityFeed from './components/OpportunityFeed'
 import IncumbentIntelligence from './components/IncumbentIntelligence'
 import UsaSpendingIngest from './components/UsaSpendingIngest'
+import Analytics from '../user/capture/components/Analytics'
 
 type Tab = 'opportunities' | 'incumbents' | 'analytics'
 
@@ -131,12 +132,7 @@ export default function CaptureDashboardPage() {
       <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
         {activeTab === 'opportunities' && <OpportunityFeed />}
         {activeTab === 'incumbents' && <IncumbentIntelligence />}
-        {activeTab === 'analytics' && (
-          <div className="bg-white rounded-lg border border-neutral-200 p-8">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Analytics</h2>
-            <p className="text-neutral-600">Analytics dashboard coming soon...</p>
-          </div>
-        )}
+        {activeTab === 'analytics' && <Analytics />}
       </section>
     </div>
   )
