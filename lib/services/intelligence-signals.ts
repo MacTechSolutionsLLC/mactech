@@ -37,7 +37,7 @@ export function generateIntelligenceSignals(
       signal: 'HIGH_INCUMBENT_LOCK_IN',
       severity: 'high',
       message: 'High Incumbent Lock-In Risk',
-      tooltip: `Incumbent concentration score: ${(opportunity.incumbent_concentration_score * 100).toFixed(1)}%. Market is dominated by a small number of vendors.`,
+      tooltip: `Incumbent concentration score: ${(incumbentScore * 100).toFixed(1)}%. Market is dominated by a small number of vendors.`,
     })
   }
 
@@ -97,7 +97,7 @@ export function generateIntelligenceSignals(
   if (opportunity.set_aside_enforcement_reality) {
     try {
       const reality = JSON.parse(opportunity.set_aside_enforcement_reality)
-      if (reality.enforcement_strength === 'WEAK') {
+      if (reality.enforcement_strength === 'WEAK' && reality.compliance_rate != null) {
         signals.push({
           signal: 'SET_ASIDE_ENFORCEMENT_WEAK',
           severity: 'medium',
