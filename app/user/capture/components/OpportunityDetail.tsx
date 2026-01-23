@@ -106,14 +106,18 @@ export default function OpportunityDetail({
     }
   }
 
-  const parseJsonField = (field: string | string[] | null | undefined, fallback: any = []) => {
+  const parseJsonField = <T = any>(field: string | T[] | null | undefined, fallback: T[] = [] as T[]): T[] => {
     if (!field) return fallback
     if (Array.isArray(field)) return field
-    try {
-      return JSON.parse(field)
-    } catch {
-      return fallback
+    if (typeof field === 'string') {
+      try {
+        const parsed = JSON.parse(field)
+        return Array.isArray(parsed) ? parsed : fallback
+      } catch {
+        return fallback
+      }
     }
+    return fallback
   }
 
   if (loading) {
@@ -169,12 +173,12 @@ export default function OpportunityDetail({
       : opportunity.incumbent_vendors
     : null
 
-  const requirements: string[] = parseJsonField(opportunity.requirements, [])
-  const aiKeyRequirements: string[] = parseJsonField(opportunity.aiKeyRequirements, [])
-  const pointsOfContact: PointOfContact[] = parseJsonField(opportunity.points_of_contact, [])
-  const naicsCodes: string[] = parseJsonField(opportunity.naics_codes, [])
-  const setAside: string[] = parseJsonField(opportunity.set_aside, [])
-  const detectedKeywords: string[] = parseJsonField(opportunity.detected_keywords, [])
+  const requirements: string[] = parseJsonField<string>(opportunity.requirements, [])
+  const aiKeyRequirements: string[] = parseJsonField<string>(opportunity.aiKeyRequirements, [])
+  const pointsOfContact: PointOfContact[] = parseJsonField<PointOfContact>(opportunity.points_of_contact, [])
+  const naicsCodes: string[] = parseJsonField<string>(opportunity.naics_codes, [])
+  const setAside: string[] = parseJsonField<string>(opportunity.set_aside, [])
+  const detectedKeywords: string[] = parseJsonField<string>(opportunity.detected_keywords, [])
 
   // Format deadline for display
   const formattedDeadline = opportunity.deadline
