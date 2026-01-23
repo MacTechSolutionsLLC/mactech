@@ -114,6 +114,33 @@ export default function OpportunityDetail({
     }
   }
 
+  const handleRefreshEnrichment = async () => {
+    setGeneratingAnalysis(true)
+    try {
+      const response = await fetch('/api/admin/usaspending/enrich-opportunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          opportunity_id: opportunityId,
+          limit: 10,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        await loadOpportunity()
+        onUpdate()
+      } else {
+        console.error('Error refreshing enrichment:', data.error)
+        alert(`Failed to refresh enrichment: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error refreshing enrichment:', error)
+      alert('Failed to refresh enrichment. Please try again.')
+    } finally {
+      setGeneratingAnalysis(false)
+    }
+  }
+
   const parseJsonField = <T = any>(field: string | T[] | null | undefined, fallback: T[] = [] as T[]): T[] => {
     if (!field) return fallback
     if (Array.isArray(field)) return field
@@ -376,9 +403,20 @@ export default function OpportunityDetail({
             {/* Competitive Intelligence */}
             {(enrichment || aiAnalysis?.competitiveLandscape || incumbentVendors) && (
               <div className="card p-6 shadow-md">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">🏢</span>
-                  <h2 className="heading-3">Competitive Intelligence</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🏢</span>
+                    <h2 className="heading-3">Competitive Intelligence</h2>
+                  </div>
+                  {enrichment && (
+                    <button
+                      onClick={handleRefreshEnrichment}
+                      disabled={generatingAnalysis}
+                      className="btn-secondary text-body-sm"
+                    >
+                      {generatingAnalysis ? 'Refreshing...' : '🔄 Refresh Enrichment'}
+                    </button>
+                  )}
                 </div>
                 {enrichment?.statistics && (
                   <div className="space-y-3 mb-4">
@@ -402,26 +440,51 @@ export default function OpportunityDetail({
                       <div>
                         <div className="text-body-sm font-medium text-neutral-700 mb-2">Similar Awards (with Entity API data)</div>
                         <div className="space-y-2">
-                          {enrichment.similar_awards.slice(0, 5).map((award: any, idx: number) => (
-                            <div key={idx} className="border border-neutral-200 rounded p-3">
-                              <div className="text-body-sm font-medium text-neutral-900">
-                                {award.recipient?.name || award.recipient_name || 'Unknown'}
+                          {enrichment.similar_awards.slice(0, 5).map((award: any, idx: number) => {
+                            // Try multiple fields to get recipient name
+                            const recipientName = 
+                              award.recipient_entity_data?.entityName ||
+                              award.recipient?.name ||
+                              award.recipient_name ||
+                              award.recipient?.legal_business_name ||
+                              (typeof award.recipient === 'string' ? award.recipient : null) ||
+                              'Unknown'
+                            
+                            const hasEntityData = award.recipient_entity_data && 
+                              (award.recipient_entity_data.entityName || 
+                               award.recipient_entity_data.registrationStatus ||
+                               award.recipient_entity_data.socioEconomicStatus?.length > 0)
+                            
+                            return (
+                              <div key={idx} className="border border-neutral-200 rounded p-3">
+                                <div className="text-body-sm font-medium text-neutral-900">
+                                  {recipientName}
+                                </div>
+                                {award.total_obligation && (
+                                  <div className="text-body-xs text-neutral-600">
+                                    ${award.total_obligation.toLocaleString()}
+                                  </div>
+                                )}
+                                {hasEntityData ? (
+                                  <div className="mt-2 text-body-xs text-neutral-600">
+                                    {award.recipient_entity_data.entityName && (
+                                      <div>Entity: {award.recipient_entity_data.entityName}</div>
+                                    )}
+                                    {award.recipient_entity_data.registrationStatus && (
+                                      <div>Status: {award.recipient_entity_data.registrationStatus}</div>
+                                    )}
+                                    {award.recipient_entity_data.socioEconomicStatus && award.recipient_entity_data.socioEconomicStatus.length > 0 && (
+                                      <div>Certifications: {award.recipient_entity_data.socioEconomicStatus.join(', ')}</div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="mt-2 text-body-xs text-neutral-400 italic">
+                                    Entity API data not available - click Refresh Enrichment to fetch
+                                  </div>
+                                )}
                               </div>
-                              {award.total_obligation && (
-                                <div className="text-body-xs text-neutral-600">
-                                  ${award.total_obligation.toLocaleString()}
-                                </div>
-                              )}
-                              {award.recipient_entity_data && (
-                                <div className="mt-2 text-body-xs text-neutral-600">
-                                  <div>Entity: {award.recipient_entity_data.entityName || 'N/A'}</div>
-                                  {award.recipient_entity_data.socioEconomicStatus && award.recipient_entity_data.socioEconomicStatus.length > 0 && (
-                                    <div>Certifications: {award.recipient_entity_data.socioEconomicStatus.join(', ')}</div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     )}
