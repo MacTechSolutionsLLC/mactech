@@ -7,7 +7,7 @@ import IngestionStatus from './components/IngestionStatus'
 import OpportunityFeed from './components/OpportunityFeed'
 import IncumbentIntelligence from './components/IncumbentIntelligence'
 import UsaSpendingIngest from './components/UsaSpendingIngest'
-import Analytics from '../user/capture/components/Analytics'
+import Analytics from '@/app/user/capture/components/Analytics'
 
 type Tab = 'opportunities' | 'incumbents' | 'analytics'
 
