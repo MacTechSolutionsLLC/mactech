@@ -2,17 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { requireAdmin } from '@/lib/authz'
-import { requireAdminReauth } from '@/lib/admin-reauth'
 import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
 import { monitorCUIKeywords } from '@/lib/cui-blocker'
 import { logAdminAction, logEvent } from '@/lib/audit'
 
 // API route to create admin users (protected - only existing admins can create new users)
-// Requires admin re-authentication for sensitive action
+// Requires admin authentication
 export async function POST(req: NextRequest) {
   try {
-    // Require admin re-auth for user creation
-    const session = await requireAdminReauth()
+    // Require admin authentication
+    const session = await requireAdmin()
 
     const { email, password, name, role = 'ADMIN' } = await req.json()
 
@@ -103,13 +102,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error creating user:', error)
-
-    if (error.requiresReauth) {
-      return NextResponse.json(
-        { error: "Admin re-authentication required", requiresReauth: true },
-        { status: 403 }
-      )
-    }
 
     return NextResponse.json(
       { error: error.message || 'Failed to create user' },

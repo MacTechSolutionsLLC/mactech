@@ -45,12 +45,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Log successful re-auth
-    await logAdminAction(
+    await logEvent(
+      "admin_action",
       session.user.id,
       session.user.email || "unknown",
-      "admin_reauth_success",
-      { type: "system" },
-      { timestamp: new Date().toISOString() }
+      true,
+      "system",
+      undefined,
+      { action: "admin_reauth_success", timestamp: new Date().toISOString() }
     )
 
     // Return success

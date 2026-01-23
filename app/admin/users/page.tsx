@@ -27,6 +27,15 @@ export default async function UsersPage() {
     orderBy: { createdAt: "desc" },
   })
 
+  // Calculate statistics
+  const stats = {
+    total: users.length,
+    active: users.filter(u => !u.disabled).length,
+    disabled: users.filter(u => u.disabled).length,
+    admins: users.filter(u => u.role === "ADMIN" && !u.disabled).length,
+    users: users.filter(u => u.role === "USER" && !u.disabled).length,
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <AdminNavigation />
@@ -41,10 +50,34 @@ export default async function UsersPage() {
           <div className="flex gap-3">
             <a
               href="/api/admin/users/export"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium"
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors"
             >
               Export CSV (Quarterly Review)
             </a>
+          </div>
+        </div>
+
+        {/* Statistics Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Total Users</div>
+            <div className="text-2xl font-bold text-neutral-900 mt-1">{stats.total}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Active</div>
+            <div className="text-2xl font-bold text-green-600 mt-1">{stats.active}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Disabled</div>
+            <div className="text-2xl font-bold text-red-600 mt-1">{stats.disabled}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Admins</div>
+            <div className="text-2xl font-bold text-purple-600 mt-1">{stats.admins}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Standard Users</div>
+            <div className="text-2xl font-bold text-blue-600 mt-1">{stats.users}</div>
           </div>
         </div>
 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/authz"
-import { requireAdminReauth } from "@/lib/admin-reauth"
 import { prisma } from "@/lib/prisma"
 import { logAdminAction, logEvent } from "@/lib/audit"
 import { monitorCUIKeywords } from "@/lib/cui-blocker"
@@ -8,41 +7,15 @@ import { monitorCUIKeywords } from "@/lib/cui-blocker"
 /**
  * PATCH /api/admin/users/[id]
  * Update user (role, disable/enable)
- * Requires admin re-authentication
+ * Requires admin authentication
  */
 export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check if re-auth is required (before attempting)
-    let session
-    try {
-      session = await requireAdminReauth()
-    } catch (error: any) {
-      // Log that re-auth was required but not provided
-      if (error.requiresReauth) {
-        const authSession = await requireAdmin()
-        const { id } = await context.params
-        const body = await req.json()
-        
-        await logEvent(
-          "admin_action",
-          authSession.user.id,
-          authSession.user.email || "unknown",
-          false,
-          "user",
-          id,
-          {
-            action: "admin_reauth_required",
-            attemptedAction: body.role !== undefined ? "role_change" : body.disabled !== undefined ? "user_disable" : "user_update",
-            reason: "Re-authentication required but not verified"
-          }
-        )
-      }
-      
-      throw error
-    }
+    // Require admin authentication
+    const session = await requireAdmin()
 
     const { id } = await context.params
     const body = await req.json()
@@ -61,6 +34,48 @@ export async function PATCH(
         { error: "User not found" },
         { status: 404 }
       )
+    }
+
+    // Security: Prevent self-disable
+    if (body.disabled === true && id === session.user.id) {
+      return NextResponse.json(
+        { error: "You cannot disable your own account" },
+        { status: 400 }
+      )
+    }
+
+    // Security: Prevent removing last admin
+    if (body.role === "USER" && currentUser.role === "ADMIN") {
+      const adminCount = await prisma.user.count({
+        where: {
+          role: "ADMIN",
+          disabled: false,
+        },
+      })
+
+      if (adminCount <= 1) {
+        return NextResponse.json(
+          { error: "Cannot remove the last active admin. At least one admin must remain active." },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Security: Prevent disabling last admin
+    if (body.disabled === true && currentUser.role === "ADMIN") {
+      const activeAdminCount = await prisma.user.count({
+        where: {
+          role: "ADMIN",
+          disabled: false,
+        },
+      })
+
+      if (activeAdminCount <= 1) {
+        return NextResponse.json(
+          { error: "Cannot disable the last active admin. At least one admin must remain active." },
+          { status: 400 }
+        )
+      }
     }
 
     // Prepare update data
@@ -113,7 +128,6 @@ export async function PATCH(
           role: currentUser.role,
           disabled: currentUser.disabled,
         },
-        reauthVerified: true, // Indicate that re-auth was verified for this action
       }
     )
 
@@ -140,13 +154,6 @@ export async function PATCH(
   } catch (error: any) {
     console.error("User update error:", error)
 
-    if (error.requiresReauth) {
-      return NextResponse.json(
-        { error: "Admin re-authentication required", requiresReauth: true },
-        { status: 403 }
-      )
-    }
-
     return NextResponse.json(
       { error: error.message || "Failed to update user" },
       { status: error.message?.includes("Admin") ? 403 : 500 }
@@ -157,15 +164,15 @@ export async function PATCH(
 /**
  * DELETE /api/admin/users/[id]
  * Disable user (logical deletion)
- * Requires admin re-authentication
+ * Requires admin authentication
  */
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Require admin re-auth for sensitive actions
-    const session = await requireAdminReauth()
+    // Require admin authentication
+    const session = await requireAdmin()
 
     const { id } = await context.params
 
@@ -187,6 +194,31 @@ export async function DELETE(
         { error: "User is already disabled" },
         { status: 400 }
       )
+    }
+
+    // Security: Prevent self-disable
+    if (id === session.user.id) {
+      return NextResponse.json(
+        { error: "You cannot disable your own account" },
+        { status: 400 }
+      )
+    }
+
+    // Security: Prevent disabling last admin
+    if (user.role === "ADMIN") {
+      const activeAdminCount = await prisma.user.count({
+        where: {
+          role: "ADMIN",
+          disabled: false,
+        },
+      })
+
+      if (activeAdminCount <= 1) {
+        return NextResponse.json(
+          { error: "Cannot disable the last active admin. At least one admin must remain active." },
+          { status: 400 }
+        )
+      }
     }
 
     // Disable user (logical deletion)
@@ -226,13 +258,6 @@ export async function DELETE(
     })
   } catch (error: any) {
     console.error("User disable error:", error)
-
-    if (error.requiresReauth) {
-      return NextResponse.json(
-        { error: "Admin re-authentication required", requiresReauth: true },
-        { status: 403 }
-      )
-    }
 
     return NextResponse.json(
       { error: error.message || "Failed to disable user" },
