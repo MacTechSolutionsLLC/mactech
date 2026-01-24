@@ -1,9 +1,30 @@
-# CMMC Level 1 Compliance Documentation
+# CMMC Compliance Documentation
 
 **System:** MacTech Solutions Application  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational) & Level 2 (Advanced)  
+**Reference:** FAR 52.204-21 (Level 1), NIST SP 800-171 Rev. 2 (Level 2)  
 **Last Updated:** January 2026
+
+---
+
+## CMMC Level 2 Status
+
+**Current Status:** CMMC Level 2 migration in progress
+
+**Total Controls:** 110 NIST SP 800-171 Rev. 2 requirements
+
+**System Control Traceability Matrix (SCTM):**
+- Location: `level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
+- Web Interface: `/admin/compliance/sctm`
+- All 110 controls mapped with implementation status, evidence, and verification
+
+**Compliance Audit System:**
+- Automated verification of all controls against code, evidence, policies, and procedures
+- Web Interface: `/admin/compliance/audit`
+- Documentation: See `COMPLIANCE_AUDIT_SYSTEM.md`
+- CLI Script: `scripts/run-compliance-audit.ts`
+
+---
 
 ---
 
@@ -86,6 +107,8 @@
 **Self-Assessment:**
 - `level1/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` - Detailed practice assessment
 - `level1/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md` - Practices matrix with evidence
+- `level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md` - CMMC Level 2 SCTM (110 controls)
+- `level1/04-self-assessment/MAC-AUD-409_Compliance_Audit_Report.md` - Automated compliance audit report
 
 **Evidence:**
 - `level1/05-evidence/MAC-RPT-100_Evidence_Index.md` - Evidence index
@@ -107,6 +130,14 @@
 ---
 
 ## Key Features
+
+### Compliance Audit System (CMMC Level 2)
+- **Automated Control Verification:** Verifies all 110 controls against code, evidence, policies, and procedures
+- **Detailed Control Views:** Expandable control details with enriched data, evidence links, and code verification
+- **Compliance Scoring:** Each control receives a 0-100% compliance score
+- **Audit Dashboard:** `/admin/compliance/audit` - Summary statistics, critical issues, and compliance breakdowns
+- **SCTM Integration:** `/admin/compliance/sctm` - Interactive control matrix with audit results
+- **Documentation:** See `COMPLIANCE_AUDIT_SYSTEM.md` for full system documentation
 
 ### Physical Access Logs (PE.L1-3.10.4)
 - Admin portal: `/admin/physical-access-logs`

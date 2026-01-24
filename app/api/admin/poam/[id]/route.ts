@@ -98,6 +98,14 @@ export async function PATCH(
       }
     }
 
+    // Handle closing POA&M
+    if (status === "closed" && existing.status !== "closed") {
+      updateData.status = "closed"
+      if (!updateData.actualCompletionDate) {
+        updateData.actualCompletionDate = new Date()
+      }
+    }
+
     const updated = await prisma.pOAMItem.update({
       where: { id: params.id },
       data: updateData,

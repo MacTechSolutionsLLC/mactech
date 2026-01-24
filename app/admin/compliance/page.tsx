@@ -133,6 +133,20 @@ export default async function ComplianceDashboardPage() {
               View SCTM →
             </Link>
           </div>
+
+          {/* Compliance Audit Card */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Compliance Audit</h2>
+            <p className="text-neutral-600 mb-4">
+              Comprehensive verification of control implementation, evidence, and documentation.
+            </p>
+            <Link
+              href="/admin/compliance/audit"
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
+              Run Audit →
+            </Link>
+          </div>
         </div>
 
         {/* System Boundary Section */}

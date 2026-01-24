@@ -40,12 +40,18 @@ export default async function SCTMPage() {
     <div className="min-h-screen bg-neutral-50">
       <AdminNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/admin/compliance"
             className="text-primary-600 hover:text-primary-700 font-medium"
           >
             ← Back to Compliance Dashboard
+          </Link>
+          <Link
+            href="/admin/compliance/audit"
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm"
+          >
+            Run Compliance Audit
           </Link>
         </div>
 

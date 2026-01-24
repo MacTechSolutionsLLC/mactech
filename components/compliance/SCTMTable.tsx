@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import ControlDetail from './ControlDetail'
 
 interface Control {
   id: string
@@ -12,6 +13,22 @@ interface Control {
   evidence: string
   implementation: string
   sspSection: string
+}
+
+interface AuditResult {
+  controlId: string
+  verifiedStatus: string
+  verificationStatus: 'verified' | 'discrepancy' | 'needs_review'
+  issues: string[]
+  evidence: {
+    policies: any[]
+    procedures: any[]
+    evidenceFiles: any[]
+    implementationFiles: any[]
+    codeVerification: any[]
+  }
+  complianceScore: number
+  lastVerified: Date
 }
 
 interface SCTMTableProps {
@@ -61,6 +78,8 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
   const [sortField, setSortField] = useState<SortField>('id')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+  const [auditResults, setAuditResults] = useState<Record<string, AuditResult>>({})
+  const [loadingAudits, setLoadingAudits] = useState<Set<string>>(new Set())
 
   // Get unique statuses and families for filters
   const uniqueStatuses = useMemo(() => {
@@ -143,6 +162,43 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
     } else {
       setSortField(field)
       setSortDirection('asc')
+    }
+  }
+
+  const loadAuditResult = async (controlId: string) => {
+    if (auditResults[controlId] || loadingAudits.has(controlId)) {
+      return
+    }
+
+    setLoadingAudits(prev => new Set(prev).add(controlId))
+    try {
+      const response = await fetch(`/api/compliance/audit/${encodeURIComponent(controlId)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.auditResult) {
+          setAuditResults(prev => ({
+            ...prev,
+            [controlId]: data.auditResult
+          }))
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to load audit for control ${controlId}:`, error)
+    } finally {
+      setLoadingAudits(prev => {
+        const next = new Set(prev)
+        next.delete(controlId)
+        return next
+      })
+    }
+  }
+
+  const handleRowClick = (controlId: string) => {
+    if (expandedRow === controlId) {
+      setExpandedRow(null)
+    } else {
+      setExpandedRow(controlId)
+      loadAuditResult(controlId)
     }
   }
 
@@ -326,7 +382,7 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
                     <tr
                       key={control.id}
                       className="hover:bg-neutral-50 cursor-pointer"
-                      onClick={() => setExpandedRow(expandedRow === control.id ? null : control.id)}
+                      onClick={() => handleRowClick(control.id)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
                         {control.id}
@@ -376,30 +432,16 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
                     {expandedRow === control.id && (
                       <tr>
                         <td colSpan={10} className="px-6 py-4 bg-neutral-50">
-                          <div className="space-y-2">
-                            <div>
-                              <span className="font-medium text-neutral-700">Full Requirement:</span>
-                              <p className="text-sm text-neutral-600 mt-1">{control.requirement}</p>
+                          {loadingAudits.has(control.id) ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="text-sm text-neutral-500">Loading audit results...</div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <span className="font-medium text-neutral-700">Policy:</span>
-                                <p className="text-sm text-neutral-600">{control.policy}</p>
-                              </div>
-                              <div>
-                                <span className="font-medium text-neutral-700">Procedure:</span>
-                                <p className="text-sm text-neutral-600">{control.procedure}</p>
-                              </div>
-                              <div>
-                                <span className="font-medium text-neutral-700">Evidence:</span>
-                                <p className="text-sm text-neutral-600">{control.evidence}</p>
-                              </div>
-                              <div>
-                                <span className="font-medium text-neutral-700">Implementation:</span>
-                                <p className="text-sm text-neutral-600">{control.implementation}</p>
-                              </div>
-                            </div>
-                          </div>
+                          ) : (
+                            <ControlDetail
+                              control={control}
+                              auditResult={auditResults[control.id]}
+                            />
+                          )}
                         </td>
                       </tr>
                     )}

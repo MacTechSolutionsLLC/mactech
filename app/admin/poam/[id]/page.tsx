@@ -130,10 +130,63 @@ export default function POAMDetailPage() {
     }
   }
 
+  const handleClose = async () => {
+    if (!confirm('Close this POA&M item? This will mark it as completed and closed.')) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/poam/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: 'closed',
+          actualCompletionDate: new Date().toISOString(),
+        }),
+      })
+
+      if (res.ok) {
+        await fetchItem()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to close POA&M item')
+      }
+    } catch (error) {
+      console.error('Error closing POA&M item:', error)
+      alert('Failed to close POA&M item')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const calculateProgress = () => {
+    if (milestones.length === 0) return 0
+    const completed = milestones.filter(m => m.completed).length
+    return Math.round((completed / milestones.length) * 100)
+  }
+
+  const progress = calculateProgress()
+
   const toggleMilestone = (index: number) => {
     const updated = [...milestones]
     updated[index].completed = !updated[index].completed
     setMilestones(updated)
+    
+    // Auto-save milestone changes
+    handleSaveMilestones(updated)
+  }
+
+  const handleSaveMilestones = async (updatedMilestones: Array<{ text: string; completed: boolean }>) => {
+    try {
+      await fetch(`/api/admin/poam/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          milestones: updatedMilestones,
+        }),
+      })
+    } catch (error) {
+      console.error('Error saving milestone:', error)
+    }
   }
 
   const getStatusBadgeColor = (status: string) => {
@@ -207,14 +260,27 @@ export default function POAMDetailPage() {
               <p className="mt-2 text-neutral-600">{item.title}</p>
             </div>
             <div className="flex gap-3">
-              {item.status !== 'verified' && item.status !== 'closed' && (
-                <button
-                  onClick={handleVerify}
-                  disabled={saving}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50"
-                >
-                  Mark as Verified
-                </button>
+              {item.status !== 'closed' && (
+                <>
+                  {item.status === 'verified' && (
+                    <button
+                      onClick={handleClose}
+                      disabled={saving}
+                      className="px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 font-medium disabled:opacity-50"
+                    >
+                      Close POA&M
+                    </button>
+                  )}
+                  {item.status !== 'verified' && item.status !== 'closed' && (
+                    <button
+                      onClick={handleVerify}
+                      disabled={saving}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50"
+                    >
+                      Mark as Verified
+                    </button>
+                  )}
+                </>
               )}
               {!editing ? (
                 <button
@@ -287,8 +353,31 @@ export default function POAMDetailPage() {
 
             {/* Milestones */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-neutral-900 mb-4">Milestones</h2>
-              {editing ? (
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-neutral-900">Milestones</h2>
+                {milestones.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-neutral-600">
+                      Progress: {progress}%
+                    </span>
+                    <div className="w-32 bg-neutral-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${
+                          progress === 100
+                            ? 'bg-green-500'
+                            : progress >= 50
+                            ? 'bg-blue-500'
+                            : 'bg-yellow-500'
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              {milestones.length === 0 ? (
+                <p className="text-sm text-neutral-500">No milestones defined</p>
+              ) : editing ? (
                 <div className="space-y-3">
                   {milestones.map((milestone, index) => (
                     <label key={index} className="flex items-center space-x-3 cursor-pointer">
@@ -307,17 +396,18 @@ export default function POAMDetailPage() {
               ) : (
                 <div className="space-y-3">
                   {milestones.map((milestone, index) => (
-                    <div key={index} className="flex items-center space-x-3">
+                    <label key={index} className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={milestone.completed}
-                        disabled
-                        className="w-5 h-5 text-accent-600 border-neutral-300 rounded"
+                        onChange={() => toggleMilestone(index)}
+                        disabled={item.status === 'closed'}
+                        className="w-5 h-5 text-accent-600 border-neutral-300 rounded focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <span className={`text-sm ${milestone.completed ? 'line-through text-neutral-500' : 'text-neutral-900'}`}>
                         {milestone.text}
                       </span>
-                    </div>
+                    </label>
                   ))}
                 </div>
               )}
@@ -326,6 +416,36 @@ export default function POAMDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Progress Summary */}
+            {milestones.length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-neutral-900 mb-4">Progress Summary</h2>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-neutral-700">Overall Progress</span>
+                      <span className="text-sm font-semibold text-neutral-900">{progress}%</span>
+                    </div>
+                    <div className="w-full bg-neutral-200 rounded-full h-3">
+                      <div
+                        className={`h-3 rounded-full transition-all ${
+                          progress === 100
+                            ? 'bg-green-500'
+                            : progress >= 50
+                            ? 'bg-blue-500'
+                            : 'bg-yellow-500'
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-sm text-neutral-600">
+                    {milestones.filter(m => m.completed).length} of {milestones.length} milestones completed
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Status & Priority */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Status & Priority</h2>

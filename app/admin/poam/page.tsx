@@ -16,6 +16,7 @@ interface POAMItem {
   responsibleParty: string
   targetCompletionDate: string | null
   actualCompletionDate: string | null
+  milestones: string
   createdAt: string
   updatedAt: string
 }
@@ -35,6 +36,7 @@ function POAMContent() {
   const [items, setItems] = useState<POAMItem[]>([])
   const [stats, setStats] = useState<POAMStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
   const [filters, setFilters] = useState({
     status: searchParams.get('status') || 'all',
     priority: searchParams.get('priority') || 'all',
@@ -111,6 +113,43 @@ function POAMContent() {
     })
   }
 
+  const calculateProgress = (milestones: string) => {
+    try {
+      const parsed = JSON.parse(milestones || '[]')
+      if (parsed.length === 0) return null
+      const completed = parsed.filter((m: any) => m.completed).length
+      return Math.round((completed / parsed.length) * 100)
+    } catch {
+      return null
+    }
+  }
+
+  const handleQuickStatusUpdate = async (itemId: string, newStatus: string) => {
+    setUpdatingStatus(itemId)
+    try {
+      const res = await fetch(`/api/admin/poam/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: newStatus,
+          ...(newStatus === 'closed' && { actualCompletionDate: new Date().toISOString() }),
+        }),
+      })
+
+      if (res.ok) {
+        await fetchPOAMData()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Failed to update status')
+    } finally {
+      setUpdatingStatus(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <AdminNavigation />
@@ -124,7 +163,7 @@ function POAMContent() {
 
         {/* Summary Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm font-medium text-neutral-600">Total Items</div>
               <div className="text-2xl font-bold text-neutral-900 mt-1">{stats.totalItems}</div>
@@ -136,9 +175,15 @@ function POAMContent() {
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-neutral-600">High Priority</div>
-              <div className="text-2xl font-bold text-orange-600 mt-1">
-                {(stats.priorityBreakdown.high || 0) + (stats.priorityBreakdown.critical || 0)}
+              <div className="text-sm font-medium text-neutral-600">In Progress</div>
+              <div className="text-2xl font-bold text-indigo-600 mt-1">
+                {stats.statusBreakdown.in_progress || 0}
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-sm font-medium text-neutral-600">Closed</div>
+              <div className="text-2xl font-bold text-green-600 mt-1">
+                {stats.statusBreakdown.closed || 0}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
@@ -241,6 +286,9 @@ function POAMContent() {
                       Target Date
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      Progress
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -260,13 +308,36 @@ function POAMContent() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(
-                            item.status
-                          )}`}
-                        >
-                          {item.status.replace('_', ' ')}
-                        </span>
+                        {updatingStatus === item.id ? (
+                          <div className="flex items-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-700"></div>
+                            <span className="text-xs text-neutral-500">Updating...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(
+                                item.status
+                              )}`}
+                            >
+                              {item.status.replace('_', ' ')}
+                            </span>
+                            {item.status !== 'closed' && (
+                              <select
+                                value={item.status}
+                                onChange={(e) => handleQuickStatusUpdate(item.id, e.target.value)}
+                                className="text-xs border border-neutral-300 rounded px-2 py-1 bg-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="remediated">Remediated</option>
+                                <option value="verified">Verified</option>
+                                <option value="closed">Close</option>
+                              </select>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -281,7 +352,52 @@ function POAMContent() {
                         {item.responsibleParty}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                        {formatDate(item.targetCompletionDate)}
+                        {(() => {
+                          const date = item.targetCompletionDate
+                          if (!date) return 'Not set'
+                          const targetDate = new Date(date)
+                          const today = new Date()
+                          const isOverdue = targetDate < today && !['closed', 'verified'].includes(item.status)
+                          return (
+                            <div className="flex items-center gap-2">
+                              <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+                                {formatDate(date)}
+                              </span>
+                              {isOverdue && (
+                                <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded">
+                                  Overdue
+                                </span>
+                              )}
+                            </div>
+                          )
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {(() => {
+                          const progress = calculateProgress(item.milestones)
+                          if (progress === null) {
+                            return <span className="text-xs text-neutral-400">N/A</span>
+                          }
+                          return (
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-neutral-200 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${
+                                    progress === 100
+                                      ? 'bg-green-500'
+                                      : progress >= 50
+                                      ? 'bg-blue-500'
+                                      : 'bg-yellow-500'
+                                  }`}
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-medium text-neutral-600 w-10">
+                                {progress}%
+                              </span>
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
