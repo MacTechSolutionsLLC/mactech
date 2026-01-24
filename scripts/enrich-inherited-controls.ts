@@ -116,7 +116,7 @@ function enrichNotApplicableControl(filePath: string, controlId: string): void {
   
   // Extract implementation details which often contain the justification
   const implMatch = content.match(/### 4\.1 Code Implementation[\s\S]*?(?=### 4\.2|##)/);
-  if (implMatch && implMatch[0].includes('Cloud-only') || implMatch[0].includes('not applicable')) {
+  if (implMatch && (implMatch[0].includes('Cloud-only') || implMatch[0].includes('not applicable'))) {
     const implText = implMatch[0];
     if (implText.includes('Cloud-only')) {
       enhancedJustification += `This control is not applicable because the system operates entirely in a cloud environment (Railway platform). The organization does not maintain physical infrastructure, wireless networks, or on-premises equipment that would require this control.
