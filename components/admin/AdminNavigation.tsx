@@ -45,6 +45,12 @@ const navItems: NavItem[] = [
     icon: '🛡️',
   },
   {
+    href: '/admin/poam',
+    label: 'POA&M',
+    description: 'Plan of Action and Milestones',
+    icon: '📋',
+  },
+  {
     href: '/admin/events',
     label: 'Events',
     description: 'Audit log and events',

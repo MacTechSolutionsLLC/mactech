@@ -1053,3 +1053,32 @@ model EndpointInventory {
   @@index([owner])
   @@index([lastVerifiedDate])
 }
+
+// Plan of Action and Milestones (POA&M) for CMMC Level 2 compliance
+model POAMItem {
+  id                   String    @id @default(cuid())
+  poamId               String    @unique // e.g., "POAM-001"
+  controlId            String // NIST control ID (e.g., "3.2.2")
+  title                String
+  description          String    @db.Text
+  affectedControls     String    @db.Text // JSON array of control IDs
+  status               String    @default("open") // "open", "in_progress", "remediated", "verified", "closed"
+  priority             String    @default("medium") // "low", "medium", "high", "critical"
+  responsibleParty     String
+  targetCompletionDate DateTime?
+  actualCompletionDate DateTime?
+  plannedRemediation   String    @db.Text // JSON array of remediation steps
+  milestones           String    @db.Text // JSON array of milestone objects
+  notes                String?   @db.Text
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  createdBy            String? // User ID who created it
+  verifiedBy           String? // User ID who verified completion
+  verifiedAt           DateTime?
+
+  @@index([status])
+  @@index([priority])
+  @@index([controlId])
+  @@index([poamId])
+  @@index([targetCompletionDate])
+}

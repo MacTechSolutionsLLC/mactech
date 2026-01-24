@@ -142,6 +142,14 @@ export default function AdminPage() {
       iconBg: 'bg-indigo-100',
     },
     {
+      href: '/admin/poam',
+      title: 'POA&M Dashboard',
+      description: 'Track and manage Plans of Action and Milestones for CMMC Level 2 controls',
+      icon: '📋',
+      color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
+      iconBg: 'bg-purple-100',
+    },
+    {
       href: '/admin/users',
       title: 'User Management',
       description: 'Manage user accounts, roles, and access controls',
