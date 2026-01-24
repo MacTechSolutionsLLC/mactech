@@ -3,6 +3,19 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import FileManager from "@/components/admin/FileManager"
 import AdminNavigation from "@/components/admin/AdminNavigation"
+import { Prisma } from "@prisma/client"
+
+type FileWithUploader = Prisma.StoredFileGetPayload<{
+  include: {
+    uploader: {
+      select: {
+        id: true
+        email: true
+        name: true
+      }
+    }
+  }
+}>
 
 export default async function FilesPage() {
   const session = await auth()
@@ -11,7 +24,7 @@ export default async function FilesPage() {
     redirect("/")
   }
 
-  let files = []
+  let files: FileWithUploader[] = []
   try {
     files = await prisma.storedFile.findMany({
       where: {
