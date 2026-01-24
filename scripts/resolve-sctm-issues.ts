@@ -10,7 +10,7 @@ import { existsSync } from 'fs'
 import { parseSCTM, Control } from '../lib/compliance/sctm-parser'
 import { auditAllControls, ControlAuditResult } from '../lib/compliance/control-audit'
 
-const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level1')
+const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2')
 const EVIDENCE_ROOT = join(COMPLIANCE_ROOT, '05-evidence')
 const POLICIES_ROOT = join(COMPLIANCE_ROOT, '02-policies-and-procedures')
 const SCTM_PATH = join(COMPLIANCE_ROOT, '04-self-assessment', 'MAC-AUD-408_System_Control_Traceability_Matrix.md')

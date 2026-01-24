@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  */
 function validatePath(requestedPath: string): { valid: boolean; fullPath: string | null; error?: string } {
   // Base directory for compliance files
-  const baseDir = resolve(process.cwd(), "compliance", "cmmc", "level1")
+  const baseDir = resolve(process.cwd(), "compliance", "cmmc", "level2")
   
   // Normalize the requested path (remove .., ., etc.)
   const normalizedRequested = normalize(requestedPath)

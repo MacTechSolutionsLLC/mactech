@@ -20,12 +20,12 @@ interface EvidenceFileInfo {
   content: string
 }
 
-const EVIDENCE_DIR = join(process.cwd(), 'compliance', 'cmmc', 'level1', '05-evidence')
+const EVIDENCE_DIR = join(process.cwd(), 'compliance', 'cmmc', 'level2', '05-evidence')
 const SCTM_PATH = join(
   process.cwd(),
   'compliance',
   'cmmc',
-  'level1',
+  'level2',
   '04-self-assessment',
   'MAC-AUD-408_System_Control_Traceability_Matrix.md'
 )

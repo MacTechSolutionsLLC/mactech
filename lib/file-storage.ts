@@ -65,7 +65,8 @@ export function validateFileSize(file: File): { valid: boolean; error?: string }
 export async function storeFile(
   userId: string,
   file: File,
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
+  isFCI: boolean = false
 ): Promise<{ fileId: string; signedUrl: string }> {
   // Validate file type
   const typeValidation = validateFileType(file)
@@ -96,6 +97,7 @@ export async function storeFile(
       data: buffer,
       metadata: metadata ? JSON.stringify(metadata) : null,
       signedUrlExpiresAt: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRES_IN),
+      isFCI,
     },
   })
 
@@ -431,6 +433,50 @@ export async function listCUIFiles(
       uploadedAt: true,
       deletedAt: true,
       userId: true,
+      uploader: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
+    },
+  })
+}
+
+/**
+ * List FCI files for user
+ */
+export async function listFCIFiles(
+  userId: string,
+  includeDeleted: boolean = false,
+  userRole?: string
+) {
+  const where: any = {
+    isFCI: true,
+  }
+
+  // Users can only see their own FCI files, admins can see all
+  if (userRole !== "ADMIN") {
+    where.userId = userId
+  }
+
+  if (!includeDeleted) {
+    where.deletedAt = null
+  }
+
+  return prisma.storedFile.findMany({
+    where,
+    orderBy: { uploadedAt: "desc" },
+    select: {
+      id: true,
+      filename: true,
+      mimeType: true,
+      size: true,
+      uploadedAt: true,
+      deletedAt: true,
+      userId: true,
+      isFCI: true,
       uploader: {
         select: {
           id: true,

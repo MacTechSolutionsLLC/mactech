@@ -8,7 +8,7 @@ import { parseSCTM } from '../lib/compliance/sctm-parser'
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level1')
+const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2')
 const SCTM_PATH = join(COMPLIANCE_ROOT, '04-self-assessment', 'MAC-AUD-408_System_Control_Traceability_Matrix.md')
 
 interface Recommendation {

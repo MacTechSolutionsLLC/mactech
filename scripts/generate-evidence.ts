@@ -19,7 +19,7 @@
  * Options:
  *   --start-date YYYY-MM-DD    Start date for logs (default: 30 days ago)
  *   --end-date YYYY-MM-DD      End date for logs (default: today)
- *   --output-dir PATH          Output directory (default: compliance/cmmc/level1/05-evidence/sample-exports)
+ *   --output-dir PATH          Output directory (default: compliance/cmmc/level2/05-evidence/sample-exports)
  *   --exported-by EMAIL        Email of admin generating export (default: system)
  * 
  * Example:
@@ -57,7 +57,7 @@ interface Options {
 function parseArgs(): Options {
   const args = process.argv.slice(2)
   const options: Options = {
-    outputDir: "compliance/cmmc/level1/05-evidence/sample-exports",
+    outputDir: "compliance/cmmc/level2/05-evidence/sample-exports",
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -472,7 +472,7 @@ async function main() {
       "⚠️  IMPORTANT: Review and redact personal data before sharing externally."
     )
     console.log(
-      "    See compliance/cmmc/level1/05-evidence/sample-exports/README.md for instructions."
+      "    See compliance/cmmc/level2/05-evidence/sample-exports/README.md for instructions."
     )
     console.log("")
     console.log("Note: Evidence is generated on demand directly from the production system")

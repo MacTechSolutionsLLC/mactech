@@ -26,7 +26,7 @@
 ## Related Documentation
 
 - **General System Security:** `../system/`
-- **Legacy/Archive:** `../level1/`
+- **Legacy/Archive:** `../level2/`
 
 ---
 

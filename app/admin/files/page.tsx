@@ -14,6 +14,7 @@ export default async function FilesPage() {
   const files = await prisma.storedFile.findMany({
     where: {
       deletedAt: null, // Only show non-deleted files
+      isFCI: false, // Exclude FCI files (they're shown in FCI tab)
     },
     include: {
       uploader: {

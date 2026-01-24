@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     await requireAdmin()
 
     // Read the SSP markdown file
-    const filePath = join(process.cwd(), "compliance", "cmmc", "level1", "01-system-scope", "MAC-IT-304_System_Security_Plan.md")
+    const filePath = join(process.cwd(), "compliance", "cmmc", "level2", "01-system-scope", "MAC-IT-304_System_Security_Plan.md")
     const content = await readFile(filePath, "utf-8")
 
     // Return file with appropriate headers

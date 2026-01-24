@@ -24,13 +24,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Extract metadata and isCUI flag
+    // Extract metadata, isCUI, and isFCI flags
     const metadata: Record<string, any> = {}
     let isCUI = false
+    let isFCI = false
     
     for (const [key, value] of formData.entries()) {
       if (key === "isCUI") {
         isCUI = typeof value === "string" && (value === "true" || value.toLowerCase() === "true")
+      } else if (key === "isFCI") {
+        isFCI = typeof value === "string" && (value === "true" || value.toLowerCase() === "true")
       } else if (key !== "file" && typeof value === "string") {
         metadata[key] = value
       }
@@ -40,13 +43,14 @@ export async function POST(req: NextRequest) {
     const hasCUIInFilename = detectCUIKeywords(file.name)
     const hasCUIInMetadata = Object.keys(metadata).length > 0 && detectCUIKeywords(metadata)
     
-    // If user marked as CUI or auto-detected, store as CUI file
+    // If user marked as CUI or auto-detected, store as CUI file (CUI takes precedence over FCI)
     const shouldStoreAsCUI = isCUI || hasCUIInFilename || hasCUIInMetadata
 
     // Store file in appropriate table
+    // CUI files go to StoredCUIFile, FCI files go to StoredFile with isFCI=true, regular files go to StoredFile with isFCI=false
     const result = shouldStoreAsCUI
       ? await storeCUIFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined)
-      : await storeFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined)
+      : await storeFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined, isFCI)
 
     // Log file upload with detailed file information
     await logFileUpload(
@@ -65,6 +69,7 @@ export async function POST(req: NextRequest) {
       fileId: result.fileId,
       signedUrl: result.signedUrl,
       isCUI: shouldStoreAsCUI,
+      isFCI: !shouldStoreAsCUI && isFCI,
     })
   } catch (error: any) {
     console.error("File upload error:", error)

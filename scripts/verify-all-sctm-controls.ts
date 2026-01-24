@@ -12,7 +12,7 @@ const SCTM_PATH = join(
   process.cwd(),
   'compliance',
   'cmmc',
-  'level1',
+  'level2',
   '04-self-assessment',
   'MAC-AUD-408_System_Control_Traceability_Matrix.md'
 )
@@ -115,7 +115,7 @@ async function verifyControl(control: Control): Promise<VerificationResult> {
     let filePath = ref
       .replace(/^`/, '')
       .replace(/`$/, '')
-      .replace(/^\.\.\//, 'compliance/cmmc/level1/')
+      .replace(/^\.\.\//, 'compliance/cmmc/level2/')
       .trim()
 
     if (filePath.includes('(') || filePath.includes(')')) {
@@ -127,7 +127,7 @@ async function verifyControl(control: Control): Promise<VerificationResult> {
       result.evidenceFiles.push(filePath)
     } else {
       // Try to find in evidence directory
-      const evidencePath = join(process.cwd(), 'compliance', 'cmmc', 'level1', '05-evidence', filePath.split('/').pop() || '')
+      const evidencePath = join(process.cwd(), 'compliance', 'cmmc', 'level2', '05-evidence', filePath.split('/').pop() || '')
       if (existsSync(evidencePath)) {
         result.evidenceFiles.push(evidencePath.replace(process.cwd() + '/', ''))
       } else {

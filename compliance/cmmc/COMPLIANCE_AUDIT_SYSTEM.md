@@ -52,8 +52,8 @@ npx tsx scripts/run-compliance-audit.ts
 
 This generates:
 - Console summary output
-- Detailed markdown report: `compliance/cmmc/level1/04-self-assessment/MAC-AUD-409_Compliance_Audit_Report.md`
-- JSON export: `compliance/cmmc/level1/04-self-assessment/compliance-audit-results.json`
+- Detailed markdown report: `compliance/cmmc/level2/04-self-assessment/MAC-AUD-409_Compliance_Audit_Report.md`
+- JSON export: `compliance/cmmc/level2/04-self-assessment/compliance-audit-results.json`
 
 ## Audit Process
 
@@ -66,15 +66,15 @@ This generates:
 For each control, the system verifies:
 
 **Policies:**
-- Checks if policy files exist in `compliance/cmmc/level1/02-policies-and-procedures/`
+- Checks if policy files exist in `compliance/cmmc/level2/02-policies-and-procedures/`
 - Validates file naming convention (MAC-POL-XXX.md)
 
 **Procedures:**
-- Checks if procedure files exist in `compliance/cmmc/level1/02-policies-and-procedures/`
+- Checks if procedure files exist in `compliance/cmmc/level2/02-policies-and-procedures/`
 - Validates file naming convention (MAC-SOP-XXX.md)
 
 **Evidence Files:**
-- Checks evidence reports in `compliance/cmmc/level1/05-evidence/`
+- Checks evidence reports in `compliance/cmmc/level2/05-evidence/`
 - Searches subdirectories (audit-log-reviews, endpoint-verifications, etc.)
 - Validates file naming convention (MAC-RPT-XXX.md)
 
@@ -237,11 +237,11 @@ scripts/
 ### Common Issues
 
 **"Policy file not found"**
-- Verify file exists in `compliance/cmmc/level1/02-policies-and-procedures/`
+- Verify file exists in `compliance/cmmc/level2/02-policies-and-procedures/`
 - Check naming convention matches SCTM reference (MAC-POL-XXX.md)
 
 **"Evidence file not found"**
-- Check if file exists in `compliance/cmmc/level1/05-evidence/`
+- Check if file exists in `compliance/cmmc/level2/05-evidence/`
 - Verify subdirectory structure (some evidence may be in subdirectories)
 - Ensure naming convention matches SCTM reference
 
@@ -266,8 +266,8 @@ scripts/
 
 ## Related Documentation
 
-- [System Control Traceability Matrix](../level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md)
-- [System Security Plan](../level1/01-system-scope/MAC-IT-304_System_Security_Plan.md)
+- [System Control Traceability Matrix](../level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md)
+- [System Security Plan](../level2/01-system-scope/MAC-IT-304_System_Security_Plan.md)
 - [Compliance Dashboard](../../../app/admin/compliance/page.tsx)
 
 ---

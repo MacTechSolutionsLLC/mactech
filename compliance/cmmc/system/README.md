@@ -30,7 +30,7 @@
 ## Related Documentation
 
 - **FCI-Specific Documentation:** `../fci/`
-- **Legacy/Archive:** `../level1/`
+- **Legacy/Archive:** `../level2/`
 
 ---
 

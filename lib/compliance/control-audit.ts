@@ -44,7 +44,7 @@ export interface CodeVerification {
   issues?: string[]
 }
 
-const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level1')
+const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2')
 const EVIDENCE_ROOT = join(COMPLIANCE_ROOT, '05-evidence')
 const POLICIES_ROOT = join(COMPLIANCE_ROOT, '02-policies-and-procedures')
 const CODE_ROOT = process.cwd()

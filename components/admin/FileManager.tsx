@@ -33,20 +33,40 @@ interface CUIFile {
   }
 }
 
+interface FCIFile {
+  id: string
+  filename: string
+  mimeType: string
+  size: number
+  uploadedAt: Date
+  userId: string
+  isFCI: boolean
+  uploader: {
+    id: string
+    email: string
+    name: string | null
+  }
+}
+
 interface FileManagerProps {
   files: File[]
 }
 
 export default function FileManager({ files }: FileManagerProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'database' | 'compliance' | 'cui'>('database')
+  const [activeTab, setActiveTab] = useState<'database' | 'fci' | 'compliance' | 'cui'>('database')
   const [loading, setLoading] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [isCUI, setIsCUI] = useState(false)
+  const [isFCI, setIsFCI] = useState(false)
   const [cuiFiles, setCuiFiles] = useState<CUIFile[]>([])
+  const [fciFiles, setFciFiles] = useState<FCIFile[]>([])
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const [selectedCUIFile, setSelectedCUIFile] = useState<{ id: string; filename: string } | null>(null)
+  
+  // Files passed from page are already filtered to exclude FCI files (System Files tab)
+  const systemFiles = files
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -90,6 +110,13 @@ export default function FileManager({ files }: FileManagerProps) {
     }
   }, [activeTab])
 
+  // Load FCI files on mount and when FCI tab is active
+  useEffect(() => {
+    if (activeTab === 'fci') {
+      loadFCIFiles()
+    }
+  }, [activeTab])
+
   const loadCUIFiles = async () => {
     try {
       const response = await fetch('/api/files/cui/list')
@@ -99,6 +126,18 @@ export default function FileManager({ files }: FileManagerProps) {
       }
     } catch (error) {
       console.error('Failed to load CUI files:', error)
+    }
+  }
+
+  const loadFCIFiles = async () => {
+    try {
+      const response = await fetch('/api/files/fci/list')
+      const data = await response.json()
+      if (data.success) {
+        setFciFiles(data.files)
+      }
+    } catch (error) {
+      console.error('Failed to load FCI files:', error)
     }
   }
 
@@ -114,6 +153,8 @@ export default function FileManager({ files }: FileManagerProps) {
       formData.append('file', file)
       if (isCUI) {
         formData.append('isCUI', 'true')
+      } else if (isFCI) {
+        formData.append('isFCI', 'true')
       }
 
       const response = await fetch('/api/files/upload', {
@@ -133,11 +174,15 @@ export default function FileManager({ files }: FileManagerProps) {
       // If CUI file, reload CUI files list
       if (data.isCUI) {
         await loadCUIFiles()
+      } else if (data.isFCI) {
+        // If FCI file, reload FCI files list
+        await loadFCIFiles()
       }
       
-      // Reset the input and checkbox
+      // Reset the input and checkboxes
       e.target.value = ''
       setIsCUI(false)
+      setIsFCI(false)
     } catch (error: any) {
       setUploadError(error.message || 'Failed to upload file')
     } finally {
@@ -174,6 +219,31 @@ export default function FileManager({ files }: FileManagerProps) {
     }
   }
 
+  const handleDeleteFCIFile = async (fileId: string, filename: string) => {
+    if (!confirm(`Delete FCI file "${filename}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setLoading(fileId)
+
+    try {
+      const response = await fetch(`/api/files/${fileId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete FCI file')
+      }
+
+      await loadFCIFiles()
+      router.refresh()
+    } catch (error) {
+      alert('Failed to delete FCI file')
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div>
       <CUIWarningBanner />
@@ -185,6 +255,16 @@ export default function FileManager({ files }: FileManagerProps) {
             onClick={() => setActiveTab('database')}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'database'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+            }`}
+          >
+            System Files
+          </button>
+          <button
+            onClick={() => setActiveTab('fci')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === 'fci'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
             }`}
@@ -214,7 +294,7 @@ export default function FileManager({ files }: FileManagerProps) {
         </nav>
       </div>
 
-      {/* FCI Files Tab */}
+      {/* System Files Tab */}
       {activeTab === 'database' && (
         <>
           <div className="mb-6 p-4 bg-white border border-neutral-200 rounded-lg">
@@ -236,18 +316,39 @@ export default function FileManager({ files }: FileManagerProps) {
                 <span className="text-sm text-red-600">{uploadError}</span>
               )}
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isCUI"
-                checked={isCUI}
-                onChange={(e) => setIsCUI(e.target.checked)}
-                disabled={uploading}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
-              />
-              <label htmlFor="isCUI" className="text-sm text-neutral-700">
-                This file contains CUI (Controlled Unclassified Information)
-              </label>
+            <div className="mt-3 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isFCI"
+                  checked={isFCI}
+                  onChange={(e) => {
+                    setIsFCI(e.target.checked)
+                    if (e.target.checked) setIsCUI(false) // Mutually exclusive
+                  }}
+                  disabled={uploading}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                />
+                <label htmlFor="isFCI" className="text-sm text-neutral-700">
+                  This file contains FCI (Federal Contract Information)
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isCUI"
+                  checked={isCUI}
+                  onChange={(e) => {
+                    setIsCUI(e.target.checked)
+                    if (e.target.checked) setIsFCI(false) // Mutually exclusive
+                  }}
+                  disabled={uploading}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                />
+                <label htmlFor="isCUI" className="text-sm text-neutral-700">
+                  This file contains CUI (Controlled Unclassified Information)
+                </label>
+              </div>
             </div>
             <p className="mt-2 text-sm text-neutral-500">
               Allowed types: PDF, Word, Excel, Text, CSV, JSON, Images (max 10MB)
@@ -282,14 +383,14 @@ export default function FileManager({ files }: FileManagerProps) {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-neutral-200">
-                {files.length === 0 ? (
+                {systemFiles.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-4 text-center text-neutral-500">
                       No files found
                     </td>
                   </tr>
                 ) : (
-                  files.map((file) => (
+                  systemFiles.map((file) => (
                     <tr key={file.id} className="hover:bg-neutral-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
                         {file.filename}
@@ -316,6 +417,96 @@ export default function FileManager({ files }: FileManagerProps) {
                           </button>
                           <button
                             onClick={() => handleDelete(file.id, file.filename)}
+                            disabled={loading === file.id}
+                            className="px-3 py-1 text-xs font-medium rounded bg-red-100 text-red-800 hover:bg-red-200 disabled:opacity-50"
+                          >
+                            {loading === file.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* FCI Files Tab */}
+      {activeTab === 'fci' && (
+        <>
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h2 className="text-lg font-semibold text-blue-900 mb-2">FCI Files</h2>
+            <p className="text-sm text-blue-800">
+              Files containing Federal Contract Information (FCI) as defined by FAR 52.204-21.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Filename
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Size
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Uploaded By
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Uploaded At
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {fciFiles.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-neutral-500">
+                      No FCI files found
+                    </td>
+                  </tr>
+                ) : (
+                  fciFiles.map((file) => (
+                    <tr key={file.id} className="hover:bg-neutral-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
+                        <div className="flex items-center gap-2">
+                          <span>{file.filename}</span>
+                          <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                            FCI
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {file.mimeType}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {formatFileSize(file.size)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {file.uploader.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {new Date(file.uploadedAt).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDownload(file.id)}
+                            className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200"
+                          >
+                            Download
+                          </button>
+                          <button
+                            onClick={() => handleDeleteFCIFile(file.id, file.filename)}
                             disabled={loading === file.id}
                             className="px-3 py-1 text-xs font-medium rounded bg-red-100 text-red-800 hover:bg-red-200 disabled:opacity-50"
                           >

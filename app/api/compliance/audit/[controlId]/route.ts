@@ -19,7 +19,7 @@ export async function GET(
       process.cwd(),
       'compliance',
       'cmmc',
-      'level1',
+      'level2',
       '04-self-assessment',
       'MAC-AUD-408_System_Control_Traceability_Matrix.md'
     )

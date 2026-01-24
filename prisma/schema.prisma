@@ -1002,6 +1002,7 @@ model StoredFile {
   deletedAt          DateTime? // Logical deletion timestamp
   signedUrlExpiresAt DateTime? // Expiration for signed URL
   metadata           String?   @db.Text // JSON metadata (non-sensitive)
+  isFCI              Boolean   @default(false) // Flag to identify FCI files
 
   // Relations
   uploader User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1009,6 +1010,7 @@ model StoredFile {
   @@index([userId])
   @@index([uploadedAt])
   @@index([deletedAt])
+  @@index([isFCI])
 }
 
 // CUI files - stored separately with password protection

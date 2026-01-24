@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     await requireAdmin()
     
     // Base directory for compliance files
-    const baseDir = join(process.cwd(), "compliance", "cmmc", "level1")
+    const baseDir = join(process.cwd(), "compliance", "cmmc", "level2")
     
     // Verify the directory exists
     try {
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
     const tree = await buildFileTree(baseDir, '')
     
     return NextResponse.json({
-      name: 'level1',
+      name: 'level2',
       path: '',
       type: 'folder' as const,
       children: tree

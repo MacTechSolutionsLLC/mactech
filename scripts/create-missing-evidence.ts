@@ -7,7 +7,7 @@ import { join } from 'path'
 import { existsSync } from 'fs'
 import { auditAllControls } from '../lib/compliance/control-audit'
 
-const EVIDENCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level1', '05-evidence')
+const EVIDENCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2', '05-evidence')
 
 async function fileExists(path: string): Promise<boolean> {
   return existsSync(path)

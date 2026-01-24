@@ -52,7 +52,7 @@ async function main() {
       process.cwd(),
       'compliance',
       'cmmc',
-      'level1',
+      'level2',
       '04-self-assessment',
       'MAC-AUD-409_Compliance_Audit_Report.md'
     )
@@ -66,7 +66,7 @@ async function main() {
       process.cwd(),
       'compliance',
       'cmmc',
-      'level1',
+      'level2',
       '04-self-assessment',
       'compliance-audit-results.json'
     )

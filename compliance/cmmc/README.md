@@ -1,7 +1,7 @@
 # CMMC Compliance Documentation
 
 **System:** MacTech Solutions Application  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational) & Level 2 (Advanced)  
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** FAR 52.204-21 (Level 1), NIST SP 800-171 Rev. 2 (Level 2)  
 **Last Updated:** January 2026
 
@@ -21,7 +21,7 @@
 - **Overall Readiness:** 97% (Implemented + Inherited)
 
 **System Control Traceability Matrix (SCTM):**
-- Location: `level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
+- Location: `level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
 - Web Interface: `/admin/compliance/sctm`
 - All 110 controls mapped with implementation status, evidence, and verification
 
@@ -73,7 +73,7 @@
 - TLS/HTTPS termination
 - Database encryption at rest
 
-**Evidence:** See `level1/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
+**Evidence:** See `level2/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
 
 ### Source Control: GitHub
 
@@ -87,7 +87,7 @@
 - Code review processes
 - Automated dependency vulnerability scanning
 
-**Evidence:** See `level1/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
+**Evidence:** See `level2/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
 
 ---
 
@@ -119,9 +119,9 @@
 
 **Note:** CMMC Level 1 includes 17 practices aligned to FAR 52.204-21 (which contains 15 basic safeguarding requirements). All Level 1 practices are now covered by Level 2 controls.
 
-**Historical Assessment:** See `level1/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
+**Historical Assessment:** See `level2/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
 
-**Practices Matrix:** See `level1/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md`
+**Practices Matrix:** See `level2/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md`
 
 ---
 
@@ -130,30 +130,30 @@
 ### Quick Links
 
 **Policies & Procedures:**
-- `level1/02-policies-and-procedures/` - All policy documents
+- `level2/02-policies-and-procedures/` - All policy documents
 
 **Self-Assessment:**
-- `level1/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` - Detailed practice assessment
-- `level1/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md` - Practices matrix with evidence
-- `level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md` - CMMC Level 2 SCTM (110 controls)
-- `level1/04-self-assessment/MAC-AUD-409_Compliance_Audit_Report.md` - Automated compliance audit report
+- `level2/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` - Detailed practice assessment
+- `level2/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md` - Practices matrix with evidence
+- `level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md` - CMMC Level 2 SCTM (110 controls)
+- `level2/04-self-assessment/MAC-AUD-409_Compliance_Audit_Report.md` - Automated compliance audit report
 
 **Evidence:**
-- `level1/05-evidence/MAC-RPT-100_Evidence_Index.md` - Evidence index
-- `level1/05-evidence/evidence-index.md` - Comprehensive evidence index
-- `level1/05-evidence/templates/` - Evidence templates
-- `level1/05-evidence/sample-exports/` - Sample CSV exports
+- `level2/05-evidence/MAC-RPT-100_Evidence_Index.md` - Evidence index
+- `level2/05-evidence/evidence-index.md` - Comprehensive evidence index
+- `level2/05-evidence/templates/` - Evidence templates
+- `level2/05-evidence/sample-exports/` - Sample CSV exports
 
 **System Documentation:**
-- `level1/01-system-scope/MAC-IT-304_System_Security_Plan.md` - System Security Plan (SSP-lite)
-- `level1/01-system-scope/MAC-IT-105_System_Boundary.md` - System boundary
-- `level1/01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md` - FCI scope
+- `level2/01-system-scope/MAC-IT-304_System_Security_Plan.md` - System Security Plan (SSP-lite)
+- `level2/01-system-scope/MAC-IT-105_System_Boundary.md` - System boundary
+- `level2/01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md` - FCI scope
 
 **Inherited Controls:**
-- `level1/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md` - Railway/GitHub inheritance
+- `level2/03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md` - Railway/GitHub inheritance
 
 **Executive Attestation:**
-- `level1/00-cover-memo/MAC-FRM-202_CMMC_Level_1_Executive_Attestation.md` - Executive attestation
+- `level2/00-cover-memo/MAC-FRM-202_CMMC_Level_1_Executive_Attestation.md` - Executive attestation
 
 ---
 
@@ -196,7 +196,7 @@
 - Audit log (date range)
 - Endpoint inventory
 
-**Location:** `level1/05-evidence/sample-exports/`
+**Location:** `level2/05-evidence/sample-exports/`
 
 **Instructions:** See script documentation for redaction procedures before external sharing.
 
@@ -207,7 +207,7 @@
 ```
 compliance/cmmc/
 ├── README.md (this file)
-└── level1/
+└── level2/
     ├── 00-cover-memo/          # Executive attestation
     ├── 01-system-scope/         # System boundary, SSP
     ├── 02-policies-and-procedures/  # Policies and SOPs

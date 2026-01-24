@@ -9,7 +9,7 @@
 
 ```
 compliance/cmmc/
-├── level1/
+├── level2/
 │   ├── 00-cover-memo/
 │   ├── 01-system-scope/          # Mixed: System docs + FCI-specific docs
 │   ├── 02-policies-and-procedures/ # Mixed: General policies + FCI-specific
@@ -39,7 +39,7 @@ compliance/cmmc/
 │   ├── 02-policies-and-procedures/ # FCI-specific policies, user agreements
 │   └── 05-evidence/               # FCI-specific evidence
 │
-└── level1/                        # Archive/reference (keep for now)
+└── level2/                        # Archive/reference (keep for now)
 ```
 
 ---

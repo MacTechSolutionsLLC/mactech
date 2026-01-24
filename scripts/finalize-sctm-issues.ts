@@ -8,12 +8,12 @@ import { join } from 'path'
 import { existsSync } from 'fs'
 import { auditAllControls } from '../lib/compliance/control-audit'
 
-const EVIDENCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level1', '05-evidence')
+const EVIDENCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2', '05-evidence')
 const SCTM_PATH = join(
   process.cwd(),
   'compliance',
   'cmmc',
-  'level1',
+  'level2',
   '04-self-assessment',
   'MAC-AUD-408_System_Control_Traceability_Matrix.md'
 )
@@ -60,7 +60,7 @@ async function main() {
       process.cwd(),
       'compliance',
       'cmmc',
-      'level1',
+      'level2',
       '04-self-assessment',
       'MAC-AUD-411_SCTM_Issue_Resolution_Final_Report.md'
     )

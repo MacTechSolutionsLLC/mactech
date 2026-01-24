@@ -89,7 +89,7 @@ All CMMC Level 2 documentation and the System Security Plan (SSP) have been anal
 ## Documentation Updates Completed
 
 ### 1. System Security Plan (SSP)
-- **File:** `level1/01-system-scope/MAC-IT-304_System_Security_Plan.md`
+- **File:** `level2/01-system-scope/MAC-IT-304_System_Security_Plan.md`
 - **Version:** 3.0 → 3.1
 - **Updates:**
   - Updated compliance status section with current implementation metrics
@@ -113,20 +113,20 @@ All CMMC Level 2 documentation and the System Security Plan (SSP) have been anal
   - Updated Level 1 section to indicate historical reference
 
 ### 3. System Control Traceability Matrix (SCTM)
-- **File:** `level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
+- **File:** `level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
 - **Version:** 1.0 → 1.1
 - **Updates:**
   - Added note about admin-editable interface
   - Updated change history to reflect current state
 
 ### 4. POA&M Tracking Log
-- **File:** `level1/04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md`
+- **File:** `level2/04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md`
 - **Updates:**
   - Added POA&M management system description
   - Updated last review date to 2026-01-24
 
 ### 5. Access Control Policy
-- **File:** `level1/02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
+- **File:** `level2/02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
 - **Updates:**
   - Updated MFA status: ✅ Fully implemented
   - Updated audit logging status: ✅ Fully implemented
@@ -134,7 +134,7 @@ All CMMC Level 2 documentation and the System Security Plan (SSP) have been anal
   - Updated account lockout status: ✅ Fully implemented with configuration details
 
 ### 6. Evidence Index
-- **File:** `level1/05-evidence/MAC-RPT-100_Evidence_Index.md`
+- **File:** `level2/05-evidence/MAC-RPT-100_Evidence_Index.md`
 - **Updates:**
   - Updated from Level 1 to Level 2
   - Updated scope from FCI-only to FCI and CUI
@@ -190,15 +190,15 @@ All other controls are either implemented, inherited, or not applicable.
 ## Files Modified
 
 1. `compliance/cmmc/README.md` - Updated status and metrics
-2. `compliance/cmmc/level1/01-system-scope/MAC-IT-304_System_Security_Plan.md` - Comprehensive updates
-3. `compliance/cmmc/level1/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md` - Added admin editing note
-4. `compliance/cmmc/level1/04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md` - Updated system description
-5. `compliance/cmmc/level1/02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md` - Updated implementation statuses
-6. `compliance/cmmc/level1/05-evidence/MAC-RPT-100_Evidence_Index.md` - Updated to Level 2
-7. `compliance/cmmc/level1/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` - Marked as historical
-8. `compliance/cmmc/level1/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md` - Marked as historical
-9. `compliance/cmmc/level1/03-control-responsibility/MAC-RPT-102_Inherited_Controls_Matrix.md` - Updated to Level 2
-10. `compliance/cmmc/level1/04-self-assessment/FAR_52_204_21_Checklist.md` - Marked as historical
+2. `compliance/cmmc/level2/01-system-scope/MAC-IT-304_System_Security_Plan.md` - Comprehensive updates
+3. `compliance/cmmc/level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md` - Added admin editing note
+4. `compliance/cmmc/level2/04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md` - Updated system description
+5. `compliance/cmmc/level2/02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md` - Updated implementation statuses
+6. `compliance/cmmc/level2/05-evidence/MAC-RPT-100_Evidence_Index.md` - Updated to Level 2
+7. `compliance/cmmc/level2/04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` - Marked as historical
+8. `compliance/cmmc/level2/04-self-assessment/MAC-AUD-402_CMMC_L1_Practices_Matrix.md` - Marked as historical
+9. `compliance/cmmc/level2/03-control-responsibility/MAC-RPT-102_Inherited_Controls_Matrix.md` - Updated to Level 2
+10. `compliance/cmmc/level2/04-self-assessment/FAR_52_204_21_Checklist.md` - Marked as historical
 11. 46 evidence files - Populated with implementation details
 
 ---
