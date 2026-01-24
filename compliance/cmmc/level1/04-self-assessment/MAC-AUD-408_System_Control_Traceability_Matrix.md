@@ -48,8 +48,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.13 | Cryptographic remote access | 🔄 Inherited | MAC-POL-210 | - | Railway platform | TLS/HTTPS | 7.1, 3.1.13 |
 | 3.1.14 | Managed access control points | 🔄 Inherited | MAC-POL-210 | - | Railway platform | Platform routing | 7.1, 3.1.14 |
 | 3.1.15 | Authorize remote privileged commands | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts | Admin controls | 7.1, 3.1.15 |
-| 3.1.16 | Authorize wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only | 7.1, 3.1.16 |
-| 3.1.17 | Protect wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only | 7.1, 3.1.17 |
+| 3.1.16 | Authorize wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.16 |
+| 3.1.17 | Protect wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.17 |
 | 3.1.18 | Control mobile devices | ✅ Implemented | MAC-POL-210 | - | System architecture | Browser access | 7.1, 3.1.18 |
 | 3.1.19 | Encrypt CUI on mobile devices | ✅ Implemented | MAC-POL-210 | - | System architecture | No local CUI | 7.1, 3.1.19 |
 | 3.1.20 | Verify external systems | ✅ Implemented | MAC-POL-210 | - | SSP Section 4 | External APIs | 7.1, 3.1.20 |
@@ -96,7 +96,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | - | System architecture | Minimal features | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
 | 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | - | MAC-POL-226, package.json | Restriction policy, inventory | 7.5, 3.4.8 |
-| 3.4.9 | Control user-installed software | 🚫 Not Applicable | MAC-POL-220 | - | System architecture | Cloud-only | 7.5, 3.4.9 |
+| 3.4.9 | Control user-installed software | 🚫 Not Applicable | MAC-POL-220 | - | System architecture | Cloud-only, users cannot install software on infrastructure | 7.5, 3.4.9 |
 
 ---
 
@@ -112,7 +112,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 (to be updated) | - | Inactivity disable | 7.2, 3.5.6 |
 | 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts | Password policy | 7.2, 3.5.7 |
 | 3.5.8 | Prohibit password reuse | ❌ Not Implemented | MAC-POL-211 | - | Password history (to be created) | Reuse prevention | 7.2, 3.5.8 |
-| 3.5.9 | Temporary passwords | 🚫 Not Applicable | MAC-POL-211 | - | System architecture | Not used | 7.2, 3.5.9 |
+| 3.5.9 | Temporary passwords | 🚫 Not Applicable | MAC-POL-211 | - | System architecture | All accounts created with permanent passwords | 7.2, 3.5.9 |
 | 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | bcrypt | 7.2, 3.5.10 |
 | 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | Error handling | 7.2, 3.5.11 |
 
@@ -134,10 +134,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.7.1 | Perform maintenance | 🔄 Inherited / ✅ Implemented | MAC-POL-221 (to be created) | - | Railway platform, SSP Section 10 | Platform/app maintenance | 7.10, 3.7.1 |
 | 3.7.2 | Controls on maintenance tools | ❌ Not Implemented | MAC-POL-221 (to be created) | - | Tool controls (to be created) | Tool management | 7.10, 3.7.2 |
-| 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only | 7.10, 3.7.3 |
-| 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only | 7.10, 3.7.4 |
+| 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
+| 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
 | 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented (Inherited) | MAC-POL-221 | - | MAC-RPT-110, Railway platform | Platform MFA | 7.10, 3.7.5 |
-| 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only | 7.10, 3.7.6 |
+| 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
 
 ---
 
@@ -148,11 +148,11 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.8.1 | Protect system media | ✅ Implemented | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.1 |
 | 3.8.2 | Limit access to CUI on media | ✅ Implemented | MAC-POL-213 | - | Access controls | RBAC | 7.6, 3.8.2 |
 | 3.8.3 | Sanitize/destroy media | ✅ Implemented | MAC-POL-213 | - | System architecture | No removable media | 7.6, 3.8.3 |
-| 3.8.4 | Mark media with CUI markings | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only | 7.6, 3.8.4 |
-| 3.8.5 | Control access during transport | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only | 7.6, 3.8.5 |
+| 3.8.4 | Mark media with CUI markings | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
+| 3.8.5 | Control access during transport | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
 | 3.8.6 | Cryptographic protection on digital media | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.6 |
-| 3.8.7 | Control removable media | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only | 7.6, 3.8.7 |
-| 3.8.8 | Prohibit portable storage without owner | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only | 7.6, 3.8.8 |
+| 3.8.7 | Control removable media | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no removable media | 7.6, 3.8.7 |
+| 3.8.8 | Prohibit portable storage without owner | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no portable storage | 7.6, 3.8.8 |
 | 3.8.9 | Protect backup CUI | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Backup encryption | 7.6, 3.8.9 |
 
 ---
@@ -210,14 +210,14 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 (to be created) | - | Access controls | Information flow | 7.13, 3.13.4 |
 | 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
 | 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Network controls | 7.13, 3.13.6 |
-| 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | All access remote | 7.13, 3.13.7 |
+| 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
 | 3.13.8 | Cryptographic mechanisms for CUI in transit | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | TLS/HTTPS | 7.13, 3.13.8 |
 | 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Connection management | 7.13, 3.13.9 |
 | 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | - | MAC-RPT-116, Railway platform | Key management, documentation | 7.13, 3.13.10 |
 | 3.13.11 | FIPS-validated cryptography | ❌ Not Implemented | MAC-POL-225 (to be created) | - | MAC-RPT-110 | FIPS assessment | 7.13, 3.13.11 |
-| 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | No collaborative devices | 7.13, 3.13.12 |
+| 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
 | 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | MAC-SOP-237 | MAC-RPT-117, System architecture | Mobile code policy, CSP | 7.13, 3.13.13 |
-| 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | No VoIP | 7.13, 3.13.14 |
+| 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
 | 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
 | 3.13.16 | Protect CUI at rest | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Database encryption | 7.13, 3.13.16 |
 
@@ -246,7 +246,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 - 🔄 **Inherited:** 20 controls (18%)
 - ⚠️ **Partially Satisfied:** 0 controls (0%)
 - ❌ **Not Implemented:** 8 controls (7%)
-- 🚫 **Not Applicable:** 2 controls (2%)
+- 🚫 **Not Applicable:** 14 controls (13%)
 
 **Control Families:**
 - AC (Access Control): 22 controls

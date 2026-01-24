@@ -1,7 +1,8 @@
 # Plan of Action and Milestones (POA&M) Tracking Log - CMMC Level 2
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Date:** 2026-01-23  
+**Last Updated:** 2026-01-23  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2, Section 3.12.2
@@ -365,10 +366,104 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 ---
 
+### POAM-011: Disable Identifiers After Inactivity
+
+**Deficiency Description:** System does not automatically disable user identifiers after a defined period of inactivity as required by NIST SP 800-171 Rev. 2, Section 3.5.6.
+
+**Affected Control:** 3.5.6 - Disable identifiers after a defined period of inactivity
+
+**Planned Remediation:**
+- Define inactivity period (e.g., 90 days)
+- Implement automated identifier disable mechanism
+- Update Account Lifecycle Enforcement Procedure (MAC-SOP-222)
+- Test identifier disable functionality
+- Document implementation
+
+**Responsible Party:** System Administrator, Development Team
+
+**Target Completion Date:** 2026-06-12 (Phase 6, Weeks 23-24)
+
+**Status:** Open
+
+**Priority:** Medium
+
+**Milestones:**
+- [ ] Inactivity period defined (Week 23)
+- [ ] Disable mechanism implemented (Week 24)
+- [ ] Procedure updated (Week 24)
+- [ ] Testing completed (Week 24)
+
+**Notes:** Control requires implementation of automated user account disable after period of inactivity. Currently, accounts remain active indefinitely unless manually disabled.
+
+---
+
+### POAM-012: Prohibit Password Reuse
+
+**Deficiency Description:** System does not prevent password reuse as required by NIST SP 800-171 Rev. 2, Section 3.5.8.
+
+**Affected Control:** 3.5.8 - Prohibit password reuse for a specified number of generations
+
+**Planned Remediation:**
+- Design password history mechanism
+- Implement password history storage
+- Configure password reuse prevention (e.g., last 5 passwords)
+- Update password change functionality
+- Test password reuse prevention
+- Document implementation
+
+**Responsible Party:** System Administrator, Development Team
+
+**Target Completion Date:** 2026-06-12 (Phase 6, Weeks 23-24)
+
+**Status:** Open
+
+**Priority:** Medium
+
+**Milestones:**
+- [ ] Password history design completed (Week 23)
+- [ ] Password history implemented (Week 24)
+- [ ] Reuse prevention tested (Week 24)
+- [ ] Documentation updated (Week 24)
+
+**Notes:** Control requires implementation of password history tracking and prevention of reuse. Currently, users can reuse previous passwords when changing passwords.
+
+---
+
+### POAM-013: Controls on Maintenance Tools
+
+**Deficiency Description:** Controls on maintenance tools are not established as required by NIST SP 800-171 Rev. 2, Section 3.7.2.
+
+**Affected Control:** 3.7.2 - Control tools used for system maintenance
+
+**Planned Remediation:**
+- Create Maintenance Policy (MAC-POL-221)
+- Inventory maintenance tools
+- Document tool controls and access restrictions
+- Implement tool access controls
+- Create maintenance tool evidence
+
+**Responsible Party:** System Administrator
+
+**Target Completion Date:** 2026-07-10 (Phase 7, Weeks 27-28)
+
+**Status:** Open
+
+**Priority:** Medium
+
+**Milestones:**
+- [ ] Maintenance Policy created (Week 27)
+- [ ] Tool inventory completed (Week 27)
+- [ ] Tool controls documented (Week 28)
+- [ ] Evidence created (Week 28)
+
+**Notes:** Control requires formal documentation and controls for maintenance tools. Maintenance tools include development tools, database management tools, and deployment tools.
+
+---
+
 ## 4. POA&M Summary
 
-**Total POA&M Items:** 10  
-**Open:** 1  
+**Total POA&M Items:** 13  
+**Open:** 4  
 **In Progress:** 0  
 **Remediated:** 0  
 **Verified:** 0  
@@ -376,7 +471,7 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 **Priority Breakdown:**
 - High Priority: 1
-- Medium Priority: 9
+- Medium Priority: 12
 - Low Priority: 0
 
 ---
@@ -386,6 +481,7 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 | Review Date | Reviewed By | Notes |
 |-------------|-------------|-------|
 | 2026-01-23 | Compliance Team | Initial POA&M items identified during Level 2 migration planning |
+| 2026-01-23 | Compliance Team | Updated POA&M items to reflect current implementation status. Added POAM-011 (3.5.6), POAM-012 (3.5.8), and POAM-013 (3.7.2) for remaining not-implemented controls |
 
 ---
 
@@ -406,3 +502,4 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 **Change History:**
 - Version 1.0 (2026-01-23): Initial POA&M items identified for CMMC Level 2 migration
+- Version 1.1 (2026-01-23): Added POAM-011 (3.5.6), POAM-012 (3.5.8), and POAM-013 (3.7.2) for remaining not-implemented controls. Updated summary counts.

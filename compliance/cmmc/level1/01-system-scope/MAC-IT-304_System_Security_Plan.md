@@ -602,23 +602,33 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.1.16: Authorize wireless access prior to allowing such connections
 
 **Implementation:**
-- System is cloud-based web application
-- No organizational wireless network infrastructure
-- Users access system via internet (wired or wireless connections)
-- Wireless access authorization not applicable to system architecture
+- System is cloud-based web application hosted on Railway platform
+- No organizational wireless network infrastructure exists
+- System has no wireless access points, wireless networks, or wireless infrastructure components
+- Users access system via internet (their connection method - wired or wireless - is outside system boundary)
+- Wireless access authorization applies to organizational wireless networks, which do not exist
+- All system access is via HTTPS/TLS regardless of user's connection method
 
 **Evidence:**
-- System architecture: Cloud-based web application
-- No organizational wireless infrastructure
+- System architecture: Cloud-based web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (no organizational wireless infrastructure)
+- Network architecture: All access via Railway platform HTTPS endpoints
 
-**Status:** 🚫 Not Applicable (cloud-only system, no organizational wireless infrastructure)
+**Status:** 🚫 Not Applicable (cloud-only system, no organizational wireless infrastructure - users' wireless connections are outside system boundary)
 
 #### 3.1.17: Protect wireless access using authentication and encryption
 
 **Implementation:**
 - Not applicable - see 3.1.16
+- System has no organizational wireless networks to protect
+- All system access (regardless of user's connection method) is protected via HTTPS/TLS and authentication
 
-**Status:** 🚫 Not Applicable
+**Evidence:**
+- System architecture: Cloud-based web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- Authentication: All access requires authentication via NextAuth.js
+- Encryption: All access encrypted via HTTPS/TLS (inherited from Railway platform)
+
+**Status:** 🚫 Not Applicable (no organizational wireless infrastructure - see 3.1.16)
 
 #### 3.1.18: Control connection of mobile devices
 
@@ -839,16 +849,19 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.5.9: Allow temporary password use for system logons with an immediate change to a permanent password
 
 **Implementation:**
-- Temporary password mechanism not used
-- User accounts created with permanent passwords
-- Password reset functionality requires immediate change
-- Temporary password use not applicable to current system architecture
+- Temporary password mechanism not used in system architecture
+- User accounts are created with permanent passwords that meet password policy requirements
+- Account creation process requires administrator to provide a password that meets complexity requirements
+- No temporary password generation or distribution mechanism exists
+- Password reset functionality (if implemented) would require immediate change, but current system does not use temporary passwords
+- All user accounts are provisioned with permanent passwords from initial creation
 
 **Evidence:**
-- User account creation process: `app/api/admin/create-user/route.ts`
-- Password reset process: To be reviewed
+- User account creation: `app/api/admin/create-user/route.ts` (lines 16, 28-38, 53) - requires permanent password that meets policy
+- Password policy: `lib/password-policy.ts` - validates permanent passwords
+- User provisioning procedure: `../02-policies-and-procedures/MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
 
-**Status:** 🚫 Not Applicable (temporary passwords not used in current architecture)
+**Status:** 🚫 Not Applicable (temporary passwords not used - all accounts created with permanent passwords meeting policy requirements)
 
 #### 3.5.10: Store and transmit only cryptographically-protected passwords
 
@@ -1231,16 +1244,19 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.4.9: Control and monitor user-installed software
 
 **Implementation:**
-- System is cloud-based web application
-- No user-installed software on system infrastructure
-- Software installation not applicable to system architecture
-- All software managed at platform level
+- System is cloud-based web application hosted on Railway platform
+- No user-installed software on system infrastructure - users cannot install software on system components
+- System infrastructure managed by Railway platform - no direct user access to infrastructure
+- All software is managed at platform/application level via dependency management (`package.json`)
+- Users access system via web browser only - no ability to install software on system infrastructure
+- Software restriction policy applies to application dependencies, not user-installed software
 
 **Evidence:**
-- System architecture: Cloud-based, no user-installed software
-- Platform-managed software: Railway platform
+- System architecture: Cloud-based web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (users access via browser, no infrastructure access)
+- Software restriction: `../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md` (applies to application dependencies)
 
-**Status:** 🚫 Not Applicable (cloud-only system, no user-installed software)
+**Status:** 🚫 Not Applicable (cloud-only system, users cannot install software on system infrastructure - all access is via web browser)
 
 ### 7.6 Media Protection (MP) - 9 Requirements
 
@@ -1291,30 +1307,36 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.8.4: Mark media with necessary CUI markings and distribution limitations
 
 **Implementation:**
-- System is digital-only (no physical media)
-- CUI markings applied in digital format where applicable
-- Distribution limitations enforced via access controls
-- CUI marking procedure to be established for digital CUI
+- System is digital-only architecture - no physical media (paper, removable drives, tapes, etc.) used for CUI storage
+- All CUI is stored in cloud database (PostgreSQL) - no physical media components
+- Control 3.8.4 specifically addresses marking physical media with CUI markings
+- Digital CUI is protected via access controls and encryption (addressed in other controls)
+- Distribution limitations for digital CUI are enforced via access controls, authentication, and authorization (addressed in Access Control controls)
+- No physical media exists to mark with CUI markings
 
 **Evidence:**
-- CUI Marking Procedure: To be created
-- Digital-only architecture: No physical media
+- System architecture: Cloud-based, digital-only (see `MAC-IT-301_System_Description_and_Architecture.md`, `MAC-IT-105_System_Boundary.md`)
+- CUI storage: PostgreSQL database (no physical media)
+- Access controls: Authentication and authorization enforce distribution limitations (see Section 7.1 Access Control)
 
-**Status:** 🚫 Not Applicable (digital-only system, no physical media to mark)
+**Status:** 🚫 Not Applicable (digital-only system, no physical media to mark - digital CUI protection addressed via access controls and encryption in other controls)
 
 #### 3.8.5: Control access to media containing CUI and maintain accountability for media during transport outside of controlled areas
 
 **Implementation:**
-- System is cloud-based (no media transport)
-- No physical media containing CUI transported
-- Digital CUI transmission encrypted (HTTPS/TLS)
-- Media transport not applicable to system architecture
+- System is cloud-based web application - no physical media (paper, removable drives, tapes, etc.) containing CUI
+- No physical media is transported outside of controlled areas
+- All CUI is stored in cloud database - no physical media components
+- Digital CUI transmission is encrypted via HTTPS/TLS (addressed in control 3.13.8)
+- Control 3.8.5 specifically addresses physical media transport, which does not occur
+- Digital data transmission is addressed in System and Communications Protection controls
 
 **Evidence:**
-- Cloud-based architecture: No physical media transport
-- Network encryption: HTTPS/TLS (inherited)
+- System architecture: Cloud-based, no physical media (see `MAC-IT-301_System_Description_and_Architecture.md`, `MAC-IT-105_System_Boundary.md`)
+- CUI storage: PostgreSQL database - no physical media
+- Digital transmission encryption: HTTPS/TLS (see control 3.13.8)
 
-**Status:** 🚫 Not Applicable (cloud-only system, no physical media transport)
+**Status:** 🚫 Not Applicable (cloud-only system, no physical media transport - digital CUI transmission encryption addressed in control 3.13.8)
 
 #### 3.8.6: Implement cryptographic mechanisms to protect the confidentiality of CUI stored on digital media
 
@@ -1333,30 +1355,38 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.8.7: Control the use of removable media on system components
 
 **Implementation:**
-- System is cloud-based web application
-- No removable media used on system components
-- Removable media not applicable to system architecture
-- All data stored in cloud database
+- System is cloud-based web application hosted on Railway platform
+- No removable media (USB drives, external hard drives, optical media, etc.) used on system components
+- System infrastructure is managed by Railway platform - no customer access to infrastructure for media insertion
+- All data stored in cloud database (PostgreSQL) - no removable media storage
+- Users access system via web browser only - no ability to connect removable media to system infrastructure
+- Removable media control applies to systems where removable media can be connected to system components, which is not possible in this cloud architecture
 
 **Evidence:**
-- System architecture: Cloud-based, no removable media
+- System architecture: Cloud-based, no removable media (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (users access via browser, no infrastructure access)
+- Data storage: PostgreSQL database - no removable media
 - Media Protection Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
 
-**Status:** 🚫 Not Applicable (cloud-only system, no removable media)
+**Status:** 🚫 Not Applicable (cloud-only system, no removable media can be connected to system components - all access via web browser, infrastructure managed by Railway)
 
 #### 3.8.8: Prohibit the use of portable storage devices when such devices have no identifiable owner
 
 **Implementation:**
-- No portable storage devices used
-- Portable storage device policy prohibits unowned devices
-- All data stored in cloud database
-- Portable storage not used in system architecture
+- No portable storage devices (USB drives, external hard drives, memory cards, etc.) are used with system components
+- System is cloud-based - users cannot connect portable storage devices to system infrastructure
+- All data stored in cloud database (PostgreSQL) - no portable storage device usage
+- Users access system via web browser only - no ability to connect portable storage to system
+- Portable storage device prohibition applies to systems where portable storage can be connected, which is not possible in this cloud architecture
+- Policy prohibits portable storage use for CUI (addressed in Media Protection Policy)
 
 **Evidence:**
-- Media Protection Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md` (to be updated)
-- System architecture: No portable storage
+- System architecture: Cloud-based, no portable storage (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (users access via browser, no device connections)
+- Data storage: PostgreSQL database - no portable storage
+- Media Protection Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
 
-**Status:** 🚫 Not Applicable (no portable storage devices used)
+**Status:** 🚫 Not Applicable (cloud-only system, no portable storage devices can be connected to system components - all access via web browser, infrastructure managed by Railway)
 
 #### 3.8.9: Protect the confidentiality of backup CUI at storage locations
 
@@ -1602,15 +1632,19 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.13.7: Prevent remote devices from simultaneously establishing non-remote connections with the system and communicating using non-remote and remote connections
 
 **Implementation:**
-- System is cloud-based web application
-- All access is remote (via internet)
-- No non-remote connections to system
-- Dual connection prevention not applicable to system architecture
+- System is cloud-based web application hosted on Railway platform
+- All system access is remote (via internet/HTTPS) - no local or on-premise connections exist
+- System has no non-remote connections (no local network, no direct connections, no on-premise infrastructure)
+- All users access system remotely via web browser over internet
+- No possibility of simultaneous non-remote and remote connections since no non-remote connections exist
+- Dual connection prevention applies to systems with both remote and non-remote access capabilities, which this system does not have
 
 **Evidence:**
-- System architecture: Cloud-based, all access remote
+- System architecture: Cloud-based web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (all access via internet, no on-premise components)
+- Network architecture: All access via Railway platform HTTPS endpoints
 
-**Status:** 🚫 Not Applicable (all access is remote, no non-remote connections)
+**Status:** 🚫 Not Applicable (all access is remote via internet - no non-remote connections exist, making dual connection scenarios impossible)
 
 #### 3.13.8: Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission unless otherwise protected by alternative physical safeguards
 
@@ -1676,14 +1710,18 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.13.12: Prohibit remote activation of collaborative computing devices and provide indication of devices in use to users present at the device
 
 **Implementation:**
-- System is web application (no collaborative computing devices)
-- No remote activation of devices
-- Collaborative computing devices not applicable to system architecture
+- System is web application - no collaborative computing devices (e.g., shared screens, video conferencing hardware, interactive whiteboards, telepresence systems)
+- System does not include or control any collaborative computing devices
+- All system functionality is web-based - no device activation capabilities
+- Collaborative computing devices are physical hardware devices used for shared computing sessions, which are not part of this system
+- Users access system individually via web browsers - no shared device sessions
 
 **Evidence:**
-- System architecture: Web application, no collaborative devices
+- System architecture: Web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System components: Next.js application, PostgreSQL database - no collaborative computing devices
+- Access method: Individual web browser access - no shared device access
 
-**Status:** 🚫 Not Applicable (no collaborative computing devices)
+**Status:** 🚫 Not Applicable (web application with no collaborative computing devices - users access individually via web browsers)
 
 #### 3.13.13: Control and monitor the use of mobile code
 
@@ -1703,14 +1741,18 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.13.14: Control and monitor the use of Voice over Internet Protocol (VoIP) technologies
 
 **Implementation:**
-- System does not use VoIP technologies
-- VoIP not applicable to system architecture
-- No VoIP functionality in system
+- System does not use Voice over Internet Protocol (VoIP) technologies
+- System is a web application for contract opportunity management - no voice communication functionality
+- No VoIP services, VoIP endpoints, or VoIP infrastructure components are part of the system
+- System does not provide voice calling, video calling, or telephony services
+- All system communication is data-based (HTTP/HTTPS) - no voice protocols
 
 **Evidence:**
-- System architecture: Web application, no VoIP
+- System architecture: Web application (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System functionality: Contract opportunity management - no voice/telephony features
+- Communication protocols: HTTPS for data transmission only
 
-**Status:** 🚫 Not Applicable (no VoIP technologies used)
+**Status:** 🚫 Not Applicable (web application with no VoIP functionality - system does not provide voice communication services)
 
 #### 3.13.15: Protect the authenticity of communications sessions
 
@@ -1948,26 +1990,37 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.7.3: Ensure equipment removed for off-site maintenance is sanitized of any CUI
 
 **Implementation:**
-- System is cloud-based (no equipment removed for maintenance)
-- No customer-managed equipment requiring off-site maintenance
-- Equipment sanitization not applicable to system architecture
+- System is cloud-based web application hosted on Railway platform
+- No customer-managed equipment exists - all infrastructure is managed by Railway platform
+- No equipment is removed from organizational control for off-site maintenance
+- All maintenance is performed by Railway platform on their infrastructure
+- System has no physical equipment (servers, storage devices, network equipment) under customer control
+- Equipment sanitization applies to customer-owned equipment removed for maintenance, which does not exist
 
 **Evidence:**
-- System architecture: Cloud-based, no customer equipment
+- System architecture: Cloud-based, no customer equipment (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (infrastructure managed by Railway)
+- Inherited controls: Railway platform manages all infrastructure maintenance
 
-**Status:** 🚫 Not Applicable (cloud-only system, no equipment removal)
+**Status:** 🚫 Not Applicable (cloud-only system, no customer-managed equipment - all infrastructure maintenance performed by Railway platform)
 
 #### 3.7.4: Check media containing diagnostic and test programs for malicious code before the media are used in organizational systems
 
 **Implementation:**
-- System is cloud-based (no diagnostic media used)
-- Maintenance performed via platform tools (no external media)
-- Media checking not applicable to system architecture
+- System is cloud-based web application hosted on Railway platform
+- No diagnostic or test program media (CDs, DVDs, USB drives, etc.) are used for system maintenance
+- All maintenance is performed via Railway platform tools and web interfaces
+- No external media (removable drives, optical media, etc.) is introduced to system infrastructure
+- Application updates deployed via Git/version control - no media-based deployment
+- Diagnostic tools provided by Railway platform - no external media required
+- Media checking applies to systems where diagnostic/test media is used, which this system does not use
 
 **Evidence:**
-- System architecture: Cloud-based maintenance
+- System architecture: Cloud-based maintenance (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- Deployment: Git-based via Railway platform - no media deployment
+- Maintenance: Railway platform tools - no external media
 
-**Status:** 🚫 Not Applicable (cloud-only system, no diagnostic media)
+**Status:** 🚫 Not Applicable (cloud-only system, no diagnostic or test program media used - all maintenance via platform tools)
 
 #### 3.7.5: Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when nonlocal maintenance is complete
 
@@ -1986,14 +2039,19 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.7.6: Supervise the maintenance activities of maintenance personnel without required access authorization
 
 **Implementation:**
-- System is cloud-based (no on-site maintenance personnel)
-- Maintenance performed by Railway platform (inherited)
-- Supervision not applicable to system architecture
+- System is cloud-based web application hosted on Railway platform
+- No on-site maintenance personnel - all infrastructure maintenance performed by Railway platform
+- No customer personnel perform maintenance on system infrastructure
+- All maintenance activities are performed by Railway platform personnel on Railway-managed infrastructure
+- Supervision of maintenance personnel applies to customer-managed maintenance activities, which do not exist
+- Railway platform maintenance supervision is addressed via inherited controls and service agreements
 
 **Evidence:**
-- System architecture: Cloud-based, platform maintenance
+- System architecture: Cloud-based, no customer maintenance personnel (see `MAC-IT-301_System_Description_and_Architecture.md`)
+- System boundary: `MAC-IT-105_System_Boundary.md` (infrastructure maintenance by Railway)
+- Inherited controls: Railway platform manages all infrastructure maintenance
 
-**Status:** 🚫 Not Applicable (cloud-only system, no on-site maintenance)
+**Status:** 🚫 Not Applicable (cloud-only system, no customer maintenance personnel - all maintenance performed by Railway platform on their infrastructure)
 
 ### 7.11 Risk Assessment (RA) - 3 Requirements
 
@@ -2527,7 +2585,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - **Inherited:** 20 controls (18%) - Controls provided by service providers (Railway, GitHub) and relied upon operationally
 - **Partially Satisfied:** 0 controls (0%) - All previously partially satisfied controls have been fully implemented
 - **Not Implemented:** 8 controls (7%) - Controls require implementation (tracked in POA&M)
-- **Not Applicable:** 2 controls (2%) - Controls not applicable to system architecture (justification provided)
+- **Not Applicable:** 14 controls (13%) - Controls not applicable to system architecture (justification provided)
 
 **Detailed Assessment:** See `04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
 
