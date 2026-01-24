@@ -119,6 +119,20 @@ export default async function ComplianceDashboardPage() {
               View Document →
             </Link>
           </div>
+
+          {/* System Control Traceability Matrix Card */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4">System Control Traceability Matrix</h2>
+            <p className="text-neutral-600 mb-4">
+              View all 110 CMMC Level 2 controls and implementation status.
+            </p>
+            <Link
+              href="/admin/compliance/sctm"
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
+              View SCTM →
+            </Link>
+          </div>
         </div>
 
         {/* System Boundary Section */}
