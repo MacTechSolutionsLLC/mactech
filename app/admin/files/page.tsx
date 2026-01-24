@@ -35,7 +35,7 @@ export default async function FilesPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900">File Management</h1>
           <p className="mt-2 text-neutral-600">
-            Manage stored files (replaces /public/uploads)
+            Manage stored files and browse compliance documents
           </p>
         </div>
 
