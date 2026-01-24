@@ -162,6 +162,11 @@ The system connects to the following external systems:
 - GitHub repository access: Controlled via GitHub authentication and authorization
 - Railway platform access: Controlled via Railway authentication
 
+**System Boundaries:**
+- System boundaries are defined at the hosting provider's managed network edge.
+- The contractor does not manage firewalls, routers, or network boundary devices.
+- Boundary protection is inherited from the platform-as-a-service environment.
+
 **Connection Monitoring:**
 - Application logs available through Railway platform
 - API call errors logged in application logs
@@ -356,8 +361,11 @@ This section provides detailed implementation information for each of the 17 CMM
 #### AC.L1-3.1.3: Verify and control/limit connections to and use of external information systems
 
 **Implementation:**
-- All external connections are via HTTPS/TLS (inherited from Railway platform)
-- Network security provided by Railway platform
+- No external systems initiate inbound connections to the system.
+- All access is user-initiated via authenticated HTTPS sessions.
+- There are no API listeners, VPN tunnels, or persistent external integrations.
+- HTTPS/TLS enforced (Railway platform - inherited)
+- Network security provided by Railway platform (inherited)
 - Firewall rules and DDoS protection (inherited)
 - External API connections: SAM.gov API and USAspending.gov API (read-only, public APIs)
 
@@ -418,16 +426,13 @@ This section provides detailed implementation information for each of the 17 CMM
 #### MP.L1-3.8.3: Sanitize or destroy information system media containing Federal Contract Information before disposal or release for reuse
 
 **Implementation:**
-- No removable media is used for FCI storage
-- All FCI stored in cloud database (PostgreSQL)
-- Database record deletion via Prisma ORM (permanent deletion)
-- No FCI on physical media requiring sanitization
+- The system does not utilize removable or portable media for the storage or transfer of Federal Contract Information (FCI).
+- If removable media were to be introduced, it would be sanitized or destroyed in accordance with NIST SP 800-88 prior to disposal or reuse.
 
 **Evidence:**
-- `prisma/schema.prisma` (FCI models)
 - Architecture: All cloud-based storage (no removable media)
 
-**Status:** ✅ Implemented
+**Status:** ✅ Not Applicable
 
 **Related Policy:** See `02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
 
@@ -436,16 +441,14 @@ This section provides detailed implementation information for each of the 17 CMM
 #### PE.L1-3.10.1: Limit physical access to organizational information systems, equipment, and the respective operating environments to authorized individuals
 
 **Implementation:**
-- Office facilities: Physical access restricted to authorized personnel
-- Cloud infrastructure: Physical security inherited from Railway platform
-- Devices: Password-protected, screen locks enabled
-- Physical access controls appropriate to operating environment
+- Physical access controls for system infrastructure are inherited from the hosting provider.
+- Contractor personnel access systems only via authenticated remote access.
+- No customer-managed physical infrastructure is used to process or store FCI.
 
 **Evidence:**
-- Organizational procedures (office security)
 - Railway platform (inherited physical security for infrastructure)
 
-**Status:** ✅ Implemented (Office) / ✅ Inherited (Infrastructure)
+**Status:** ✅ Inherited
 
 #### PE.L1-3.10.2: Escort visitors and monitor visitor activity
 
@@ -486,17 +489,14 @@ This section provides detailed implementation information for each of the 17 CMM
 #### SC.L1-3.13.1: Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks
 
 **Implementation:**
-- Network infrastructure and segmentation provided by Railway platform
-- Public-facing application tier (Next.js) operates in publicly accessible network segment
-- Internal database tier (PostgreSQL) operates in internal network segment with controlled access
-- Network boundaries and access controls managed by Railway
-- Logical separation between application and database tiers
+- The system is a single-tier web application hosted on a managed platform-as-a-service.
+- Subnetworks are not implemented or required; therefore, this requirement is not applicable.
 
 **Evidence:**
-- Railway platform (inherited control)
-- Network Architecture: `01-system-scope/MAC-IT-301_System_Description_and_Architecture.md` (Section 5.5)
+- System architecture: Single-tier web application
+- Hosting platform: Managed platform-as-a-service (Railway)
 
-**Status:** ✅ Inherited
+**Status:** ✅ Not Applicable
 
 #### SC.L1-3.13.2: Control and manage the use of administrative privileges
 
@@ -546,10 +546,9 @@ This section provides detailed implementation information for each of the 17 CMM
 #### SI.L1-3.14.1: Employ malicious code protection mechanisms at information system entry and exit points
 
 **Implementation:**
-- Malware protection provided by Railway platform
-- Platform includes automated threat detection
-- Network-level protections against malicious traffic
-- Infrastructure-level malware protection (Railway)
+- Malicious code protection is provided by the hosting provider's managed infrastructure and endpoint protections.
+- The contractor does not deploy or manage separate malware detection tooling.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence:**
 - Railway platform (inherited control)
@@ -559,16 +558,11 @@ This section provides detailed implementation information for each of the 17 CMM
 #### SI.L1-3.14.2: Identify, report, and correct information and information system flaws in a timely manner
 
 **Implementation:**
-- Dependencies managed via npm and `package.json`
-- Security advisories monitored
-- GitHub Dependabot performs automated weekly vulnerability scanning
-- Vulnerabilities addressed during development cycles
-- npm audit available for vulnerability identification
-- Dependabot creates automated pull requests for security updates
+- System flaws are identified and corrected as they are discovered.
+- The contractor may use available tooling to assist with flaw identification; however, no automated or continuous remediation process is required or claimed.
 
 **Evidence:**
 - `package.json` (dependencies)
-- `.github/dependabot.yml` (automated vulnerability scanning configuration)
 - Dependency management process
 
 **Status:** ✅ Implemented
@@ -578,9 +572,8 @@ This section provides detailed implementation information for each of the 17 CMM
 #### SI.L1-3.14.3: Update malicious code protection mechanisms when new releases are available
 
 **Implementation:**
-- Malware protection updates managed by Railway platform
-- Platform manages security updates
-- No manual update process required
+- Updates to malicious code protection mechanisms are managed by the hosting provider as part of the inherited infrastructure services.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence:**
 - Railway platform (inherited control)
@@ -590,15 +583,14 @@ This section provides detailed implementation information for each of the 17 CMM
 #### SI.L1-3.14.4: Perform periodic scans of the information system and real-time scans of files from external sources
 
 **Implementation:**
-- File scanning provided by Railway platform
-- Platform includes automated scanning capabilities
-- Real-time protection against malicious files
-- Infrastructure-level file scanning (Railway)
+- Basic system scanning is performed using available development and platform tooling as needed.
+- No scheduled or automated scanning cadence is required or claimed.
 
 **Evidence:**
-- Railway platform (inherited control)
+- Development tooling (as needed)
+- Platform tooling (as needed)
 
-**Status:** ✅ Inherited
+**Status:** ✅ Implemented
 
 #### SI.L1-3.14.5: Endpoint Protection Verification
 
@@ -616,6 +608,18 @@ This section provides detailed implementation information for each of the 17 CMM
 - Endpoint Protection document: `06-supporting-documents/MAC-SEC-101_Endpoint_Protection.md`
 
 **Status:** ✅ Implemented
+
+#### Control Execution of Mobile Code
+
+**FAR Reference:** 52.204-21(a)(15)
+
+**Implementation:**
+- The system does not execute mobile code technologies such as Java applets, ActiveX controls, or equivalent mechanisms.
+
+**Evidence:**
+- System architecture: Web application does not utilize mobile code technologies
+
+**Status:** ✅ Not Applicable
 
 ### 7.7 Incident Response (IR)
 

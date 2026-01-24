@@ -252,7 +252,7 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 - Tamper-evident: includes created_at, created_by_user_id; entries are immutable after creation
 - CSV export functionality for evidence generation
 - Database retention policy: minimum 90 days
-- Review responsibility: System Administrator reviews quarterly
+- Review responsibility: System Administrator reviews as needed
 
 **Evidence Locations:**
 - Database: `PhysicalAccessLog` table (prisma/schema.prisma)

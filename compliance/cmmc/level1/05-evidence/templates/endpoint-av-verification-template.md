@@ -61,7 +61,7 @@ _________________________________________________
 2. Attach screenshots or other evidence
 3. Update endpoint inventory in admin portal: `/admin/endpoint-inventory`
 4. Retain completed templates in evidence folder
-5. Schedule next verification (recommended: quarterly)
+5. Schedule next verification as needed
 
 ---
 

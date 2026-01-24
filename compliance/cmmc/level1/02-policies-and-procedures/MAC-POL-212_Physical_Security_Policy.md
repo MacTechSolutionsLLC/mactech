@@ -221,7 +221,6 @@ This policy applies to:
 - Immutable entries (tamper-evident with created_at and created_by_user_id)
 - CSV export functionality for evidence generation
 - **Retention:** Physical access logs are retained for a minimum of 90 days in the database. CSV exports are retained per organizational retention policy.
-- **Review Responsibility:** Physical access logs are reviewed periodically by the System Administrator (or designated security contact) for accuracy and completeness. Review frequency: Quarterly or as needed.
 
 **Evidence:**
 - Admin UI: `/admin/physical-access-logs`

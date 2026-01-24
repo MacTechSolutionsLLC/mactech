@@ -80,7 +80,7 @@ The physical access log module provides a digital logbook for recording physical
 2. **Be specific:** Use clear location identifiers
 3. **Complete information:** Fill in all required fields accurately
 4. **Regular exports:** Export CSV periodically for evidence retention
-5. **Review regularly:** Review entries quarterly for accuracy
+5. **Review regularly:** Review entries as needed for accuracy
 
 ---
 
@@ -92,7 +92,7 @@ The physical access log module provides a digital logbook for recording physical
 
 ## Review Responsibility
 
-Physical access logs are reviewed periodically by the System Administrator (or designated security contact) for accuracy and completeness. Review frequency: Quarterly or as needed.
+Physical access logs are reviewed periodically by the System Administrator (or designated security contact) for accuracy and completeness. Review frequency: As needed.
 
 ---
 

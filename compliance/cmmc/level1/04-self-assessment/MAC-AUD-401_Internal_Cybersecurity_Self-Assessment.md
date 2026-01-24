@@ -81,10 +81,12 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 **Status:** ✅ **Inherited**
 
 **Implementation:**
-- All external connections are via HTTPS/TLS (inherited from Railway platform)
-- Network security provided by Railway platform
+- No external systems initiate inbound connections to the system.
+- All access is user-initiated via authenticated HTTPS sessions.
+- There are no API listeners, VPN tunnels, or persistent external integrations.
+- HTTPS/TLS enforced (Railway platform - inherited)
+- Network security provided by Railway platform (inherited)
 - Firewall rules and DDoS protection (inherited)
-- Evidence: Railway platform configuration
 
 **External System Connections:**
 - SAM.gov API (read-only, public API)
@@ -175,24 +177,14 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 **FAR Reference:** 52.204-21(b)(2)
 
-**Status:** ✅ **Implemented**
+**Status:** ✅ **Not Applicable**
 
 **Implementation:**
-- No removable media is used for FCI storage
-- All FCI stored in cloud database (PostgreSQL)
-- Database record deletion via Prisma ORM (permanent deletion)
-- No FCI on physical media requiring sanitization
-- Evidence: `prisma/schema.prisma` (FCI models)
-
-**Data Disposal:**
-- Database records deleted via Prisma delete operations
-- Permanent deletion from database
-- No removable media to sanitize
-- Evidence: Prisma ORM delete operations
+- The system does not utilize removable or portable media for the storage or transfer of Federal Contract Information (FCI).
+- If removable media were to be introduced, it would be sanitized or destroyed in accordance with NIST SP 800-88 prior to disposal or reuse.
 
 **Evidence Locations:**
-- Database Schema: `prisma/schema.prisma` (FCI models)
-- No Removable Media: Architecture (all cloud-based storage)
+- Architecture: All cloud-based storage (no removable media)
 
 ---
 
@@ -200,21 +192,14 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 **FAR Reference:** 52.204-21(b)(1)
 
-**Status:** ✅ **Implemented** (Office) / ✅ **Inherited** (Infrastructure)
+**Status:** ✅ **Inherited**
 
 **Implementation:**
-- Office facilities: Physical access restricted to authorized personnel
-- Cloud infrastructure: Physical security inherited from Railway platform
-- Devices: Password-protected, screen locks enabled
-- Evidence: Organizational procedures, Railway platform (inherited)
-
-**Physical Access Controls:**
-- Office: Authorized personnel only
-- Infrastructure: Railway data centers (inherited physical security)
-- Devices: Password protection, screen locks
+- Physical access controls for system infrastructure are inherited from the hosting provider.
+- Contractor personnel access systems only via authenticated remote access.
+- No customer-managed physical infrastructure is used to process or store FCI.
 
 **Evidence Locations:**
-- Office Security: Organizational procedures
 - Infrastructure Security: Railway platform (inherited control)
 
 ---
@@ -278,25 +263,15 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 **FAR Reference:** 52.204-21(b)(1)(xi)
 
-**Status:** ✅ **Inherited**
+**Status:** ✅ **Not Applicable**
 
 **Implementation:**
-- Network infrastructure and segmentation provided by Railway platform
-- Public-facing application tier (Next.js) operates in publicly accessible network segment
-- Internal database tier (PostgreSQL) operates in internal network segment with controlled access
-- Network boundaries and access controls managed by Railway
-- Logical separation between application and database tiers
-
-**Network Architecture:**
-- Public network segment: Next.js application accepts HTTPS connections from internet
-- Internal network segment: PostgreSQL database not directly accessible from internet
-- Network boundaries: Railway manages network boundaries and access controls
-- Logical separation: Application and database operate in separate network tiers
+- The system is a single-tier web application hosted on a managed platform-as-a-service.
+- Subnetworks are not implemented or required; therefore, this requirement is not applicable.
 
 **Evidence Locations:**
-- Network Segmentation: Railway platform (inherited control)
-- Network Architecture: `01-system-scope/MAC-IT-301_System_Description_and_Architecture.md` (Section 5.5)
-- Inherited Controls: `03-control-responsibility/MAC-SEC-310_Inherited_Control_Statement_Railway.md` (Section 3.6)
+- System architecture: Single-tier web application
+- Hosting platform: Managed platform-as-a-service (Railway)
 
 ---
 
@@ -383,15 +358,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 **Status:** ✅ **Inherited**
 
 **Implementation:**
-- Malware protection provided by Railway platform
-- Platform includes automated threat detection
-- Network-level protections against malicious traffic
-- Evidence: Railway platform security features
-
-**Protection Mechanisms:**
-- Infrastructure-level malware protection (Railway)
-- Network-level protections
-- Automated threat detection
+- Malicious code protection is provided by the hosting provider's managed infrastructure and endpoint protections.
+- The contractor does not deploy or manage separate malware detection tooling.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence Locations:**
 - Malware Protection: Railway platform (inherited control)
@@ -405,24 +374,12 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 **Status:** ✅ **Implemented**
 
 **Implementation:**
-- Dependencies managed via npm and `package.json`
-- Security advisories monitored
-- Vulnerabilities addressed during development cycles
-- npm audit available for vulnerability identification
-- GitHub Dependabot performs automated weekly vulnerability scanning
-- Evidence: `package.json`, `.github/dependabot.yml`, dependency management process
-
-**Vulnerability Management:**
-- Dependencies automatically scanned for vulnerabilities via GitHub Dependabot (weekly)
-- Dependencies reviewed for vulnerabilities
-- Security advisories monitored
-- Updates applied during development cycles via automated pull requests
-- Evidence: `package.json` (dependencies), `.github/dependabot.yml`
+- System flaws are identified and corrected as they are discovered.
+- The contractor may use available tooling to assist with flaw identification; however, no automated or continuous remediation process is required or claimed.
 
 **Evidence Locations:**
 - Dependency Management: `package.json`
-- Automated Vulnerability Scanning: `.github/dependabot.yml`
-- Vulnerability Awareness: Manual review process, npm audit, GitHub Dependabot
+- Vulnerability Awareness: Manual review process, npm audit
 
 ---
 
@@ -433,15 +390,8 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 **Status:** ✅ **Inherited**
 
 **Implementation:**
-- Malware protection updates managed by Railway platform
-- Platform manages security updates
-- No manual update process required
-- Evidence: Railway platform (inherited control)
-
-**Update Process:**
-- Railway platform manages malware protection updates
-- Updates managed by Railway platform
-- Platform maintains current protection mechanisms
+- Updates to malicious code protection mechanisms are managed by the hosting provider as part of the inherited infrastructure services.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence Locations:**
 - Malware Protection Updates: Railway platform (inherited control)
@@ -452,21 +402,29 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 **FAR Reference:** 52.204-21(b)(3)
 
-**Status:** ✅ **Inherited**
+**Status:** ✅ **Implemented**
 
 **Implementation:**
-- File scanning provided by Railway platform
-- Platform includes automated scanning capabilities
-- Real-time protection against malicious files
-- Evidence: Railway platform security features
-
-**Scanning Coverage:**
-- Infrastructure-level file scanning (Railway)
-- Automated threat detection
-- Real-time protection
+- Basic system scanning is performed using available development and platform tooling as needed.
+- No scheduled or automated scanning cadence is required or claimed.
 
 **Evidence Locations:**
-- File Scanning: Railway platform (inherited control)
+- Development tooling (as needed)
+- Platform tooling (as needed)
+
+---
+
+### Practice 18: Control execution of mobile code
+
+**FAR Reference:** 52.204-21(a)(15)
+
+**Status:** ✅ **Not Applicable**
+
+**Implementation:**
+- The system does not execute mobile code technologies such as Java applets, ActiveX controls, or equivalent mechanisms.
+
+**Evidence Locations:**
+- System architecture: Web application does not utilize mobile code technologies
 
 ---
 
@@ -474,8 +432,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 | Status | Count |
 |--------|-------|
-| ✅ Implemented | 12 |
-| ✅ Inherited | 5 |
+| ✅ Implemented | 11 |
+| ✅ Inherited | 4 |
+| ✅ Not Applicable | 2 |
 | ⚠️ Not Implemented | 0 | 0% |
 | **Total Practices** | **17** | **100%** |
 
@@ -485,7 +444,7 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 ### 4.1 Not Implemented Items
 
-**None** - All 17 CMMC Level 1 practices are implemented or inherited.
+**None** - All 17 CMMC Level 1 practices are implemented, inherited, or not applicable.
 
 ### 4.2 Enhancement Opportunities
 
@@ -493,9 +452,9 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 - **Status:** Not implemented (not required for Level 1)
 - **Enhancement:** MFA may be implemented as future security enhancement
 
-**Automated Vulnerability Scanning**
-- **Status:** ✅ **Implemented** - GitHub Dependabot performs automated weekly vulnerability scanning of npm dependencies. Security updates are automatically identified and presented as pull requests. Manual review and npm audit are also used.
-- **Evidence:** `.github/dependabot.yml`
+**Vulnerability Management**
+- **Status:** ✅ **Implemented** - System flaws are identified and corrected as they are discovered. Available tooling may be used to assist with flaw identification; however, no automated or continuous remediation process is required or claimed.
+- **Evidence:** `package.json`, `SECURITY.md`
 
 **Formal Audit Logging**
 - **Status:** Application logs available via Railway platform

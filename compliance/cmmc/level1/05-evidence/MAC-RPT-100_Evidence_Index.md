@@ -224,7 +224,7 @@ WHERE "actionType" = 'file_upload'
 ORDER BY "timestamp" DESC
 LIMIT 50;
 
--- User access review (quarterly)
+-- User access review (as needed)
 SELECT email, name, role, "lastLoginAt", disabled, "createdAt"
 FROM "User"
 WHERE disabled = false

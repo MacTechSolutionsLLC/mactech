@@ -276,7 +276,7 @@ Evidence is generated on demand directly from the production system at the time 
 
 **Retention:** Physical access logs are retained for a minimum of 90 days in the database. CSV exports are retained per organizational retention policy.
 
-**Review Responsibility:** Physical access logs are reviewed periodically by the System Administrator (or designated security contact) for accuracy and completeness. Review frequency: Quarterly or as needed.
+**Review Responsibility:** Physical access logs are reviewed periodically by the System Administrator (or designated security contact) for accuracy and completeness. Review frequency: As needed.
 
 **Sample Export:** See `sample-exports/physical-access-logs-sample.csv` for example structure.
 

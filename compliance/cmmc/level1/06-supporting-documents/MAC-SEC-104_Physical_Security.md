@@ -39,7 +39,7 @@ This document describes physical security controls for the MacTech Solutions sys
 - Screen locks enabled on devices
 - Clean desk policy (no FCI left visible)
 
-**Verification:** Quarterly review of work area security
+**Verification:** Review of work area security as needed
 
 ---
 
@@ -55,7 +55,7 @@ This document describes physical security controls for the MacTech Solutions sys
 - Screen lock timeout: 5 minutes or less
 - Devices stored securely when not in use
 
-**Verification:** Device security checklist (quarterly)
+**Verification:** Device security checklist (as needed)
 
 ---
 

@@ -66,8 +66,10 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 **Status:** ✅ Inherited
 
 **Implementation:**
-- HTTPS/TLS enforced (Railway platform)
-- All external connections encrypted
+- No external systems initiate inbound connections to the system.
+- All access is user-initiated via authenticated HTTPS sessions.
+- There are no API listeners, VPN tunnels, or persistent external integrations.
+- HTTPS/TLS enforced (Railway platform - inherited)
 - Network security capabilities (Railway platform - inherited)
 
 **Evidence:**
@@ -139,18 +141,14 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **FAR Reference:** 52.204-21(b)(2)  
 **CMMC Practice:** MP.L1-3.8.3  
-**Status:** ✅ Implemented
+**Status:** ✅ Not Applicable
 
 **Implementation:**
-- No removable media used
-- All FCI stored in cloud database
-- Database record deletion via Prisma
-- Secure deletion procedures
+- The system does not utilize removable or portable media for the storage or transfer of Federal Contract Information (FCI).
+- If removable media were to be introduced, it would be sanitized or destroyed in accordance with NIST SP 800-88 prior to disposal or reuse.
 
 **Evidence:**
-- `prisma/schema.prisma` (FCI models)
-- StoredFile model (database storage)
-- Database delete operations
+- Architecture: All cloud-based storage (no removable media)
 - Media Handling Policy: `02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
 
 ---
@@ -159,18 +157,16 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **FAR Reference:** 52.204-21(b)(1)(vii)  
 **CMMC Practice:** PE.L1-3.10.1  
-**Status:** ✅ Implemented / Inherited
+**Status:** ✅ Inherited
 
 **Implementation:**
-- Office facilities: Physical access restricted
-- Cloud infrastructure: Railway physical security (inherited)
-- Devices: Password-protected, screen locks
-- Physical access is limited to authorized users and enforced through environmental controls
+- Physical access controls for system infrastructure are inherited from the hosting provider.
+- Contractor personnel access systems only via authenticated remote access.
+- No customer-managed physical infrastructure is used to process or store FCI.
 
 **Evidence:**
-- Physical Security Policy: `02-policies-and-procedures/MAC-POL-212_Physical_Security_Policy.md`
 - Railway platform (inherited)
-- Organizational procedures
+- Physical Security Policy: `02-policies-and-procedures/MAC-POL-212_Physical_Security_Policy.md`
 
 ---
 
@@ -215,19 +211,15 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **FAR Reference:** 52.204-21(b)(1)(xi)  
 **CMMC Practice:** SC.L1-3.13.2  
-**Status:** ✅ Inherited
+**Status:** ✅ Not Applicable
 
 **Implementation:**
-- Railway platform provides network infrastructure with logical network segmentation
-- Public-facing application tier (Next.js) is logically separated from internal database tier (PostgreSQL)
-- Network boundaries and segmentation provided by Railway cloud platform
-- Application and database services operate in separate network tiers with controlled access
+- The system is a single-tier web application hosted on a managed platform-as-a-service.
+- Subnetworks are not implemented or required; therefore, this requirement is not applicable.
 
 **Evidence:**
-- Railway platform network architecture (inherited)
-- Logical separation: Application tier (public-facing) and Database tier (internal)
-- Network boundary documentation: `01-system-scope/MAC-IT-301_System_Description_and_Architecture.md`
-- Inherited Controls Statement: `03-control-responsibility/MAC-SEC-310_Inherited_Control_Statement_Railway.md`
+- System architecture: Single-tier web application
+- Hosting platform: Managed platform-as-a-service (Railway)
 
 ---
 
@@ -292,17 +284,15 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **FAR Reference:** 52.204-21(b)(4)(i)  
 **CMMC Practice:** SI.L1-3.14.1  
-**Status:** ✅ Inherited / Implemented
+**Status:** ✅ Inherited
 
 **Implementation:**
-- Railway platform malware protection (inherited)
-- Endpoint inventory tracks AV status at designated locations
-- Infrastructure-level malware protection (Railway - inherited)
+- Malicious code protection is provided by the hosting provider's managed infrastructure and endpoint protections.
+- The contractor does not deploy or manage separate malware detection tooling.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence:**
 - Railway platform (inherited)
-- `app/admin/endpoint-inventory/page.tsx`
-- Endpoint Protection document: `06-supporting-documents/MAC-SEC-101_Endpoint_Protection.md`
 
 ---
 
@@ -313,16 +303,12 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 **Status:** ✅ Implemented
 
 **Implementation:**
-- Dependency management (npm audit)
-- GitHub Dependabot (weekly scans)
-- Vulnerability awareness and remediation
-- Security contact defined
+- System flaws are identified and corrected as they are discovered.
+- The contractor may use available tooling to assist with flaw identification; however, no automated or continuous remediation process is required or claimed.
 
 **Evidence:**
 - `package.json`
-- `.github/dependabot.yml`
 - `SECURITY.md`
-- GitHub Dependabot dashboard
 - Vulnerability Management: `06-supporting-documents/MAC-SEC-106_Vulnerability_Management.md`
 
 ---
@@ -352,7 +338,8 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 **Status:** ✅ Inherited
 
 **Implementation:**
-- Railway platform manages malware protection updates (inherited)
+- Updates to malicious code protection mechanisms are managed by the hosting provider as part of the inherited infrastructure services.
+- Inherited from hosting provider; customer has no direct configuration authority.
 
 **Evidence:**
 - Railway platform (inherited)
@@ -363,15 +350,15 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 ### 18. Perform periodic scans of the information system and real-time scans of files from external sources
 
 **CMMC Practice:** SI.L1-3.14.4  
-**Status:** ✅ Inherited
+**Status:** ✅ Implemented
 
 **Implementation:**
-- Railway platform scanning (inherited)
-- Real-time protection
+- Basic system scanning is performed using available development and platform tooling as needed.
+- No scheduled or automated scanning cadence is required or claimed.
 
 **Evidence:**
-- Railway platform (inherited)
-- Platform documentation
+- Development tooling (as needed)
+- Platform tooling (as needed)
 
 ---
 
@@ -393,15 +380,30 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 ---
 
+### 20. Control execution of mobile code
+
+**FAR Reference:** 52.204-21(a)(15)  
+**CMMC Practice:** (Additional requirement)  
+**Status:** ✅ Not Applicable
+
+**Implementation:**
+- The system does not execute mobile code technologies such as Java applets, ActiveX controls, or equivalent mechanisms.
+
+**Evidence:**
+- System architecture: Web application does not utilize mobile code technologies
+
+---
+
 ## Summary
 
 **Total FAR 52.204-21 Requirements:** 15  
 **Total CMMC Level 1 Practices:** 17  
-**Requirements Implemented:** 12  
-**Requirements Inherited:** 4 (TLS/HTTPS, Database Encryption, Malware Protection, Network Segmentation)  
+**Requirements Implemented:** 11  
+**Requirements Inherited:** 3 (TLS/HTTPS, Database Encryption, Malware Protection)  
+**Requirements Not Applicable:** 2 (Media Sanitization, Subnetworks)  
 **Requirements Not Implemented:** 0
 
-**All 15 FAR 52.204-21 basic safeguarding requirements are either implemented or inherited. All 17 CMMC Level 1 practices are either implemented or inherited.**
+**All 15 FAR 52.204-21 basic safeguarding requirements are either implemented, inherited, or not applicable. All 17 CMMC Level 1 practices are either implemented or inherited.**
 
 ---
 
@@ -409,7 +411,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 
 **System is ready for CMMC 2.0 Level 1 assessment.**
 
-All 17 CMMC Level 1 practices aligned to FAR 52.204-21 are implemented or inherited. Evidence is available and documented. The system handles FCI only and explicitly does not process, store, or transmit CUI.
+All 17 CMMC Level 1 practices aligned to FAR 52.204-21 are implemented, inherited, or not applicable. Evidence is available and documented. The system handles FCI only and explicitly does not process, store, or transmit CUI.
 
 ---
 

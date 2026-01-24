@@ -104,7 +104,7 @@ _________________________________________________
 2. Update status as remediation progresses
 3. Attach relevant evidence (PR links, test results, etc.)
 4. Retain completed logs per retention policy
-5. Review quarterly for trends and patterns
+5. Review as needed for trends and patterns
 
 ---
 

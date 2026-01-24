@@ -56,7 +56,7 @@ macOS XProtect verified active with automatic updates enabled. System is current
 
 ## Next Verification
 
-**Scheduled Date:** 2025-04-20 (quarterly)  
+**Scheduled Date:** As needed  
 **Reminder Set:** Yes
 
 ---

@@ -91,7 +91,7 @@ sudo freshclam  # Update definitions
 
 ## Internal Audit Checklist Item
 
-**Quarterly Verification:**
+**Verification (as needed):**
 
 - [ ] Verify all developer endpoints have AV/EDR enabled
 - [ ] Verify all administrator endpoints have AV/EDR enabled
@@ -109,7 +109,7 @@ sudo freshclam  # Update definitions
 **No Centralized EDR Claims:**
 - This document does not claim centralized EDR management
 - Each endpoint is individually configured
-- Verification is manual (quarterly audit)
+- Verification is manual (as needed)
 
 **Factual Language:**
 - States requirement: OS AV/EDR enabled
@@ -144,7 +144,7 @@ sudo freshclam  # Update definitions
 - Notes: Windows Defender verified active with real-time protection enabled. Screenshot captured and stored.
 
 **Next Verification:**
-- Scheduled Date: 2025-04-15 (quarterly)
+- Scheduled Date: As needed
 - Reminder Set: Yes
 
 **Related Documents:**
