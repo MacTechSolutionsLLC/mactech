@@ -60,6 +60,7 @@ export async function PATCH(
       actualCompletionDate,
       milestones,
       notes,
+      evidence,
       verified,
     } = body
 
@@ -87,6 +88,7 @@ export async function PATCH(
     }
     if (milestones !== undefined) updateData.milestones = JSON.stringify(milestones)
     if (notes !== undefined) updateData.notes = notes
+    if (evidence !== undefined) updateData.evidence = evidence
 
     // Handle verification
     if (verified === true && existing.status !== "verified") {

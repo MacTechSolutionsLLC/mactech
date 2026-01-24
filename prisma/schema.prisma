@@ -1083,6 +1083,7 @@ model POAMItem {
   plannedRemediation   String    @db.Text // JSON array of remediation steps
   milestones           String    @db.Text // JSON array of milestone objects
   notes                String?   @db.Text
+  evidence             String?   @db.Text // Body of evidence for closed/verified POA&Ms
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   createdBy            String? // User ID who created it

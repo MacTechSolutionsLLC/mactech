@@ -24,6 +24,7 @@ interface POAMItem {
   updatedAt: string
   verifiedBy: string | null
   verifiedAt: string | null
+  evidence: string | null
 }
 
 export default function POAMDetailPage() {
@@ -40,6 +41,7 @@ export default function POAMDetailPage() {
     responsibleParty: '',
     targetCompletionDate: '',
     notes: '',
+    evidence: '',
   })
   const [milestones, setMilestones] = useState<Array<{ text: string; completed: boolean }>>([])
 
@@ -62,6 +64,7 @@ export default function POAMDetailPage() {
             ? new Date(data.item.targetCompletionDate).toISOString().split('T')[0]
             : '',
           notes: data.item.notes || '',
+          evidence: data.item.evidence || '',
         })
         try {
           const parsedMilestones = JSON.parse(data.item.milestones || '[]')
@@ -87,6 +90,7 @@ export default function POAMDetailPage() {
           ...formData,
           milestones,
           targetCompletionDate: formData.targetCompletionDate || null,
+          evidence: formData.evidence || null,
         }),
       })
 
@@ -348,6 +352,49 @@ export default function POAMDetailPage() {
                     <li key={index}>{step}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Body of Evidence - Only show for closed/verified POA&Ms */}
+            {(item.status === 'closed' || item.status === 'verified') && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-neutral-900 mb-4">Body of Evidence</h2>
+                {editing ? (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Evidence Documentation
+                    </label>
+                    <textarea
+                      value={formData.evidence}
+                      onChange={(e) => setFormData({ ...formData, evidence: e.target.value })}
+                      rows={12}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 font-mono text-sm"
+                      placeholder="Document the evidence that demonstrates this POA&M has been remediated and verified. Include:
+- Implementation details
+- Testing results
+- Verification methods
+- Related documentation references
+- Screenshots or artifacts (if applicable)"
+                    />
+                    <p className="mt-2 text-xs text-neutral-500">
+                      This evidence will be used to demonstrate compliance and closure of this POA&M item.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    {item.evidence ? (
+                      <div className="prose prose-sm max-w-none">
+                        <pre className="whitespace-pre-wrap text-sm text-neutral-700 bg-neutral-50 p-4 rounded-lg border border-neutral-200 font-sans">
+                          {item.evidence}
+                        </pre>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-neutral-500 italic bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                        No evidence documented yet. Click Edit to add evidence documentation.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
