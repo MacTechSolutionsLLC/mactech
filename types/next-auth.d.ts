@@ -9,6 +9,9 @@ declare module "next-auth" {
       image?: string | null
       role?: string
       mustChangePassword?: boolean
+      mfaRequired?: boolean
+      mfaEnrolled?: boolean
+      mfaVerified?: boolean
     }
   }
 
@@ -19,6 +22,9 @@ declare module "next-auth" {
     image?: string | null
     role?: string
     mustChangePassword?: boolean
+    mfaRequired?: boolean
+    mfaEnrolled?: boolean
+    mfaVerified?: boolean
   }
 }
 
@@ -27,5 +33,8 @@ declare module "next-auth/jwt" {
     id: string
     role?: string
     mustChangePassword?: boolean
+    mfaRequired?: boolean
+    mfaEnrolled?: boolean
+    mfaVerified?: boolean
   }
 }

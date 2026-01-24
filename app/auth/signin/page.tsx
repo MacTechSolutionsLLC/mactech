@@ -19,6 +19,55 @@ export default function SignInPage() {
     setIsLoading(true)
 
     try {
+      // First, check password and MFA requirements via custom API
+      const customSignInResponse = await fetch('/api/auth/custom-signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const customSignInData = await customSignInResponse.json()
+
+      if (customSignInData.error) {
+        setError(customSignInData.error)
+        setIsLoading(false)
+        return
+      }
+
+      // If MFA enrollment required, redirect to enrollment
+      if (customSignInData.requiresMFAEnrollment) {
+        sessionStorage.setItem('mfa_userId', customSignInData.userId)
+        sessionStorage.setItem('mfa_userEmail', customSignInData.userEmail)
+        sessionStorage.setItem('mfa_userRole', customSignInData.userRole)
+        router.push('/auth/mfa/enroll')
+        return
+      }
+
+      // If MFA verification required, store user info and redirect to MFA verification
+      if (customSignInData.requiresMFA) {
+        sessionStorage.setItem('mfa_userId', customSignInData.userId)
+        sessionStorage.setItem('mfa_userEmail', customSignInData.userEmail)
+        sessionStorage.setItem('mfa_userRole', customSignInData.userRole)
+        
+        // Complete password authentication with NextAuth (session will be created)
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError('Authentication failed')
+          setIsLoading(false)
+          return
+        }
+
+        // Redirect to MFA verification
+        router.push('/auth/mfa/verify')
+        return
+      }
+
+      // No MFA required, proceed with normal NextAuth sign-in
       const result = await signIn('credentials', {
         email,
         password,

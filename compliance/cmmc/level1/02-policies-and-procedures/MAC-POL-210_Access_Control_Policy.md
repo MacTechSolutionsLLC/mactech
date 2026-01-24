@@ -1,20 +1,22 @@
-# Access Control Policy - CMMC Level 1
+# Access Control Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-23  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2, Section 3.1
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Policy Statement
 
-MacTech Solutions maintains access controls to ensure that only authorized personnel can access the system and Federal Contract Information (FCI). Access is granted based on business need and is limited to the minimum necessary to perform job functions.
+MacTech Solutions maintains access controls to ensure that only authorized personnel can access the system and Federal Contract Information (FCI) and Controlled Unclassified Information (CUI). Access is granted based on business need and is limited to the minimum necessary to perform job functions. This policy establishes requirements for access control, separation of duties, session management, remote access, and mobile device controls.
 
-This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+This policy aligns with CMMC Level 2 requirements and NIST SP 800-171 Rev. 2, Section 3.1 (Access Control).
+
+**Level 1 Continuity:** All Level 1 FCI protection requirements remain in effect and are preserved in this policy.
 
 ---
 
@@ -23,8 +25,11 @@ This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
 This policy applies to:
 - All users of the MacTech Solutions system
 - All system components (application, database, administrative interfaces)
-- All Federal Contract Information (FCI) stored or processed by the system
+- All Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) stored or processed by the system
 - All access methods (web interface, API endpoints)
+- All remote access sessions
+- All mobile device access
+- All session management
 
 ---
 
@@ -298,7 +303,194 @@ The following items are not required for CMMC Level 1 but represent potential fu
 
 ---
 
-## 8. Document Control
+## 8. Level 2 Requirements (NIST SP 800-171 Rev. 2, Section 3.1)
+
+### 8.1 Separation of Duties (3.1.4)
+
+**Requirement:** Separate the duties of individuals to reduce the risk of malevolent activity without collusion.
+
+**Implementation:**
+- Separation of Duties Matrix established
+- Administrative functions separated from audit functions
+- User account management separated from security assessment
+- System administration separated from security monitoring
+
+**Separation Controls:**
+- SoD matrix documents role conflicts and separation requirements
+- Compensating controls implemented where full separation not possible
+- Audit logs monitor for separation violations
+
+**Evidence:**
+- Separation of Duties Matrix: `MAC-SOP-235_Separation_of_Duties_Matrix.md`
+- Access Control Policy: This document
+
+**Status:** ⚠️ Partially Satisfied (SoD matrix created, separation enhanced per Phase 5)
+
+---
+
+### 8.2 Account Lockout (3.1.8)
+
+**Requirement:** Limit unsuccessful logon attempts.
+
+**Implementation:**
+- Account lockout mechanism to be implemented
+- Failed login attempts logged in audit system
+- Account lockout policy to be defined
+- Lockout parameters to be configured
+
+**Lockout Configuration:**
+- Maximum failed attempts: To be defined
+- Lockout duration: To be defined
+- Lockout release: Automatic after duration
+
+**Evidence:**
+- Account Lockout Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md` (to be updated)
+- Authentication system: `lib/auth.ts` (to be updated)
+
+**Status:** ❌ Not Implemented (POA&M item - Phase 5)
+
+---
+
+### 8.3 Session Management (3.1.10, 3.1.11)
+
+**Requirement:** Use session lock with pattern-hiding displays and terminate sessions after defined conditions.
+
+**Implementation:**
+- Session lock policy established for browser-based access
+- Users required to lock workstations/screens when away
+- Automatic session termination after 8 hours of inactivity
+- Session termination enforced by NextAuth.js
+
+**Session Lock:**
+- Browser-based session lock policy
+- Pattern-hiding display requirements
+- User responsibility for session locking
+
+**Session Termination:**
+- Automatic termination after 8 hours
+- Session expiration enforced
+- Session tokens invalidated after expiration
+
+**Evidence:**
+- Session Management: `lib/auth.ts` (8-hour expiration)
+- Session Lock Policy: To be documented
+
+**Status:** ✅ Implemented (session termination), ⚠️ Partially Satisfied (session lock policy to be enhanced)
+
+---
+
+### 8.4 Remote Access Controls (3.1.12-3.1.15)
+
+**Requirement:** Monitor and control remote access sessions, employ cryptographic mechanisms, route via managed access control points, and authorize remote execution of privileged commands.
+
+**Implementation:**
+- All system access is remote (cloud-based application)
+- Remote access sessions monitored via audit logging
+- Remote access encrypted via HTTPS/TLS (inherited)
+- Remote access routed through Railway platform (inherited)
+- Privileged command execution restricted to ADMIN role
+
+**Remote Access Architecture:**
+- All access via internet (HTTPS)
+- Railway platform manages access control points
+- TLS encryption for all remote access
+- Session monitoring via audit logs
+
+**Evidence:**
+- Network architecture: Railway platform (inherited)
+- Audit logs: Remote access sessions logged
+- TLS encryption: Railway platform (inherited)
+
+**Status:** ✅ Implemented (remote access is primary access method)
+
+---
+
+### 8.5 Mobile Device Controls (3.1.18-3.1.19)
+
+**Requirement:** Control connection of mobile devices and encrypt CUI on mobile devices.
+
+**Implementation:**
+- System is cloud-based web application accessible via any device
+- Mobile device access controlled via authentication requirements
+- Mobile device policy established
+- No CUI stored on mobile devices (all CUI in cloud database)
+
+**Mobile Device Access:**
+- Mobile devices access system via browser
+- Same authentication requirements as desktop
+- No local CUI storage on mobile devices
+- CUI encryption at rest in cloud database
+
+**Evidence:**
+- Mobile Device Policy: This policy (to be enhanced)
+- System architecture: Cloud-based, no local CUI storage
+
+**Status:** ✅ Implemented (mobile devices access via same authentication, no local CUI)
+
+---
+
+### 8.6 Portable Storage Controls (3.1.21)
+
+**Requirement:** Limit use of portable storage devices on external systems.
+
+**Implementation:**
+- Portable storage device policy established
+- No portable storage devices used for CUI
+- All CUI stored in cloud database
+- Portable storage restrictions documented
+
+**Evidence:**
+- Portable Storage Policy: To be enhanced
+- Media Protection Policy: `MAC-POL-213_Media_Handling_Policy.md` (to be updated)
+
+**Status:** ⚠️ Partially Satisfied (policy to be enhanced per Phase 7)
+
+---
+
+## 9. Compliance Status
+
+### 9.1 Level 1 Requirements (FCI)
+- ✅ Authorized users only (3.1.1)
+- ✅ Transaction/function limits (3.1.2)
+- ✅ External system connections (3.1.20)
+- ✅ Public system controls (3.1.22)
+- ✅ Least privilege (3.1.5)
+
+### 9.2 Level 2 Requirements (CUI)
+- ✅ Limit system access (3.1.1)
+- ✅ Transaction/function limits (3.1.2)
+- ✅ Control CUI flow (3.1.3)
+- ⚠️ Separation of duties (3.1.4) - Matrix created, separation enhanced
+- ✅ Least privilege (3.1.5)
+- ✅ Non-privileged accounts (3.1.6)
+- ✅ Prevent privileged function execution (3.1.7)
+- ❌ Account lockout (3.1.8) - To be implemented
+- ✅ Privacy/security notices (3.1.9)
+- ⚠️ Session lock (3.1.10) - Policy to be enhanced
+- ✅ Session termination (3.1.11)
+- ✅ Remote access monitoring (3.1.12)
+- ✅ Remote access encryption (3.1.13)
+- ✅ Managed access control points (3.1.14)
+- ✅ Authorize remote privileged commands (3.1.15)
+- 🚫 Wireless access authorization (3.1.16-3.1.17) - Not applicable
+- ✅ Mobile device controls (3.1.18-3.1.19)
+- ✅ External system connections (3.1.20)
+- ⚠️ Portable storage controls (3.1.21) - Policy to be enhanced
+- ✅ Control CUI on public systems (3.1.22)
+
+---
+
+## 10. Related Documents
+
+- Separation of Duties Matrix: `MAC-SOP-235_Separation_of_Duties_Matrix.md`
+- Account Lifecycle Enforcement Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+- User Account Provisioning Procedure: `MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+- System Security Plan: `../01-system-scope/MAC-IT-304_System_Security_Plan.md` (Section 7.1)
+- POA&M Tracking Log: `../04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md`
+
+---
+
+## 11. Document Control
 
 **Prepared By:** MacTech Solutions Compliance Team  
 **Reviewed By:** [To be completed]  
@@ -306,7 +498,17 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-23): **MAJOR UPGRADE - CMMC Level 1 to Level 2**
+  - Upgraded from CMMC Level 1 to Level 2
+  - Added separation of duties requirements (3.1.4)
+  - Added account lockout requirements (3.1.8)
+  - Added session management requirements (3.1.10-3.1.11)
+  - Added remote access controls (3.1.12-3.1.15)
+  - Added mobile device controls (3.1.18-3.1.19)
+  - Added portable storage controls (3.1.21)
+  - Updated scope to include CUI
+  - Preserved all Level 1 FCI requirements
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 

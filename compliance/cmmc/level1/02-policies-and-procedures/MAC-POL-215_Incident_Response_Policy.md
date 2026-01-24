@@ -1,34 +1,37 @@
-# Incident Response Policy - CMMC Level 1
+# Incident Response Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-23  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21, IR.L1-3.6.2
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2, Section 3.6
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Policy Statement
 
-MacTech Solutions maintains an incident response capability to identify, report, and respond to security incidents affecting Federal Contract Information (FCI) and system resources. This policy establishes requirements for incident identification, reporting, and response procedures.
+MacTech Solutions maintains an operational incident-handling capability to identify, report, and respond to security incidents affecting Federal Contract Information (FCI), Controlled Unclassified Information (CUI), and system resources. This policy establishes requirements for incident identification, reporting, response procedures, and incident response testing.
 
-This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+This policy aligns with CMMC Level 2 requirements and NIST SP 800-171 Rev. 2, Section 3.6 (Incident Response).
+
+**Level 1 Continuity:** All Level 1 FCI protection requirements remain in effect and are preserved in this policy.
 
 ---
 
 ## 2. Scope
 
 This policy applies to:
-- All security incidents involving FCI
+- All security incidents involving FCI and CUI
 - System security events
 - Unauthorized access attempts
 - Data breaches or suspected breaches
 - Malware infections
-- System availability issues affecting FCI
+- System availability issues affecting FCI and CUI
+- All incident response activities including preparation, detection, analysis, containment, recovery, and user response
 
-**System Scope:** FCI-only environment. CUI is prohibited and not intentionally processed or stored.
+**System Scope:** FCI and CUI environment.
 
 ---
 
@@ -42,9 +45,10 @@ This policy applies to:
 - Account compromise
 
 **Data Security:**
-- Unauthorized disclosure of FCI
+- Unauthorized disclosure of FCI or CUI
 - Data loss or corruption
 - Suspicious data access patterns
+- CUI spillage or mishandling
 
 **System Integrity:**
 - Malware infections
@@ -241,15 +245,76 @@ All incidents must be documented with:
 
 ---
 
-## 11. Compliance
+## 11. Incident Response Testing (3.6.3)
 
-This policy supports CMMC Level 1 Practice IR.L1-3.6.2: "Report incidents to designated personnel."
+**Requirement:** Test the organizational incident response capability.
+
+**Implementation:**
+- Incident response testing procedure established
+- IR capability testing conducted (tabletop exercises, simulations)
+- Testing schedule defined (annually minimum)
+- Test results documented and used to improve IR capability
+
+**Testing Methods:**
+- Tabletop exercises
+- Simulation exercises
+- Checklist reviews
+- Walk-through exercises
+
+**Testing Schedule:**
+- Annual testing: Required annually
+- Ad-hoc testing: After significant system changes or incidents
+- Testing frequency: Documented in IR testing procedure
+
+**Evidence:**
+- Incident Response Testing Procedure: `MAC-SOP-232_Incident_Response_Testing_Procedure.md` (to be created)
+- IR test results: To be documented
+
+**Status:** ❌ Not Implemented (POA&M item - Phase 6)
+
+---
+
+## 12. Incident Response Plan (IRP)
+
+**IRP Formalization:**
+- Incident Response Plan to be formalized as comprehensive document
+- IRP includes: preparation, detection, analysis, containment, recovery, user response
+- IRP covers FCI and CUI incident handling
+- IRP reviewed and updated periodically
+
+**IRP Components:**
+- Incident response team roles and responsibilities
+- Incident categories and severity levels
+- Incident response procedures
+- Communication procedures
+- Recovery procedures
+- Post-incident activities
+
+**Evidence:**
+- Incident Response Plan: To be formalized
+- IRP version control: Documented
+
+**Status:** ⚠️ Partially Satisfied (IRP to be formalized per Phase 6)
+
+---
+
+## 13. Compliance
+
+### 13.1 Level 1 Requirements (FCI)
+- ✅ Incident-handling capability (3.6.1) - Enhanced for Level 2
+- ✅ Track, document, and report incidents (3.6.2)
+
+### 13.2 Level 2 Requirements (CUI)
+- ⚠️ Operational incident-handling capability (3.6.1) - IRP to be formalized
+- ✅ Track, document, and report incidents (3.6.2)
+- ❌ Test incident response capability (3.6.3) - To be implemented
 
 **Evidence:**
 - Incident response policy (this document)
 - Incident response quick card
 - Security contact information
 - Incident log (if incidents occur)
+- IR testing results: To be documented
 
 ---
 
@@ -261,7 +326,14 @@ This policy supports CMMC Level 1 Practice IR.L1-3.6.2: "Report incidents to des
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-23): **MAJOR UPGRADE - CMMC Level 1 to Level 2**
+  - Upgraded from CMMC Level 1 to Level 2
+  - Added CUI incident handling requirements
+  - Added incident response testing requirements (3.6.3)
+  - Enhanced incident-handling capability requirements (3.6.1)
+  - Updated scope to include CUI
+  - Preserved all Level 1 FCI requirements
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 

@@ -6,7 +6,9 @@
 **Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
 **Reference:** FAR 52.204-21
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
+
+**Note:** This document has been upgraded from Level 1 to Level 2. FCI scope statements remain valid. CUI scope added per Level 2 requirements.
 
 ---
 

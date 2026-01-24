@@ -1,20 +1,24 @@
-# System Boundary & Data Handling Statement
+# System Boundary & Data Handling Statement - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-23  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Scope Statement
 
-**FCI Only; CUI Excluded**
+**FCI and CUI Processing**
 
-This system processes and stores **Federal Contract Information (FCI) only**, as defined by FAR 52.204-21. Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data. **Controlled Unclassified Information (CUI) is explicitly excluded** and prohibited from being uploaded, stored, or processed in the system.
+**Level 1 (FCI):** This system processes and stores **Federal Contract Information (FCI)**, as defined by FAR 52.204-21. Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data.
+
+**Level 2 (CUI):** This system has been upgraded to also process and store **Controlled Unclassified Information (CUI)**, as defined by 32 CFR Part 2002 and the CUI Registry. CUI is handled according to established CUI handling procedures and security controls.
+
+**System Scope:** The system processes both FCI and CUI. FCI handling remains as documented in Level 1. CUI handling is added per Level 2 requirements. All security controls protect both FCI and CUI unless otherwise specified.
 
 ---
 
@@ -44,6 +48,7 @@ This system processes and stores **Federal Contract Information (FCI) only**, as
 │     INTERNAL NETWORK SEGMENT (Railway Platform)              │
 │         PostgreSQL Database (Internal Tier)                  │
 │  - FCI storage (GovernmentContractDiscovery, etc.)          │
+│  - CUI storage (contract proposals, SOWs, CUI documents)    │
 │  - User accounts & authentication                            │
 │  - Event logs (AppEvent table)                               │
 │  - File storage (StoredFile table - BYTEA)                  │
@@ -231,7 +236,12 @@ This system processes and stores **Federal Contract Information (FCI) only**, as
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-23): **MAJOR UPGRADE - CMMC Level 1 to Level 2**
+  - Upgraded from CMMC Level 1 to Level 2
+  - Added CUI scope and data handling
+  - Updated system boundary to include CUI
+  - Preserved all Level 1 FCI statements
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 

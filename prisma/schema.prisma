@@ -25,6 +25,14 @@ model User {
   securityAcknowledgmentVersion    String? // Version of security acknowledgment accepted
   securityAcknowledgmentAcceptedAt DateTime? // When security acknowledgment was accepted
   securityAcknowledgmentRequired   Boolean   @default(true) // Whether acknowledgment is required
+  // MFA fields (CMMC Level 2)
+  mfaEnabled                       Boolean   @default(false) // Whether MFA is enabled for this user
+  mfaSecret                        String? // Encrypted TOTP secret
+  mfaBackupCodes                   String? // JSON array of hashed backup codes
+  mfaEnrolledAt                    DateTime? // When MFA was enrolled
+  // Account lockout fields (CMMC Level 2)
+  failedLoginAttempts              Int       @default(0) // Number of consecutive failed login attempts
+  lockedUntil                      DateTime? // Account lockout expiration timestamp
   createdAt                        DateTime  @default(now())
   updatedAt                        DateTime  @updatedAt
 
@@ -200,15 +208,15 @@ model GovernmentContractDiscovery {
   pipeline_completed_at DateTime? // When pipeline processing completed
 
   // Intelligence fields
-  opportunity_fingerprint           String?   @unique // SHA256 hash for deduplication
-  lifecycle_stage_classification    String?   // 'SOURCES_SOUGHT' | 'PRE_SOLICITATION' | 'SOLICITATION' | 'AWARD' | 'UNKNOWN'
-  agency_behavior_profile          String?   @db.Text // JSON: new_vendor_acceptance_rate, typical_award_size_avg, etc.
-  incumbent_concentration_score    Float?    // 0-1 HHI score
-  award_size_realism_ratio        Float?    // SAM value / historical average
-  recompete_likelihood             Float?    // 0-1 probability
-  set_aside_enforcement_reality    String?   @db.Text // JSON: compliance_rate, enforcement_strength
-  intelligence_data                 String?   @db.Text // JSON: complete intelligence payload
-  intelligence_calculated_at       DateTime?
+  opportunity_fingerprint        String?   @unique // SHA256 hash for deduplication
+  lifecycle_stage_classification String? // 'SOURCES_SOUGHT' | 'PRE_SOLICITATION' | 'SOLICITATION' | 'AWARD' | 'UNKNOWN'
+  agency_behavior_profile        String?   @db.Text // JSON: new_vendor_acceptance_rate, typical_award_size_avg, etc.
+  incumbent_concentration_score  Float? // 0-1 HHI score
+  award_size_realism_ratio       Float? // SAM value / historical average
+  recompete_likelihood           Float? // 0-1 probability
+  set_aside_enforcement_reality  String?   @db.Text // JSON: compliance_rate, enforcement_strength
+  intelligence_data              String?   @db.Text // JSON: complete intelligence payload
+  intelligence_calculated_at     DateTime?
 
   // Relationships
   awardLinks OpportunityAwardLink[]
@@ -312,14 +320,14 @@ model IngestionStatus {
 
 // Agency intelligence cache (composite key: agency_id + naics_code)
 model AgencyIntelligenceCache {
-  id                    String   @id @default(cuid())
-  agency_id             String   // Normalized agency identifier
-  agency_name           String
-  naics_code            String
-  behavior_profile      String   @db.Text // JSON: agency_behavior_profile structure
-  last_calculated_at    DateTime @default(now())
-  award_count           Int      // Number of awards used in calculation
-  calculation_version   Int      @default(1) // For cache invalidation
+  id                  String   @id @default(cuid())
+  agency_id           String // Normalized agency identifier
+  agency_name         String
+  naics_code          String
+  behavior_profile    String   @db.Text // JSON: agency_behavior_profile structure
+  last_calculated_at  DateTime @default(now())
+  award_count         Int // Number of awards used in calculation
+  calculation_version Int      @default(1) // For cache invalidation
 
   @@unique([agency_id, naics_code], name: "agency_id_naics_code")
   @@index([agency_id])
@@ -329,18 +337,18 @@ model AgencyIntelligenceCache {
 
 // Vendor intelligence cache (composite key: vendor_uei + agency_id + naics_code)
 model VendorIntelligenceCache {
-  id                      String   @id @default(cuid())
-  vendor_uei              String
-  vendor_name             String
-  agency_id               String
-  naics_code              String
-  market_share            Float    // 0-1: wins / total awards
+  id                       String   @id @default(cuid())
+  vendor_uei               String
+  vendor_name              String
+  agency_id                String
+  naics_code               String
+  market_share             Float // 0-1: wins / total awards
   total_awards             Int
   total_obligation         Float
   capability_fingerprint   String   @db.Text // JSON: {naics: [], psc: []}
   certification_advantages String   @db.Text // JSON: ['SDVOSB', 'VOSB', etc.]
-  last_calculated_at      DateTime @default(now())
-  calculation_version     Int      @default(1)
+  last_calculated_at       DateTime @default(now())
+  calculation_version      Int      @default(1)
 
   @@unique([vendor_uei, agency_id, naics_code], name: "vendor_uei_agency_id_naics_code")
   @@index([vendor_uei])

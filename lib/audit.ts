@@ -45,6 +45,14 @@ export type ActionType =
   | "export_endpoint_inventory"
   | "config_changed"
   | "cui_spill_detected"
+  | "mfa_enrollment_initiated"
+  | "mfa_enrollment_completed"
+  | "mfa_enrollment_failed"
+  | "mfa_verification_success"
+  | "mfa_verification_failed"
+  | "mfa_backup_code_used"
+  | "account_locked"
+  | "account_unlocked"
 
 export type TargetType =
   | "user"
@@ -638,4 +646,348 @@ export async function cleanupOldEvents(retentionDays: number = 90) {
   })
 
   return result.count
+}
+
+/**
+ * Correlate events by user, IP address, or action pattern
+ * Per NIST SP 800-171 Rev. 2, Section 3.3.7
+ */
+export interface CorrelationOptions {
+  userId?: string
+  ipAddress?: string
+  actionType?: ActionType
+  timeWindow?: number // minutes
+  pattern?: string // Pattern to match in details
+}
+
+export async function correlateEvents(options: CorrelationOptions) {
+  const {
+    userId,
+    ipAddress,
+    actionType,
+    timeWindow = 60, // Default 60 minutes
+    pattern,
+  } = options
+
+  const cutoffTime = new Date()
+  cutoffTime.setMinutes(cutoffTime.getMinutes() - timeWindow)
+
+  const where: any = {
+    timestamp: {
+      gte: cutoffTime,
+    },
+  }
+
+  if (userId) where.actorUserId = userId
+  if (ipAddress) where.ip = ipAddress
+  if (actionType) where.actionType = actionType
+
+  const events = await prisma.appEvent.findMany({
+    where,
+    orderBy: { timestamp: "desc" },
+    include: {
+      actor: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+        },
+      },
+    },
+  })
+
+  // Filter by pattern if provided
+  let filteredEvents = events
+  if (pattern) {
+    filteredEvents = events.filter((event) => {
+      if (!event.details) return false
+      try {
+        const details = JSON.parse(event.details)
+        const detailsStr = JSON.stringify(details).toLowerCase()
+        return detailsStr.includes(pattern.toLowerCase())
+      } catch {
+        return false
+      }
+    })
+  }
+
+  return {
+    events: filteredEvents,
+    count: filteredEvents.length,
+    timeWindow,
+    correlationCriteria: options,
+  }
+}
+
+/**
+ * Detect suspicious patterns in audit logs
+ * Per NIST SP 800-171 Rev. 2, Section 3.3.7
+ */
+export interface SuspiciousPattern {
+  type: "multiple_failed_logins" | "rapid_actions" | "unusual_ip" | "privilege_escalation"
+  description: string
+  events: any[]
+  severity: "low" | "medium" | "high"
+}
+
+export async function detectSuspiciousPatterns(
+  timeWindow: number = 60
+): Promise<SuspiciousPattern[]> {
+  const cutoffTime = new Date()
+  cutoffTime.setMinutes(cutoffTime.getMinutes() - timeWindow)
+
+  const patterns: SuspiciousPattern[] = []
+
+  // Pattern 1: Multiple failed logins from same IP
+  const failedLogins = await prisma.appEvent.groupBy({
+    by: ["ip", "actorEmail"],
+    where: {
+      actionType: "login_failed",
+      timestamp: { gte: cutoffTime },
+    },
+    _count: {
+      id: true,
+    },
+    having: {
+      id: {
+        _count: {
+          gt: 5, // More than 5 failed logins
+        },
+      },
+    },
+  })
+
+  for (const group of failedLogins) {
+    const events = await prisma.appEvent.findMany({
+      where: {
+        actionType: "login_failed",
+        ip: group.ip,
+        actorEmail: group.actorEmail,
+        timestamp: { gte: cutoffTime },
+      },
+      orderBy: { timestamp: "desc" },
+      take: 10,
+    })
+
+    patterns.push({
+      type: "multiple_failed_logins",
+      description: `Multiple failed login attempts (${group._count.id}) from IP ${group.ip}`,
+      events,
+      severity: "high",
+    })
+  }
+
+  // Pattern 2: Rapid actions from same user
+  const rapidActions = await prisma.appEvent.groupBy({
+    by: ["actorUserId"],
+    where: {
+      timestamp: { gte: cutoffTime },
+      success: true,
+    },
+    _count: {
+      id: true,
+    },
+    having: {
+      id: {
+        _count: {
+          gt: 50, // More than 50 actions in time window
+        },
+      },
+    },
+  })
+
+  for (const group of rapidActions) {
+    if (!group.actorUserId) continue
+
+    const events = await prisma.appEvent.findMany({
+      where: {
+        actorUserId: group.actorUserId,
+        timestamp: { gte: cutoffTime },
+      },
+      orderBy: { timestamp: "desc" },
+      take: 20,
+    })
+
+    patterns.push({
+      type: "rapid_actions",
+      description: `Rapid actions (${group._count.id}) by user in ${timeWindow} minutes`,
+      events,
+      severity: "medium",
+    })
+  }
+
+  // Pattern 3: Account lockout events
+  const lockoutEvents = await prisma.appEvent.findMany({
+    where: {
+      actionType: "account_locked",
+      timestamp: { gte: cutoffTime },
+    },
+    orderBy: { timestamp: "desc" },
+  })
+
+  if (lockoutEvents.length > 0) {
+    patterns.push({
+      type: "multiple_failed_logins",
+      description: `${lockoutEvents.length} account lockout(s) detected`,
+      events: lockoutEvents,
+      severity: "high",
+    })
+  }
+
+  return patterns
+}
+
+/**
+ * Generate failure alerts for critical events
+ * Per NIST SP 800-171 Rev. 2, Section 3.3.4
+ */
+export interface FailureAlert {
+  id: string
+  type: "critical" | "warning" | "info"
+  message: string
+  eventId: string
+  timestamp: Date
+  actionRequired: boolean
+}
+
+export async function generateFailureAlerts(
+  timeWindow: number = 15 // minutes
+): Promise<FailureAlert[]> {
+  const cutoffTime = new Date()
+  cutoffTime.setMinutes(cutoffTime.getMinutes() - timeWindow)
+
+  const alerts: FailureAlert[] = []
+
+  // Critical: Multiple account lockouts
+  const lockouts = await prisma.appEvent.findMany({
+    where: {
+      actionType: "account_locked",
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  for (const event of lockouts) {
+    alerts.push({
+      id: `alert-${event.id}`,
+      type: "critical",
+      message: `Account locked: ${event.actorEmail || "Unknown user"}`,
+      eventId: event.id,
+      timestamp: event.timestamp,
+      actionRequired: true,
+    })
+  }
+
+  // Warning: Multiple failed MFA verifications
+  const failedMFA = await prisma.appEvent.findMany({
+    where: {
+      actionType: "mfa_verification_failed",
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  if (failedMFA.length >= 3) {
+    alerts.push({
+      id: `alert-mfa-${Date.now()}`,
+      type: "warning",
+      message: `${failedMFA.length} failed MFA verification attempts detected`,
+      eventId: failedMFA[0].id,
+      timestamp: new Date(),
+      actionRequired: true,
+    })
+  }
+
+  // Warning: Audit log failures (if we had them)
+  const auditFailures = await prisma.appEvent.findMany({
+    where: {
+      actionType: "config_changed", // Placeholder - would be audit_failure if we track it
+      success: false,
+      timestamp: { gte: cutoffTime },
+    },
+    take: 1,
+  })
+
+  // Info: High volume of events
+  const eventCount = await prisma.appEvent.count({
+    where: {
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  if (eventCount > 1000) {
+    alerts.push({
+      id: `alert-volume-${Date.now()}`,
+      type: "info",
+      message: `High volume of events: ${eventCount} in ${timeWindow} minutes`,
+      eventId: "",
+      timestamp: new Date(),
+      actionRequired: false,
+    })
+  }
+
+  return alerts
+}
+
+/**
+ * Get audit log statistics for review
+ * Per NIST SP 800-171 Rev. 2, Section 3.3.2
+ */
+export async function getAuditLogStatistics(timeWindow: number = 24) {
+  const cutoffTime = new Date()
+  cutoffTime.setHours(cutoffTime.getHours() - timeWindow)
+
+  const [
+    totalEvents,
+    failedLogins,
+    successfulLogins,
+    adminActions,
+    mfaEvents,
+    lockoutEvents,
+  ] = await Promise.all([
+    prisma.appEvent.count({
+      where: { timestamp: { gte: cutoffTime } },
+    }),
+    prisma.appEvent.count({
+      where: {
+        actionType: "login_failed",
+        timestamp: { gte: cutoffTime },
+      },
+    }),
+    prisma.appEvent.count({
+      where: {
+        actionType: "login",
+        success: true,
+        timestamp: { gte: cutoffTime },
+      },
+    }),
+    prisma.appEvent.count({
+      where: {
+        actionType: "admin_action",
+        timestamp: { gte: cutoffTime },
+      },
+    }),
+    prisma.appEvent.count({
+      where: {
+        actionType: { in: ["mfa_verification_success", "mfa_verification_failed", "mfa_enrollment_completed"] },
+        timestamp: { gte: cutoffTime },
+      },
+    }),
+    prisma.appEvent.count({
+      where: {
+        actionType: "account_locked",
+        timestamp: { gte: cutoffTime },
+      },
+    }),
+  ])
+
+  return {
+    timeWindow,
+    totalEvents,
+    failedLogins,
+    successfulLogins,
+    adminActions,
+    mfaEvents,
+    lockoutEvents,
+    successRate: totalEvents > 0 ? (successfulLogins / totalEvents) * 100 : 0,
+  }
 }

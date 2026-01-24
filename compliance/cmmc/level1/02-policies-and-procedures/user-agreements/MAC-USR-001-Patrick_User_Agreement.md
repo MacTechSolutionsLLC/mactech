@@ -1,20 +1,22 @@
-# User Access and FCI Handling Acknowledgement - Patrick
+# User Access and FCI/CUI Handling Acknowledgement - Patrick
 
-**Document Version:** 1.0  
-**Date:** 2026-01-22  
+**Document Version:** 2.0  
+**Date:** 2026-01-23  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## Purpose
 
-This acknowledgment form documents that the user understands their responsibilities for protecting Federal Contract Information (FCI) and the prohibition on uploading Controlled Unclassified Information (CUI) or other prohibited data types. This acknowledgment is required before system access is granted.
+This acknowledgment form documents that the user understands their responsibilities for protecting Federal Contract Information (FCI) and Controlled Unclassified Information (CUI). This acknowledgment is required before system access is granted.
 
 **Note:** This form must be completed and signed by the user before system access is provisioned.
+
+**Level 1 Continuity:** All Level 1 FCI protection requirements remain in effect and are preserved in this agreement.
 
 ---
 
@@ -44,14 +46,17 @@ By signing below, I acknowledge that I have read and understand the following:
 - Report any suspected FCI breaches or unauthorized access
 - Follow all organizational policies and procedures related to FCI handling
 
-### 2. Prohibition on Controlled Unclassified Information (CUI)
+### 2. Controlled Unclassified Information (CUI) Protection
 
-☐ **I understand that uploading Controlled Unclassified Information (CUI) is contractually and procedurally prohibited.** I will:
+☐ **I understand my responsibility to protect Controlled Unclassified Information (CUI)** as defined by 32 CFR Part 2002 and the CUI Registry. I will:
 
-- Not upload, store, or process CUI in the system
-- Not combine FCI with external data sources in a manner that would create CUI
-- Immediately report any accidental upload of CUI
-- Understand that violation of this prohibition may result in immediate access revocation
+- Treat all CUI with appropriate care and confidentiality
+- Access CUI only for authorized business purposes
+- Not disclose CUI to unauthorized individuals
+- Follow CUI marking and handling requirements
+- Report any suspected CUI breaches or unauthorized access
+- Follow all organizational policies and procedures related to CUI handling
+- Understand that CUI must be handled according to established CUI handling procedures
 
 ### 3. System Access and Security
 

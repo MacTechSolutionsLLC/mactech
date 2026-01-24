@@ -47,11 +47,59 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         if (!isPasswordValid) {
+          // Increment failed login attempts and check for lockout
+          const failedAttempts = (user.failedLoginAttempts || 0) + 1
+          const maxAttempts = 5 // Configurable: 5 failed attempts
+          const lockoutDuration = 30 * 60 * 1000 // 30 minutes in milliseconds
+
+          if (failedAttempts >= maxAttempts) {
+            // Lock account
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                failedLoginAttempts: failedAttempts,
+                lockedUntil: new Date(Date.now() + lockoutDuration),
+              },
+            }).catch(() => {
+              // Don't fail if update fails
+            })
+          } else {
+            // Increment failed attempts
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { failedLoginAttempts: failedAttempts },
+            }).catch(() => {
+              // Don't fail if update fails
+            })
+          }
+
           // Log failed login attempt (invalid password)
           await logLogin(user.id, user.email, false).catch(() => {
             // Don't fail auth if logging fails
           })
           return null
+        }
+
+        // Check if account is locked
+        if (user.lockedUntil && new Date() < user.lockedUntil) {
+          // Log locked account access attempt
+          await logLogin(user.id, user.email, false).catch(() => {
+            // Don't fail auth if logging fails
+          })
+          return null
+        }
+
+        // Reset failed login attempts on successful password verification
+        if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              failedLoginAttempts: 0,
+              lockedUntil: null,
+            },
+          }).catch(() => {
+            // Don't fail if update fails
+          })
         }
 
         // Update last login timestamp
@@ -68,6 +116,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Don't fail auth if logging fails
         })
 
+        // Check if MFA is required and enrolled
+        const mfaRequired = user.role === "ADMIN"
+        const mfaEnrolled = user.mfaEnabled && !!user.mfaSecret
+
         return {
           id: user.id,
           email: user.email,
@@ -75,6 +127,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           image: user.image,
           role: user.role,
           mustChangePassword: user.mustChangePassword,
+          mfaRequired,
+          mfaEnrolled,
         }
       }
     })
@@ -108,6 +162,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role
         token.mustChangePassword = user.mustChangePassword
         token.adminReauthVerified = false // Reset re-auth on new login
+        token.mfaRequired = (user as any).mfaRequired || false
+        token.mfaEnrolled = (user as any).mfaEnrolled || false
+        token.mfaVerified = false // MFA verification status
       }
       
       // If session.update() was called (e.g., after password change or re-auth), update the token
