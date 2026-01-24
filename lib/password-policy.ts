@@ -123,6 +123,7 @@ export const PASSWORD_POLICY = {
   minLength: 14,
   bcryptRounds: 12, // Cost factor for bcrypt
   requireCommonPasswordCheck: true,
+  passwordHistoryCount: 5, // Number of previous passwords to prevent reuse (NIST SP 800-171 Rev. 2, Section 3.5.8)
 }
 
 /**
@@ -134,8 +135,10 @@ export function getPasswordPolicy() {
     requirements: [
       `Minimum ${PASSWORD_POLICY.minLength} characters`,
       "Cannot be a common password",
+      `Cannot reuse any of the last ${PASSWORD_POLICY.passwordHistoryCount} passwords`,
     ],
     bcryptRounds: PASSWORD_POLICY.bcryptRounds,
+    passwordHistoryCount: PASSWORD_POLICY.passwordHistoryCount,
   }
 }
 

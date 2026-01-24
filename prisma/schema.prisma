@@ -40,10 +40,23 @@ model User {
   events             AppEvent[] // Events created by this user
   uploadedFiles      StoredFile[] // Files uploaded by this user
   physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
+  passwordHistory    PasswordHistory[] // Password history for reuse prevention
 
   @@index([email])
   @@index([disabled])
   @@index([lastLoginAt])
+}
+
+// Password history for reuse prevention (NIST SP 800-171 Rev. 2, Section 3.5.8)
+model PasswordHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  passwordHash String // bcrypt hash of password
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
 }
 
 model ReadinessAssessment {

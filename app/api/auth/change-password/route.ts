@@ -62,13 +62,34 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if new password is different
+    // Check if new password is different from current password
     const isSamePassword = await bcrypt.compare(newPassword, user.password)
     if (isSamePassword) {
       return NextResponse.json(
         { error: 'New password must be different from current password' },
         { status: 400 }
       )
+    }
+
+    // Check password history to prevent reuse (NIST SP 800-171 Rev. 2, Section 3.5.8)
+    const passwordHistory = await prisma.passwordHistory.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: PASSWORD_POLICY.passwordHistoryCount,
+    })
+
+    // Check against password history
+    for (const historyEntry of passwordHistory) {
+      const isReusedPassword = await bcrypt.compare(newPassword, historyEntry.passwordHash)
+      if (isReusedPassword) {
+        return NextResponse.json(
+          { 
+            error: `Password cannot be reused. You cannot use any of your last ${PASSWORD_POLICY.passwordHistoryCount} passwords.`,
+            errors: [`Password reuse is prohibited for the last ${PASSWORD_POLICY.passwordHistoryCount} passwords`]
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // Hash new password with configured cost factor
@@ -82,6 +103,29 @@ export async function POST(req: NextRequest) {
         mustChangePassword: false,
       }
     })
+
+    // Save current password to history before updating
+    await prisma.passwordHistory.create({
+      data: {
+        userId: user.id,
+        passwordHash: user.password, // Store the old password hash
+      }
+    })
+
+    // Clean up old password history entries (keep only the configured number)
+    const allHistoryEntries = await prisma.passwordHistory.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    if (allHistoryEntries.length > PASSWORD_POLICY.passwordHistoryCount) {
+      const entriesToDelete = allHistoryEntries.slice(PASSWORD_POLICY.passwordHistoryCount)
+      await prisma.passwordHistory.deleteMany({
+        where: {
+          id: { in: entriesToDelete.map(e => e.id) }
+        }
+      })
+    }
 
     // Log password change event with detailed information
     await logEvent(

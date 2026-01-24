@@ -56,8 +56,50 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Check password history to prevent reuse (NIST SP 800-171 Rev. 2, Section 3.5.8)
+    const passwordHistory = await prisma.passwordHistory.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: PASSWORD_POLICY.passwordHistoryCount,
+    })
+
+    // Check against password history
+    for (const historyEntry of passwordHistory) {
+      const isReusedPassword = await bcrypt.compare(newPassword, historyEntry.passwordHash)
+      if (isReusedPassword) {
+        return NextResponse.json(
+          { 
+            error: `Password cannot be reused. The user cannot use any of their last ${PASSWORD_POLICY.passwordHistoryCount} passwords.`,
+            errors: [`Password reuse is prohibited for the last ${PASSWORD_POLICY.passwordHistoryCount} passwords`]
+          },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Check if new password is same as current password
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(newPassword, user.password)
+      if (isSamePassword) {
+        return NextResponse.json(
+          { error: 'New password must be different from current password' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Hash new password with configured cost factor
     const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_POLICY.bcryptRounds)
+
+    // Save current password to history before updating (if user has a password)
+    if (user.password) {
+      await prisma.passwordHistory.create({
+        data: {
+          userId: user.id,
+          passwordHash: user.password, // Store the old password hash
+        }
+      })
+    }
 
     // Update password and reset mustChangePassword flag
     await prisma.user.update({
@@ -67,6 +109,21 @@ export async function POST(req: NextRequest) {
         mustChangePassword: true, // Force password change on next login
       }
     })
+
+    // Clean up old password history entries (keep only the configured number)
+    const allHistoryEntries = await prisma.passwordHistory.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    if (allHistoryEntries.length > PASSWORD_POLICY.passwordHistoryCount) {
+      const entriesToDelete = allHistoryEntries.slice(PASSWORD_POLICY.passwordHistoryCount)
+      await prisma.passwordHistory.deleteMany({
+        where: {
+          id: { in: entriesToDelete.map(e => e.id) }
+        }
+      })
+    }
 
     // Log admin action
     await logAdminAction(

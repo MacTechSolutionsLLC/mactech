@@ -111,7 +111,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | MAC-RPT-120, prisma/schema.prisma | Unique constraint, procedure | 7.2, 3.5.5 |
 | 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 (to be updated) | - | Inactivity disable | 7.2, 3.5.6 |
 | 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts | Password policy | 7.2, 3.5.7 |
-| 3.5.8 | Prohibit password reuse | ❌ Not Implemented | MAC-POL-211 | - | Password history (to be created) | Reuse prevention | 7.2, 3.5.8 |
+| 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, app/api/auth/change-password/route.ts, PasswordHistory model | Password history (5 generations) | 7.2, 3.5.8 |
 | 3.5.9 | Temporary passwords | 🚫 Not Applicable | MAC-POL-211 | - | System architecture | All accounts created with permanent passwords | 7.2, 3.5.9 |
 | 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | bcrypt | 7.2, 3.5.10 |
 | 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | Error handling | 7.2, 3.5.11 |
@@ -242,10 +242,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 80 controls (73%)
+- ✅ **Implemented:** 81 controls (74%)
 - 🔄 **Inherited:** 20 controls (18%)
 - ⚠️ **Partially Satisfied:** 0 controls (0%)
-- ❌ **Not Implemented:** 8 controls (7%)
+- ❌ **Not Implemented:** 7 controls (6%)
 - 🚫 **Not Applicable:** 14 controls (13%)
 
 **Control Families:**

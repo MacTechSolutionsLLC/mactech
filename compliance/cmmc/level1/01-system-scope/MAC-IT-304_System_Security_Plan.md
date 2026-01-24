@@ -835,16 +835,22 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.5.8: Prohibit password reuse for a specified number of generations
 
 **Implementation:**
-- Password reuse prevention to be implemented
-- Password history tracking to be added
-- Password reuse policy to be enforced
-- Password history procedure to be established
+- Password reuse prevention implemented
+- Password history tracking implemented (last 5 passwords)
+- Password reuse policy enforced during password changes
+- Password history stored in PasswordHistory model
+- Password history checked during user password changes and admin password resets
+- Old password history entries automatically cleaned up
 
 **Evidence:**
-- Password Policy: `../02-policies-and-procedures/MAC-POL-211_Identification_and_Authentication_Policy.md` (to be updated)
-- Password reuse prevention procedure: To be created
+- Password Policy: `../02-policies-and-procedures/MAC-POL-211_Identification_and_Authentication_Policy.md`
+- Password change implementation: `app/api/auth/change-password/route.ts`
+- Admin password reset: `app/api/admin/reset-user-password/route.ts`
+- Password policy configuration: `lib/password-policy.ts` (passwordHistoryCount: 5)
+- Database schema: `prisma/schema.prisma` (PasswordHistory model)
+- Migration: `prisma/migrations/20260124000002_add_password_history/migration.sql`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 5)
+**Status:** ✅ Fully Implemented
 
 #### 3.5.9: Allow temporary password use for system logons with an immediate change to a permanent password
 
