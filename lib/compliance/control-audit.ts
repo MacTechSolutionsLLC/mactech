@@ -790,19 +790,56 @@ function calculateComplianceScore(audit: Partial<ControlAuditResult>): number {
   // Evidence files (30 points)
   maxScore += 30
   if (audit.evidence?.evidenceFiles && audit.evidence.evidenceFiles.length > 0) {
-    const evidenceCount = audit.evidence.evidenceFiles.filter(e => e.exists).length
-    const evidenceScore = evidenceCount === audit.evidence.evidenceFiles.length ? 30 :
-                          evidenceCount > 0 ? 15 : 0
-    score += evidenceScore
+    // Separate verifiable files from descriptive references
+    const verifiableFiles = audit.evidence.evidenceFiles.filter(e => 
+      e.reference !== '-' && 
+      (e.reference.includes('.md') || 
+       e.reference.startsWith('MAC-') || 
+       e.reference.startsWith('/api/') || 
+       e.reference.startsWith('/admin/') ||
+       e.reference.includes('/'))
+    )
+    const descriptiveRefs = audit.evidence.evidenceFiles.filter(e => 
+      e.reference !== '-' && 
+      !verifiableFiles.includes(e)
+    )
+    
+    if (verifiableFiles.length > 0) {
+      const evidenceCount = verifiableFiles.filter(e => e.exists).length
+      const evidenceScore = evidenceCount === verifiableFiles.length ? 30 :
+                            evidenceCount > 0 ? Math.round((evidenceCount / verifiableFiles.length) * 30) : 0
+      score += evidenceScore
+    } else if (descriptiveRefs.length > 0) {
+      // Descriptive references get partial credit (they're documented but not verifiable files)
+      score += 20 // Partial credit for descriptive documentation
+    }
   }
   
   // Code implementation (30 points)
   maxScore += 30
   if (audit.evidence?.codeVerification && audit.evidence.codeVerification.length > 0) {
-    const codeCount = audit.evidence.codeVerification.filter(c => c.exists && c.containsRelevantCode).length
-    const codeScore = codeCount === audit.evidence.codeVerification.length ? 30 :
-                      codeCount > 0 ? 15 : 0
-    score += codeScore
+    // Separate verifiable code files from descriptive references
+    const verifiableCode = audit.evidence.codeVerification.filter(c => 
+      c.file !== '-' && 
+      (c.file.includes('.ts') || 
+       c.file.includes('.tsx') || 
+       c.file.includes('.js') || 
+       c.file.includes('/') ||
+       c.file.includes('model'))
+    )
+    const descriptiveCode = audit.evidence.codeVerification.filter(c => 
+      c.file !== '-' && !verifiableCode.includes(c)
+    )
+    
+    if (verifiableCode.length > 0) {
+      const codeCount = verifiableCode.filter(c => c.exists && c.containsRelevantCode).length
+      const codeScore = codeCount === verifiableCode.length ? 30 :
+                        codeCount > 0 ? Math.round((codeCount / verifiableCode.length) * 30) : 0
+      score += codeScore
+    } else if (descriptiveCode.length > 0) {
+      // Descriptive code references get partial credit
+      score += 20 // Partial credit for descriptive implementation references
+    }
   }
   
   // Adjust for status
