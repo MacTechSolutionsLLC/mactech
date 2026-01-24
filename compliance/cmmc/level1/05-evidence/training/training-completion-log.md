@@ -37,12 +37,12 @@ This document tracks security awareness training completion for all personnel wi
 
 ## 3. Training Completion Records
 
-| Personnel Name | Role | Training Date | Training Type | Content Reviewed | Acknowledgment Signed | Next Training Due |
-|----------------|------|---------------|---------------|------------------|----------------------|-------------------|
-| Patrick | ADMIN | 2026-01-23 | Initial | Security Awareness Training Content | ✅ | 2027-01-23 |
-| Jon | USER | 2026-01-23 | Initial | Security Awareness Training Content | ✅ | 2027-01-23 |
-| Brian | USER | 2026-01-23 | Initial | Security Awareness Training Content | ✅ | 2027-01-23 |
-| James | USER | 2026-01-23 | Initial | Security Awareness Training Content | ✅ | 2027-01-23 |
+| Personnel Name | Role | Training Date | Training Type | Content Reviewed | Delivery Method | Acknowledgment Signed | Next Training Due |
+|----------------|------|---------------|---------------|------------------|-----------------|----------------------|-------------------|
+| Patrick | ADMIN | 2026-01-23 | Initial | Security Awareness Training Content, Insider Threat Awareness | Documentation Review | ✅ 2026-01-23 | 2027-01-23 |
+| Jon | USER | 2026-01-23 | Initial | Security Awareness Training Content, Insider Threat Awareness | Documentation Review | ✅ 2026-01-23 | 2027-01-23 |
+| Brian | USER | 2026-01-23 | Initial | Security Awareness Training Content, Insider Threat Awareness | Documentation Review | ✅ 2026-01-23 | 2027-01-23 |
+| James | USER | 2026-01-23 | Initial | Security Awareness Training Content, Insider Threat Awareness | Documentation Review | ✅ 2026-01-23 | 2027-01-23 |
 
 ---
 

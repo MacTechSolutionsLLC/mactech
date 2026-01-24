@@ -74,24 +74,38 @@ This procedure applies to:
 **Step 1: Change Planning**
 - Identify configuration change need
 - Document change purpose and justification
-- Assess potential security impact
+- Conduct security impact analysis
 - Plan change implementation
 - Obtain approval for high-impact changes
 
-**Step 2: Change Documentation**
+**Step 2: Security Impact Analysis**
+- Assess security impact of proposed change
+- Identify affected security controls
+- Assess risk of change
+- Document impact analysis using Security Impact Analysis Template
+- Obtain approval based on impact
+
+**Security Impact Analysis:**
+- Template: `../05-evidence/security-impact-analysis/security-impact-analysis-template.md`
+- Required for all configuration changes
+- Impact level determines approval requirements
+
+**Step 3: Change Documentation**
 - Document proposed change
 - Record change date and time
 - Note responsible party
 - Document expected impact
+- Document security impact analysis
 - Document change approval
 
-**Step 3: Change Notification (if applicable)**
+**Step 4: Change Notification (if applicable)**
 - Notify relevant personnel of planned change
 - Communicate change purpose and impact
 - Provide change timeline
 
-**Step 4: Change Approval**
+**Step 5: Change Approval**
 - Review change for security impact
+- Review security impact analysis
 - Obtain approval for high-impact changes
 - Document approval in change log
 - Proceed with implementation after approval

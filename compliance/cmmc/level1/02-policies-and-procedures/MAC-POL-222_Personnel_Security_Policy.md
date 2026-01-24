@@ -56,10 +56,12 @@ This policy applies to:
 - Security clearance (if required by contract)
 
 **Evidence:**
-- Personnel Screening Procedure: `MAC-SOP-233_Personnel_Screening_Procedure.md` (to be created)
-- Screening records: To be maintained
+- Personnel Screening Procedure: `MAC-SOP-233_Personnel_Screening_Procedure.md`
+- Screening Records Template: `../05-evidence/personnel-screening/screening-records-template.md`
+- Screening Completion Log: `../05-evidence/personnel-screening/screening-completion-log.md`
+- Screening records: Maintained in screening completion log
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 ---
 
@@ -90,10 +92,11 @@ This policy applies to:
 5. Documentation of transfer actions
 
 **Evidence:**
-- Personnel Termination Procedure: `MAC-SOP-234_Personnel_Termination_Procedure.md` (to be created)
-- Termination records: To be maintained
+- Personnel Termination Procedure: `MAC-SOP-234_Personnel_Termination_Procedure.md`
+- Termination records: Maintained per termination procedure
+- Access revocation: Via admin interface, documented in audit logs
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 ---
 

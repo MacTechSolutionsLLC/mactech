@@ -51,11 +51,11 @@ This policy applies to:
 - Security baseline: Security configuration settings
 
 **Evidence:**
-- Configuration Management Plan: `MAC-SOP-225_Configuration_Change_Awareness_Procedure.md` (to be expanded)
-- Configuration Baseline Inventory: To be created
-- Configuration Baseline Management Procedure: `MAC-SOP-228_Configuration_Baseline_Management_Procedure.md` (to be created)
+- Configuration Management Plan: `MAC-CMP-001_Configuration_Management_Plan.md`
+- Configuration Baseline Evidence: `../05-evidence/MAC-RPT-108_Configuration_Baseline_Evidence.md`
+- Configuration Baseline Management Procedure: `MAC-SOP-228_Configuration_Baseline_Management_Procedure.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 ---
 
@@ -132,10 +132,11 @@ This policy applies to:
 - Obtain approval based on impact
 
 **Evidence:**
-- Security impact analysis process: To be formalized
-- Change control procedure: To be enhanced
+- Security Impact Analysis Template: `../05-evidence/security-impact-analysis/security-impact-analysis-template.md`
+- Configuration Change Awareness Procedure: `MAC-SOP-225_Configuration_Change_Awareness_Procedure.md` (includes impact analysis process)
+- Configuration Management Plan: `MAC-CMP-001_Configuration_Management_Plan.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 ---
 
@@ -156,10 +157,11 @@ This policy applies to:
 - Deployment changes: Railway platform access controls
 
 **Evidence:**
-- Change control procedure: To be enhanced
-- Access restrictions: To be documented
+- Configuration Management Plan: `MAC-CMP-001_Configuration_Management_Plan.md`
+- Configuration Change Awareness Procedure: `MAC-SOP-225_Configuration_Change_Awareness_Procedure.md`
+- Change Control Evidence: `../05-evidence/MAC-RPT-109_Change_Control_Evidence.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 ---
 
@@ -216,10 +218,11 @@ This policy applies to:
 - Software restrictions enforced
 
 **Evidence:**
-- Software Restriction Policy: To be created
-- Authorized software inventory: To be maintained
+- Software Restriction Policy: `MAC-POL-226_Software_Restriction_Policy.md`
+- Authorized software inventory: `package.json`, Configuration Baseline Evidence
+- Dependency management: `package.json`, Dependabot configuration
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 ---
 

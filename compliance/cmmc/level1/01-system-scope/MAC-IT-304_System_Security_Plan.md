@@ -910,32 +910,40 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.2.2: Ensure that personnel are trained to carry out their assigned information security-related duties and responsibilities
 
 **Implementation:**
-- Security training program to be developed
+- Security training program established
 - Role-based training for administrators and users
 - Training content covers security responsibilities
 - Training completion tracked and documented
 - Annual training required for all personnel
+- Training delivered via documentation review
+- Training acknowledgment required
+- Training completion logged
 
 **Evidence:**
-- Security Awareness Training Procedure: `../02-policies-and-procedures/MAC-SOP-227_Security_Awareness_Training_Procedure.md` (to be created)
-- Training records: To be maintained
+- Security Awareness Training Procedure: `../02-policies-and-procedures/MAC-SOP-227_Security_Awareness_Training_Procedure.md`
+- Security Awareness Training Content: `../05-evidence/training/security-awareness-training-content.md`
+- Training Completion Log: `../05-evidence/training/training-completion-log.md`
+- Training records: Maintained in training completion log
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 #### 3.2.3: Provide security awareness training on recognizing and reporting potential indicators of insider threat
 
 **Implementation:**
-- Insider threat awareness training to be developed
+- Insider threat awareness training developed and delivered
 - Training covers indicators of insider threat
 - Reporting procedures for insider threat indicators documented
 - Training delivered to all personnel
 - Training completion tracked
+- Insider threat content included in security awareness training
 
 **Evidence:**
-- Insider Threat Awareness Training: To be developed
-- Awareness and Training Policy: `../02-policies-and-procedures/MAC-POL-219_Awareness_and_Training_Policy.md` (to be created)
+- Security Awareness Training Content: `../05-evidence/training/security-awareness-training-content.md` (includes insider threat section)
+- Security Awareness Training Procedure: `../02-policies-and-procedures/MAC-SOP-227_Security_Awareness_Training_Procedure.md` (includes insider threat training)
+- Training Completion Log: `../05-evidence/training/training-completion-log.md`
+- Awareness and Training Policy: `../02-policies-and-procedures/MAC-POL-219_Awareness_and_Training_Policy.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 ### 7.4 Audit and Accountability (AU) - 9 Requirements
 
@@ -979,44 +987,52 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.3.3: Review and update logged events
 
 **Implementation:**
-- Audit log review procedure to be established
-- Periodic review of logged events conducted
+- Audit log review procedure established
+- Periodic review of logged events conducted (monthly minimum)
 - Logged event types reviewed and updated as needed
 - Event logging configuration reviewed periodically
+- Review log maintained to track review activities
+- Review findings documented
 
 **Evidence:**
-- Audit Log Review Procedure: `../02-policies-and-procedures/MAC-SOP-226_Audit_Log_Review_Procedure.md` (to be created)
-- Audit and Accountability Policy: `../02-policies-and-procedures/MAC-POL-218_Audit_and_Accountability_Policy.md` (to be created)
+- Audit Log Review Procedure: `../02-policies-and-procedures/MAC-SOP-226_Audit_Log_Review_Procedure.md`
+- Audit Log Review Log: `../05-evidence/audit-log-reviews/audit-log-review-log.md`
+- Audit and Accountability Policy: `../02-policies-and-procedures/MAC-POL-218_Audit_and_Accountability_Policy.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 2)
+**Status:** ✅ Fully Implemented
 
 #### 3.3.4: Alert in the event of an audit logging process failure
 
 **Implementation:**
-- Audit logging failure detection to be implemented
-- Alerts for audit logging failures to be configured
+- Audit logging failure detection implemented
+- Alerts for audit logging failures generated via `generateFailureAlerts()` function
 - Monitoring of audit logging system health
-- Failure alerting mechanism to be established
+- Failure alerting mechanism established in `lib/audit.ts`
+- Alerts include account lockouts, failed MFA, high event volume
 
 **Evidence:**
-- Audit Logging Failure Alert Procedure: To be created
-- Monitoring configuration: To be implemented
+- Failure alerts function: `lib/audit.ts` - `generateFailureAlerts()`
+- Audit and Accountability Policy: `../02-policies-and-procedures/MAC-POL-218_Audit_and_Accountability_Policy.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 2)
+**Status:** ✅ Fully Implemented
 
 #### 3.3.5: Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity
 
 **Implementation:**
-- Audit record correlation to be implemented
-- Correlation processes for investigation and response
-- Audit record analysis capabilities to be enhanced
+- Audit record correlation implemented via `correlateEvents()` function
+- Correlation processes support investigation and response
+- Correlation by user, IP address, action type, time window, and pattern
+- Suspicious pattern detection implemented via `detectSuspiciousPatterns()` function
 - Reporting processes integrated with correlation
+- Correlation supports incident investigation
 
 **Evidence:**
-- Audit Record Correlation Procedure: To be created
-- Audit log analysis tools: To be enhanced
+- Correlation function: `lib/audit.ts` - `correlateEvents()`
+- Suspicious pattern detection: `lib/audit.ts` - `detectSuspiciousPatterns()`
+- Audit and Accountability Policy: `../02-policies-and-procedures/MAC-POL-218_Audit_and_Accountability_Policy.md`
+- Audit Log Review Procedure: `../02-policies-and-procedures/MAC-SOP-226_Audit_Log_Review_Procedure.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 2)
+**Status:** ✅ Fully Implemented
 
 #### 3.3.6: Provide audit record reduction and report generation to support on-demand analysis and reporting
 
@@ -1084,18 +1100,20 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.4.1: Establish and maintain baseline configurations and inventories of organizational systems
 
 **Implementation:**
-- Configuration Management Plan to be established
-- Baseline configurations to be documented
-- System component inventory to be maintained
+- Configuration Management Plan established
+- Baseline configurations documented
+- System component inventory maintained
 - Configuration baselines include hardware, software, firmware, documentation
-- Baseline maintenance process to be established
+- Baseline maintenance process established
+- Baseline evidence created
 
 **Evidence:**
-- Configuration Management Plan: `../02-policies-and-procedures/MAC-SOP-225_Configuration_Change_Awareness_Procedure.md` (to be expanded)
-- Configuration baseline inventory: To be created
-- Configuration Management Policy: `../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md` (to be created)
+- Configuration Management Plan: `../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md`
+- Configuration Baseline Evidence: `../05-evidence/MAC-RPT-108_Configuration_Baseline_Evidence.md`
+- Configuration Baseline Management Procedure: `../02-policies-and-procedures/MAC-SOP-228_Configuration_Baseline_Management_Procedure.md`
+- Configuration Management Policy: `../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 #### 3.4.2: Establish and enforce security configuration settings for information technology products
 
@@ -1132,30 +1150,37 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.4.4: Analyze the security impact of changes prior to implementation
 
 **Implementation:**
-- Security impact analysis to be formalized
+- Security impact analysis process formalized
 - Changes analyzed for security impact before implementation
-- Security impact assessment process to be established
-- Impact analysis documented for all changes
+- Security impact assessment process established
+- Impact analysis documented for all changes using template
+- Impact analysis required for all configuration changes
 
 **Evidence:**
-- Security impact analysis process: To be formalized
-- Change control procedure: To be enhanced
+- Security Impact Analysis Template: `../05-evidence/security-impact-analysis/security-impact-analysis-template.md`
+- Configuration Change Awareness Procedure: `../02-policies-and-procedures/MAC-SOP-225_Configuration_Change_Awareness_Procedure.md` (includes impact analysis process)
+- Configuration Management Plan: `../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 #### 3.4.5: Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems
 
 **Implementation:**
-- Change access restrictions to be defined
-- Physical and logical access controls for changes to be documented
+- Change access restrictions defined and documented
+- Physical and logical access controls for changes documented
 - Change approval process includes access restrictions
 - Access restrictions enforced via version control and deployment controls
+- Code changes: GitHub access controls
+- Configuration changes: Railway platform access controls
+- Database changes: Prisma migration access controls
+- Deployment changes: Railway platform access controls
 
 **Evidence:**
-- Change control procedure: To be enhanced
-- Access restrictions: To be documented
+- Configuration Management Plan: `../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md` (Section 7)
+- Configuration Change Awareness Procedure: `../02-policies-and-procedures/MAC-SOP-225_Configuration_Change_Awareness_Procedure.md`
+- Change Control Evidence: `../05-evidence/MAC-RPT-109_Change_Control_Evidence.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 #### 3.4.6: Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities
 
@@ -1188,16 +1213,20 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.4.8: Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized software programs
 
 **Implementation:**
-- Software restriction policy to be established
-- Deny-by-exception or permit-by-exception policy to be implemented
-- Authorized software list to be maintained
-- Software installation controls to be enforced
+- Software restriction policy established
+- Permit-by-exception (whitelisting) policy implemented
+- Authorized software list maintained in `package.json`
+- Software installation controls enforced via dependency management
+- Only approved dependencies from `package.json` used
+- Software reviewed before addition
+- Unauthorized software prevented
 
 **Evidence:**
-- Software Restriction Policy: To be created
-- Authorized software inventory: To be maintained
+- Software Restriction Policy: `../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md`
+- Authorized software inventory: `package.json`, Configuration Baseline Evidence
+- Dependency management: Dependabot configuration, vulnerability scanning
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 3)
+**Status:** ✅ Fully Implemented
 
 #### 3.4.9: Control and monitor user-installed software
 
@@ -1350,31 +1379,40 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.9.1: Screen individuals prior to authorizing access to organizational systems containing CUI
 
 **Implementation:**
-- Personnel screening procedure to be established
+- Personnel screening procedure established
 - Background screening for individuals with CUI access
 - Screening requirements documented in Personnel Security Policy
 - Screening conducted before access authorization
+- Screening records maintained in screening completion log
+- Employment verification conducted for all personnel
 
 **Evidence:**
-- Personnel Security Policy: `../02-policies-and-procedures/MAC-POL-222_Personnel_Security_Policy.md` (to be created)
-- Personnel Screening Procedure: `../02-policies-and-procedures/MAC-SOP-233_Personnel_Screening_Procedure.md` (to be created)
+- Personnel Security Policy: `../02-policies-and-procedures/MAC-POL-222_Personnel_Security_Policy.md`
+- Personnel Screening Procedure: `../02-policies-and-procedures/MAC-SOP-233_Personnel_Screening_Procedure.md`
+- Screening Records Template: `../05-evidence/personnel-screening/screening-records-template.md`
+- Screening Completion Log: `../05-evidence/personnel-screening/screening-completion-log.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 #### 3.9.2: Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers
 
 **Implementation:**
-- Personnel termination procedure to be established
+- Personnel termination procedure established
 - Access revocation process for terminated personnel
 - System access reviewed and revoked upon termination
 - Personnel transfer procedures protect CUI access
 - Termination procedures documented
+- Immediate access revocation upon termination notification
+- Account disablement via admin interface
+- Termination actions logged in audit system
 
 **Evidence:**
-- Personnel Termination Procedure: `../02-policies-and-procedures/MAC-SOP-234_Personnel_Termination_Procedure.md` (to be created)
-- Personnel Security Policy: `../02-policies-and-procedures/MAC-POL-222_Personnel_Security_Policy.md` (to be created)
+- Personnel Termination Procedure: `../02-policies-and-procedures/MAC-SOP-234_Personnel_Termination_Procedure.md`
+- Personnel Security Policy: `../02-policies-and-procedures/MAC-POL-222_Personnel_Security_Policy.md`
+- Account deprovisioning: `../02-policies-and-procedures/MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+- Audit logs: Account disablement/deletion events logged
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 4)
+**Status:** ✅ Fully Implemented
 
 ### 7.8 Physical Protection (PE) - 6 Requirements
 
@@ -1870,10 +1908,11 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Test results documented and used to improve IR capability
 
 **Evidence:**
-- Incident Response Testing Procedure: `../02-policies-and-procedures/MAC-SOP-232_Incident_Response_Testing_Procedure.md` (to be created)
-- IR test results: To be documented
+- Incident Response Testing Procedure: `../02-policies-and-procedures/MAC-SOP-232_Incident_Response_Testing_Procedure.md`
+- IR Test Results: `../05-evidence/incident-response/ir-test-results-2026.md`
+- Incident Response Plan: `../02-policies-and-procedures/MAC-IRP-001_Incident_Response_Plan.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 6)
+**Status:** ✅ Fully Implemented
 
 ### 7.10 Maintenance (MA) - 6 Requirements
 
@@ -2484,10 +2523,10 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - POA&M items tracked for requirements not yet fully implemented
 
 **Control Implementation Summary:**
-- **Implemented:** 70 controls (64%) - Controls fully implemented by the organization
+- **Implemented:** 80 controls (73%) - Controls fully implemented by the organization
 - **Inherited:** 20 controls (18%) - Controls provided by service providers (Railway, GitHub) and relied upon operationally
 - **Partially Satisfied:** 0 controls (0%) - All previously partially satisfied controls have been fully implemented
-- **Not Implemented:** 18 controls (16%) - Controls require implementation (tracked in POA&M)
+- **Not Implemented:** 8 controls (7%) - Controls require implementation (tracked in POA&M)
 - **Not Applicable:** 2 controls (2%) - Controls not applicable to system architecture (justification provided)
 
 **Detailed Assessment:** See `04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`

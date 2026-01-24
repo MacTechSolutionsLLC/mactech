@@ -65,22 +65,40 @@ This procedure applies to:
 
 ### 3.2 Training Delivery
 
+**Delivery Method:**
+- Training content provided via documentation
+- Personnel review training content
+- Training acknowledgment required
+- Training completion documented
+
 **Initial Training:**
 - Delivered before system access granted
+- Training content: `../05-evidence/training/security-awareness-training-content.md`
 - Covers basic security awareness
 - Covers role-specific responsibilities
 - Completion required before access
+- Acknowledgment signed and recorded
 
 **Annual Training:**
 - Delivered annually to all personnel
+- Training content reviewed annually
 - Updates on new policies and procedures
 - Refresher on security requirements
 - Completion tracked and documented
+- Acknowledgment signed and recorded
 
 **Role-Specific Training:**
 - Delivered when roles change
+- Training content reviewed for new role
 - Covers role-specific security responsibilities
 - Completion required for new role
+- Acknowledgment signed and recorded
+
+**Training Acknowledgment:**
+- Personnel acknowledge review of training content
+- Personnel acknowledge understanding of security responsibilities
+- Acknowledgment documented in training completion log
+- Acknowledgment serves as training delivery evidence
 
 ---
 

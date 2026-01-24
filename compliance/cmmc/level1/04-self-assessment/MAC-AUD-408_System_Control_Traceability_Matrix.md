@@ -63,8 +63,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.2.1 | Security awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/security-awareness-training-content.md, training/training-completion-log.md | Training program, tracking | 7.3, 3.2.1 |
-| 3.2.2 | Security training | ❌ Not Implemented | MAC-POL-219 | MAC-SOP-227 | Training records (to be created) | Training program | 7.3, 3.2.2 |
-| 3.2.3 | Insider threat awareness | ❌ Not Implemented | MAC-POL-219 | MAC-SOP-227 | Training records (to be created) | Insider threat training | 7.3, 3.2.3 |
+| 3.2.2 | Security training | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md | Training program, delivery | 7.3, 3.2.2 |
+| 3.2.3 | Insider threat awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md | Insider threat training, delivery | 7.3, 3.2.3 |
 
 ---
 
@@ -74,7 +74,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.3.1 | Create and retain audit logs | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts, AppEvent table, MAC-RPT-107 | Audit logging, retention verification | 7.4, 3.3.1 |
 | 3.3.2 | Unique user traceability | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | User identification | 7.4, 3.3.2 |
-| 3.3.3 | Review and update logged events | ❌ Not Implemented | MAC-POL-218 | MAC-SOP-226 | Review records (to be created) | Review process | 7.4, 3.3.3 |
+| 3.3.3 | Review and update logged events | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | audit-log-reviews/audit-log-review-log.md | Review process, review log | 7.4, 3.3.3 |
 | 3.3.4 | Alert on audit logging failure | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | generateFailureAlerts() function | 7.4, 3.3.4 |
 | 3.3.5 | Correlate audit records | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | correlateEvents() function | 7.4, 3.3.5 |
 | 3.3.6 | Audit record reduction/reporting | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export | CSV export | 7.4, 3.3.6 |
@@ -88,14 +88,14 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.4.1 | Baseline configurations | ❌ Not Implemented | MAC-POL-220 | MAC-SOP-228 | Baseline inventory (to be created) | CM plan | 7.5, 3.4.1 |
+| 3.4.1 | Baseline configurations | ✅ Implemented | MAC-POL-220 | MAC-SOP-228 | MAC-CMP-001, MAC-RPT-108 | CM plan, baseline inventory | 7.5, 3.4.1 |
 | 3.4.2 | Security configuration settings | ✅ Implemented | MAC-POL-220 | MAC-SOP-228 | MAC-RPT-108, next.config.js, middleware.ts | Baseline, config files | 7.5, 3.4.2 |
 | 3.4.3 | Change control | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | MAC-RPT-109, GitHub, Git history | Version control, approval process | 7.5, 3.4.3 |
-| 3.4.4 | Security impact analysis | ❌ Not Implemented | MAC-POL-220 | MAC-SOP-225 (to be updated) | Impact analysis (to be created) | Analysis process | 7.5, 3.4.4 |
-| 3.4.5 | Change access restrictions | ❌ Not Implemented | MAC-POL-220 | MAC-SOP-225 (to be updated) | Access controls | To be documented | 7.5, 3.4.5 |
+| 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md | Analysis process, template | 7.5, 3.4.4 |
+| 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | MAC-CMP-001, MAC-RPT-109 | Access restrictions documented | 7.5, 3.4.5 |
 | 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | - | System architecture | Minimal features | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
-| 3.4.8 | Software restriction policy | ❌ Not Implemented | MAC-POL-220 | - | Software inventory (to be created) | Restriction policy | 7.5, 3.4.8 |
+| 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | - | MAC-POL-226, package.json | Restriction policy, inventory | 7.5, 3.4.8 |
 | 3.4.9 | Control user-installed software | 🚫 Not Applicable | MAC-POL-220 | - | System architecture | Cloud-only | 7.5, 3.4.9 |
 
 ---
@@ -124,7 +124,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.6.1 | Operational incident-handling capability | ✅ Implemented | MAC-POL-215 | MAC-SOP-223, MAC-IRP-001 | MAC-IRP-001, IR policy | IR capability, IRP | 7.9, 3.6.1 |
 | 3.6.2 | Track, document, and report incidents | ✅ Implemented | MAC-POL-215 | MAC-SOP-223 | IR policy, security contact | IR procedures | 7.9, 3.6.2 |
-| 3.6.3 | Test incident response capability | ❌ Not Implemented | MAC-POL-215 | MAC-SOP-232 | Test results (to be created) | IR testing | 7.9, 3.6.3 |
+| 3.6.3 | Test incident response capability | ✅ Implemented | MAC-POL-215 | MAC-SOP-232 | incident-response/ir-test-results-2026.md | IR testing, tabletop exercise | 7.9, 3.6.3 |
 
 ---
 
@@ -161,8 +161,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.9.1 | Screen individuals prior to access | ❌ Not Implemented | MAC-POL-222 (to be created) | MAC-SOP-233 (to be created) | Screening records (to be created) | Screening process | 7.7, 3.9.1 |
-| 3.9.2 | Protect systems during/after personnel actions | ❌ Not Implemented | MAC-POL-222 (to be created) | MAC-SOP-234 (to be created) | Termination procedures | Access revocation | 7.7, 3.9.2 |
+| 3.9.1 | Screen individuals prior to access | ✅ Implemented | MAC-POL-222 | MAC-SOP-233 | personnel-screening/screening-completion-log.md, personnel-screening/screening-records-template.md | Screening process, records | 7.7, 3.9.1 |
+| 3.9.2 | Protect systems during/after personnel actions | ✅ Implemented | MAC-POL-222 | MAC-SOP-234 | MAC-SOP-234, MAC-SOP-221, Audit logs | Termination procedures, access revocation | 7.7, 3.9.2 |
 
 ---
 
@@ -242,10 +242,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 70 controls (64%)
+- ✅ **Implemented:** 80 controls (73%)
 - 🔄 **Inherited:** 20 controls (18%)
 - ⚠️ **Partially Satisfied:** 0 controls (0%)
-- ❌ **Not Implemented:** 18 controls (16%)
+- ❌ **Not Implemented:** 8 controls (7%)
 - 🚫 **Not Applicable:** 2 controls (2%)
 
 **Control Families:**
