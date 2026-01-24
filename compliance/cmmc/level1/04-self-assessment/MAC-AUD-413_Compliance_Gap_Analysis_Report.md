@@ -1410,5 +1410,5 @@ This report analyzes compliance gaps for controls marked as "implemented" but sc
 ## Document Control
 
 **Prepared By:** Compliance Audit System  
-**Generated:** 2026-01-24T09:18:45.128Z  
+**Generated:** 2026-01-24T09:22:11.276Z  
 **Next Review Date:** [To be scheduled]

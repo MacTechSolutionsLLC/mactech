@@ -1,19 +1,21 @@
-# Session lock - Evidence - CMMC Level 2
+# Remediate vulnerabilities - Evidence - CMMC Level 2
 
 **Document Version:** 1.0  
 **Date:** 2026-01-24  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
-**Reference:** NIST SP 800-171 Rev. 2, Section 3.1.10
+**Reference:** NIST SP 800-171 Rev. 2, Section 3.11.3
 
-**Control ID:** 3.1.10  
-**Requirement:** Session lock
+**Control ID:** 3.11.3  
+**Requirement:** Remediate vulnerabilities
 
 ---
 
 ## 1. Evidence Summary
 
-This document provides evidence of implementation for control 3.1.10: Session lock.
+This document provides evidence of implementation for control 3.11.3: Remediate vulnerabilities.
+
+**Implementation Status:** ✅ Implemented
 
 ---
 
@@ -23,6 +25,9 @@ This document provides evidence of implementation for control 3.1.10: Session lo
 
 [Code implementation details to be documented]
 
+**Code References:**
+- [To be updated with actual code file references]
+
 ### 2.2 Configuration Evidence
 
 [Configuration evidence to be documented]
@@ -30,6 +35,10 @@ This document provides evidence of implementation for control 3.1.10: Session lo
 ### 2.3 Operational Evidence
 
 [Operational evidence to be documented]
+
+### 2.4 Testing/Verification
+
+[Testing and verification results to be documented]
 
 ---
 
@@ -50,6 +59,7 @@ This document provides evidence of implementation for control 3.1.10: Session lo
 
 - System Security Plan: `../01-system-scope/MAC-IT-304_System_Security_Plan.md`
 - System Control Traceability Matrix: `../04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`
+- Access Control Policy: `../02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
 
 ---
 
@@ -58,7 +68,7 @@ This document provides evidence of implementation for control 3.1.10: Session lo
 **Prepared By:** MacTech Solutions Compliance Team  
 **Reviewed By:** [To be completed]  
 **Approved By:** [To be completed]  
-**Next Review Date:** [To be completed]
+**Next Review Date:** [To be scheduled]
 
 **Change History:**
 - Version 1.0 (2026-01-24): Initial evidence document creation

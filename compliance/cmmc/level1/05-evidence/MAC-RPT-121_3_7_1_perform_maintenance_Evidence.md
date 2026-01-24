@@ -1,19 +1,23 @@
-# Separate duties - Evidence - CMMC Level 2
+# Perform maintenance - Evidence - CMMC Level 2
 
 **Document Version:** 1.0  
 **Date:** 2026-01-24  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
-**Reference:** NIST SP 800-171 Rev. 2, Section 3.1.4
+**Reference:** NIST SP 800-171 Rev. 2, Section 3.7.1
 
-**Control ID:** 3.1.4  
-**Requirement:** Separate duties
+**Control ID:** 3.7.1  
+**Requirement:** Perform maintenance
 
 ---
 
 ## 1. Evidence Summary
 
-This document provides evidence of implementation for control 3.1.4: Separate duties.
+This document provides evidence of implementation for control 3.7.1: Perform maintenance.
+
+**Implementation Status:** ✅ Implemented
+
+**Original Reference:** Railway platform
 
 ---
 
@@ -21,7 +25,7 @@ This document provides evidence of implementation for control 3.1.4: Separate du
 
 ### 2.1 Code Implementation
 
-[Code implementation details to be documented]
+[Code implementation details to be documented based on control requirements]
 
 ### 2.2 Configuration Evidence
 
@@ -30,6 +34,10 @@ This document provides evidence of implementation for control 3.1.4: Separate du
 ### 2.3 Operational Evidence
 
 [Operational evidence to be documented]
+
+### 2.4 Testing/Verification
+
+[Testing and verification results to be documented]
 
 ---
 
@@ -58,7 +66,7 @@ This document provides evidence of implementation for control 3.1.4: Separate du
 **Prepared By:** MacTech Solutions Compliance Team  
 **Reviewed By:** [To be completed]  
 **Approved By:** [To be completed]  
-**Next Review Date:** [To be completed]
+**Next Review Date:** [To be scheduled]
 
 **Change History:**
 - Version 1.0 (2026-01-24): Initial evidence document creation
