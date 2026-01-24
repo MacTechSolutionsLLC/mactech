@@ -15,6 +15,7 @@ interface ComplianceFileTreeProps {
   onFileSelect: (path: string) => void
   expandedPaths: Set<string>
   onToggleExpand: (path: string) => void
+  onOpenInNewTab?: (path: string) => void
 }
 
 interface TreeNodeProps {
@@ -24,9 +25,10 @@ interface TreeNodeProps {
   onFileSelect: (path: string) => void
   expandedPaths: Set<string>
   onToggleExpand: (path: string) => void
+  onOpenInNewTab?: (path: string) => void
 }
 
-function TreeNode({ item, level, selectedPath, onFileSelect, expandedPaths, onToggleExpand }: TreeNodeProps) {
+function TreeNode({ item, level, selectedPath, onFileSelect, expandedPaths, onToggleExpand, onOpenInNewTab }: TreeNodeProps) {
   const isExpanded = expandedPaths.has(item.path)
   const isSelected = selectedPath === item.path
   const indent = level * 16
@@ -64,6 +66,7 @@ function TreeNode({ item, level, selectedPath, onFileSelect, expandedPaths, onTo
                 onFileSelect={onFileSelect}
                 expandedPaths={expandedPaths}
                 onToggleExpand={onToggleExpand}
+                onOpenInNewTab={onOpenInNewTab}
               />
             ))}
           </div>
@@ -73,16 +76,49 @@ function TreeNode({ item, level, selectedPath, onFileSelect, expandedPaths, onTo
   }
 
   // File node
+  const documentUrl = `/admin/compliance/document?path=${encodeURIComponent(item.path)}`
+  
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      // Ctrl/Cmd + Click opens in new tab
+      e.preventDefault()
+      if (onOpenInNewTab) {
+        onOpenInNewTab(item.path)
+      } else {
+        window.open(documentUrl, '_blank', 'noopener,noreferrer')
+      }
+    } else {
+      onFileSelect(item.path)
+    }
+  }
+
+  const handleOpenInNewTab = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onOpenInNewTab) {
+      onOpenInNewTab(item.path)
+    } else {
+      window.open(documentUrl, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
     <div
-      className={`flex items-center py-1.5 px-2 hover:bg-neutral-100 cursor-pointer rounded transition-colors ${
+      className={`group flex items-center py-1.5 px-2 hover:bg-neutral-100 cursor-pointer rounded transition-colors ${
         isSelected ? 'bg-primary-50 text-primary-700 font-medium' : 'text-neutral-600'
       }`}
       style={{ paddingLeft: `${8 + indent}px` }}
-      onClick={() => onFileSelect(item.path)}
+      onClick={handleClick}
     >
       <span className="mr-2 text-sm">📄</span>
       <span className="text-sm flex-1 truncate">{item.name}</span>
+      <button
+        onClick={handleOpenInNewTab}
+        className="opacity-0 group-hover:opacity-100 ml-2 p-1 hover:bg-neutral-200 rounded transition-opacity"
+        title="Open in new tab (Ctrl/Cmd+Click also works)"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <span className="text-xs">🔗</span>
+      </button>
     </div>
   )
 }
@@ -92,7 +128,8 @@ export default function ComplianceFileTree({
   selectedPath,
   onFileSelect,
   expandedPaths,
-  onToggleExpand
+  onToggleExpand,
+  onOpenInNewTab
 }: ComplianceFileTreeProps) {
   return (
     <div className="h-full overflow-y-auto border-r border-neutral-200 bg-neutral-50">
@@ -111,6 +148,7 @@ export default function ComplianceFileTree({
                 onFileSelect={onFileSelect}
                 expandedPaths={expandedPaths}
                 onToggleExpand={onToggleExpand}
+                onOpenInNewTab={onOpenInNewTab}
               />
             ))
           ) : (

@@ -100,13 +100,30 @@ export default function ComplianceDocumentViewer({ filePath }: ComplianceDocumen
   }
 
   const filename = filePath.split('/').pop() || filePath
+  const documentUrl = `/admin/compliance/document?path=${encodeURIComponent(filePath)}`
+
+  const handleOpenInNewTab = () => {
+    window.open(documentUrl, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <div className="h-full flex flex-col bg-white min-h-0">
       {/* Header */}
       <div className="flex-shrink-0 border-b border-neutral-200 bg-neutral-50 px-6 py-4">
-        <h2 className="text-lg font-semibold text-neutral-900 mb-1">{filename}</h2>
-        <p className="text-xs text-neutral-500 font-mono">{filePath}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-1">{filename}</h2>
+            <p className="text-xs text-neutral-500 font-mono truncate">{filePath}</p>
+          </div>
+          <button
+            onClick={handleOpenInNewTab}
+            className="flex-shrink-0 px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors flex items-center gap-2"
+            title="Open in new tab"
+          >
+            <span>🔗</span>
+            <span>Open in New Tab</span>
+          </button>
+        </div>
       </div>
       
       {/* Content */}

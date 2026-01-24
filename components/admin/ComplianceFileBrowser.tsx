@@ -60,6 +60,11 @@ export default function ComplianceFileBrowser() {
     })
   }
 
+  const handleOpenInNewTab = (path: string) => {
+    const documentUrl = `/admin/compliance/document?path=${encodeURIComponent(path)}`
+    window.open(documentUrl, '_blank', 'noopener,noreferrer')
+  }
+
   if (loading) {
     return (
       <div className="h-[600px] flex items-center justify-center bg-neutral-50 rounded-lg border border-neutral-200">
@@ -111,6 +116,7 @@ export default function ComplianceFileBrowser() {
           onFileSelect={handleFileSelect}
           expandedPaths={expandedPaths}
           onToggleExpand={handleToggleExpand}
+          onOpenInNewTab={handleOpenInNewTab}
         />
       </div>
       
