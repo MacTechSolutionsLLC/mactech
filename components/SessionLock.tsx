@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { logEvent } from '@/lib/audit'
 
 /**
  * Session Lock Component
@@ -59,12 +58,23 @@ export default function SessionLock({ children }: SessionLockProps) {
     setIsLocked(true)
     setShowWarning(false)
 
-    // Log session lock event
+    // Log session lock event via API route
     try {
-      await logEvent('session_locked', {
-        userId: session.user?.id,
-        reason: 'inactivity',
-        timestamp: new Date().toISOString(),
+      await fetch('/api/audit/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          actionType: 'session_locked',
+          actorUserId: session.user?.id || null,
+          actorEmail: session.user?.email || null,
+          success: true,
+          details: {
+            reason: 'inactivity',
+            timestamp: new Date().toISOString(),
+          },
+        }),
       })
     } catch (error) {
       console.error('Failed to log session lock event:', error)
