@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 /**
@@ -21,35 +21,14 @@ export default function SessionLock({ children }: SessionLockProps) {
   const [isLocked, setIsLocked] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
   const [lastActivity, setLastActivity] = useState<number>(Date.now())
-  const [warningTimeout, setWarningTimeout] = useState<NodeJS.Timeout | null>(null)
-  const [lockTimeout, setLockTimeout] = useState<NodeJS.Timeout | null>(null)
-
-  // Reset activity timers
-  const resetTimers = useCallback(() => {
-    const now = Date.now()
-    setLastActivity(now)
-    setShowWarning(false)
-
-    // Clear existing timeouts
-    if (warningTimeout) clearTimeout(warningTimeout)
-    if (lockTimeout) clearTimeout(lockTimeout)
-
-    // Only set timers if user is authenticated
-    if (session) {
-      // Set warning timeout
-      const warning = setTimeout(() => {
-        setShowWarning(true)
-      }, INACTIVITY_TIMEOUT - WARNING_TIME)
-
-      // Set lock timeout
-      const lock = setTimeout(() => {
-        handleLock()
-      }, INACTIVITY_TIMEOUT)
-
-      setWarningTimeout(warning)
-      setLockTimeout(lock)
-    }
-  }, [session, warningTimeout, lockTimeout])
+  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lockTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isLockedRef = useRef(false)
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    isLockedRef.current = isLocked
+  }, [isLocked])
 
   // Handle session lock
   const handleLock = useCallback(async () => {
@@ -81,6 +60,36 @@ export default function SessionLock({ children }: SessionLockProps) {
     }
   }, [session, isLocked])
 
+  // Reset activity timers
+  const resetTimers = useCallback(() => {
+    const now = Date.now()
+    setLastActivity(now)
+    setShowWarning(false)
+
+    // Clear existing timeouts
+    if (warningTimeoutRef.current) {
+      clearTimeout(warningTimeoutRef.current)
+      warningTimeoutRef.current = null
+    }
+    if (lockTimeoutRef.current) {
+      clearTimeout(lockTimeoutRef.current)
+      lockTimeoutRef.current = null
+    }
+
+    // Only set timers if user is authenticated
+    if (session) {
+      // Set warning timeout
+      warningTimeoutRef.current = setTimeout(() => {
+        setShowWarning(true)
+      }, INACTIVITY_TIMEOUT - WARNING_TIME)
+
+      // Set lock timeout
+      lockTimeoutRef.current = setTimeout(() => {
+        handleLock()
+      }, INACTIVITY_TIMEOUT)
+    }
+  }, [session, handleLock])
+
   // Handle unlock (user re-authenticates)
   const handleUnlock = useCallback(() => {
     setIsLocked(false)
@@ -92,23 +101,29 @@ export default function SessionLock({ children }: SessionLockProps) {
   useEffect(() => {
     if (!session) {
       // Clear timers if not authenticated
-      if (warningTimeout) clearTimeout(warningTimeout)
-      if (lockTimeout) clearTimeout(lockTimeout)
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current)
+        warningTimeoutRef.current = null
+      }
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current)
+        lockTimeoutRef.current = null
+      }
       return
     }
 
     // Reset timers on user activity
     const activityEvents = [
       'mousedown',
-      'mousemove',
       'keypress',
       'scroll',
       'touchstart',
       'click',
     ]
 
+    // Use a stable handler that checks isLocked via ref
     const handleActivity = () => {
-      if (!isLocked) {
+      if (!isLockedRef.current) {
         resetTimers()
       }
     }
@@ -126,10 +141,16 @@ export default function SessionLock({ children }: SessionLockProps) {
       activityEvents.forEach((event) => {
         window.removeEventListener(event, handleActivity)
       })
-      if (warningTimeout) clearTimeout(warningTimeout)
-      if (lockTimeout) clearTimeout(lockTimeout)
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current)
+        warningTimeoutRef.current = null
+      }
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current)
+        lockTimeoutRef.current = null
+      }
     }
-  }, [session, isLocked, resetTimers, warningTimeout, lockTimeout])
+  }, [session, resetTimers])
 
   // Handle visibility change (tab switching)
   useEffect(() => {
