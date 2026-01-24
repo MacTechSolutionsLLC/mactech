@@ -1,12 +1,12 @@
-# User Account Provisioning and Deprovisioning Procedure - CMMC Level 1
+# User Account Provisioning and Deprovisioning Procedure - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
@@ -260,7 +260,8 @@ Before deprovisioning a user account, ensure:
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 

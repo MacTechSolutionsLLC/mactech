@@ -1,20 +1,20 @@
-# Physical Security Policy - CMMC Level 1
+# Physical Security Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Policy Statement
 
-MacTech Solutions maintains physical security controls to protect Federal Contract Information (FCI) and system resources. This policy establishes requirements for physical access controls, device security, and facility security.
+MacTech Solutions maintains physical security controls to protect Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) and system resources. This policy establishes requirements for physical access controls, device security, and facility security.
 
-This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+This policy aligns with CMMC Level 2 requirements and NIST SP 800-171 Rev. 2.
 
 ---
 
@@ -93,7 +93,7 @@ This policy applies to:
 - Storage media must be securely erased or destroyed
 - Devices must be disposed of in accordance with data disposal procedures
 
-**Note:** Since FCI is stored in cloud database (not on local devices), device disposal primarily involves removing access credentials and ensuring no cached data remains.
+**Note:** Since FCI and CUI are stored in cloud database (not on local devices), device disposal primarily involves removing access credentials and ensuring no cached data remains.
 
 ---
 
@@ -115,7 +115,7 @@ This policy applies to:
 
 **Restrictions:**
 - Visitors may not access the system
-- Visitors may not view FCI
+- Visitors may not view FCI or CUI
 - Visitors may not access computing devices used for system access
 
 ---
@@ -144,7 +144,7 @@ This policy applies to:
 - Physical access logs apply to remote work locations where system access occurs
 - Devices used for remote access must meet device security requirements
 - Remote access must use secure connections (HTTPS/TLS)
-- FCI is not stored on local devices (stored in cloud database)
+- FCI and CUI are not stored on local devices (stored in cloud database)
 
 **Physical Access Logging for Remote Work:**
 - Physical access to remote work locations (home offices, remote workstations) must be logged
@@ -232,8 +232,8 @@ This policy applies to:
 
 ---
 
-### 8.4 Non-Required Hardening Items (Out of Scope for Level 1)
-The following items are not required for CMMC Level 1 but represent potential future enhancements:
+### 8.4 Non-Required Hardening Items (Future Enhancements)
+The following items represent potential future enhancements but are not required for current CMMC Level 2 compliance:
 - Biometric access controls
 - Security cameras and surveillance systems
 - Formal facility security assessments
@@ -280,7 +280,8 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 
@@ -293,10 +294,13 @@ The following items are not required for CMMC Level 1 but represent potential fu
 | Device Security | Organizational procedures |
 | Visitor Access | Organizational procedures |
 
-## Appendix B: FAR 52.204-21 Mapping
+## Appendix B: NIST SP 800-171 Rev. 2 Mapping
 
-| FAR Clause | Control | Implementation |
-|------------|---------|----------------|
-| 52.204-21(b)(1) | Physical access controls | Office security, device controls |
-| 52.204-21(b)(1) | Physical access | Physical access is limited to authorized users and enforced through environmental controls |
-| 52.204-21(b)(1) | Device security | Password protection, screen locks |
+| Control ID | Requirement | Implementation |
+|------------|-------------|----------------|
+| 3.10.1 | Limit physical access | Office security, device controls, Railway platform (inherited) |
+| 3.10.2 | Protect and monitor facility | Facility protection, Railway platform (inherited) |
+| 3.10.3 | Escort and monitor visitors | Visitor monitoring procedures |
+| 3.10.4 | Physical access audit logs | Physical access logging module |
+| 3.10.5 | Control physical access devices | Access device controls |
+| 3.10.6 | Safeguarding at alternate work sites | Remote work controls and procedures |

@@ -1,12 +1,12 @@
-# Physical Environment and Remote Work Controls - CMMC Level 1
+# Physical Environment and Remote Work Controls - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
@@ -14,7 +14,7 @@
 
 This document describes physical environment and remote work controls for accessing Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) in the MacTech Solutions system. This document addresses assessor concerns regarding physical security evidence and explicitly limits scope to logical access only.
 
-**CMMC Level 2 Enhancement:** This document has been enhanced to address CUI handling at alternate work sites per NIST SP 800-171 Rev. 2, Section 3.10.6.
+**CMMC Level 2:** This document addresses CUI handling at alternate work sites per NIST SP 800-171 Rev. 2, Section 3.10.6.
 
 ---
 
@@ -22,9 +22,9 @@ This document describes physical environment and remote work controls for access
 
 ### 2.1 Cloud-Based System
 
-**Architecture:** The MacTech Solutions system is a cloud-based application hosted on Railway platform. All FCI is stored in a PostgreSQL database hosted on Railway cloud infrastructure.
+**Architecture:** The MacTech Solutions system is a cloud-based application hosted on Railway platform. All FCI and CUI is stored in a PostgreSQL database hosted on Railway cloud infrastructure.
 
-**FCI Storage Location:** All FCI is stored in the cloud database. **No FCI is stored on local devices.**
+**FCI/CUI Storage Location:** All FCI and CUI is stored in the cloud database. **No FCI or CUI is stored on local devices.**
 
 **Access Method:** Users access the system via web browser over HTTPS/TLS. Access is logical (network-based) only. No local FCI storage occurs.
 
@@ -32,15 +32,15 @@ This document describes physical environment and remote work controls for access
 
 ## 2.2 Logical Access Only
 
-**Scope Limitation:** This system provides logical access to FCI only. FCI is not downloaded, cached, or stored on local devices.
+**Scope Limitation:** This system provides logical access to FCI and CUI only. FCI and CUI are not downloaded, cached, or stored on local devices.
 
 **Enforcement:**
 - System is accessed via web browser
-- FCI remains in cloud database
-- No local file storage of FCI
-- No removable media storage of FCI
+- FCI and CUI remain in cloud database
+- No local file storage of FCI or CUI
+- No removable media storage of FCI or CUI
 
-**Evidence:** Database schema and application architecture demonstrate that FCI is stored only in cloud database. See `prisma/schema.prisma` for FCI data models.
+**Evidence:** Database schema and application architecture demonstrate that FCI and CUI are stored only in cloud database. See `prisma/schema.prisma` for FCI and CUI data models.
 
 ---
 
@@ -217,8 +217,8 @@ This document describes physical environment and remote work controls for access
 
 ---
 
-### 7.3 Non-Required Hardening Items (Out of Scope for Level 1)
-The following items are not required for CMMC Level 1 but represent potential future enhancements:
+### 7.3 Non-Required Hardening Items (Future Enhancements)
+The following items represent potential future enhancements but are not required for current CMMC Level 2 compliance:
 - Device management software (MDM)
 - Remote wipe capabilities
 - Geolocation tracking
@@ -234,7 +234,8 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation to address assessor finding L1-PE-06
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 
@@ -249,7 +250,7 @@ The following items are not required for CMMC Level 1 but represent potential fu
 
 | Control | Evidence Location |
 |---------|------------------|
-| FCI Storage | `prisma/schema.prisma` (FCI models) |
+| FCI/CUI Storage | `prisma/schema.prisma` (FCI and CUI models) |
 | Authentication | `lib/auth.ts`, `middleware.ts` |
 | Network Encryption | Railway platform (inherited control) |
 | Access Control | `middleware.ts` (lines 19-40) |

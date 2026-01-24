@@ -1,10 +1,10 @@
-# FCI Scope and Data Boundary Statement - CMMC Level 1
+# FCI and CUI Scope and Data Boundary Statement - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
 **Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 

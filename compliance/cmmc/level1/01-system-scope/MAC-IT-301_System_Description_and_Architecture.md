@@ -1,12 +1,12 @@
-# System Description - CMMC Level 1
+# System Description and Architecture - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
@@ -16,14 +16,17 @@ The MacTech Solutions system is a web-based federal contract opportunity managem
 
 **Primary Functions:**
 - Discovery and ingestion of federal contract opportunities from SAM.gov
-- Storage and analysis of Federal Contract Information (FCI)
+- Storage and analysis of Federal Contract Information (FCI) and Controlled Unclassified Information (CUI)
 - Contract opportunity scoring and relevance assessment
 - Award history tracking via USAspending.gov integration
 - Administrative portal for authorized users
+- CUI file storage and password-protected access
 
 ---
 
-## 2. Federal Contract Information (FCI) Handling
+## 2. Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) Handling
+
+### 2.1 Federal Contract Information (FCI)
 
 Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings, USAspending.gov data) is not FCI unless combined with internal, non-public data.
 
@@ -37,15 +40,45 @@ The system handles:
 
 **FCI Boundary:** See `MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md` for explicit FCI definition, prohibited data types, and data boundary enforcement.
 
+### 2.2 Controlled Unclassified Information (CUI)
+
+The system processes, stores, and manages Controlled Unclassified Information (CUI) as defined by 32 CFR Part 2002 and the CUI Registry.
+
+**CUI Handling:**
+- CUI files are stored separately from FCI files in `StoredCUIFile` database table
+- CUI files require password protection for access
+- CUI keyword auto-detection for file classification
+- CUI access attempts logged to audit log
+
+**CUI Storage:**
+- All CUI is stored in PostgreSQL database `StoredCUIFile` table
+- CUI files stored with password protection
+- No CUI stored on removable media
+- CUI access controlled via authentication and password verification
+
+**CUI Processing:**
+- CUI files can be uploaded with explicit CUI marking
+- System auto-detects CUI keywords in filenames and metadata
+- CUI files stored separately from FCI files
+- CUI access requires password verification
+
+### 2.3 FCI and CUI Storage
+
 **FCI Storage:**
 - All FCI is stored in a PostgreSQL database hosted on Railway cloud platform
 - No FCI is stored on removable media
 - Source code and system documentation are stored in GitHub repositories
 
-**FCI Processing:**
+**CUI Storage:**
+- All CUI is stored in PostgreSQL database `StoredCUIFile` table
+- CUI files require password for access
+- No CUI stored on removable media
+
+**FCI and CUI Processing:**
 - FCI is ingested via automated processes from public government APIs (SAM.gov, USAspending.gov)
-- FCI is processed, analyzed, and stored for authorized user access
-- All FCI access is restricted to authenticated users with appropriate authorization
+- CUI is uploaded by users with explicit marking or auto-detection
+- FCI and CUI are processed, analyzed, and stored for authorized user access
+- All FCI and CUI access is restricted to authenticated users with appropriate authorization
 
 ---
 
@@ -227,7 +260,8 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2, added CUI handling sections
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 

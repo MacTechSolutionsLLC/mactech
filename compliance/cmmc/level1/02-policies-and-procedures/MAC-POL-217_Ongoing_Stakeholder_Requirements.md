@@ -1,18 +1,18 @@
-# Ongoing Stakeholder Requirements - CMMC Level 1
+# Ongoing Stakeholder Requirements - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-22  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Purpose
 
-This document consolidates all ongoing compliance requirements for stakeholders (users and administrators) of the MacTech Solutions system. These requirements ensure continued compliance with CMMC Level 1 practices and FAR 52.204-21 throughout the system lifecycle.
+This document consolidates all ongoing compliance requirements for stakeholders (users and administrators) of the MacTech Solutions system. These requirements ensure continued compliance with CMMC Level 2 controls and NIST SP 800-171 Rev. 2 throughout the system lifecycle.
 
 This document serves as a single reference point for ongoing responsibilities that stakeholders must fulfill after initial system access is granted.
 
@@ -24,10 +24,10 @@ This document applies to:
 
 - All users with system access (USER and ADMIN roles)
 - All administrators managing the system
-- All personnel who access Federal Contract Information (FCI) through the system
-- All personnel with physical access to locations where systems used to process/store/access FCI exist
+- All personnel who access Federal Contract Information (FCI) or Controlled Unclassified Information (CUI) through the system
+- All personnel with physical access to locations where systems used to process/store/access FCI or CUI exist
 
-**System Scope:** FCI-only environment. CUI is prohibited and not intentionally processed or stored.
+**System Scope:** FCI and CUI environment. Both FCI and CUI are processed, stored, and transmitted in accordance with CMMC Level 2 requirements.
 
 ---
 
@@ -99,8 +99,8 @@ This document applies to:
 **Requirement:** Complete initial security awareness training before system access is granted.
 
 **Content:**
-- FCI handling requirements
-- CUI prohibition
+- FCI and CUI handling requirements
+- CUI protection and password requirements
 - Incident reporting procedures
 - Password security
 - Physical security requirements (if applicable)
@@ -129,8 +129,8 @@ This document applies to:
 
 **Reportable Incidents:**
 - Suspected unauthorized access
-- Suspected FCI breach or unauthorized disclosure
-- Accidental CUI upload or processing
+- Suspected FCI or CUI breach or unauthorized disclosure
+- Accidental CUI mishandling or improper classification
 - Suspected account compromise
 - Malware or suspicious activity
 - Physical security incidents
@@ -370,7 +370,8 @@ This document applies to:
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-22): Initial document creation to consolidate ongoing stakeholder requirements
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2
+- Version 1.0 (2026-01-22): Initial document creation for CMMC Level 1
 
 ---
 

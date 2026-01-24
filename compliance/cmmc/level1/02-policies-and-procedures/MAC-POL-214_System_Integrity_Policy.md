@@ -1,20 +1,20 @@
-# System & Information Integrity Policy - CMMC Level 1
+# System & Information Integrity Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Policy Statement
 
-MacTech Solutions maintains system and information integrity controls to protect Federal Contract Information (FCI) and system resources from malicious code, unauthorized changes, and vulnerabilities. This policy establishes requirements for malware protection, system patching, and vulnerability management.
+MacTech Solutions maintains system and information integrity controls to protect Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) and system resources from malicious code, unauthorized changes, and vulnerabilities. This policy establishes requirements for malware protection, system patching, and vulnerability management.
 
-This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+This policy aligns with CMMC Level 2 requirements and NIST SP 800-171 Rev. 2.
 
 ---
 
@@ -30,7 +30,7 @@ This policy applies to:
 
 ## 3. Malware Protection
 
-### 3.1 Malware Protection (FAR 52.204-21(b)(3))
+### 3.1 Malware Protection (NIST SP 800-171 Rev. 2, Section 3.14.2)
 
 **Requirement:** Systems must be protected from malicious code.
 
@@ -302,12 +302,12 @@ This policy applies to:
 
 ---
 
-### 8.4 Non-Required Hardening Items (Out of Scope for Level 1)
+### 8.4 Non-Required Hardening Items (Future Enhancements)
 
-**Note:** The following items are not required for CMMC Level 1 and are mentioned for context only. They represent potential future enhancements but are not part of the current Level 1 assessment:
-- Security information and event management (SIEM) - Not required for Level 1
-- Intrusion detection systems (IDS) - Not required for Level 1
-- Formal security testing and penetration testing - Not required for Level 1
+**Note:** The following items represent potential future enhancements but are not required for current CMMC Level 2 compliance:
+- Security information and event management (SIEM) - Future enhancement
+- Intrusion detection systems (IDS) - Future enhancement
+- Formal security testing and penetration testing - Future enhancement
 
 **Current Implementation:** Automated dependency vulnerability scanning (Dependabot) is implemented. See Section 5.3 for details.
 
@@ -359,7 +359,8 @@ This policy applies to:
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation
+- Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2
+- Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 
 ---
 
@@ -375,10 +376,10 @@ This policy applies to:
 | Environment Variables | Railway platform configuration |
 | Source Code | GitHub repository |
 
-## Appendix B: FAR 52.204-21 Mapping
+## Appendix B: NIST SP 800-171 Rev. 2 Mapping
 
-| FAR Clause | Control | Implementation |
-|------------|---------|----------------|
-| 52.204-21(b)(3) | Malware protection | Railway platform (inherited) |
-| 52.204-21(b)(3) | System patching | Dependency management via npm |
-| 52.204-21(b)(3) | Vulnerability management | Automated scanning (Dependabot), manual review, and npm audit |
+| Control ID | Requirement | Implementation |
+|------------|-------------|----------------|
+| 3.14.2 | Malicious code protection | Railway platform (inherited) + application-level protections (input validation, SQL injection prevention, XSS mitigation) |
+| 3.11.2 | Scan for vulnerabilities | Automated scanning (Dependabot), manual review, and npm audit |
+| 3.11.3 | Remediate vulnerabilities | Vulnerability remediation process and timelines |

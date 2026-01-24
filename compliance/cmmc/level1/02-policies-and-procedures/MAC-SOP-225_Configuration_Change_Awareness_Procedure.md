@@ -1,18 +1,18 @@
-# Configuration Change Awareness Procedure - CMMC Level 1
+# Configuration Change Awareness Procedure - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Purpose
 
-This procedure establishes requirements for awareness and documentation of configuration changes to the MacTech Solutions system. This procedure supports the System & Information Integrity Policy (`MAC-POL-214_System_Integrity_Policy.md`) and ensures that system administrators and relevant personnel are aware of configuration changes that may affect system security or FCI handling.
+This procedure establishes requirements for awareness and documentation of configuration changes to the MacTech Solutions system. This procedure supports the System & Information Integrity Policy (`MAC-POL-214_System_Integrity_Policy.md`) and ensures that system administrators and relevant personnel are aware of configuration changes that may affect system security or FCI/CUI handling.
 
 ---
 
