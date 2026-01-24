@@ -37,6 +37,7 @@ function POAMContent() {
   const [stats, setStats] = useState<POAMStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+  const [updatingAllStatuses, setUpdatingAllStatuses] = useState(false)
   const [filters, setFilters] = useState({
     status: searchParams.get('status') || 'all',
     priority: searchParams.get('priority') || 'all',
@@ -150,15 +151,53 @@ function POAMContent() {
     }
   }
 
+  const handleUpdateAllStatuses = async () => {
+    if (!confirm('Update all POA&M statuses based on current SCTM implementation status? This will sync POA&M items with the actual control implementation status.')) {
+      return
+    }
+
+    setUpdatingAllStatuses(true)
+    try {
+      const res = await fetch('/api/admin/poam/update-statuses', {
+        method: 'POST',
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        alert(`Successfully updated ${data.updates.length} POA&M items. ${data.specialUpdates.length > 0 ? `\n\nSpecial updates:\n${data.specialUpdates.join('\n')}` : ''}`)
+        await fetchPOAMData()
+      } else {
+        alert(data.error || 'Failed to update POA&M statuses')
+      }
+    } catch (error) {
+      console.error('Error updating all statuses:', error)
+      alert('Failed to update POA&M statuses')
+    } finally {
+      setUpdatingAllStatuses(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <AdminNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900">POA&M Dashboard</h1>
-          <p className="mt-2 text-neutral-600">
-            Plan of Action and Milestones for CMMC Level 2 controls
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">POA&M Dashboard</h1>
+              <p className="mt-2 text-neutral-600">
+                Plan of Action and Milestones for CMMC Level 2 controls
+              </p>
+            </div>
+            <button
+              onClick={handleUpdateAllStatuses}
+              disabled={updatingAllStatuses}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {updatingAllStatuses ? 'Updating...' : 'Sync with SCTM'}
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}
