@@ -148,6 +148,49 @@ Before deprovisioning a user account, ensure:
 
 **Evidence:** Role changes are logged in AppEvent table.
 
+---
+
+## 5. Identifier Reuse Prevention (3.5.5)
+
+### 5.1 Identifier Reuse Policy
+
+**Requirement:** Prevent reuse of identifiers (email addresses) for a defined period after account deletion.
+
+**Implementation:**
+- User account identifiers (email addresses) are not reused after account deletion
+- Database unique constraint prevents duplicate email addresses
+- Deleted account identifiers remain in system history (soft delete) or are permanently removed
+- Identifier reuse prevention period: Permanent (identifiers not reused)
+
+### 5.2 Identifier Reuse Prevention Process
+
+**Step 1: Account Deletion**
+- When account is deleted, email address is removed from active use
+- Email address cannot be reused for new accounts
+- Database unique constraint enforces this at database level
+
+**Step 2: Identifier Tracking**
+- Deleted account identifiers tracked in system
+- Email addresses remain unique in database
+- System prevents reuse of deleted identifiers
+
+**Step 3: New Account Creation**
+- System validates email address uniqueness
+- Database constraint prevents duplicate email addresses
+- If email was previously used, new account cannot be created with same email
+
+**Evidence:**
+- Database schema: `prisma/schema.prisma` (User model with unique email constraint)
+- Identifier Reuse Prevention Evidence: `../05-evidence/MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md`
+
+---
+
+## 6. Related Documents
+
+- Account Lifecycle Enforcement Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+- Identification and Authentication Policy: `MAC-POL-211_Identification_and_Authentication_Policy.md`
+- Identifier Reuse Prevention Evidence: `../05-evidence/MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md`
+
 ### 4.2 Password Reset
 
 **Step 1: Access Admin Interface**

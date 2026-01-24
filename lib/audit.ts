@@ -48,6 +48,7 @@ export type ActionType =
   | "mfa_enrollment_initiated"
   | "mfa_enrollment_completed"
   | "mfa_enrollment_failed"
+  | "session_locked"
   | "mfa_verification_success"
   | "mfa_verification_failed"
   | "mfa_backup_code_used"
@@ -991,4 +992,160 @@ export async function getAuditLogStatistics(timeWindow: number = 24) {
     lockoutEvents,
     successRate: totalEvents > 0 ? (successfulLogins / totalEvents) * 100 : 0,
   }
+}
+
+/**
+ * Verify audit log retention compliance
+ * Per NIST SP 800-171 Rev. 2, Section 3.3.1
+ * Verifies that audit logs are retained for minimum 90 days
+ */
+export async function verifyAuditLogRetention(minimumRetentionDays: number = 90) {
+  const cutoffDate = new Date()
+  cutoffDate.setDate(cutoffDate.getDate() - minimumRetentionDays)
+
+  // Count events older than retention period
+  const eventsInRetentionPeriod = await prisma.appEvent.count({
+    where: {
+      timestamp: { gte: cutoffDate },
+    },
+  })
+
+  // Get oldest event to verify retention
+  const oldestEvent = await prisma.appEvent.findFirst({
+    orderBy: {
+      timestamp: 'asc',
+    },
+  })
+
+  // Get newest event
+  const newestEvent = await prisma.appEvent.findFirst({
+    orderBy: {
+      timestamp: 'desc',
+    },
+  })
+
+  // Calculate actual retention period
+  const actualRetentionDays = oldestEvent
+    ? Math.floor((new Date().getTime() - oldestEvent.timestamp.getTime()) / (1000 * 60 * 60 * 24))
+    : 0
+
+  // Verify compliance
+  const isCompliant = actualRetentionDays >= minimumRetentionDays || !oldestEvent
+
+  return {
+    minimumRetentionDays,
+    actualRetentionDays,
+    isCompliant,
+    oldestEventDate: oldestEvent?.timestamp || null,
+    newestEventDate: newestEvent?.timestamp || null,
+    eventsInRetentionPeriod,
+    totalEvents: await prisma.appEvent.count(),
+    verificationDate: new Date(),
+  }
+}
+
+/**
+ * Detect unauthorized use of organizational systems
+ * Per NIST SP 800-171 Rev. 2, Section 3.14.7
+ * Identifies patterns indicating unauthorized access attempts
+ */
+export async function detectUnauthorizedUse(
+  timeWindow: number = 60 // minutes
+): Promise<FailureAlert[]> {
+  const cutoffTime = new Date()
+  cutoffTime.setMinutes(cutoffTime.getMinutes() - timeWindow)
+
+  const alerts: FailureAlert[] = []
+
+  // Detect multiple failed login attempts from same IP/user
+  const failedLogins = await prisma.appEvent.findMany({
+    where: {
+      actionType: "login_failed",
+      timestamp: { gte: cutoffTime },
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+  })
+
+  // Group by actor email to detect brute force attempts
+  const loginAttemptsByUser = new Map<string, number>()
+  for (const event of failedLogins) {
+    const email = event.actorEmail || 'unknown'
+    loginAttemptsByUser.set(email, (loginAttemptsByUser.get(email) || 0) + 1)
+  }
+
+  // Alert on excessive failed attempts
+  for (const [email, count] of loginAttemptsByUser.entries()) {
+    if (count >= 5) {
+      alerts.push({
+        id: `unauthorized-${email}-${Date.now()}`,
+        type: "critical",
+        message: `Unauthorized use detected: ${count} failed login attempts for ${email}`,
+        eventId: failedLogins.find(e => e.actorEmail === email)?.id || '',
+        timestamp: new Date(),
+        actionRequired: true,
+      })
+    }
+  }
+
+  // Detect permission denied events (unauthorized access attempts)
+  const permissionDenied = await prisma.appEvent.findMany({
+    where: {
+      actionType: "permission_denied",
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  if (permissionDenied.length >= 3) {
+    alerts.push({
+      id: `unauthorized-access-${Date.now()}`,
+      type: "warning",
+      message: `Unauthorized access attempts detected: ${permissionDenied.length} permission denied events`,
+      eventId: permissionDenied[0].id,
+      timestamp: new Date(),
+      actionRequired: true,
+    })
+  }
+
+  // Detect unusual access patterns (admin actions from non-admin users)
+  const suspiciousAdminActions = await prisma.appEvent.findMany({
+    where: {
+      actionType: "admin_action",
+      success: false,
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  if (suspiciousAdminActions.length > 0) {
+    alerts.push({
+      id: `suspicious-admin-${Date.now()}`,
+      type: "critical",
+      message: `Suspicious admin action attempts detected: ${suspiciousAdminActions.length} failed admin actions`,
+      eventId: suspiciousAdminActions[0].id,
+      timestamp: new Date(),
+      actionRequired: true,
+    })
+  }
+
+  // Detect CUI spillage (unauthorized CUI handling)
+  const cuiSpills = await prisma.appEvent.findMany({
+    where: {
+      actionType: "cui_spill_detected",
+      timestamp: { gte: cutoffTime },
+    },
+  })
+
+  if (cuiSpills.length > 0) {
+    alerts.push({
+      id: `cui-spill-${Date.now()}`,
+      type: "critical",
+      message: `CUI spillage detected: ${cuiSpills.length} CUI spill events`,
+      eventId: cuiSpills[0].id,
+      timestamp: new Date(),
+      actionRequired: true,
+    })
+  }
+
+  return alerts
 }

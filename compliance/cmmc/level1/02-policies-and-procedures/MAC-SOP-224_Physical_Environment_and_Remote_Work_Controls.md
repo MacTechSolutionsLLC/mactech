@@ -12,7 +12,9 @@
 
 ## 1. Purpose
 
-This document describes physical environment and remote work controls for accessing Federal Contract Information (FCI) in the MacTech Solutions system. This document addresses assessor concerns regarding physical security evidence and explicitly limits scope to logical access only.
+This document describes physical environment and remote work controls for accessing Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) in the MacTech Solutions system. This document addresses assessor concerns regarding physical security evidence and explicitly limits scope to logical access only.
+
+**CMMC Level 2 Enhancement:** This document has been enhanced to address CUI handling at alternate work sites per NIST SP 800-171 Rev. 2, Section 3.10.6.
 
 ---
 
@@ -124,7 +126,32 @@ This document describes physical environment and remote work controls for access
 
 ---
 
-## 5. FCI Access Limitations
+## 5. CUI Handling at Alternate Work Sites (3.10.6)
+
+### 5.1 Alternate Work Site Safeguarding
+
+**Requirement:** Enforce safeguarding measures for CUI at alternate work sites.
+
+**Safeguarding Measures:**
+- Work area security controls (Section 4.1)
+- Device security requirements (Section 3.2)
+- Network security controls (Section 4.2)
+- Access control enforcement
+- CUI handling procedures
+
+**CUI Protection:**
+- CUI accessed only from controlled devices
+- CUI not stored on local devices
+- CUI accessed via secure network connections
+- Work area secured when unattended
+- Screen positioning prevents unauthorized viewing
+
+**Evidence:**
+- Alternate Work Site Safeguarding Evidence: `../05-evidence/MAC-RPT-113_Alternate_Work_Site_Safeguarding_Evidence.md`
+
+---
+
+## 6. FCI Access Limitations
 
 ### 5.1 No Local Storage
 

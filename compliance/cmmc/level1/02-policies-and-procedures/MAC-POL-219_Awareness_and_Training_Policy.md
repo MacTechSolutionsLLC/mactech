@@ -66,9 +66,11 @@ This policy applies to:
 **Evidence:**
 - User agreements: `../02-policies-and-procedures/user-agreements/`
 - Ongoing Stakeholder Requirements: `MAC-POL-217_Ongoing_Stakeholder_Requirements.md`
-- Security awareness training records: To be maintained
+- Security awareness training content: `../05-evidence/training/security-awareness-training-content.md`
+- Training completion log: `../05-evidence/training/training-completion-log.md`
+- Security Awareness Training Procedure: `MAC-SOP-227_Security_Awareness_Training_Procedure.md`
 
-**Status:** ⚠️ Partially Satisfied (formal training program to be established per Phase 4)
+**Status:** ✅ Fully Implemented
 
 ---
 

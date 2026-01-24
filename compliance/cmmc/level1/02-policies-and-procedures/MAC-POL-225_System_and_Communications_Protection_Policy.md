@@ -195,9 +195,9 @@ This policy applies to:
 
 **Evidence:**
 - Railway platform key management (inherited)
-- Key management procedures: To be documented
+- Cryptographic Key Management Evidence: `../05-evidence/MAC-RPT-116_Cryptographic_Key_Management_Evidence.md`
 
-**Status:** 🔄 Inherited (platform), ⚠️ Partially Satisfied (documentation to be enhanced)
+**Status:** ✅ Fully Implemented (Inherited from Railway Platform)
 
 ---
 
@@ -243,9 +243,10 @@ This policy applies to:
 - Mobile code restrictions documented
 
 **Evidence:**
-- Mobile Code Control Policy: To be created
+- Mobile Code Control Procedure: `MAC-SOP-237_Mobile_Code_Control_Procedure.md`
+- Mobile Code Control Evidence: `../05-evidence/MAC-RPT-117_Mobile_Code_Control_Evidence.md`
 
-**Status:** ⚠️ Partially Satisfied (policy to be created)
+**Status:** ✅ Fully Implemented
 
 ---
 

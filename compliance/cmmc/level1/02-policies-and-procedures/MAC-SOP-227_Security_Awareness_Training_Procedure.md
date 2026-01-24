@@ -147,7 +147,9 @@ This procedure applies to:
 
 **Record Location:**
 - Training records maintained by System Administrator
-- Training completion documented
+- Training completion documented in Training Completion Log
+- Training Completion Log: `../05-evidence/training/training-completion-log.md`
+- Training content: `../05-evidence/training/security-awareness-training-content.md`
 - Records available for assessment
 
 ---

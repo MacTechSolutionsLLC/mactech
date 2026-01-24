@@ -76,17 +76,25 @@ This procedure applies to:
 - Document change purpose and justification
 - Assess potential security impact
 - Plan change implementation
+- Obtain approval for high-impact changes
 
 **Step 2: Change Documentation**
 - Document proposed change
 - Record change date and time
 - Note responsible party
 - Document expected impact
+- Document change approval
 
 **Step 3: Change Notification (if applicable)**
 - Notify relevant personnel of planned change
 - Communicate change purpose and impact
 - Provide change timeline
+
+**Step 4: Change Approval**
+- Review change for security impact
+- Obtain approval for high-impact changes
+- Document approval in change log
+- Proceed with implementation after approval
 
 ### 4.2 Change Implementation
 
@@ -126,12 +134,12 @@ This procedure applies to:
 
 ## 5. Configuration Change Log
 
-Configuration changes should be documented in a change log with the following information:
+Configuration changes are documented in a change log with the following information:
 
-| Date | Time | Configuration Type | Change Description | Changed By | Rationale | Impact Assessment |
-|------|------|-------------------|-------------------|------------|-----------|-------------------|
-| 2026-01-15 | 10:30 | Environment Variable | Updated database connection string | admin@mactech.com | Database migration | Low - No security impact |
-| 2026-01-18 | 14:20 | Security Configuration | Updated password policy minimum length to 14 | admin@mactech.com | Security enhancement | Medium - Affects all users |
+| Date | Time | Configuration Type | Change Description | Changed By | Rationale | Impact Assessment | Approved By | Status |
+|------|------|-------------------|-------------------|------------|-----------|-------------------|-------------|--------|
+| 2026-01-15 | 10:30 | Environment Variable | Updated database connection string | admin@mactech.com | Database migration | Low - No security impact | System Admin | Completed |
+| 2026-01-18 | 14:20 | Security Configuration | Updated password policy minimum length to 14 | admin@mactech.com | Security enhancement | Medium - Affects all users | System Admin | Completed |
 
 **Change Log Fields:**
 - **Date:** Date of change
@@ -141,6 +149,11 @@ Configuration changes should be documented in a change log with the following in
 - **Changed By:** Email or identifier of person making change
 - **Rationale:** Reason for change
 - **Impact Assessment:** Assessment of security or operational impact (Low, Medium, High)
+- **Approved By:** Person who approved the change (for high-impact changes)
+- **Status:** Change status (Planned, Approved, In Progress, Completed, Rolled Back)
+
+**Change Control Evidence:**
+- Change Control Evidence: `../05-evidence/MAC-RPT-109_Change_Control_Evidence.md`
 
 ---
 

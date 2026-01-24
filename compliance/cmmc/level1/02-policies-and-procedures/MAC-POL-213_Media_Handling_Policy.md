@@ -30,34 +30,63 @@ This policy applies to:
 
 ## 3. Media Usage
 
-### 3.1 Removable Media (FAR 52.204-21(b)(2))
+### 3.1 Removable Media and Portable Storage (FAR 52.204-21(b)(2), NIST 3.1.21)
 
-**Requirement:** Removable media must be properly handled and protected.
+**Requirement:** Removable media and portable storage devices must be properly handled and protected. Use of portable storage devices on external systems must be limited.
 
 **Implementation:**
-- **No removable media is used** for storing FCI
-- All FCI is stored in cloud-based PostgreSQL database
-- No USB drives, external hard drives, or other removable media are used for FCI storage
+- **No removable media is used** for storing FCI or CUI
+- All FCI and CUI is stored in cloud-based PostgreSQL database
+- No USB drives, external hard drives, or other removable media are used for FCI/CUI storage
 - Source code is stored in GitHub (cloud-based version control)
+- Browser-based restrictions prevent unauthorized file downloads
 
-**FCI Storage Locations:**
+**FCI/CUI Storage Locations:**
 - PostgreSQL database (Railway cloud platform)
-- No local file storage of FCI
-- No removable media storage of FCI
+- No local file storage of FCI/CUI
+- No removable media storage of FCI/CUI
+- No portable storage device access to FCI/CUI
+
+**Browser-Based Restrictions:**
+- System is accessed via web browser only
+- No direct file system access to FCI/CUI data
+- Export functions require authentication and authorization
+- CSV exports are generated on-demand and do not persist locally
+- No automatic file downloads of FCI/CUI data
+- User agreements prohibit use of portable storage for FCI/CUI
+
+**Technical Controls:**
+- Application does not provide direct file system access
+- All data access is through authenticated web interface
+- Export functions generate temporary files (not stored locally)
+- Database access restricted to application layer
+- No local caching of sensitive data
 
 **User Requirements:**
 - All users must complete User Access and FCI Handling Acknowledgement before system access
 - Acknowledgment explicitly prohibits upload of CUI and other prohibited data types
-- Users are procedurally required to protect FCI and not use removable media
+- Users are procedurally required to protect FCI/CUI and not use removable media
+- Users must not download FCI/CUI to portable storage devices
+- Users must not access system from devices with portable storage enabled (if policy requires)
+
+**Portable Storage Device Restrictions:**
+- No portable storage devices (USB drives, external hard drives, SD cards) may be used to store FCI/CUI
+- System does not support direct file transfers to portable storage
+- Export functions generate temporary files that must be handled securely
+- Users must not copy FCI/CUI data to portable storage devices
+- Workstations accessing system should have portable storage disabled or restricted (organizational policy)
 
 **Evidence:**
 - Database schema: `prisma/schema.prisma`
-- FCI models: `GovernmentContractDiscovery`, `UsaSpendingAward`, `OpportunityAwardLink`
-- All FCI stored in database, not on removable media
+- FCI/CUI models: `GovernmentContractDiscovery`, `UsaSpendingAward`, `OpportunityAwardLink`
+- All FCI/CUI stored in database, not on removable media
+- Browser-based access only (no direct file system access)
+- Export functions: `/api/admin/events/export`, `/api/admin/physical-access-logs/export`
 
 **Related Documents:**
 - User Access and FCI Handling Acknowledgement (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`) - Required user acknowledgment
 - FCI Scope and Data Boundary Statement (`../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`) - Prohibited data types and boundary enforcement
+- Portable Storage Controls Evidence: `../05-evidence/MAC-RPT-118_Portable_Storage_Controls_Evidence.md`
 
 ---
 

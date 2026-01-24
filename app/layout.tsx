@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import SessionProvider from '@/components/SessionProvider'
 import ConditionalLayout from '@/components/ConditionalLayout'
+import SessionLock from '@/components/SessionLock'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -81,7 +82,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
         <SessionProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <SessionLock>
+            <ConditionalLayout>{children}</ConditionalLayout>
+          </SessionLock>
         </SessionProvider>
       </body>
     </html>

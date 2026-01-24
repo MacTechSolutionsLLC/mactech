@@ -184,6 +184,65 @@ This matrix applies to:
 
 **Change History:**
 - Version 1.0 (2026-01-23): Initial document creation for CMMC Level 2
+- Version 1.1 (2026-01-23): Enhanced with operational controls and enforcement mechanisms
+
+---
+
+## 10. Operational Controls and Enforcement
+
+### 10.1 Technical Enforcement Mechanisms
+
+**Role-Based Access Control (RBAC):**
+- System enforces role separation at the middleware level
+- ADMIN and USER roles are mutually exclusive
+- Role assignments cannot be self-modified
+- Evidence: `middleware.ts`, `lib/authz.ts`
+
+**Audit Logging:**
+- All administrative actions are logged with user identification
+- Audit logs are append-only and cannot be modified by administrators
+- Audit log access is logged separately
+- Evidence: `lib/audit.ts`, `prisma/schema.prisma` (AppEvent model)
+
+**Cross-Review Process:**
+- Administrative actions are subject to review via audit logs
+- Security assessments review administrative actions independently
+- Management oversight of critical administrative functions
+- Evidence: Audit log review procedures, security assessment reports
+
+### 10.2 Procedural Enforcement
+
+**Account Management Separation:**
+- User account provisioning requires approval workflow
+- Account deprovisioning actions are logged and reviewed
+- Security assessments review account management practices
+- Evidence: `MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+
+**Configuration Management Separation:**
+- Configuration changes require review before deployment
+- Change control process separates configuration from security assessment
+- Configuration changes are logged and audited
+- Evidence: `MAC-SOP-225_Configuration_Change_Awareness_Procedure.md`
+
+**Security Assessment Independence:**
+- Security assessments are conducted independently of system administration
+- Assessment results are documented separately
+- Assessment findings are reviewed by management
+- Evidence: `MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
+
+### 10.3 Monitoring and Verification
+
+**Separation Verification:**
+- Quarterly review of role assignments
+- Annual review of separation of duties matrix
+- Verification of compensating controls effectiveness
+- Evidence: Separation of duties review logs
+
+**Violation Detection:**
+- Audit logs monitored for separation violations
+- Automated alerts for potential conflicts
+- Management review of separation compliance
+- Evidence: Audit log monitoring procedures
 
 ---
 
@@ -191,3 +250,20 @@ This matrix applies to:
 
 - NIST SP 800-171 Rev. 2, Section 3.1.4 (Separation of Duties)
 - CMMC 2.0 Level 2 Assessment Guide
+
+---
+
+## Appendix B: Implementation Evidence
+
+**Technical Implementation:**
+- RBAC enforcement: `middleware.ts` (lines 28-32)
+- Audit logging: `lib/audit.ts`
+- Role definitions: `prisma/schema.prisma` (User model)
+
+**Procedural Implementation:**
+- SoD Matrix: This document
+- Account Management: `MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+- Change Control: `MAC-SOP-225_Configuration_Change_Awareness_Procedure.md`
+
+**Evidence Documents:**
+- SoD Enforcement Evidence: `../05-evidence/MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence.md`

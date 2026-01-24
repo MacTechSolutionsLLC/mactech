@@ -362,9 +362,14 @@ The following items are not required for CMMC Level 1 but represent potential fu
 - Session termination enforced by NextAuth.js
 
 **Session Lock:**
-- Browser-based session lock policy
-- Pattern-hiding display requirements
-- User responsibility for session locking
+- Browser-based session lock implemented via SessionLock component
+- Automatic lock after 15 minutes of inactivity
+- Pattern-hiding display: Lock screen obscures all content
+- Warning displayed 2 minutes before lock
+- User activity (mouse, keyboard, touch, scroll) resets timer
+- Tab visibility changes monitored
+- Session lock events logged in audit system
+- Lock screen requires re-authentication to unlock
 
 **Session Termination:**
 - Automatic termination after 8 hours
@@ -373,9 +378,10 @@ The following items are not required for CMMC Level 1 but represent potential fu
 
 **Evidence:**
 - Session Management: `lib/auth.ts` (8-hour expiration)
-- Session Lock Policy: To be documented
+- Session Lock Implementation: `components/SessionLock.tsx`
+- Session Lock Evidence: `../05-evidence/MAC-RPT-106_Session_Lock_Implementation_Evidence.md`
 
-**Status:** ✅ Implemented (session termination), ⚠️ Partially Satisfied (session lock policy to be enhanced)
+**Status:** ✅ Fully Implemented
 
 ---
 
