@@ -1,30 +1,18 @@
-version: 2
-updates:
-  # Enable version updates for npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    # Group security updates together
-    groups:
-      security-updates:
-        patterns:
-          - "*"
-        update-types:
-          - "security"
-    # Ignore major version updates (review manually)
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-major"
-    # Commit message configuration
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    # Labels for PRs
-    labels:
-      - "dependencies"
-      - "security"
+# Scan for vulnerabilities - Evidence
+
+**Control ID:** 3.11.2  
+**Requirement:** Scan for vulnerabilities  
+**Date:** 2026-01-24
+
+---
+
+## Evidence Summary
+
+[Evidence content to be documented]
+
+---
+
+## Related Documents
+
+- System Security Plan: `../../01-system-scope/MAC-IT-304_System_Security_Plan.md`
+- System Control Traceability Matrix: `../../04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`

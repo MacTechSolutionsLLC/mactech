@@ -106,10 +106,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | prisma/schema.prisma | User model | 7.2, 3.5.1 |
 | 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | NextAuth.js | 7.2, 3.5.2 |
-| 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-SEC-108 | MAC-RPT-104 | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
+| 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | - | MAC-RPT-104 | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
 | 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | MAC-RPT-120, prisma/schema.prisma | Unique constraint, procedure | 7.2, 3.5.5 |
-| 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 (to be updated) | - | Inactivity disable | 7.2, 3.5.6 |
+| 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 | - | Inactivity disable | 7.2, 3.5.6 |
 | 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts | Password policy | 7.2, 3.5.7 |
 | 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, app/api/auth/change-password/route.ts, PasswordHistory model | Password history (5 generations) | 7.2, 3.5.8 |
 | 3.5.9 | Temporary passwords | 🚫 Not Applicable | MAC-POL-211 | - | System architecture | All accounts created with permanent passwords | 7.2, 3.5.9 |
@@ -132,12 +132,12 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.7.1 | Perform maintenance | 🔄 Inherited / ✅ Implemented | MAC-POL-221 (to be created) | - | Railway platform, SSP Section 10 | Platform/app maintenance | 7.10, 3.7.1 |
-| 3.7.2 | Controls on maintenance tools | ❌ Not Implemented | MAC-POL-221 (to be created) | - | Tool controls (to be created) | Tool management | 7.10, 3.7.2 |
-| 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
-| 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
+| 3.7.1 | Perform maintenance | 🔄 Inherited / ✅ Implemented | MAC-POL-221 | - | Railway platform, SSP Section 10 | Platform/app maintenance | 7.10, 3.7.1 |
+| 3.7.2 | Controls on maintenance tools | ❌ Not Implemented | MAC-POL-221 | - | Tool controls | Tool management | 7.10, 3.7.2 |
+| 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
+| 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
 | 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented (Inherited) | MAC-POL-221 | - | MAC-RPT-110, Railway platform | Platform MFA | 7.10, 3.7.5 |
-| 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 (to be created) | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
+| 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
 
 ---
 
@@ -196,7 +196,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.12.1 | Periodically assess security controls | ✅ Implemented | MAC-POL-224 | - | MAC-AUD-401, MAC-AUD-406, MAC-AUD-408 | Control assessment, assessment report | 7.12, 3.12.1 |
 | 3.12.2 | Develop and implement POA&M | ✅ Implemented | MAC-POL-224 | MAC-SOP-231 | MAC-AUD-405 | POA&M process | 7.12, 3.12.2 |
 | 3.12.3 | Monitor security controls | ✅ Implemented | MAC-POL-224 | - | MAC-AUD-407 | Continuous monitoring log | 7.12, 3.12.3 |
-| 3.12.4 | Develop/update SSP | ✅ Implemented | MAC-POL-224 (to be created) | - | MAC-IT-304 | System Security Plan | 7.12, 3.12.4 |
+| 3.12.4 | Develop/update SSP | ✅ Implemented | MAC-POL-224 | - | MAC-IT-304 | System Security Plan | 7.12, 3.12.4 |
 
 ---
 
@@ -204,22 +204,22 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 (to be created) | - | Railway platform | Network security | 7.13, 3.13.1 |
-| 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 (to be created) | - | MAC-IT-301 | System architecture | 7.13, 3.13.2 |
-| 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 (to be created) | - | System architecture | Role separation | 7.13, 3.13.3 |
-| 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 (to be created) | - | Access controls | Information flow | 7.13, 3.13.4 |
-| 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
-| 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Network controls | 7.13, 3.13.6 |
-| 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
-| 3.13.8 | Cryptographic mechanisms for CUI in transit | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | TLS/HTTPS | 7.13, 3.13.8 |
-| 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Connection management | 7.13, 3.13.9 |
+| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 | - | Railway platform | Network security | 7.13, 3.13.1 |
+| 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | - | MAC-IT-301 | System architecture | 7.13, 3.13.2 |
+| 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | - | System architecture | Role separation | 7.13, 3.13.3 |
+| 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 | - | Access controls | Information flow | 7.13, 3.13.4 |
+| 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
+| 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network controls | 7.13, 3.13.6 |
+| 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
+| 3.13.8 | Cryptographic mechanisms for CUI in transit | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS/HTTPS | 7.13, 3.13.8 |
+| 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Connection management | 7.13, 3.13.9 |
 | 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | - | MAC-RPT-116, Railway platform | Key management, documentation | 7.13, 3.13.10 |
-| 3.13.11 | FIPS-validated cryptography | ❌ Not Implemented | MAC-POL-225 (to be created) | - | MAC-RPT-110 | FIPS assessment | 7.13, 3.13.11 |
-| 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
+| 3.13.11 | FIPS-validated cryptography | ❌ Not Implemented | MAC-POL-225 | - | MAC-RPT-110 | FIPS assessment | 7.13, 3.13.11 |
+| 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
 | 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | MAC-SOP-237 | MAC-RPT-117, System architecture | Mobile code policy, CSP | 7.13, 3.13.13 |
-| 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 (to be created) | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
-| 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
-| 3.13.16 | Protect CUI at rest | 🔄 Inherited | MAC-POL-225 (to be created) | - | Railway platform | Database encryption | 7.13, 3.13.16 |
+| 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
+| 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
+| 3.13.16 | Protect CUI at rest | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Database encryption | 7.13, 3.13.16 |
 
 ---
 

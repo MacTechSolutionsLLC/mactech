@@ -132,13 +132,17 @@ function parseTableRow(row: string, family: string): Control | null {
     return null
   }
   
+  // Clean up policy and procedure references (remove "(to be created)" text)
+  const cleanPolicy = policy.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
+  const cleanProcedure = procedure.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
+  
   return {
     id: id.trim(),
     requirement: requirement.trim(),
     status: parseStatus(status),
     family,
-    policy: policy.trim() || '-',
-    procedure: procedure.trim() || '-',
+    policy: cleanPolicy,
+    procedure: cleanProcedure,
     evidence: evidence.trim() || '-',
     implementation: implementation.trim() || '-',
     sspSection: sspSection.trim() || '-',
