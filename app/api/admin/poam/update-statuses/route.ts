@@ -76,17 +76,7 @@ export async function POST(request: NextRequest) {
 
       if (allImplemented && poam.status !== 'closed') {
         // All controls implemented - should be closed
-        if (poam.status === 'verified') {
-          newStatus = 'closed'
-          shouldUpdate = true
-        } else if (poam.status !== 'closed') {
-          // Mark as verified first if not already
-          newStatus = 'verified'
-          shouldUpdate = true
-        }
-      } else if (anyImplemented && poam.status === 'open') {
-        // Some controls implemented - mark as in progress
-        newStatus = 'in_progress'
+        newStatus = 'closed'
         shouldUpdate = true
       } else if (anyNotImplemented && poam.status === 'closed') {
         // Controls not implemented but POA&M is closed - reopen
@@ -96,7 +86,7 @@ export async function POST(request: NextRequest) {
 
       // Update milestones based on status
       let milestones = JSON.parse(poam.milestones || '[]')
-      if (newStatus === 'closed' || newStatus === 'verified') {
+      if (newStatus === 'closed') {
         // Mark all milestones as completed
         milestones = milestones.map((m: any) => ({ ...m, completed: true }))
         shouldUpdate = true
@@ -108,11 +98,7 @@ export async function POST(request: NextRequest) {
           milestones: JSON.stringify(milestones),
         }
 
-        // Set completion dates
-        if (newStatus === 'verified' && !poam.verifiedAt) {
-          updateData.verifiedAt = now
-        }
-
+        // Set completion date
         if (newStatus === 'closed' && !poam.actualCompletionDate) {
           updateData.actualCompletionDate = now
         }
@@ -140,7 +126,7 @@ export async function POST(request: NextRequest) {
         await prisma.pOAMItem.update({
           where: { id: poam001.id },
           data: {
-            status: poam001.status === 'verified' ? 'closed' : 'verified',
+            status: 'closed',
             actualCompletionDate: poam001.actualCompletionDate || new Date('2026-01-23'),
             verifiedAt: poam001.verifiedAt || new Date('2026-01-23'),
             milestones: JSON.stringify([
@@ -162,7 +148,7 @@ export async function POST(request: NextRequest) {
         await prisma.pOAMItem.update({
           where: { id: poam002.id },
           data: {
-            status: poam002.status === 'verified' ? 'closed' : 'verified',
+            status: 'closed',
             actualCompletionDate: poam002.actualCompletionDate || new Date('2026-01-23'),
             verifiedAt: poam002.verifiedAt || new Date('2026-01-23'),
             milestones: JSON.stringify([
@@ -212,7 +198,7 @@ export async function POST(request: NextRequest) {
           },
         })
         specialUpdates.push('POAM-011: Reopened - control not implemented')
-      } else if (poam011.status !== 'open' && poam011.status !== 'in_progress') {
+      } else if (poam011.status !== 'open') {
         await prisma.pOAMItem.update({
           where: { id: poam011.id },
           data: { status: 'open' },
@@ -234,7 +220,7 @@ export async function POST(request: NextRequest) {
           },
         })
         specialUpdates.push('POAM-013: Reopened - control not implemented')
-      } else if (poam013.status !== 'open' && poam013.status !== 'in_progress') {
+      } else if (poam013.status !== 'open') {
         await prisma.pOAMItem.update({
           where: { id: poam013.id },
           data: { status: 'open' },

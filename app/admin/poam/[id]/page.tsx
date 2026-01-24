@@ -273,9 +273,6 @@ export default function POAMDetailPage() {
   const getStatusBadgeColor = (status: string) => {
     const colors: Record<string, string> = {
       open: 'bg-gray-100 text-gray-800',
-      in_progress: 'bg-blue-100 text-blue-800',
-      remediated: 'bg-yellow-100 text-yellow-800',
-      verified: 'bg-green-100 text-green-800',
       closed: 'bg-neutral-100 text-neutral-800',
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
@@ -727,9 +724,6 @@ export default function POAMDetailPage() {
                       className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                     >
                       <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="remediated">Remediated</option>
-                      <option value="verified">Verified</option>
                       <option value="closed">Closed</option>
                     </select>
                   </div>

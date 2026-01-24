@@ -87,9 +87,6 @@ function POAMContent() {
   const getStatusBadgeColor = (status: string) => {
     const colors: Record<string, string> = {
       open: 'bg-gray-100 text-gray-800',
-      in_progress: 'bg-blue-100 text-blue-800',
-      remediated: 'bg-yellow-100 text-yellow-800',
-      verified: 'bg-green-100 text-green-800',
       closed: 'bg-neutral-100 text-neutral-800',
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
@@ -202,7 +199,7 @@ function POAMContent() {
 
         {/* Summary Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm font-medium text-neutral-600">Total Items</div>
               <div className="text-2xl font-bold text-neutral-900 mt-1">{stats.totalItems}</div>
@@ -211,12 +208,6 @@ function POAMContent() {
               <div className="text-sm font-medium text-neutral-600">Open Items</div>
               <div className="text-2xl font-bold text-blue-600 mt-1">
                 {stats.statusBreakdown.open || 0}
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-neutral-600">In Progress</div>
-              <div className="text-2xl font-bold text-indigo-600 mt-1">
-                {stats.statusBreakdown.in_progress || 0}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
@@ -250,9 +241,6 @@ function POAMContent() {
               >
                 <option value="all">All Statuses</option>
                 <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="remediated">Remediated</option>
-                <option value="verified">Verified</option>
                 <option value="closed">Closed</option>
               </select>
             </div>
@@ -369,10 +357,7 @@ function POAMContent() {
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <option value="open">Open</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="remediated">Remediated</option>
-                                <option value="verified">Verified</option>
-                                <option value="closed">Close</option>
+                                <option value="closed">Closed</option>
                               </select>
                             )}
                           </div>

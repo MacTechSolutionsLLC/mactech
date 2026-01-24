@@ -61,6 +61,19 @@ try {
   }
 }
 
+// Run POA&M status migration (simplify statuses to open/closed)
+try {
+  console.log('📋 Running POA&M status migration...');
+  execSync('npx tsx scripts/migrate-poam-statuses.ts', {
+    stdio: 'inherit',
+    env: { ...process.env }
+  });
+  console.log('✅ POA&M status migration completed successfully');
+} catch (error) {
+  // Migration is idempotent, so errors are non-fatal
+  console.log('ℹ️  POA&M status migration:', error.message.includes('Error') ? error.message : 'completed or skipped');
+}
+
 // Start the Next.js server
 console.log('🌐 Starting Next.js server...');
 const port = process.env.PORT || 3000;

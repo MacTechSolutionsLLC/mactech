@@ -1099,7 +1099,7 @@ model POAMItem {
   title                String
   description          String    @db.Text
   affectedControls     String    @db.Text // JSON array of control IDs
-  status               String    @default("open") // "open", "in_progress", "remediated", "verified", "closed"
+  status               String    @default("open") // "open" or "closed"
   priority             String    @default("medium") // "low", "medium", "high", "critical"
   responsibleParty     String
   targetCompletionDate DateTime?
