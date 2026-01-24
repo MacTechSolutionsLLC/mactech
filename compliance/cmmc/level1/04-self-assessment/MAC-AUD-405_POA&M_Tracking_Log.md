@@ -477,11 +477,16 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 ## 4. POA&M Summary
 
 **Total POA&M Items:** 13  
-**Open:** 3  
+**Open:** 3 (correspond to 3 "Not Implemented" controls in SCTM)  
 **In Progress:** 0  
 **Remediated:** 0  
 **Verified:** 0  
-**Closed:** 10
+**Closed:** 10 (historical deficiencies that have been remediated)
+
+**Note:** POA&M items track both current and historical deficiencies. The 10 closed items represent controls that were previously not implemented but have since been completed. The 3 open items correspond to the 3 controls currently marked as "Not Implemented" in the SCTM:
+- POAM-008: FIPS Cryptography Assessment (3.13.11)
+- POAM-011: Disable Identifiers After Inactivity (3.5.6)
+- POAM-013: Controls on Maintenance Tools (3.7.2)
 
 **Priority Breakdown:**
 - High Priority: 1

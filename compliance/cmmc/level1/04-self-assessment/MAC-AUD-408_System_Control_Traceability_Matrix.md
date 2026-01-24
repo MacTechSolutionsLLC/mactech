@@ -245,7 +245,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 - ✅ **Implemented:** 81 controls (74%)
 - 🔄 **Inherited:** 20 controls (18%)
 - ⚠️ **Partially Satisfied:** 0 controls (0%)
-- ❌ **Not Implemented:** 7 controls (6%)
+- ❌ **Not Implemented:** 3 controls (3%)
 - 🚫 **Not Applicable:** 14 controls (13%)
 
 **Control Families:**

@@ -2587,10 +2587,10 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - POA&M items tracked for requirements not yet fully implemented
 
 **Control Implementation Summary:**
-- **Implemented:** 80 controls (73%) - Controls fully implemented by the organization
+- **Implemented:** 81 controls (74%) - Controls fully implemented by the organization
 - **Inherited:** 20 controls (18%) - Controls provided by service providers (Railway, GitHub) and relied upon operationally
 - **Partially Satisfied:** 0 controls (0%) - All previously partially satisfied controls have been fully implemented
-- **Not Implemented:** 8 controls (7%) - Controls require implementation (tracked in POA&M)
+- **Not Implemented:** 3 controls (3%) - Controls require implementation (tracked in POA&M)
 - **Not Applicable:** 14 controls (13%) - Controls not applicable to system architecture (justification provided)
 
 **Detailed Assessment:** See `04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
