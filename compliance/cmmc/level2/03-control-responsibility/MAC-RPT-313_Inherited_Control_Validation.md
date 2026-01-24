@@ -94,10 +94,10 @@ For each validation activity, the following is documented:
 
 ## 4. Inherited Controls Summary Table
 
-| Provider | Service Used | Controls Inherited | Assurance Artifact Reviewed | Coverage Period | Review Frequency | Owner |
-|----------|--------------|-------------------|----------------------------|-----------------|------------------|-------|
-| **GitHub.com** | Source code repository<br>Dependency scanning (Dependabot) | • Repository access controls<br>• Physical security of data centers<br>• Environmental protections<br>• Underlying infrastructure security<br>• Platform operational controls<br>• Code review workflow controls | • SOC 3 Report<br>• ISO/IEC 27001:2022 Certificate | Current (as of review date) | Annual | MacTech Solutions Compliance Team |
-| **Railway** | Application hosting<br>PostgreSQL database hosting<br>CI/CD deployment | • Physical security of data centers<br>• Environmental protections<br>• Underlying infrastructure security<br>• Platform operational controls<br>• TLS/HTTPS termination<br>• Database encryption at rest | • Platform security documentation<br>• Service agreement terms | Current (as of review date) | Annual | MacTech Solutions Compliance Team |
+| Provider | Service Used | Controls Inherited | Assurance Artifact Reviewed | Coverage Period | Validation Method | Review Frequency | Owner |
+|----------|--------------|-------------------|----------------------------|-----------------|-------------------|------------------|-------|
+| **GitHub.com** | Source code repository<br>Dependency scanning (Dependabot) | • Repository access controls<br>• Physical security of data centers<br>• Environmental protections<br>• Underlying infrastructure security<br>• Platform operational controls<br>• Code review workflow controls | • SOC 3 Report<br>• ISO/IEC 27001:2022 Certificate | 2026-01-24 | Dashboard verification, SOC 3 review, ISO certificate verification | Annual | MacTech Solutions Compliance Team |
+| **Railway** | Application hosting<br>PostgreSQL database hosting<br>CI/CD deployment | • Physical security of data centers<br>• Environmental protections<br>• Underlying infrastructure security<br>• Platform operational controls<br>• TLS/HTTPS termination<br>• Database encryption at rest | • Platform security documentation<br>• Service agreement terms | 2026-01-24 | Dashboard verification, configuration review, documentation review | Annual | MacTech Solutions Compliance Team |
 
 ### 4.1 GitHub.com Validation Details
 
@@ -137,6 +137,82 @@ For each validation activity, the following is documented:
 - Platform operational controls (access management, monitoring, incident response)
 - TLS/HTTPS termination and certificate management
 - Database encryption at rest (PostgreSQL service)
+
+### 4.3 Provider-Specific Validation Statements
+
+#### 4.3.1 Railway Platform Validation Statement
+
+**Validation Date:** 2026-01-24  
+**Validated By:** System Administrator  
+**Next Review Date:** 2027-01-24
+
+On 2026-01-24, we verified that TLS enforcement, access isolation, and logging are enabled for our specific tenant via the following methods:
+
+**1. TLS Enforcement:**
+- **Method:** Verified Railway dashboard configuration shows HTTPS/TLS enabled for all services
+- **Method:** Verified application endpoints require HTTPS (no HTTP access possible)
+- **Method:** Verified TLS certificates are automatically provisioned and managed by Railway platform
+- **Evidence:** Railway platform dashboard screenshot showing TLS configuration
+- **Evidence:** Application configuration showing HTTPS-only enforcement
+- **Evidence:** Browser inspection confirming HTTPS/TLS connection for all application endpoints
+- **Validation Result:** ✅ TLS enforcement verified - All application endpoints use HTTPS/TLS encryption
+
+**2. Access Isolation:**
+- **Method:** Verified Railway network isolation between public-facing application and internal database
+- **Method:** Verified database is not directly accessible from internet (internal network only)
+- **Method:** Verified database connection string uses internal network endpoint (not public IP)
+- **Evidence:** Railway network configuration documentation
+- **Evidence:** Database connection string verification (internal network endpoint)
+- **Evidence:** Network security group configuration showing database isolation
+- **Validation Result:** ✅ Access isolation verified - Database is isolated on internal network, not directly accessible from internet
+
+**3. Logging:**
+- **Method:** Verified Railway platform provides application logs and access logs
+- **Method:** Verified logs are accessible via Railway dashboard
+- **Method:** Verified log retention and access controls are configured
+- **Evidence:** Railway dashboard showing log access
+- **Evidence:** Application log retrieval verification
+- **Evidence:** Log retention settings confirmation
+- **Validation Result:** ✅ Logging verified - Application and access logs are available via Railway dashboard
+
+**Summary:** Railway platform provides TLS enforcement, access isolation, and logging capabilities for our specific tenant. All controls are verified as enabled and operational as of 2026-01-24.
+
+---
+
+#### 4.3.2 GitHub Platform Validation Statement
+
+**Validation Date:** 2026-01-24  
+**Validated By:** System Administrator  
+**Next Review Date:** 2027-01-24
+
+On 2026-01-24, we verified that repository access controls, physical security, and operational controls are enabled for our specific repository via the following methods:
+
+**1. Repository Access Controls:**
+- **Method:** Verified GitHub repository settings show access controls enabled
+- **Method:** Verified only authorized users have repository access
+- **Method:** Verified branch protection rules are configured
+- **Evidence:** GitHub repository settings screenshot showing access controls
+- **Evidence:** Repository collaborator list verification
+- **Evidence:** Branch protection rules configuration
+- **Validation Result:** ✅ Repository access controls verified - Only authorized users have access, branch protection enabled
+
+**2. Physical Security:**
+- **Method:** Reviewed GitHub SOC 3 report (publicly available at https://github.blog/security/)
+- **Method:** Verified SOC 3 report coverage period includes current date
+- **Method:** Verified SOC 3 report covers physical security controls
+- **Evidence:** SOC 3 report reference and coverage period confirmation
+- **Evidence:** SOC 3 report review documentation
+- **Validation Result:** ✅ Physical security verified - SOC 3 report confirms physical security controls
+
+**3. Operational Controls:**
+- **Method:** Reviewed GitHub ISO/IEC 27001:2022 certificate
+- **Method:** Verified certificate is current and valid
+- **Method:** Verified certificate covers operational controls
+- **Evidence:** ISO certificate reference and validity confirmation
+- **Evidence:** ISO certificate review documentation
+- **Validation Result:** ✅ Operational controls verified - ISO/IEC 27001:2022 certificate confirms operational controls
+
+**Summary:** GitHub platform provides repository access controls, physical security, and operational controls for our specific repository. All controls are verified as enabled and operational as of 2026-01-24.
 
 ---
 

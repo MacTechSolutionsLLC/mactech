@@ -273,16 +273,16 @@ if (newPassword.length < 8) {
 
 **Password Reset:** Admin users can reset passwords for other users (if functionality implemented)
 
-### 6.4 Multifactor Authentication for Privileged Accounts (Level 2 - 3.5.3)
+### 6.4 Multifactor Authentication for All Users (Level 2 - 3.5.3)
 
-**Requirement:** Multifactor authentication (MFA) is required for all privileged accounts (ADMIN role) for local and network access.
+**Requirement:** Multifactor authentication (MFA) is required for all users accessing CUI systems for local and network access.
 
 **Implementation:**
-- MFA implementation planned per Phase 1
+- MFA implementation completed
 - MFA solution: NextAuth.js with TOTP Provider
-- MFA required for all ADMIN role accounts
-- MFA enrollment required before ADMIN account activation
-- MFA verification required on every login for ADMIN accounts
+- MFA required for all users (USER and ADMIN roles) accessing CUI systems
+- MFA enrollment required before first CUI system access
+- MFA verification required on every login for all users
 
 **MFA Method:**
 - Time-based One-Time Password (TOTP)
@@ -290,16 +290,17 @@ if (newPassword.length < 8) {
 - Backup codes provided during enrollment
 
 **MFA Enforcement:**
-- MFA mandatory for ADMIN role
-- No MFA bypass for ADMIN accounts
-- MFA optional for USER role (future consideration)
+- MFA mandatory for all users accessing CUI systems
+- No MFA bypass for any user accounts
+- All users must enroll in MFA before accessing CUI functionality
 
 **Evidence:**
 - MFA Implementation Guide: `../06-supporting-documents/MAC-SEC-108_MFA_Implementation_Guide.md`
-- MFA implementation: `lib/auth.ts` (to be updated)
-- MFA enrollment UI: To be created
+- MFA implementation: `lib/mfa.ts` (`isMFARequired()` returns true for all users)
+- MFA enrollment UI: `app/auth/mfa/enroll/page.tsx`
+- MFA verification: `app/auth/mfa/verify/page.tsx`
 
-**Status:** Implementation in progress (POA&M Item POAM-001)
+**Status:** ✅ Implemented - MFA required for all users accessing CUI systems
 
 ---
 
@@ -346,22 +347,25 @@ if (newPassword.length < 8) {
 **Requirement:** Use multifactor authentication for local and network access to privileged accounts and for network access to nonprivileged accounts.
 
 **Implementation:**
-- MFA required for all ADMIN role accounts (privileged accounts)
+- MFA required for all users (USER and ADMIN roles) accessing CUI systems
 - MFA implementation: NextAuth.js with TOTP Provider
-- MFA enrollment required before ADMIN account activation
-- MFA verification required on every login for ADMIN accounts
-- MFA optional for USER role (nonprivileged accounts) - future consideration
+- MFA enrollment required before first CUI system access
+- MFA verification required on every login for all users
+- All users accessing CUI systems are subject to MFA requirements
 
 **MFA Method:**
 - Time-based One-Time Password (TOTP)
 - Compatible with standard TOTP apps (Google Authenticator, Authy, etc.)
 - Backup codes provided during enrollment
 
-**Status:** Implementation in progress (POA&M Item POAM-001, Phase 1)
+**Status:** ✅ Implemented - MFA required for all users accessing CUI systems
 
 **Evidence:**
 - MFA Implementation Guide: `../06-supporting-documents/MAC-SEC-108_MFA_Implementation_Guide.md`
-- MFA implementation: To be completed
+- MFA implementation: `lib/mfa.ts` (`isMFARequired()` function)
+- MFA enrollment: `app/auth/mfa/enroll/page.tsx`
+- MFA verification: `app/auth/mfa/verify/page.tsx`
+- MFA Evidence: `../05-evidence/MAC-RPT-104_MFA_Implementation_Evidence.md`
 
 ---
 

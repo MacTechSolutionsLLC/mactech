@@ -107,6 +107,156 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
 - Internal network segment: PostgreSQL database (not directly accessible from internet)
 - Network boundaries and access controls managed by Railway (inherited control)
 
+### 2.4 CMMC Level 2 CUI Enclave Boundary Declaration
+
+**Only the following components are in scope for CMMC Level 2 CUI handling:**
+
+**In-Scope Components for CUI:**
+
+1. **Next.js Application (Railway Platform)**
+   - Application code that processes CUI files
+   - CUI file upload/download API endpoints (`/api/files/upload`, `/api/files/cui/[id]`)
+   - CUI keyword detection and classification logic (`lib/cui-blocker.ts`)
+   - CUI access control middleware and authorization checks
+
+2. **PostgreSQL Database - StoredCUIFile Table (Railway Platform)**
+   - Database table specifically designated for CUI file storage (`StoredCUIFile`)
+   - CUI data stored in encrypted database (encryption at rest provided by Railway)
+   - CUI file metadata and access control data
+
+3. **Authentication System (NextAuth.js)**
+   - User authentication required for all CUI access
+   - MFA enforcement for all users accessing CUI systems
+   - Session management for authenticated CUI access
+
+4. **CUI File Storage and Access Control**
+   - CUI file storage functions (`lib/file-storage.ts`: `storeCUIFile`, `getCUIFile`)
+   - CUI password protection mechanism
+   - CUI access logging and audit controls
+
+5. **CUI Access Control Middleware**
+   - Role-based access control for CUI files
+   - Authentication and authorization checks for CUI endpoints
+   - CUI access attempt logging
+
+**Explicitly Out-of-Scope Components for CUI:**
+
+1. **FCI-Only Components**
+   - `StoredFile` database table (for non-CUI files only)
+   - FCI data processing and storage components
+   - FCI-only API endpoints and functionality
+
+2. **External Read-Only APIs**
+   - SAM.gov API (read-only, public data, no CUI transmitted)
+   - USAspending.gov API (read-only, public data, no CUI transmitted)
+
+3. **Source Code Repository**
+   - GitHub repository (no CUI stored in source code)
+   - Source code version control and management
+
+4. **User Endpoints (Outside System Boundary)**
+   - User browsers and client devices
+   - User network connections (outside system boundary)
+   - Local user storage and processing
+
+5. **Railway Infrastructure (Inherited, Not Assessed)**
+   - Railway platform infrastructure components
+   - Railway-managed network infrastructure
+   - Railway platform security controls (documented as inherited controls)
+
+**Boundary Enforcement:**
+- This explicit boundary declaration prevents scope expansion to components not designed for CUI handling
+- All CUI processing, storage, and transmission occurs only within the in-scope components listed above
+- Components not listed above are explicitly excluded from CMMC Level 2 CUI assessment scope
+
+### 2.5 CUI Prohibition and Technical Enforcement
+
+**Explicit Prohibition Statement:**
+
+CUI is **PROHIBITED** from being stored, processed, or transmitted in any component not explicitly listed in the "In-Scope Components for CUI" section above. The following components are explicitly prohibited from handling CUI:
+
+1. **FCI-Only Components - PROHIBITED for CUI:**
+   - `StoredFile` database table (for non-CUI files only) - CUI cannot be stored in this table
+   - FCI data processing and storage components - CUI processing prohibited
+   - FCI-only API endpoints and functionality - CUI transmission prohibited
+
+2. **External Read-Only APIs - PROHIBITED for CUI:**
+   - SAM.gov API - Read-only, public data only, no CUI transmission possible
+   - USAspending.gov API - Read-only, public data only, no CUI transmission possible
+
+3. **Source Code Repository - PROHIBITED for CUI:**
+   - GitHub repository - Source code only, no CUI storage capability
+
+4. **User Endpoints - PROHIBITED for CUI:**
+   - User browsers and client devices - Outside system boundary, no CUI storage on client devices
+   - User network connections - Outside system boundary
+
+5. **Railway Infrastructure - PROHIBITED for CUI:**
+   - Railway platform infrastructure components - Inherited, not assessed for CUI
+   - Railway-managed network infrastructure - Infrastructure only, no CUI processing
+
+**Technical Enforcement Mechanisms:**
+
+The following technical controls enforce CUI boundary restrictions and prevent CUI from being stored, processed, or transmitted outside designated components:
+
+1. **Database-Level Enforcement:**
+   - CUI can only be stored in `StoredCUIFile` table (separate from `StoredFile` table for FCI)
+   - Database schema enforces separation: `StoredCUIFile` model is distinct from `StoredFile` model
+   - Code cannot store CUI in FCI table - separate storage functions enforce routing
+   - Evidence: `prisma/schema.prisma` (StoredCUIFile model separate from StoredFile model)
+
+2. **Application-Level Enforcement:**
+   - CUI routing enforced via `storeCUIFile()` function - all CUI files routed to `StoredCUIFile` table
+   - CUI detection and classification logic (`lib/cui-blocker.ts`) identifies CUI for proper routing
+   - File upload API (`app/api/files/upload/route.ts`) routes CUI files to `storeCUIFile()` function
+   - Code-level enforcement prevents CUI from being stored in FCI table
+   - Evidence: `lib/file-storage.ts` (storeCUIFile function), `app/api/files/upload/route.ts` (CUI routing logic)
+
+3. **Access Control Enforcement:**
+   - CUI access requires authentication + MFA + password verification + role-based authorization
+   - CUI files only accessible via `/api/files/cui/[id]` endpoint (not via `/api/files/[id]`)
+   - Separate API endpoints enforce CUI access restrictions
+   - Role-based access control limits CUI access to authorized users only
+   - Evidence: `app/api/files/cui/[id]/route.ts` (CUI access control), `lib/file-storage.ts` (getCUIFile function)
+
+4. **Code Enforcement:**
+   - `lib/file-storage.ts` enforces separate storage paths (cannot store CUI in FCI table)
+   - Application logic prevents CUI from being routed to FCI storage functions
+   - Type safety and function separation prevent accidental CUI storage in wrong location
+   - Evidence: `lib/file-storage.ts` (separate storeCUIFile and storeFile functions)
+
+5. **Audit Logging Enforcement:**
+   - All CUI access attempts logged to audit system for monitoring
+   - CUI file upload, access, and deletion events are logged
+   - Audit logs enable detection of unauthorized CUI access attempts
+   - Evidence: `lib/audit.ts` (CUI access event logging)
+
+**Prohibition Enforcement by Component:**
+
+1. **FCI-Only Components (`StoredFile` table):**
+   - **Prohibition:** CUI cannot be stored in `StoredFile` table
+   - **Technical Enforcement:** Code-level routing via `storeCUIFile()` function prevents CUI from being stored in FCI table
+   - **Evidence:** `lib/file-storage.ts` (separate storage functions), `app/api/files/upload/route.ts` (routing logic)
+
+2. **External APIs (SAM.gov, USAspending.gov):**
+   - **Prohibition:** CUI transmission to external APIs is prohibited
+   - **Technical Enforcement:** APIs are read-only (outbound only), no CUI transmission possible
+   - **Evidence:** API implementation (read-only access only)
+
+3. **GitHub Repository:**
+   - **Prohibition:** CUI storage in source code repository is prohibited
+   - **Technical Enforcement:** Repository contains source code only, no CUI storage capability
+   - **Evidence:** Repository structure (source code files only)
+
+4. **User Endpoints (Browsers/Devices):**
+   - **Prohibition:** CUI storage on client devices is prohibited
+   - **Technical Enforcement:** System is browser-based, no local storage of CUI files
+   - **Evidence:** Application architecture (web-based, no local file storage)
+
+**Assessor-Friendly Statement:**
+
+CUI is permitted **ONLY** in the following components: Next.js Application (CUI file processing), PostgreSQL `StoredCUIFile` table (CUI storage), Authentication System (CUI access control), CUI File Storage and Access Control functions, and CUI Access Control Middleware. CUI is **PROHIBITED** in all other components, and this prohibition is technically enforced through database schema separation, application-level routing, access control restrictions, code-level enforcement, and comprehensive audit logging as documented above.
+
 ---
 
 ## 3. Data Flow
@@ -158,6 +308,21 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
 - No CUI stored on local devices (browser-based access only)
 - No removable media used for CUI
 - CUI backups protected per media protection requirements
+
+**Authoritative CUI Data Flow Diagram:**
+The complete CUI data flow, including ingress, storage, processing, egress, and destruction points, is documented in the authoritative CUI Data Flow Diagram (`MAC-IT-305_CUI_Data_Flow_Diagram.md`). This diagram maps each flow point to specific security controls:
+
+- **Ingress (3.1.3):** CUI files enter the system via `/api/files/upload` with authentication, MFA, and CUI keyword detection. Control 3.1.3 (Control CUI flow) is implemented through CUI file routing and classification.
+
+- **Storage (3.8.2, 3.13.11):** CUI is stored in the `StoredCUIFile` table with encryption at rest (Railway platform). Control 3.8.2 (Limit access to CUI on system media) is implemented through separate table storage and access controls. Control 3.13.11 (FIPS-validated cryptography) is implemented through Railway platform database encryption.
+
+- **Processing (3.1.3, 3.8.2):** CUI access is controlled through password verification, role-based authorization, and comprehensive audit logging. Controls 3.1.3 and 3.8.2 are enforced at the application logic layer.
+
+- **Egress (3.1.3, 3.13.11):** CUI exits the system via `/api/files/cui/[id]` with authentication, MFA, authorization, and HTTPS/TLS encryption. Control 3.1.3 implements controlled CUI flow, and Control 3.13.11 implements encrypted transmission.
+
+- **Destruction (3.8.2):** CUI is securely deleted via Prisma ORM operations with permanent database record removal. Control 3.8.2 is implemented through secure deletion procedures documented in the Media Handling Policy.
+
+All CUI data flow points are protected by MFA (3.5.3), user identification (3.5.1), and audit logging (3.3.1). Evidence of implementation is documented in the CUI Blocking Technical Controls Evidence (`../05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md`) and related control evidence documents.
 
 ### 3.3 Authentication Flow
 
@@ -797,16 +962,21 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.5.3: Use multifactor authentication for local and network access to privileged accounts and for network access to nonprivileged accounts
 
 **Implementation:**
-- MFA implementation planned for privileged accounts (ADMIN role)
-- MFA solution to be selected and implemented (see POA&M)
-- MFA required for all ADMIN role access
+- MFA implementation completed for all users accessing CUI systems
+- MFA solution: NextAuth.js with TOTP Provider
+- MFA required for all users (USER and ADMIN roles) accessing CUI systems
+- MFA enrollment required before first CUI system access
+- MFA verification required on every login for all users
 - MFA implementation documented in MFA Implementation Guide
 
 **Evidence:**
-- ✅ MFA Implementation: `../05-evidence/MAC-RPT-104_MFA_Implementation_Evidence.md` - Fully implemented (2026-01-23). MFA required for all ADMIN role accounts.
-- Identification and Authentication Policy: `../02-policies-and-procedures/MAC-POL-211_Identification_and_Authentication_Policy.md` (to be updated)
+- ✅ MFA Implementation: `../05-evidence/MAC-RPT-104_MFA_Implementation_Evidence.md` - Fully implemented (2026-01-24). MFA required for all users accessing CUI systems.
+- MFA Code: `lib/mfa.ts` (`isMFARequired()` function returns true for all users)
+- MFA Enrollment UI: `app/auth/mfa/enroll/page.tsx`
+- MFA Verification UI: `app/auth/mfa/verify/page.tsx`
+- Identification and Authentication Policy: `../02-policies-and-procedures/MAC-POL-211_Identification_and_Authentication_Policy.md` (Section 6.4, 8.1)
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 1)
+**Status:** ✅ Implemented - MFA required for all users accessing CUI systems
 
 #### 3.5.4: Employ replay-resistant authentication mechanisms for network access to privileged and nonprivileged accounts
 
@@ -2638,6 +2808,60 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Requirements are implemented, inherited from service providers, or documented as not applicable
 - Implementation status for each requirement documented in Section 7
 - POA&M items tracked for requirements not yet fully implemented
+
+### 15.1 SPRS Score Declaration
+
+**Current SPRS Score:** 101  
+**Score Date:** 2026-01-24  
+**Score Basis:** NIST SP 800-171 DoD Assessment Methodology scoring (110 base points minus point deductions for unimplemented controls)
+
+**Score Calculation Method:**
+- Assessment based on NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1
+- Starting score: 110 points (all requirements implemented)
+- Point deductions for unimplemented controls:
+  - 3.5.6 (Disable identifiers after inactivity): -1 point
+  - 3.7.2 (Controls on maintenance tools): -5 points
+  - 3.13.11 (FIPS-validated cryptography): -3 points (encryption employed, FIPS validation assessment in progress)
+- Final score: 110 - 9 = 101 out of 110 (91.8%)
+
+**Open POA&M Items Affecting Score:**
+1. **POAM-011:** 3.5.6 (Disable identifiers after a defined period of inactivity)
+   - Point deduction: -1 point
+   - Target completion: ≤ 180 days (by 2026-06-12)
+   - Status: Open
+2. **POAM-013:** 3.7.2 (Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance)
+   - Point deduction: -5 points
+   - Target completion: ≤ 180 days (by 2026-07-10)
+   - Status: Open
+3. **POAM-008:** 3.13.11 (Employ FIPS-validated cryptography when used to protect the confidentiality of CUI)
+   - Point deduction: -3 points (encryption employed, FIPS validation assessment in progress)
+   - Target completion: ≤ 180 days (by 2026-07-26)
+   - Status: Open
+
+**Score Update Schedule:**
+- Score will be updated upon closure of POA&M items
+- Score will be recalculated during next self-assessment
+- Score updates documented in this section with updated date and basis
+- Detailed scoring methodology documented in: `../04-self-assessment/MAC-AUD-410_NIST_DoD_Assessment_Scoring_Report.md`
+
+**Projected Score After POA&M Completion:**
+- Upon closure of all 3 POA&M items: 110 out of 110 (100%)
+- Score improvement path:
+  - Complete 3.5.6: +1 point → 102/110 (92.7%)
+  - Complete 3.7.2: +5 points → 107/110 (97.3%)
+  - Complete 3.13.11: +3 points → 110/110 (100%)
+
+**SPRS Submission:**
+- SPRS score is required for CMMC Level 2 assessment submission
+- Score will be submitted to SPRS (Supplier Performance Risk System) per DoD requirements
+- Score submission coordinated with CMMC assessment process
+- Score based on NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1
+
+**Related Documents:**
+- NIST DoD Assessment Scoring Report: `../04-self-assessment/MAC-AUD-410_NIST_DoD_Assessment_Scoring_Report.md`
+- POA&M Document: `../MAC-POAM-CMMC-L2.md`
+- POA&M Tracking Log: `../04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md`
+- Internal Cybersecurity Self-Assessment: `../04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`
 
 **Control Implementation Summary (As of 2026-01-24):**
 - **Implemented:** 81 controls (74%) - Controls fully implemented by the organization

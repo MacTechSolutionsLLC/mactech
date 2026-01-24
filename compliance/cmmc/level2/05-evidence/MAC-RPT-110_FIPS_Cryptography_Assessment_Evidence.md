@@ -40,17 +40,33 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 - All CUI transmission encrypted via HTTPS/TLS
 - TLS version and cipher suites managed by Railway platform
 
-**FIPS Validation Status:**
-- Railway platform TLS implementation: **To be verified with Railway**
-- TLS encryption: **Inherited from Railway platform**
-- FIPS validation: **Requires verification with Railway platform documentation**
+**FIPS Validation Evidence - Railway Platform TLS Implementation:**
+
+| Field | Value | Status |
+|-------|-------|--------|
+| **Provider** | Railway Platform | ✅ Confirmed |
+| **Module Name** | Railway TLS/HTTPS Implementation | ⚠️ Pending Verification |
+| **FIPS Validation Number** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **CMVP Certificate Number** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **FIPS 140-2/140-3 Level** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **Validation Date** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **NIST CMVP Database Entry** | [To be verified at https://csrc.nist.gov/projects/cryptographic-module-validation-program] | ⚠️ Pending |
+
+**Evidence Collection Status:**
+- **Evidence Required:** Railway platform FIPS validation documentation
+- **Documentation Source:** Railway platform security documentation or support
+- **Verification Method:** Cross-reference Railway-provided module information with NIST CMVP database
+- **Status:** ⚠️ Pending - Evidence to be obtained from Railway platform documentation
+
+**Current Implementation:**
+- TLS/HTTPS encryption in use for all CUI transmission
+- Encryption provided by Railway platform (inherited control)
+- FIPS validation status requires verification with Railway platform documentation
 
 **Assessment:**
-- TLS/HTTPS encryption in use for all CUI transmission
-- FIPS validation status of Railway platform TLS: **Requires verification**
-- POA&M item created if not fully FIPS-validated
-
-**Status:** ⚠️ Assessment in progress - Railway platform FIPS validation to be verified
+- TLS/HTTPS encryption implemented and operational
+- FIPS validation evidence collection in progress
+- POA&M item (POAM-008) tracks FIPS validation verification
 
 ---
 
@@ -61,17 +77,33 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 - CUI stored in encrypted database
 - Encryption managed by Railway platform
 
-**FIPS Validation Status:**
-- Railway PostgreSQL encryption: **To be verified with Railway**
-- Database encryption: **Inherited from Railway platform**
-- FIPS validation: **Requires verification with Railway platform documentation**
+**FIPS Validation Evidence - Railway PostgreSQL Encryption:**
+
+| Field | Value | Status |
+|-------|-------|--------|
+| **Provider** | Railway Platform (PostgreSQL Service) | ✅ Confirmed |
+| **Module Name** | Railway PostgreSQL Encryption Module | ⚠️ Pending Verification |
+| **FIPS Validation Number** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **CMVP Certificate Number** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **FIPS 140-2/140-3 Level** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **Validation Date** | [To be obtained from Railway documentation] | ⚠️ Pending |
+| **NIST CMVP Database Entry** | [To be verified at https://csrc.nist.gov/projects/cryptographic-module-validation-program] | ⚠️ Pending |
+
+**Evidence Collection Status:**
+- **Evidence Required:** Railway platform PostgreSQL encryption FIPS validation documentation
+- **Documentation Source:** Railway platform security documentation or support
+- **Verification Method:** Cross-reference Railway-provided module information with NIST CMVP database
+- **Status:** ⚠️ Pending - Evidence to be obtained from Railway platform documentation
+
+**Current Implementation:**
+- Database encryption at rest in use for CUI storage
+- Encryption provided by Railway platform (inherited control)
+- FIPS validation status requires verification with Railway platform documentation
 
 **Assessment:**
-- Database encryption at rest in use for CUI storage
-- FIPS validation status of Railway database encryption: **Requires verification**
-- POA&M item created if not fully FIPS-validated
-
-**Status:** ⚠️ Assessment in progress - Railway platform FIPS validation to be verified
+- Database encryption at rest implemented and operational
+- FIPS validation evidence collection in progress
+- POA&M item (POAM-008) tracks FIPS validation verification
 
 ---
 
@@ -101,20 +133,41 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 
 **Implementation:**
 - JWT tokens used for session management
-- JWT signing: NextAuth.js implementation
+- JWT signing: NextAuth.js implementation (uses Node.js crypto module)
 - Token secrets: Environment variables
+- Signing algorithm: HS256 (HMAC-SHA256) by default in NextAuth.js
 
-**FIPS Validation Status:**
-- JWT implementation: **To be assessed**
-- JWT signing algorithm: **To be verified**
-- FIPS validation: **Requires assessment**
+**FIPS Validation Evidence - JWT Signing Implementation:**
+
+| Field | Value | Status |
+|-------|-------|--------|
+| **Provider** | NextAuth.js (Node.js crypto module) | ✅ Confirmed |
+| **Module Name** | Node.js crypto module (OpenSSL) | ⚠️ Pending Verification |
+| **FIPS Validation Number** | [To be verified via Node.js/OpenSSL FIPS validation] | ⚠️ Pending |
+| **CMVP Certificate Number** | [To be verified via Node.js/OpenSSL FIPS validation] | ⚠️ Pending |
+| **FIPS 140-2/140-3 Level** | [To be verified via Node.js/OpenSSL FIPS validation] | ⚠️ Pending |
+| **Validation Date** | [To be verified via Node.js/OpenSSL FIPS validation] | ⚠️ Pending |
+| **NIST CMVP Database Entry** | [To be verified at https://csrc.nist.gov/projects/cryptographic-module-validation-program] | ⚠️ Pending |
+| **Signing Algorithm** | HS256 (HMAC-SHA256) | ✅ Confirmed |
+
+**Evidence Collection Status:**
+- **Evidence Required:** Node.js crypto module (OpenSSL) FIPS validation documentation
+- **Documentation Source:** Node.js documentation, OpenSSL FIPS validation certificates, NIST CMVP database
+- **Verification Method:** 
+  1. Identify OpenSSL version used by Node.js runtime
+  2. Cross-reference OpenSSL FIPS validation with NIST CMVP database
+  3. Verify Node.js crypto module uses FIPS-validated OpenSSL
+- **Status:** ⚠️ Pending - Evidence to be obtained from Node.js/OpenSSL FIPS validation documentation
+
+**Current Implementation:**
+- JWT tokens used for authentication and session management
+- JWT signing uses Node.js crypto module (OpenSSL-based)
+- FIPS validation status requires verification of underlying OpenSSL implementation
 
 **Assessment:**
-- JWT tokens used for authentication
-- JWT signing algorithm to be verified for FIPS compliance
-- POA&M item created if not FIPS-compliant
-
-**Status:** ⚠️ Assessment in progress - JWT implementation to be verified
+- JWT implementation operational
+- FIPS validation evidence collection in progress
+- POA&M item (POAM-008) tracks FIPS validation verification
 
 ---
 
@@ -151,49 +204,67 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 ### 5.1 FIPS-Validated Components
 
 **Components Verified as FIPS-Validated:**
-- To be determined after Railway platform verification
+- To be determined after evidence collection and verification
 
 **Components Requiring Verification:**
-- Railway platform TLS/HTTPS implementation
-- Railway platform database encryption
-- JWT signing implementation
+- Railway platform TLS/HTTPS implementation (Section 3.1)
+- Railway platform database encryption (Section 3.2)
+- JWT signing implementation (Node.js crypto/OpenSSL) (Section 3.4)
+
+**Evidence Collection Status:**
+- All components requiring FIPS validation have structured evidence templates
+- Evidence collection in progress per POA&M item POAM-008
+- Verification will be completed via NIST CMVP database cross-reference
 
 ---
 
 ### 5.2 Non-FIPS-Validated Components
 
-**Components Not FIPS-Validated:**
-- bcrypt (password hashing - not subject to FIPS validation)
-- Other components: To be determined
+**Components Not Subject to FIPS Validation:**
+- bcrypt (password hashing - not subject to FIPS validation requirements)
+  - Password hashing functions are not encryption and not subject to FIPS validation
+  - bcrypt provides adequate security for password storage
+  - Status: ✅ Appropriate implementation
+
+**Components Pending FIPS Validation Verification:**
+- Railway platform TLS/HTTPS implementation (evidence collection in progress)
+- Railway platform database encryption (evidence collection in progress)
+- JWT signing implementation (evidence collection in progress)
 
 **Risk Assessment:**
-- Non-FIPS-validated components assessed for risk
-- Risk acceptance documented if applicable
-- Migration plan created if needed
+- Non-FIPS-validated cryptography components are tracked in POA&M item POAM-008
+- Risk assessment will be completed upon evidence collection
+- Migration plan will be created if non-FIPS-validated components are identified
 
 ---
 
-## 6. POA&M Items
+## 6. Evidence Collection Status
 
-### 6.1 FIPS Validation Verification
+### 6.1 Evidence Collection Tracking
 
-**POA&M Item:**
-- Verify Railway platform FIPS validation status
-- Document FIPS validation evidence
+| Component | Evidence Required | Source | Status | Target Date |
+|-----------|------------------|--------|--------|-------------|
+| Railway TLS/HTTPS | FIPS validation certificate, CMVP number | Railway platform documentation | ⚠️ Pending | Per POA&M timeline |
+| Railway PostgreSQL Encryption | FIPS validation certificate, CMVP number | Railway platform documentation | ⚠️ Pending | Per POA&M timeline |
+| Node.js/OpenSSL JWT Signing | OpenSSL FIPS validation, CMVP number | Node.js/OpenSSL documentation, NIST CMVP | ⚠️ Pending | Per POA&M timeline |
+
+### 6.2 POA&M Items
+
+**POA&M Item POAM-008: FIPS Cryptography Assessment**
+- Verify Railway platform FIPS validation status (TLS/HTTPS and database encryption)
+- Verify Node.js/OpenSSL FIPS validation status for JWT signing
+- Document FIPS validation evidence with CMVP certificate numbers
 - Update assessment based on verification results
+- Create migration plan if non-FIPS-validated components identified
 
-**Status:** Open
+**Status:** Open (tracked in `../MAC-POAM-CMMC-L2.md`)
 
----
-
-### 6.2 Migration to FIPS-Validated Cryptography (if needed)
-
-**POA&M Item:**
-- If non-FIPS-validated cryptography identified, create migration plan
-- Prioritize migration based on risk
-- Implement FIPS-validated alternatives
-
-**Status:** To be determined based on assessment results
+**Evidence Collection Actions:**
+1. Contact Railway platform support for FIPS validation documentation
+2. Verify Railway-provided module information against NIST CMVP database
+3. Identify Node.js runtime OpenSSL version and verify FIPS validation
+4. Document all FIPS validation evidence in structured format (Sections 3.1, 3.2, 3.4)
+5. Update assessment results based on evidence collection
 
 ---
 
@@ -219,6 +290,7 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 2.0 (2026-01-24): Restructured with structured evidence sections, provider validation number templates, and evidence collection status tracking
 - Version 1.0 (2026-01-23): Initial FIPS cryptography assessment for CMMC Level 2
 
 ---

@@ -117,7 +117,8 @@ export async function disableMFA(userId: string): Promise<void> {
 }
 
 /**
- * Check if MFA is required for a user (ADMIN role)
+ * Check if MFA is required for a user
+ * CMMC Level 2: MFA required for all users accessing CUI systems
  */
 export async function isMFARequired(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -127,8 +128,8 @@ export async function isMFARequired(userId: string): Promise<boolean> {
 
   if (!user) return false
 
-  // MFA required for ADMIN role per CMMC Level 2
-  return user.role === "ADMIN"
+  // MFA required for all users accessing CUI systems per CMMC Level 2
+  return true
 }
 
 /**

@@ -89,7 +89,7 @@ See `../03-control-responsibility/MAC-SEC-310_Inherited_Control_Statement_Railwa
 
 ## Readiness Statement
 
-This documentation reflects actual operational practices and is appropriate for CMMC Level 2 assessment. All controls are documented with evidence-based implementation details. The system has achieved 97% readiness (107 of 110 applicable controls implemented or inherited, with 3 controls tracked in POA&M).
+This documentation reflects actual operational practices and is appropriate for CMMC Level 2 assessment. All controls are documented with evidence-based implementation details. The system has achieved a NIST SP 800-171 DoD Assessment score of 101 out of 110 (91.8%), with 3 controls tracked in POA&M (3.5.6: -1 point, 3.7.2: -5 points, 3.13.11: -3 points).
 
 ---
 
