@@ -9,6 +9,8 @@ import { verifyTOTPCode, enableMFA } from "@/lib/mfa"
 import { isMFAEnrolled } from "@/lib/mfa"
 import { logEvent } from "@/lib/audit"
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()

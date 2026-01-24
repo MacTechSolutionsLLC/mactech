@@ -10,6 +10,8 @@ import { isMFAEnrolled, isMFARequired } from "@/lib/mfa"
 import QRCode from "qrcode"
 import { logEvent } from "@/lib/audit"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
