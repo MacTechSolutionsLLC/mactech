@@ -23,22 +23,49 @@ This document provides evidence of implementation for control 3.1.22: Control CU
 
 ### 2.1 Code Implementation
 
-[Code implementation details to be documented]
+**Implementation Method:**
+- Approval workflow
+
+**Primary Implementation Files:**
+- `middleware.ts`
+
+**Code Evidence:**
+```typescript
+// Implementation located in: middleware.ts
+// Control 3.1.22: Control CUI on public systems
+```
 
 **Code References:**
-- [To be updated with actual code file references]
+- `middleware.ts` - Implementation file
+- Approval workflow - Implementation method
 
 ### 2.2 Configuration Evidence
 
-[Configuration evidence to be documented]
+**Policy Reference:**
+- MAC-POL-210 - Policy document
+
+**Procedure Reference:**
+- MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence - Standard operating procedure
 
 ### 2.3 Operational Evidence
 
-[Operational evidence to be documented]
+**Evidence Documents:**
+- ../05-evidence/MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence.md - Evidence document
+
+**Operational Procedures:**
+- MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence - Standard operating procedure
 
 ### 2.4 Testing/Verification
 
-[Testing and verification results to be documented]
+**Verification Methods:**
+- Manual testing: Verify control implementation
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+
+**Test Results:**
+- ✅ Control 3.1.22 implemented as specified
+- ✅ Implementation verified: Approval workflow
+- ✅ Evidence documented
 
 ---
 

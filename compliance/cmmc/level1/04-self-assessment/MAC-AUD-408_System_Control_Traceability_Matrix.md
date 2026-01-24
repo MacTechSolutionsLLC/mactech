@@ -14,6 +14,8 @@
 
 This System Control Traceability Matrix (SCTM) provides a comprehensive mapping of all 110 NIST SP 800-171 Rev. 2 requirements to their implementation, supporting policies, procedures, evidence, and status. This matrix enables assessors to trace each control from requirement to implementation to evidence.
 
+**Admin Interface:** The SCTM is fully editable via the admin web interface at `/admin/compliance/sctm`. Administrators can update control status, policy references, procedure references, evidence locations, implementation details, and SSP section references directly through the UI without requiring file edits.
+
 ---
 
 ## 2. Matrix Structure
@@ -36,10 +38,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.1 | Limit system access to authorized users, processes, devices | ✅ Implemented | MAC-POL-210 | MAC-SOP-221, MAC-SOP-222 | middleware.ts, lib/auth.ts | NextAuth.js, middleware | 7.1, 3.1.1 |
 | 3.1.2 | Limit access to transactions/functions | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, lib/authz.ts | RBAC, middleware | 7.1, 3.1.2 |
 | 3.1.3 | Control flow of CUI | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/authz.ts | Access controls | 7.1, 3.1.3 |
-| 3.1.4 | Separate duties | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117 | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence.md | SoD matrix, operational controls | 7.1, 3.1.4 |
+| 3.1.4 | Separate duties | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117 | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence.md | RBAC enforcement (middleware.ts, lib/authz.ts) + SoD matrix documentation (MAC-SOP-235) | 7.1, 3.1.4 |
 | 3.1.5 | Least privilege | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | RBAC | 7.1, 3.1.5 |
 | 3.1.6 | Non-privileged accounts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | USER role | 7.1, 3.1.6 |
-| 3.1.7 | Prevent privileged function execution | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts | Audit logging | 7.1, 3.1.7 |
+| 3.1.7 | Prevent privileged function execution | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts | RBAC enforcement (middleware.ts) + Audit logging (lib/audit.ts) | 7.1, 3.1.7 |
 | 3.1.8 | Limit unsuccessful logon attempts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105_Account_Lockout_Implementation_Evidence.md, MAC-RPT-105.md | lib/auth.ts, app/api/auth/custom-signin/ | 7.1, 3.1.8 |
 | 3.1.9 | Privacy/security notices | ✅ Implemented | MAC-POL-210 | user-agreements/MAC-USR-001-Patrick_User_Agreement.md | user-agreements/MAC-USR-001-Patrick_User_Agreement.md | User acknowledgments | 7.1, 3.1.9 |
 | 3.1.10 | Session lock | ✅ Implemented | MAC-POL-210 | MAC-RPT-106 | MAC-RPT-106_Session_Lock_Implementation_Evidence.md | Session lock component | 7.1, 3.1.10 |
@@ -91,9 +93,9 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.4.1 | Baseline configurations | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_1_baseline_configurations_Evidence, MAC-RPT-121_3_4_1_baseline_configurations_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md | CM plan, baseline inventory | 7.5, 3.4.1 |
 | 3.4.2 | Security configuration settings | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_2_security_configuration_settings_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md, next.config.js, middleware.ts | Baseline, config files | 7.5, 3.4.2 |
 | 3.4.3 | Change control | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_3_change_control_Evidence, MAC-RPT-121_3_4_3_change_control_Evidence | MAC-RPT-109_Change_Control_Evidence.md | Version control, approval process | 7.5, 3.4.3 |
-| 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md | Analysis process, template | 7.5, 3.4.4 |
+| 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, MAC-CMP-001_Configuration_Management_Plan.md | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
 | 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence.md | Access restrictions documented | 7.5, 3.4.5 |
-| 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md | Minimal features | 7.5, 3.4.6 |
+| 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-POL-220 | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
 | 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | MAC-POL-226_Software_Restriction_Policy.md, package.json | Restriction policy, inventory | 7.5, 3.4.8 |
 | 3.4.9 | Control user-installed software | 🚫 Not Applicable | MAC-POL-220 | - | System architecture | Cloud-only, users cannot install software on infrastructure | 7.5, 3.4.9 |
@@ -204,7 +206,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | - | Network security | 7.13, 3.13.1 |
+| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | MAC-POL-225_System_and_Communications_Protection_Policy.md, MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence.md | Network security (Railway inherited), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js security headers) | 7.13, 3.13.1 |
 | 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | MAC-IT-301_System_Description_and_Architecture.md | System architecture | 7.13, 3.13.2 |
 | 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | - | Role separation | 7.13, 3.13.3 |
 | 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 | - | Access controls | Information flow | 7.13, 3.13.4 |
@@ -283,6 +285,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 1.1 (2026-01-24): Updated to reflect current implementation state (97% readiness, 81 implemented, 12 inherited, 3 in POA&M)
 - Version 1.0 (2026-01-23): Initial SCTM creation for CMMC Level 2 migration
 
 ---

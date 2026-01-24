@@ -21,13 +21,20 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 **POA&M Process:** See `../02-policies-and-procedures/MAC-SOP-231_POA&M_Process_Procedure.md`
 
+**POA&M Management System:**
+- Admin web interface: `/admin/poam` - Full CRUD capabilities
+- All POA&M fields editable by administrators (poamId, controlId, title, description, status, priority, responsibleParty, targetCompletionDate, notes, evidence, milestones, affectedControls, plannedRemediation)
+- POA&M ID uniqueness validation
+- Real-time status updates and tracking
+- Audit logging of all POA&M changes
+
 **Review Schedule:**
 - Monthly review of all open POA&M items
 - Quarterly comprehensive review
 - Annual POA&M assessment
 
-**Last Review Date:** 2026-01-23  
-**Next Review Date:** 2026-02-23
+**Last Review Date:** 2026-01-24  
+**Next Review Date:** 2026-02-24
 
 ---
 

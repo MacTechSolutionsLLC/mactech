@@ -68,6 +68,7 @@ export type TargetType =
   | "physical_access_log"
   | "poam"
   | "cui_file"
+  | "sctm_control"
 
 export interface EventFilters {
   startDate?: Date

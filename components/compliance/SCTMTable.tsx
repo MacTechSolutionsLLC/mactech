@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import ControlDetail from './ControlDetail'
 
 interface Control {
@@ -80,6 +80,9 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const [auditResults, setAuditResults] = useState<Record<string, AuditResult>>({})
   const [loadingAudits, setLoadingAudits] = useState<Set<string>>(new Set())
+  const [editingControl, setEditingControl] = useState<string | null>(null)
+  const [savingControl, setSavingControl] = useState<string | null>(null)
+  const [editFormData, setEditFormData] = useState<Record<string, Partial<Control>>>({})
 
   // Get unique statuses and families for filters
   const uniqueStatuses = useMemo(() => {
@@ -193,13 +196,90 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
     }
   }
 
-  const handleRowClick = (controlId: string) => {
+  const handleRowClick = (controlId: string, event?: React.MouseEvent) => {
+    // Don't expand if clicking on edit button or in edit mode
+    if (event && (event.target as HTMLElement).closest('button, input, select, textarea')) {
+      return
+    }
+    if (editingControl === controlId) {
+      return
+    }
     if (expandedRow === controlId) {
       setExpandedRow(null)
     } else {
       setExpandedRow(controlId)
       loadAuditResult(controlId)
     }
+  }
+
+  const handleEditClick = (control: Control, event: React.MouseEvent) => {
+    event.stopPropagation()
+    setEditingControl(control.id)
+    setEditFormData({
+      [control.id]: {
+        status: control.status,
+        policy: control.policy,
+        procedure: control.procedure,
+        evidence: control.evidence,
+        implementation: control.implementation,
+        sspSection: control.sspSection,
+      },
+    })
+  }
+
+  const handleCancelEdit = (controlId: string) => {
+    setEditingControl(null)
+    setEditFormData(prev => {
+      const updated = { ...prev }
+      delete updated[controlId]
+      return updated
+    })
+  }
+
+  const handleSaveEdit = async (control: Control) => {
+    setSavingControl(control.id)
+    try {
+      const formData = editFormData[control.id]
+      if (!formData) {
+        return
+      }
+
+      const response = await fetch(`/api/admin/compliance/sctm/${encodeURIComponent(control.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Trigger refresh event for parent component
+        window.dispatchEvent(new Event('sctm-updated'))
+        setEditingControl(null)
+        setEditFormData(prev => {
+          const updated = { ...prev }
+          delete updated[control.id]
+          return updated
+        })
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to update control')
+      }
+    } catch (error) {
+      console.error('Error updating control:', error)
+      alert('Failed to update control')
+    } finally {
+      setSavingControl(null)
+    }
+  }
+
+  const updateEditField = (controlId: string, field: keyof Control, value: string) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [controlId]: {
+        ...prev[controlId],
+        [field]: value,
+      },
+    }))
   }
 
   const exportToCSV = () => {
@@ -365,7 +445,7 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
                   SSP Section
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                  Details
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -377,59 +457,157 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
                   </td>
                 </tr>
               ) : (
-                filteredAndSortedControls.map((control) => (
-                  <>
-                    <tr
-                      key={control.id}
-                      className="hover:bg-neutral-50 cursor-pointer"
-                      onClick={() => handleRowClick(control.id)}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                        {control.id}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-900 max-w-md">
-                        <div className="truncate" title={control.requirement}>
-                          {control.requirement}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded ${STATUS_COLORS[control.status]}`}
-                        >
-                          {STATUS_LABELS[control.status]}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                        {control.family}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs">
-                        <div className="truncate" title={control.policy}>
-                          {control.policy}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs">
-                        <div className="truncate" title={control.procedure}>
-                          {control.procedure}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs">
-                        <div className="truncate" title={control.evidence}>
-                          {control.evidence}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs">
-                        <div className="truncate" title={control.implementation}>
-                          {control.implementation}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-600">
-                        {control.sspSection}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
-                        {expandedRow === control.id ? '▼' : '▶'}
-                      </td>
-                    </tr>
-                    {expandedRow === control.id && (
+                filteredAndSortedControls.map((control) => {
+                  const isEditing = editingControl === control.id
+                  const formData = editFormData[control.id] || {}
+                  
+                  return (
+                    <React.Fragment key={control.id}>
+                      <tr
+                        key={control.id}
+                        className={`hover:bg-neutral-50 ${isEditing ? 'bg-blue-50' : ''} ${!isEditing ? 'cursor-pointer' : ''}`}
+                        onClick={(e) => !isEditing && handleRowClick(control.id, e)}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
+                          {control.id}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-900 max-w-md">
+                          <div className="truncate" title={control.requirement}>
+                            {control.requirement}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <select
+                              value={formData.status || control.status}
+                              onChange={(e) => updateEditField(control.id, 'status', e.target.value)}
+                              className="px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            >
+                              <option value="implemented">✅ Implemented</option>
+                              <option value="inherited">🔄 Inherited</option>
+                              <option value="partially_satisfied">⚠️ Partially Satisfied</option>
+                              <option value="not_implemented">❌ Not Implemented</option>
+                              <option value="not_applicable">🚫 Not Applicable</option>
+                            </select>
+                          ) : (
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded ${STATUS_COLORS[control.status]}`}
+                            >
+                              {STATUS_LABELS[control.status]}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+                          {control.family}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={formData.policy || control.policy}
+                              onChange={(e) => updateEditField(control.id, 'policy', e.target.value)}
+                              className="w-full px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            />
+                          ) : (
+                            <div className="truncate" title={control.policy}>
+                              {control.policy}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={formData.procedure || control.procedure}
+                              onChange={(e) => updateEditField(control.id, 'procedure', e.target.value)}
+                              className="w-full px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            />
+                          ) : (
+                            <div className="truncate" title={control.procedure}>
+                              {control.procedure}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <textarea
+                              value={formData.evidence || control.evidence}
+                              onChange={(e) => updateEditField(control.id, 'evidence', e.target.value)}
+                              rows={2}
+                              className="w-full px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            />
+                          ) : (
+                            <div className="truncate" title={control.evidence}>
+                              {control.evidence}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <textarea
+                              value={formData.implementation || control.implementation}
+                              onChange={(e) => updateEditField(control.id, 'implementation', e.target.value)}
+                              rows={2}
+                              className="w-full px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            />
+                          ) : (
+                            <div className="truncate" title={control.implementation}>
+                              {control.implementation}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-neutral-600" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={formData.sspSection || control.sspSection}
+                              onChange={(e) => updateEditField(control.id, 'sspSection', e.target.value)}
+                              className="w-full px-2 py-1 text-xs border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500"
+                              disabled={savingControl === control.id}
+                            />
+                          ) : (
+                            control.sspSection
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={(e) => e.stopPropagation()}>
+                          {isEditing ? (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveEdit(control)}
+                                disabled={savingControl === control.id}
+                                className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 disabled:opacity-50"
+                              >
+                                {savingControl === control.id ? 'Saving...' : 'Save'}
+                              </button>
+                              <button
+                                onClick={() => handleCancelEdit(control.id)}
+                                disabled={savingControl === control.id}
+                                className="px-2 py-1 bg-neutral-600 text-white text-xs rounded hover:bg-neutral-700 disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={(e) => handleEditClick(control, e)}
+                                className="px-2 py-1 bg-primary-600 text-white text-xs rounded hover:bg-primary-700"
+                              >
+                                Edit
+                              </button>
+                              <span className="text-primary-600">
+                                {expandedRow === control.id ? '▼' : '▶'}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    {expandedRow === control.id && !isEditing && (
                       <tr>
                         <td colSpan={10} className="px-6 py-4 bg-neutral-50">
                           {loadingAudits.has(control.id) ? (
@@ -445,8 +623,9 @@ export default function SCTMTable({ controls }: SCTMTableProps) {
                         </td>
                       </tr>
                     )}
-                  </>
-                ))
+                    </React.Fragment>
+                  )
+                })
               )}
             </tbody>
           </table>

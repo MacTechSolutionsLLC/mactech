@@ -53,6 +53,12 @@ export async function PATCH(
 
     const body = await request.json()
     const {
+      poamId,
+      controlId,
+      title,
+      description,
+      affectedControls,
+      plannedRemediation,
       status,
       priority,
       responsibleParty,
@@ -77,6 +83,34 @@ export async function PATCH(
 
     const updateData: any = {}
 
+    // Handle poamId change with uniqueness check
+    if (poamId !== undefined && poamId !== existing.poamId) {
+      // Check if new poamId already exists
+      const existingWithPoamId = await prisma.pOAMItem.findUnique({
+        where: { poamId },
+      })
+      if (existingWithPoamId) {
+        return NextResponse.json(
+          { error: "POA&M ID already exists" },
+          { status: 400 }
+        )
+      }
+      updateData.poamId = poamId
+    }
+
+    if (controlId !== undefined) updateData.controlId = controlId
+    if (title !== undefined) updateData.title = title
+    if (description !== undefined) updateData.description = description
+    if (affectedControls !== undefined) {
+      updateData.affectedControls = Array.isArray(affectedControls)
+        ? JSON.stringify(affectedControls)
+        : affectedControls
+    }
+    if (plannedRemediation !== undefined) {
+      updateData.plannedRemediation = Array.isArray(plannedRemediation)
+        ? JSON.stringify(plannedRemediation)
+        : plannedRemediation
+    }
     if (status !== undefined) updateData.status = status
     if (priority !== undefined) updateData.priority = priority
     if (responsibleParty !== undefined) updateData.responsibleParty = responsibleParty

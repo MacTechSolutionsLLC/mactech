@@ -287,13 +287,13 @@ Request to /admin/*
 ## 7. Compliance Risks & Open Items
 
 ### 7.1 Multi-Factor Authentication (MFA)
-**Status:** MFA is not implemented. MFA is not required for CMMC Level 1 but represents a security enhancement opportunity.
+**Status:** ✅ MFA is fully implemented for privileged accounts (ADMIN role) as required by CMMC Level 2, Control 3.5.3. Implementation completed 2026-01-23. See evidence: `../05-evidence/MAC-RPT-104_MFA_Implementation_Evidence.md`
 
 ### 7.2 Session Timeout
 **Status:** Session timeout configuration is managed by NextAuth.js default settings. Explicit session timeout policies may be implemented as a future enhancement.
 
 ### 7.3 Audit Logging of Access Events
-**Status:** Formal audit logging of access events is not implemented. Application logs are available through Railway platform logging. Enhanced access logging may be implemented as a future enhancement.
+**Status:** ✅ Comprehensive audit logging fully implemented. All access events, authentication events, admin actions, and security events are logged to the AppEvent table with 90-day minimum retention. See evidence: `../05-evidence/MAC-RPT-107_Audit_Log_Retention_Evidence.md` and `../05-evidence/MAC-RPT-107.md`
 
 ### 7.4 Non-Required Hardening Items (Out of Scope for Level 1)
 The following items are not required for CMMC Level 1 but represent potential future enhancements:
@@ -333,10 +333,11 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Requirement:** Limit unsuccessful logon attempts.
 
 **Implementation:**
-- Account lockout mechanism to be implemented
-- Failed login attempts logged in audit system
-- Account lockout policy to be defined
-- Lockout parameters to be configured
+- ✅ Account lockout mechanism fully implemented (2026-01-23)
+- ✅ Failed login attempts logged in audit system
+- ✅ Account lockout policy defined: 5 failed attempts = 30 minute lockout
+- ✅ Lockout parameters configured: Maximum 5 attempts, 30-minute lockout duration
+- ✅ Implementation evidence: `../05-evidence/MAC-RPT-105_Account_Lockout_Implementation_Evidence.md`
 
 **Lockout Configuration:**
 - Maximum failed attempts: To be defined

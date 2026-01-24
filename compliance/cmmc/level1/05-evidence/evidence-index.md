@@ -3,7 +3,7 @@
 **Document Version:** 1.0  
 **Date:** 2026-01-21  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)
 
 ---
 

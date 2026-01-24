@@ -1,4 +1,4 @@
-# Operational Evidence Exports - CMMC Level 1
+# Operational Evidence Exports - CMMC Level 2
 
 **Purpose:** This directory contains example CSV export structures (redacted) for CMMC Level 1 practices. Evidence is generated on demand directly from the production system at the time of assessment.
 

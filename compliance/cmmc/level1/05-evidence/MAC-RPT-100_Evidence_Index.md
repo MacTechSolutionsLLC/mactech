@@ -14,9 +14,9 @@
 
 ## Purpose
 
-This document maps each of the 17 CMMC Level 1 practices aligned to FAR 52.204-21 to implemented controls, demonstration procedures, evidence locations, and capture methods. This index enables live "show me" demonstrations for assessors.
+This document maps each of the 110 NIST SP 800-171 Rev. 2 controls (CMMC Level 2) to implemented controls, demonstration procedures, evidence locations, and capture methods. This index enables live "show me" demonstrations for assessors.
 
-**Note:** CMMC Level 1 includes 17 practices aligned to FAR 52.204-21 (which contains 15 basic safeguarding requirements).
+**Note:** CMMC Level 2 includes all 110 NIST SP 800-171 Rev. 2 controls. The system supports both FCI and CUI handling.
 
 **System Scope:** This system is scoped to FCI and CUI (CMMC Level 2). CUI files are stored separately and require password protection for access.
 

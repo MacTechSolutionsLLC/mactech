@@ -1,12 +1,12 @@
 # FAR 52.204-21 Basic Safeguarding Requirements Checklist
 
-**Document Version:** 1.0  
-**Date:** 2026-01-22  
+**Document Version:** 1.1  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational) - Historical Reference  
 **Reference:** FAR 52.204-21
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 1 (FCI-only system) - **Note: System has been upgraded to CMMC Level 2. This document is maintained for historical reference. All FAR 52.204-21 requirements are now covered by Level 2 controls.**
 
 ---
 

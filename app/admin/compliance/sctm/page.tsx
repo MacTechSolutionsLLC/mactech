@@ -1,39 +1,72 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
 import AdminNavigation from '@/components/admin/AdminNavigation'
 import SCTMSummary from '@/components/compliance/SCTMSummary'
 import SCTMTable from '@/components/compliance/SCTMTable'
-import { parseSCTM, calculateSummaryStats } from '@/lib/compliance/sctm-parser'
+import { parseSCTM, calculateSummaryStats, Control } from '@/lib/compliance/sctm-parser'
 
-export default async function SCTMPage() {
-  const session = await auth()
+export default function SCTMPage() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const [controls, setControls] = useState<Control[]>([])
+  const [summary, setSummary] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  if (!session?.user || session.user.role !== 'ADMIN') {
-    redirect('/')
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/')
+      return
+    }
+    if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
+      router.push('/')
+      return
+    }
+    if (status === 'authenticated') {
+      fetchSCTMData()
+    }
+  }, [status, session, router])
+
+
+  const fetchSCTMData = async () => {
+    try {
+      const response = await fetch('/api/admin/compliance/sctm')
+      if (response.ok) {
+        const data = await response.json()
+        setControls(data.controls || [])
+        setSummary(data.summary)
+      }
+    } catch (error) {
+      console.error('Error fetching SCTM data:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Parse SCTM data directly
-  let controls: any[] = []
-  let summary: any = null
+  // Refresh data after edits
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchSCTMData()
+    }
+    window.addEventListener('sctm-updated', handleRefresh)
+    return () => window.removeEventListener('sctm-updated', handleRefresh)
+  }, [])
 
-  try {
-    const filePath = join(
-      process.cwd(),
-      'compliance',
-      'cmmc',
-      'level1',
-      '04-self-assessment',
-      'MAC-AUD-408_System_Control_Traceability_Matrix.md'
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen bg-neutral-50">
+        <AdminNavigation />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-neutral-600">Loading SCTM data...</p>
+          </div>
+        </div>
+      </div>
     )
-
-    const content = await readFile(filePath, 'utf-8')
-    controls = parseSCTM(content)
-    summary = calculateSummaryStats(controls)
-  } catch (error) {
-    console.error('Error parsing SCTM:', error)
   }
 
   return (

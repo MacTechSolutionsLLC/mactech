@@ -23,22 +23,39 @@ This document provides evidence of implementation for control 3.12.4: Develop/up
 
 ### 2.1 Code Implementation
 
-[Code implementation details to be documented]
+**Implementation Method:**
+- System Security Plan
 
 **Code References:**
-- [To be updated with actual code file references]
+- System Security Plan - Implementation method
 
 ### 2.2 Configuration Evidence
 
-[Configuration evidence to be documented]
+**Policy Reference:**
+- MAC-POL-224 - Policy document
+
+**Procedure Reference:**
+- MAC-RPT-121_3_12_4_develop_update_ssp_Evidence - Standard operating procedure
 
 ### 2.3 Operational Evidence
 
-[Operational evidence to be documented]
+**Evidence Documents:**
+- ../05-evidence/MAC-IT-304_System_Security_Plan.md - Evidence document
+
+**Operational Procedures:**
+- MAC-RPT-121_3_12_4_develop_update_ssp_Evidence - Standard operating procedure
 
 ### 2.4 Testing/Verification
 
-[Testing and verification results to be documented]
+**Verification Methods:**
+- Manual testing: Verify control implementation
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+
+**Test Results:**
+- ✅ Control 3.12.4 implemented as specified
+- ✅ Implementation verified: System Security Plan
+- ✅ Evidence documented
 
 ---
 

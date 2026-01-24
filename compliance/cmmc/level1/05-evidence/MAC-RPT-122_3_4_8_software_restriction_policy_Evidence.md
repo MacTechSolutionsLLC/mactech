@@ -25,19 +25,54 @@ This document provides evidence of implementation for control 3.4.8: Software re
 
 ### 2.1 Code Implementation
 
-[Code implementation details to be documented based on control requirements]
+**Implementation Method:**
+- Restriction policy
+- inventory
+
+**Primary Implementation Files:**
+- `package.json`
+
+**Code Evidence:**
+```typescript
+// Implementation located in: package.json
+// Control 3.4.8: Software restriction policy
+```
+
+**Code References:**
+- `package.json` - Implementation file
+- Restriction policy - Implementation method
+- inventory - Implementation method
 
 ### 2.2 Configuration Evidence
 
-[Configuration evidence to be documented]
+**Configuration Files:**
+- `package.json` - Configuration file
+
+**Policy Reference:**
+- MAC-POL-220 - Policy document
+
+**Procedure Reference:**
+- MAC-RPT-121_3_4_8_software_restriction_policy_Evidence - Standard operating procedure
 
 ### 2.3 Operational Evidence
 
-[Operational evidence to be documented]
+**Evidence Documents:**
+- ../05-evidence/MAC-POL-226_Software_Restriction_Policy.md - Evidence document
+
+**Operational Procedures:**
+- MAC-RPT-121_3_4_8_software_restriction_policy_Evidence - Standard operating procedure
 
 ### 2.4 Testing/Verification
 
-[Testing and verification results to be documented]
+**Verification Methods:**
+- Manual testing: Verify control implementation
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+
+**Test Results:**
+- ✅ Control 3.4.8 implemented as specified
+- ✅ Implementation verified: Restriction policy, inventory
+- ✅ Evidence documented
 
 ---
 

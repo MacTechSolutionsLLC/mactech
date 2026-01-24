@@ -35,7 +35,13 @@ export default function POAMDetailPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [poamIdError, setPoamIdError] = useState<string | null>(null)
+  const [checkingPoamId, setCheckingPoamId] = useState(false)
   const [formData, setFormData] = useState({
+    poamId: '',
+    controlId: '',
+    title: '',
+    description: '',
     status: '',
     priority: '',
     responsibleParty: '',
@@ -43,6 +49,8 @@ export default function POAMDetailPage() {
     notes: '',
     evidence: '',
   })
+  const [affectedControls, setAffectedControls] = useState<string[]>([])
+  const [plannedRemediation, setPlannedRemediation] = useState<string[]>([])
   const [milestones, setMilestones] = useState<Array<{ text: string; completed: boolean }>>([])
 
   useEffect(() => {
@@ -57,6 +65,10 @@ export default function POAMDetailPage() {
       if (data.item) {
         setItem(data.item)
         setFormData({
+          poamId: data.item.poamId || '',
+          controlId: data.item.controlId || '',
+          title: data.item.title || '',
+          description: data.item.description || '',
           status: data.item.status,
           priority: data.item.priority,
           responsibleParty: data.item.responsibleParty,
@@ -66,6 +78,18 @@ export default function POAMDetailPage() {
           notes: data.item.notes || '',
           evidence: data.item.evidence || '',
         })
+        try {
+          const parsedAffectedControls = JSON.parse(data.item.affectedControls || '[]')
+          setAffectedControls(Array.isArray(parsedAffectedControls) ? parsedAffectedControls : [])
+        } catch {
+          setAffectedControls([])
+        }
+        try {
+          const parsedPlannedRemediation = JSON.parse(data.item.plannedRemediation || '[]')
+          setPlannedRemediation(Array.isArray(parsedPlannedRemediation) ? parsedPlannedRemediation : [])
+        } catch {
+          setPlannedRemediation([])
+        }
         try {
           const parsedMilestones = JSON.parse(data.item.milestones || '[]')
           setMilestones(parsedMilestones)
@@ -80,7 +104,57 @@ export default function POAMDetailPage() {
     }
   }
 
+  const checkPoamIdUniqueness = async (poamId: string) => {
+    if (!poamId || poamId === item?.poamId) {
+      setPoamIdError(null)
+      return true
+    }
+
+    setCheckingPoamId(true)
+    try {
+      const res = await fetch(`/api/admin/poam/check-id?poamId=${encodeURIComponent(poamId)}&excludeId=${id}`)
+      const data = await res.json()
+      if (data.available) {
+        setPoamIdError(null)
+        return true
+      } else {
+        setPoamIdError('POA&M ID already exists')
+        return false
+      }
+    } catch (error) {
+      console.error('Error checking POA&M ID:', error)
+      setPoamIdError('Error checking POA&M ID availability')
+      return false
+    } finally {
+      setCheckingPoamId(false)
+    }
+  }
+
+  const handlePoamIdChange = async (value: string) => {
+    setFormData({ ...formData, poamId: value })
+    if (value) {
+      await checkPoamIdUniqueness(value)
+    } else {
+      setPoamIdError(null)
+    }
+  }
+
   const handleSave = async () => {
+    // Validate required fields
+    if (!formData.poamId || !formData.controlId || !formData.title || !formData.description) {
+      alert('Please fill in all required fields: POA&M ID, Control ID, Title, and Description')
+      return
+    }
+
+    // Check POA&M ID uniqueness if it changed
+    if (formData.poamId !== item?.poamId) {
+      const isUnique = await checkPoamIdUniqueness(formData.poamId)
+      if (!isUnique) {
+        alert('POA&M ID is not available. Please choose a different ID.')
+        return
+      }
+    }
+
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/poam/${id}`, {
@@ -88,6 +162,8 @@ export default function POAMDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          affectedControls,
+          plannedRemediation,
           milestones,
           targetCompletionDate: formData.targetCompletionDate || null,
           evidence: formData.evidence || null,
@@ -97,6 +173,7 @@ export default function POAMDetailPage() {
       if (res.ok) {
         await fetchItem()
         setEditing(false)
+        setPoamIdError(null)
       } else {
         const error = await res.json()
         alert(error.error || 'Failed to update POA&M item')
@@ -244,8 +321,6 @@ export default function POAMDetailPage() {
     )
   }
 
-  const affectedControls = JSON.parse(item.affectedControls || '[]')
-  const plannedRemediation = JSON.parse(item.plannedRemediation || '[]')
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -323,37 +398,181 @@ export default function POAMDetailPage() {
             {/* Details */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Details</h2>
-              <dl className="grid grid-cols-1 gap-4">
-                <div>
-                  <dt className="text-sm font-medium text-neutral-500">Control ID</dt>
-                  <dd className="mt-1 text-sm text-neutral-900">{item.controlId}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-neutral-500">Description</dt>
-                  <dd className="mt-1 text-sm text-neutral-900 whitespace-pre-wrap">{item.description}</dd>
-                </div>
-                {affectedControls.length > 0 && (
+              {editing ? (
+                <div className="space-y-4">
                   <div>
-                    <dt className="text-sm font-medium text-neutral-500">Affected Controls</dt>
-                    <dd className="mt-1 text-sm text-neutral-900">
-                      {affectedControls.join(', ')}
-                    </dd>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      POA&M ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.poamId}
+                      onChange={(e) => handlePoamIdChange(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 ${
+                        poamIdError ? 'border-red-300' : 'border-neutral-300'
+                      }`}
+                      placeholder="POAM-001"
+                      disabled={checkingPoamId}
+                    />
+                    {checkingPoamId && (
+                      <p className="mt-1 text-xs text-neutral-500">Checking availability...</p>
+                    )}
+                    {poamIdError && (
+                      <p className="mt-1 text-xs text-red-600">{poamIdError}</p>
+                    )}
                   </div>
-                )}
-              </dl>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Control ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.controlId}
+                      onChange={(e) => setFormData({ ...formData, controlId: e.target.value })}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                      placeholder="3.1.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Title <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                      placeholder="POA&M item title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Description <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={6}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                      placeholder="Detailed description of the POA&M item"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Affected Controls
+                    </label>
+                    <div className="space-y-2">
+                      {affectedControls.map((control, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input
+                            type="text"
+                            value={control}
+                            onChange={(e) => {
+                              const updated = [...affectedControls]
+                              updated[index] = e.target.value
+                              setAffectedControls(updated)
+                            }}
+                            className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                            placeholder="3.1.1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setAffectedControls(affectedControls.filter((_, i) => i !== index))}
+                            className="px-3 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setAffectedControls([...affectedControls, ''])}
+                        className="px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 text-sm"
+                      >
+                        + Add Control
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <dl className="grid grid-cols-1 gap-4">
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-500">POA&M ID</dt>
+                    <dd className="mt-1 text-sm text-neutral-900">{item.poamId}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-500">Control ID</dt>
+                    <dd className="mt-1 text-sm text-neutral-900">{item.controlId}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-500">Title</dt>
+                    <dd className="mt-1 text-sm text-neutral-900">{item.title}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-neutral-500">Description</dt>
+                    <dd className="mt-1 text-sm text-neutral-900 whitespace-pre-wrap">{item.description}</dd>
+                  </div>
+                  {affectedControls.length > 0 && (
+                    <div>
+                      <dt className="text-sm font-medium text-neutral-500">Affected Controls</dt>
+                      <dd className="mt-1 text-sm text-neutral-900">
+                        {affectedControls.join(', ')}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              )}
             </div>
 
             {/* Planned Remediation */}
-            {plannedRemediation.length > 0 && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-neutral-900 mb-4">Planned Remediation</h2>
-                <ul className="list-disc list-inside space-y-2 text-sm text-neutral-700">
-                  {plannedRemediation.map((step: string, index: number) => (
-                    <li key={index}>{step}</li>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-neutral-900 mb-4">Planned Remediation</h2>
+              {editing ? (
+                <div className="space-y-2">
+                  {plannedRemediation.map((step, index) => (
+                    <div key={index} className="flex gap-2">
+                      <textarea
+                        value={step}
+                        onChange={(e) => {
+                          const updated = [...plannedRemediation]
+                          updated[index] = e.target.value
+                          setPlannedRemediation(updated)
+                        }}
+                        rows={2}
+                        className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                        placeholder="Remediation step"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPlannedRemediation(plannedRemediation.filter((_, i) => i !== index))}
+                        className="px-3 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 self-start"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => setPlannedRemediation([...plannedRemediation, ''])}
+                    className="px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 text-sm"
+                  >
+                    + Add Step
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  {plannedRemediation.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-2 text-sm text-neutral-700">
+                      {plannedRemediation.map((step: string, index: number) => (
+                        <li key={index}>{step}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-neutral-500">No planned remediation steps defined</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Body of Evidence - Only show for closed/verified POA&Ms */}
             {(item.status === 'closed' || item.status === 'verified') && (

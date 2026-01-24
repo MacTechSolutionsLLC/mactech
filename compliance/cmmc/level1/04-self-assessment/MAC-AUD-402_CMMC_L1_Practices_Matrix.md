@@ -1,9 +1,9 @@
 # CMMC Level 1 Practices Matrix
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 1.1  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
+**Compliance Framework:** CMMC 2.0 Level 1 (Foundational) - Historical Reference  
 **Reference:** FAR 52.204-21
 
 ---
@@ -14,7 +14,11 @@ This matrix maps all 17 CMMC Level 1 practices to implementation status, evidenc
 
 **Note:** CMMC Level 1 includes 17 practices aligned to FAR 52.204-21 (which contains 15 basic safeguarding requirements).
 
-**System Scope:** This system is scoped to FCI only. CUI is prohibited and not intentionally processed or stored.
+**System Scope:** This system was originally scoped to FCI only. **The system has been upgraded to CMMC Level 2 and now processes both FCI and CUI. This document is maintained for historical reference. All Level 1 practices are now covered by Level 2 controls.**
+
+**Current Status:** For current compliance status, see:
+- System Control Traceability Matrix: `MAC-AUD-408_System_Control_Traceability_Matrix.md` (110 NIST SP 800-171 controls)
+- System Security Plan: `../01-system-scope/MAC-IT-304_System_Security_Plan.md` (97% overall readiness)
 
 ---
 
