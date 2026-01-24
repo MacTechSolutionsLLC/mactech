@@ -184,7 +184,7 @@ export default function MFAEnrollPage() {
                 onClick={() => setStep('verify')}
                 className="w-full py-2.5 bg-accent-700 text-white rounded-lg font-medium hover:bg-accent-800 transition-colors"
               >
-                I've Scanned the QR Code
+                I&apos;ve Scanned the QR Code
               </button>
             </div>
           )}
