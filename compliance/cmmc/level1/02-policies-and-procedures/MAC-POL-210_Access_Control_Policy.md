@@ -419,19 +419,23 @@ The following items are not required for CMMC Level 1 but represent potential fu
 - System is cloud-based web application accessible via any device
 - Mobile device access controlled via authentication requirements
 - Mobile device policy established
-- No CUI stored on mobile devices (all CUI in cloud database)
+- CUI stored in cloud database (StoredCUIFile table) with password protection
+- No local CUI storage on mobile devices (browser-based access only)
 
 **Mobile Device Access:**
 - Mobile devices access system via browser
 - Same authentication requirements as desktop
 - No local CUI storage on mobile devices
-- CUI encryption at rest in cloud database
+- CUI encryption at rest in cloud database (Railway platform)
+- CUI files require password protection for access
 
 **Evidence:**
 - Mobile Device Policy: This policy (to be enhanced)
 - System architecture: Cloud-based, no local CUI storage
+- CUI file storage: `lib/file-storage.ts` (storeCUIFile function)
+- CUI password protection: `lib/file-storage.ts` (verifyCUIPassword function)
 
-**Status:** ✅ Implemented (mobile devices access via same authentication, no local CUI)
+**Status:** ✅ Implemented (mobile devices access via same authentication, CUI stored in cloud with password protection, no local CUI storage)
 
 ---
 

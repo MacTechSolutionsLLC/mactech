@@ -1,15 +1,15 @@
 /**
- * File storage service for CMMC Level 1 compliance
+ * File storage service for CMMC Level 2 compliance
  * 
- * DEPRECATED: File uploads are disabled. This system handles FCI only and does not accept file uploads.
- * This module is retained for reference but the upload endpoint returns 403 Forbidden.
+ * Handles both FCI files (StoredFile) and CUI files (StoredCUIFile)
+ * CUI files require password protection for access
  * 
- * Original purpose: Stores files in PostgreSQL BYTEA column (replaces /public/uploads)
+ * Stores files in PostgreSQL BYTEA column (replaces /public/uploads)
  * Provides signed URLs for secure file access
  */
 
 import { prisma } from "./prisma"
-import { validateFilename, validateNoCUI } from "./cui-blocker"
+import { validateFilename } from "./cui-blocker"
 import crypto from "crypto"
 
 // Allowed MIME types (configurable)
@@ -79,13 +79,8 @@ export async function storeFile(
     throw new Error(sizeValidation.error)
   }
 
-  // Validate filename for CUI keywords
-  validateFilename(file.name)
-
-  // Validate metadata for CUI keywords
-  if (metadata) {
-    validateNoCUI(metadata)
-  }
+  // Validate filename (no longer blocking CUI keywords, just validating format)
+  // CUI files should be stored using storeCUIFile() instead
 
   // Read file data
   const arrayBuffer = await file.arrayBuffer()
@@ -271,6 +266,178 @@ export async function listFiles(
       size: true,
       uploadedAt: true,
       deletedAt: true,
+    },
+  })
+}
+
+/**
+ * Verify CUI password
+ * Temporary implementation: password is "cui"
+ * TODO: Make configurable via environment variable
+ */
+export function verifyCUIPassword(password: string): boolean {
+  return password === "cui"
+}
+
+/**
+ * Store CUI file in database
+ */
+export async function storeCUIFile(
+  userId: string,
+  file: File,
+  metadata?: Record<string, any>
+): Promise<{ fileId: string; signedUrl: string }> {
+  // Validate file type
+  const typeValidation = validateFileType(file)
+  if (!typeValidation.valid) {
+    throw new Error(typeValidation.error)
+  }
+
+  // Validate file size
+  const sizeValidation = validateFileSize(file)
+  if (!sizeValidation.valid) {
+    throw new Error(sizeValidation.error)
+  }
+
+  // Read file data
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  // Store CUI file in database
+  const storedFile = await prisma.storedCUIFile.create({
+    data: {
+      userId,
+      filename: file.name,
+      mimeType: file.type,
+      size: file.size,
+      data: buffer,
+      metadata: metadata ? JSON.stringify(metadata) : null,
+      signedUrlExpiresAt: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRES_IN),
+    },
+  })
+
+  // Generate signed URL (note: CUI files require password, so signed URLs may not be used)
+  const signedUrl = generateSignedUrl(storedFile.id)
+
+  return {
+    fileId: storedFile.id,
+    signedUrl,
+  }
+}
+
+/**
+ * Get CUI file with password verification
+ */
+export async function getCUIFile(
+  fileId: string,
+  password: string,
+  userId?: string,
+  userRole?: string
+) {
+  // Verify password first
+  if (!verifyCUIPassword(password)) {
+    throw new Error("Invalid CUI password")
+  }
+
+  const file = await prisma.storedCUIFile.findUnique({
+    where: { id: fileId },
+    include: {
+      uploader: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
+    },
+  })
+
+  if (!file) {
+    throw new Error("CUI file not found")
+  }
+
+  // Check if file is deleted
+  if (file.deletedAt) {
+    throw new Error("CUI file has been deleted")
+  }
+
+  // Access control: user can access their own CUI files, admin can access any CUI file
+  if (userId) {
+    // Check if user owns the file OR is admin
+    if (file.userId !== userId && userRole !== "ADMIN") {
+      throw new Error("Access denied")
+    }
+  } else {
+    throw new Error("Authentication required")
+  }
+
+  return file
+}
+
+/**
+ * Delete CUI file (logical deletion)
+ */
+export async function deleteCUIFile(fileId: string, userId: string, userRole?: string): Promise<void> {
+  // Verify user owns the file or is admin
+  const file = await prisma.storedCUIFile.findUnique({
+    where: { id: fileId },
+  })
+
+  if (!file) {
+    throw new Error("CUI file not found")
+  }
+
+  // Check if user owns the file OR is admin
+  if (file.userId !== userId && userRole !== "ADMIN") {
+    throw new Error("Access denied")
+  }
+
+  // Logical deletion
+  await prisma.storedCUIFile.update({
+    where: { id: fileId },
+    data: {
+      deletedAt: new Date(),
+    },
+  })
+}
+
+/**
+ * List CUI files for user
+ */
+export async function listCUIFiles(
+  userId: string,
+  includeDeleted: boolean = false,
+  userRole?: string
+) {
+  const where: any = {}
+
+  // Users can only see their own CUI files, admins can see all
+  if (userRole !== "ADMIN") {
+    where.userId = userId
+  }
+
+  if (!includeDeleted) {
+    where.deletedAt = null
+  }
+
+  return prisma.storedCUIFile.findMany({
+    where,
+    orderBy: { uploadedAt: "desc" },
+    select: {
+      id: true,
+      filename: true,
+      mimeType: true,
+      size: true,
+      uploadedAt: true,
+      deletedAt: true,
+      userId: true,
+      uploader: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
     },
   })
 }

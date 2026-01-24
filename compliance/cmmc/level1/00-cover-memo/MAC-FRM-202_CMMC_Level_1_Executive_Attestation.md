@@ -63,7 +63,7 @@ I attest that the following 17 CMMC Level 1 practices are implemented:
 - All organizational responsibilities (authentication, authorization, access controls, logging, incident response, etc.) are implemented internally.
 - For detailed breakdown of implemented vs inherited practices, see Inherited Controls Appendix (`03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`).
 
-**System Scope:** This system is scoped to FCI only. Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data. CUI is prohibited and not intentionally processed or stored.
+**System Scope:** This system is scoped to FCI and CUI (CMMC Level 2). Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data. CUI files are stored separately and require password protection for access.
 
 **Evidence:** See `04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md` for detailed assessment of each practice.
 

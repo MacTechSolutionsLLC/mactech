@@ -21,25 +21,49 @@ export async function GET(
     let file
     let userId: string | undefined
 
-    // Check if signed URL is provided
-    if (expires && sig) {
-      // Verify signed URL
-      if (!verifySignedUrl(id, expires, sig)) {
-        return NextResponse.json(
-          { error: "Invalid or expired signed URL" },
-          { status: 403 }
-        )
+    // First, check if file exists in StoredFile (non-CUI)
+    try {
+      // Check if signed URL is provided
+      if (expires && sig) {
+        // Verify signed URL
+        if (!verifySignedUrl(id, expires, sig)) {
+          return NextResponse.json(
+            { error: "Invalid or expired signed URL" },
+            { status: 403 }
+          )
+        }
+
+        // Get file with signed URL verification
+        file = await getFile(id, undefined, { expires, sig })
+      } else {
+        // Require authentication for direct access
+        const session = await requireAuth()
+        userId = session.user.id
+
+        // Get file with user access check (admin users can access any file)
+        file = await getFile(id, userId, undefined, session.user.role)
       }
-
-      // Get file with signed URL verification
-      file = await getFile(id, undefined, { expires, sig })
-    } else {
-      // Require authentication for direct access
-      const session = await requireAuth()
-      userId = session.user.id
-
-      // Get file with user access check (admin users can access any file)
-      file = await getFile(id, userId, undefined, session.user.role)
+    } catch (error: any) {
+      // If file not found in StoredFile, check if it's a CUI file
+      if (error.message?.includes("not found")) {
+        const cuiFile = await prisma.storedCUIFile.findUnique({
+          where: { id },
+        }).catch(() => null)
+        
+        if (cuiFile) {
+          // This is a CUI file - redirect to CUI endpoint
+          return NextResponse.json(
+            { 
+              error: "This is a CUI file. Password required for access.",
+              isCUI: true,
+              redirectTo: `/api/files/cui/${id}`
+            },
+            { status: 403 }
+          )
+        }
+      }
+      // Re-throw if it's not a "not found" error or not a CUI file
+      throw error
     }
 
     // Log file download with detailed file information

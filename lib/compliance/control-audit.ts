@@ -577,7 +577,7 @@ async function verifyImplementation(implementationRef: string, controlId: string
       'Remote work controls', 'Alternate sites', 'Risk assessment',
       'Vulnerability remediation', 'Control assessment', 'POA&M process',
       'Continuous monitoring', 'System Security Plan', 'Browser access',
-      'No local CUI', 'External APIs', 'Minimal features', 'Platform controls',
+      'External APIs', 'Minimal features', 'Platform controls',
       'NTP sync', 'Platform routing', 'Cloud-only', 'JWT tokens', 'bcrypt',
       'Error handling', '8-hour timeout', 'Audit logging', 'User identification',
       'CSV export', 'Append-only', 'Admin-only', 'CM plan', 'baseline inventory',
@@ -638,7 +638,7 @@ async function verifyImplementation(implementationRef: string, controlId: string
       const genericImplRefs = [
         'NextAuth.js', 'middleware', 'TLS/HTTPS', 'Platform/app maintenance',
         'Platform/facility controls', 'RBAC', 'Access controls', 'SoD matrix',
-        'operational controls', 'Cloud-only', 'Browser access', 'No local CUI',
+        'operational controls', 'Cloud-only', 'Browser access',
         'External APIs', 'Approval workflow', 'Network security', 'Network segmentation',
         'Network controls', 'Connection management', 'Database encryption', 'Key management',
         'Mobile code policy', 'CSP', 'TLS authentication', 'Flaw management',

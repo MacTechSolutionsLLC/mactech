@@ -12,7 +12,7 @@
 
 ## Purpose
 
-This acknowledgment form documents that the user understands their responsibilities for protecting Federal Contract Information (FCI) and the prohibition on uploading Controlled Unclassified Information (CUI) or other prohibited data types. This acknowledgment is required before system access is granted.
+This acknowledgment form documents that the user understands their responsibilities for protecting Federal Contract Information (FCI) and Controlled Unclassified Information (CUI). CUI must be properly marked and password protected. This acknowledgment is required before system access is granted.
 
 **Note:** This form must be completed and signed by the user before system access is provisioned.
 
@@ -46,12 +46,13 @@ By signing below, I acknowledge that I have read and understand the following:
 
 ### 2. Prohibition on Controlled Unclassified Information (CUI)
 
-☐ **I understand that uploading Controlled Unclassified Information (CUI) is contractually and procedurally prohibited.** I will:
+☐ **I understand that Controlled Unclassified Information (CUI) must be properly marked and password protected.** I will:
 
-- Not upload, store, or process CUI in the system
-- Not combine FCI with external data sources in a manner that would create CUI
-- Immediately report any accidental upload of CUI
-- Understand that violation of this prohibition may result in immediate access revocation
+- Mark files containing CUI during upload
+- Use password protection when accessing CUI files
+- Follow CUI handling procedures as documented
+- Report any suspected CUI breaches or unauthorized access
+- Understand that CUI files are stored separately and require password protection
 
 ### 3. System Access and Security
 

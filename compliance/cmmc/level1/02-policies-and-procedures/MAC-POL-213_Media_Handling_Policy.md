@@ -1,30 +1,30 @@
-# Media Handling & Data Disposal Policy - CMMC Level 1
+# Media Handling & Data Disposal Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-21  
+**Document Version:** 2.0  
+**Date:** 2026-01-24  
 **Classification:** Internal Use  
-**Compliance Framework:** CMMC 2.0 Level 1 (Foundational)  
-**Reference:** FAR 52.204-21
+**Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
+**Reference:** NIST SP 800-171 Rev. 2
 
-**Applies to:** CMMC 2.0 Level 1 (FCI-only system)
+**Applies to:** CMMC 2.0 Level 2 (FCI and CUI system)
 
 ---
 
 ## 1. Policy Statement
 
-MacTech Solutions maintains controls over media handling and data disposal to protect Federal Contract Information (FCI). This policy establishes requirements for media usage, data storage, and secure data disposal procedures.
+MacTech Solutions maintains controls over media handling and data disposal to protect Federal Contract Information (FCI) and Controlled Unclassified Information (CUI). This policy establishes requirements for media usage, data storage, and secure data disposal procedures.
 
-This policy aligns with CMMC Level 1 requirements and FAR 52.204-21.
+This policy aligns with CMMC Level 2 requirements and NIST SP 800-171 Rev. 2.
 
 ---
 
 ## 2. Scope
 
 This policy applies to:
-- All media used to store or process FCI
+- All media used to store or process FCI and CUI
 - All data storage mechanisms (database, file systems, cloud storage)
 - All data disposal and deletion procedures
-- All personnel who handle FCI
+- All personnel who handle FCI and CUI
 
 ---
 
@@ -63,8 +63,9 @@ This policy applies to:
 - No local caching of sensitive data
 
 **User Requirements:**
-- All users must complete User Access and FCI Handling Acknowledgement before system access
-- Acknowledgment explicitly prohibits upload of CUI and other prohibited data types
+- All users must complete User Access and FCI/CUI Handling Acknowledgement before system access
+- Users must properly mark CUI files during upload
+- Users must use password protection when accessing CUI files
 - Users are procedurally required to protect FCI/CUI and not use removable media
 - Users must not download FCI/CUI to portable storage devices
 - Users must not access system from devices with portable storage enabled (if policy requires)
@@ -142,13 +143,26 @@ This policy applies to:
 
 ### 4.2 File Storage
 
-**Location:** `/public/uploads/` directory within application runtime
+**FCI Files:**
+- Location: PostgreSQL database `StoredFile` table (BYTEA column)
+- Storage Type: Database binary storage
+- Access: Signed URLs with expiration
+- Evidence: `lib/file-storage.ts`, `prisma/schema.prisma` (StoredFile model)
 
-**Content:** Limited to non-sensitive content (not FCI)
+**CUI Files:**
+- Location: PostgreSQL database `StoredCUIFile` table (BYTEA column)
+- Storage Type: Database binary storage (separate from FCI files)
+- Access: Password-protected access via `/api/files/cui/[id]` endpoint
+- Password: "cui" (temporary - to be made configurable)
+- Access Control: Authentication required + password verification
+- Evidence: `lib/file-storage.ts` (storeCUIFile, getCUIFile functions), `prisma/schema.prisma` (StoredCUIFile model)
 
-**Storage Type:** Local file system within application runtime environment
-
-**Note:** See Section 7.1 for compliance risk discussion
+**CUI File Handling Procedures:**
+- Users can mark files as CUI during upload
+- System auto-detects CUI keywords in filename and metadata
+- CUI files stored separately from FCI files
+- CUI files require password for access
+- All CUI file access attempts logged to audit log
 
 ---
 

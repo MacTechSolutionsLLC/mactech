@@ -14,7 +14,7 @@ This self-assessment documents the implementation status of all 17 CMMC Level 1 
 
 **Note:** CMMC Level 1 includes 17 practices aligned to FAR 52.204-21 (which contains 15 basic safeguarding requirements).
 
-**System Scope:** This system is scoped to FCI only. CUI is prohibited and not intentionally processed or stored.
+**System Scope:** This system is scoped to FCI and CUI (CMMC Level 2). CUI files are stored separately and require password protection for access.
 
 **Assessment Methodology:**
 - Code review of actual implementation

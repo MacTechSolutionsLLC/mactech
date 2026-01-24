@@ -1,195 +1,240 @@
-# CUI Monitoring Technical Controls Evidence
+# CUI File Storage and Protection Technical Controls Evidence
 
-**CMMC Practice:** Scope Enforcement (FCI-only system)  
-**Purpose:** Document technical monitoring controls that support FCI-only scope  
-**Date:** 2026-01-22
+**CMMC Practice:** CUI Handling (CMMC Level 2)  
+**Purpose:** Document technical controls for CUI file storage and password protection  
+**Date:** 2026-01-24
 
 ---
 
 ## Overview
 
-**CUI is prohibited by policy and process. This system is scoped for FCI only.** The system does not process CUI. Keyword detection is used solely as a spill-detection mechanism and is not relied upon as a security boundary. File uploads are disabled to prevent CUI entry. This evidence document demonstrates the technical implementation of keyword monitoring for spill detection.
+**CMMC Level 2: System now supports both FCI and CUI files.** CUI files are stored separately from FCI files and require password protection for access. This evidence document demonstrates the technical implementation of CUI file storage, password protection, and access controls.
 
 ---
 
 ## Technical Implementation
 
-### 1. CUI Keyword Monitoring Library
+### 1. CUI Keyword Detection Library
 
 **File:** `lib/cui-blocker.ts`
 
-**Purpose:** Provides keyword-based monitoring for spill detection. The system does not process CUI. Keyword detection is used solely as a spill-detection mechanism and is not relied upon as a security boundary.
+**Purpose:** Provides keyword-based detection for auto-classification of files as CUI. CUI files are now supported and stored separately with password protection.
 
 **Key Functions:**
 - `containsCUIKeywords(text: string)`: Checks if text contains CUI-related keywords
-- `monitorCUIKeywords(input: any, context?: string, actorUserId?: string, actorEmail?: string)`: Monitors input for CUI keywords and logs detection (monitoring-only, does not block)
+- `detectCUIKeywords(input: any)`: Detects CUI keywords for auto-classification (returns boolean)
+- `monitorCUIKeywords(input: any, context?: string, actorUserId?: string, actorEmail?: string)`: Monitors input for CUI keywords and logs detection
 - `monitorCUIKeywordsSync(input: any, context?: string)`: Synchronous monitoring function
-- `validateNoCUI(input: any)`: [DEPRECATED] Validates input and throws error (deprecated in favor of monitoring-only approach)
-- `validateFilename(filename: string)`: [DEPRECATED] Validates filenames and throws error (deprecated in favor of monitoring-only approach)
+- `validateNoCUI(input: any)`: [DEPRECATED] No longer blocks - only logs warnings for backward compatibility
+- `validateFilename(filename: string)`: Validates filename format (no longer blocks CUI keywords)
 
-**Blocked Keywords:**
+**Detected Keywords:**
 - Explicit CUI terms: "CUI", "Controlled Unclassified Information", "FOUO", "For Official Use Only"
 - Classification terms: "Classified", "Confidential", "Secret", "Top Secret", "TS/SCI"
-- Restricted field names: "cui", "controlled", "classified", "fouo", "sensitive", "classification"
+- Field names that suggest CUI: "cui", "controlled", "classified", "fouo", "sensitive", "classification"
 
 **Code Evidence:**
 ```typescript
 // From lib/cui-blocker.ts
-export function validateFilename(filename: string): void {
-  if (containsCUIKeywords(filename)) {
-    throw new Error(
-      "Filename contains prohibited terms. This system handles FCI only. CUI is not permitted."
-    )
-  }
-}
-
-export function validateNoCUI(input: any): void {
-  // Validates strings, objects, and arrays for CUI keywords
-  // Throws error if CUI keywords detected
+export function detectCUIKeywords(input: any): boolean {
+  // Detects CUI keywords in strings, objects, and arrays
+  // Returns true if CUI keywords detected, false otherwise
+  // Used for auto-classification of files as CUI
 }
 ```
 
 ---
 
-### 2. File Upload Endpoint (Disabled)
+### 2. CUI File Storage
 
-**File:** `app/api/files/upload/route.ts`
+**File:** `lib/file-storage.ts`
 
-**Purpose:** File uploads are disabled. This system handles FCI only and does not accept file uploads.
+**Purpose:** Stores CUI files separately from FCI files with password protection.
 
-**Implementation:**
-- Endpoint returns 403 Forbidden with message: "File uploads are disabled. This system handles FCI only and does not accept file uploads."
-- File storage service (`lib/file-storage.ts`) is deprecated
-- No file uploads are accepted to prevent CUI entry
+**Key Functions:**
+- `storeCUIFile(userId: string, file: File, metadata?: Record<string, any>)`: Stores CUI file in StoredCUIFile table
+- `getCUIFile(fileId: string, password: string, userId?: string, userRole?: string)`: Retrieves CUI file with password verification
+- `verifyCUIPassword(password: string)`: Verifies CUI password (password: "cui" - temporary)
+- `listCUIFiles(userId: string, includeDeleted: boolean, userRole?: string)`: Lists CUI files for user
+
+**Database Model:**
+- `StoredCUIFile` table in PostgreSQL
+- Separate from `StoredFile` table (FCI files)
+- Same structure: id, userId, filename, mimeType, size, data (BYTEA), uploadedAt, deletedAt, metadata
 
 **Code Evidence:**
 ```typescript
 // From lib/file-storage.ts
-export async function storeFile(
+export async function storeCUIFile(
   userId: string,
   file: File,
   metadata?: Record<string, any>
 ): Promise<{ fileId: string; signedUrl: string }> {
-  // Validate filename for CUI keywords
-  validateFilename(file.name)
+  // Stores CUI file in StoredCUIFile table
+  const storedFile = await prisma.storedCUIFile.create({
+    data: { userId, filename: file.name, mimeType: file.type, size: file.size, data: buffer, ... }
+  })
+}
 
-  // Validate metadata for CUI keywords
-  if (metadata) {
-    validateNoCUI(metadata)
-  }
-  // ... rest of file storage logic
+export function verifyCUIPassword(password: string): boolean {
+  return password === "cui" // Temporary - to be made configurable
 }
 ```
 
 ---
 
-### 3. File Upload API Endpoint
+### 3. CUI File Upload API
 
 **File:** `app/api/files/upload/route.ts`
 
-**Purpose:** API endpoint that applies keyword-based filtering as a guardrail for all file uploads. CUI is prohibited by policy and process.
+**Purpose:** Handles file uploads with CUI detection and separate storage.
 
 **Implementation:**
 - Requires authentication (`requireAuth()`)
-- Validates metadata for CUI keywords before processing
-- Calls `storeFile()` which enforces filename and metadata validation
-- Returns error if CUI keywords detected
+- Accepts `isCUI` flag from form data (user checkbox)
+- Auto-detects CUI keywords in filename and metadata using `detectCUIKeywords()`
+- Routes to `storeCUIFile()` if CUI detected or user selected
+- Routes to `storeFile()` for non-CUI files
 
 **Code Evidence:**
 ```typescript
 // From app/api/files/upload/route.ts
 export async function POST(req: NextRequest) {
   const session = await requireAuth()
+  const formData = await req.formData()
+  const file = formData.get("file") as File
+  const isCUI = formData.get("isCUI") === "true"
   
-  // Parse metadata if provided
-  if (metadataStr) {
-    metadata = JSON.parse(metadataStr)
-    // Validate metadata for CUI keywords
-    validateNoCUI(metadata)
-  }
+  // Auto-detect CUI
+  const hasCUIInFilename = detectCUIKeywords(file.name)
+  const hasCUIInMetadata = detectCUIKeywords(metadata)
+  const shouldStoreAsCUI = isCUI || hasCUIInFilename || hasCUIInMetadata
   
-  // Store file (which also validates filename)
-  const result = await storeFile(session.user.id, file, metadata)
+  // Store in appropriate table
+  const result = shouldStoreAsCUI
+    ? await storeCUIFile(session.user.id, file, metadata)
+    : await storeFile(session.user.id, file, metadata)
 }
 ```
 
 ---
 
-## Error Handling
+### 4. CUI File Download API
 
-**Monitoring Behavior:**
-- Keyword detection is logged as "cui_spill_detected" event in audit log
-- Event includes context, actor information, and detection details
-- Input is NOT blocked - monitoring is for spill detection only
-- Audit log entry has success=false to indicate spill detection
+**File:** `app/api/files/cui/[id]/route.ts`
 
-**File Upload Response:**
-- HTTP 403 (Forbidden) with message: "File uploads are disabled. This system handles FCI only and does not accept file uploads."
-- File uploads are completely disabled to prevent CUI entry
+**Purpose:** Provides password-protected access to CUI files.
+
+**Implementation:**
+- Requires authentication
+- Requires password verification (password: "cui")
+- Users can only access their own CUI files (unless admin)
+- All access attempts logged to audit log
+
+**Code Evidence:**
+```typescript
+// From app/api/files/cui/[id]/route.ts
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const session = await requireAuth()
+  const password = req.nextUrl.searchParams.get("password")
+  
+  if (!verifyCUIPassword(password)) {
+    return NextResponse.json({ error: "Invalid CUI password" }, { status: 403 })
+  }
+  
+  const file = await getCUIFile(id, password, session.user.id, session.user.role)
+  // Return file...
+}
+```
+
+---
+
+## Access Control
+
+**CUI File Access:**
+- Authentication required (user must be logged in)
+- Password verification required (password: "cui" - temporary)
+- Users can only access their own CUI files
+- Admins can access all CUI files
+- All CUI file access attempts logged to audit log
+
+**Access Logging:**
+- Successful access: Logged as "cui_file_access" event
+- Failed access: Logged as "cui_file_access_denied" event
+- Includes file ID, filename, user information
 
 ---
 
 ## Testing Evidence
 
 **Test Scenarios:**
-1. Attempt to upload file → 403 Forbidden (file uploads disabled)
-2. Enter CUI keywords in user input → Detected and logged (not blocked)
-3. CUI keyword detection → Logged as "cui_spill_detected" event in audit log
-4. Normal FCI-only input → Accepted and processed
+1. Upload file with CUI checkbox → Stored in StoredCUIFile table
+2. Upload file with CUI keywords in filename → Auto-detected and stored as CUI
+3. Access CUI file without password → 403 Forbidden
+4. Access CUI file with correct password → File downloaded
+5. Access CUI file with wrong password → 403 Forbidden
+6. List CUI files → Shows only user's own CUI files (unless admin)
 
 **Code Review Evidence:**
-- Code review confirms file upload endpoint returns 403 Forbidden
-- Monitoring function logs detection but does not block
-- Audit log entries demonstrate spill detection capability
+- Code review confirms CUI files stored separately
+- Password verification implemented
+- Access control enforced
+- Audit logging functional
 
 ---
 
-## Limitations and Procedural Controls
+## Security Controls
 
-**CUI is prohibited by policy and process. This system is scoped for FCI only.**
+**CUI File Protection:**
+- Separate storage (StoredCUIFile table)
+- Password protection for access
+- Authentication required
+- Access control (users see only their own, admins see all)
+- Audit logging of all access attempts
+- Encryption at rest (Railway platform)
+- Encryption in transit (HTTPS/TLS)
 
-**Technical Monitoring Limitations:**
-- Keyword-based detection (not comprehensive content scanning)
-- Relies on known CUI-related terms
-- May not catch all variations or obfuscated terms
-- Monitoring is for spill detection only, not prevention
-- The system does not process CUI. Keyword detection is used solely as a spill-detection mechanism and is not relied upon as a security boundary.
-
-**Primary Controls:**
-- File uploads are disabled to prevent CUI entry
-- User Access and FCI Handling Acknowledgement (explicit CUI prohibition)
-- User training on FCI-only scope
-- Administrative oversight and monitoring
-- Contractual prohibition of CUI upload
-- Warning banners on input forms
+**Password Management:**
+- Current password: "cui" (temporary)
+- TODO: Make configurable via environment variable
+- Password verification in `verifyCUIPassword()` function
 
 **Combined Approach:**
-Procedural controls (policy, user acknowledgment, training) + Technical controls (file uploads disabled) + Monitoring (keyword detection for spill detection) = Defense-in-depth for scope enforcement. CUI is prohibited by policy and process; file uploads are disabled; keyword monitoring provides spill detection capability.
+Technical controls (separate storage, password protection, access control) + Procedural controls (user training, CUI handling procedures) + Monitoring (audit logging) = Defense-in-depth for CUI protection.
 
 ---
 
 ## Related Documents
 
-- FCI Scope and Data Boundary Statement: `../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`
-- User Access and FCI Handling Acknowledgement: `../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`
+- System Security Plan: `../01-system-scope/MAC-IT-304_System_Security_Plan.md`
+- System Boundary: `../01-system-scope/MAC-IT-105_System_Boundary.md`
 - Media Handling Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
+- Access Control Policy: `../02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
 
 ---
 
 ## Code References
 
-- CUI Blocking Library: `lib/cui-blocker.ts`
-- File Storage Service: `lib/file-storage.ts`
-- File Upload API: `app/api/files/upload/route.ts`
+- CUI Detection Library: `lib/cui-blocker.ts`
+- CUI File Storage: `lib/file-storage.ts` (storeCUIFile, getCUIFile, verifyCUIPassword)
+- CUI File Upload API: `app/api/files/upload/route.ts`
+- CUI File Download API: `app/api/files/cui/[id]/route.ts`
+- CUI File List API: `app/api/files/cui/list/route.ts`
+- CUI Password Prompt: `components/CUIPasswordPrompt.tsx`
+- Database Schema: `prisma/schema.prisma` (StoredCUIFile model)
 
 ---
 
-**Document Status:** This document reflects the system state as of 2026-01-21 and is maintained under configuration control.
+**Document Status:** This document reflects the system state as of 2026-01-24 and is maintained under configuration control.
 
 ---
 
 ## Document Control
 
 **Prepared By:** MacTech Solutions Compliance Team  
-**Date:** 2026-01-21  
-**Version:** 1.0
+**Date:** 2026-01-24  
+**Version:** 2.0
+
+**Change History:**
+- Version 2.0 (2026-01-24): Updated to reflect CUI support (CMMC Level 2) - CUI files now stored separately with password protection
+- Version 1.0 (2026-01-21): Initial document for CUI blocking/monitoring (CMMC Level 1)

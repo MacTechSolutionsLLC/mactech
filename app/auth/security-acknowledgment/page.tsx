@@ -83,16 +83,17 @@ export default function SecurityAcknowledgmentPage() {
               </ul>
             </div>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-900 mb-3">
-                Prohibition on Controlled Unclassified Information (CUI)
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-amber-900 mb-3">
+                Controlled Unclassified Information (CUI) Handling
               </h3>
-              <ul className="list-disc list-inside space-y-2 text-red-800">
-                <li>I understand that uploading Controlled Unclassified Information (CUI) is contractually and procedurally prohibited</li>
-                <li>I will not upload, store, or process CUI in the system</li>
-                <li>I will not combine FCI with external data sources in a manner that would create CUI</li>
-                <li>I will immediately report any accidental upload of CUI</li>
-                <li>I understand that violation of this prohibition may result in immediate access revocation</li>
+              <ul className="list-disc list-inside space-y-2 text-amber-800">
+                <li>I understand my responsibility to protect Controlled Unclassified Information (CUI) as defined by 32 CFR Part 2002</li>
+                <li>I will properly mark files containing CUI during upload</li>
+                <li>I will use password protection when accessing CUI files</li>
+                <li>I will follow CUI marking and handling requirements</li>
+                <li>I will report any suspected CUI breaches or unauthorized access</li>
+                <li>I understand that CUI files are stored separately and require password protection for access</li>
               </ul>
             </div>
 
@@ -114,10 +115,10 @@ export default function SecurityAcknowledgmentPage() {
                 Data Handling
               </h3>
               <ul className="list-disc list-inside space-y-2 text-green-800">
-                <li>I understand that FCI is stored only in the cloud database and not on local devices</li>
-                <li>I will not download FCI to local devices unless explicitly authorized</li>
-                <li>I will not store FCI on removable media</li>
-                <li>I will not print FCI unless authorized and necessary for business purposes</li>
+                <li>I understand that FCI and CUI are stored only in the cloud database and not on local devices</li>
+                <li>I will not download FCI or CUI to local devices unless explicitly authorized</li>
+                <li>I will not store FCI or CUI on removable media</li>
+                <li>I will not print FCI or CUI unless authorized and necessary for business purposes</li>
               </ul>
             </div>
           </div>

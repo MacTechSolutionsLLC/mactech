@@ -74,7 +74,7 @@ function findEvidenceFile(ref: string): string | null {
 async function createEvidenceFileForControl(controlId: string, requirement: string, genericRef: string): Promise<string | null> {
   // Skip if it's a descriptive reference that shouldn't be a file
   const skipRefs = [
-    'Browser access', 'No local CUI', 'External APIs', 'Minimal features',
+    'Browser access', 'External APIs', 'Minimal features',
     'Platform/app maintenance', 'Platform/facility controls', 'Access controls',
     'RBAC', 'User acknowledgments', 'Tool controls', 'Network security',
     'Network segmentation', 'Connection management', 'Database encryption',

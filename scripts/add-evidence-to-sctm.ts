@@ -201,7 +201,7 @@ async function main() {
             evidenceRefs.push(verified)
           }
         } else if (!ref.includes('System architecture') && !ref.includes('Railway platform') && 
-                   !ref.includes('Browser access') && !ref.includes('No local CUI') &&
+                   !ref.includes('Browser access') &&
                    !ref.includes('External APIs') && !ref.includes('Minimal features')) {
           // Remove invalid file references (but keep generic descriptive ones)
           // They'll be replaced by control-specific evidence above

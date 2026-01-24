@@ -47,7 +47,7 @@ function generateEvidenceFileName(controlId: string, requirement: string): strin
 async function createEvidenceFile(controlId: string, requirement: string, evidenceRef: string): Promise<string | null> {
   // Skip descriptive references that shouldn't be files
   const descriptiveRefs = [
-    'System architecture', 'Railway platform', 'Browser access', 'No local CUI',
+    'System architecture', 'Railway platform', 'Browser access',
     'External APIs', 'Minimal features', 'Platform/app maintenance', 'SSP Section',
     'Access controls', 'RBAC', 'User acknowledgments', 'Tool controls',
     'Platform/facility controls', 'Network security', 'Network segmentation',

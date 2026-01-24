@@ -82,7 +82,6 @@ async function main() {
             !c.file.includes('System architecture') &&
             !c.file.includes('Railway platform') &&
             !c.file.includes('Browser access') &&
-            !c.file.includes('No local CUI') &&
             !c.file.includes('External APIs') &&
             !c.file.includes('Minimal features') &&
             !c.file.includes('Platform/app')) {

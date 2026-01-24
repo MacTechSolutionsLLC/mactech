@@ -139,7 +139,9 @@
 
 2. **PostgreSQL Database**
    - Location: Railway cloud platform
-   - Purpose: Storage of FCI, user accounts, event logs, files
+   - Purpose: Storage of FCI, CUI, user accounts, event logs, files
+   - FCI files: StoredFile table
+   - CUI files: StoredCUIFile table (separate storage with password protection)
    - Evidence: `prisma/schema.prisma`, Railway platform
 
 3. **Authentication System**
@@ -150,7 +152,9 @@
 4. **File Storage System**
    - Technology: PostgreSQL BYTEA column
    - Purpose: Secure file storage with signed URLs
-   - Evidence: `lib/file-storage.ts`, `prisma/schema.prisma` (StoredFile model)
+   - FCI files: StoredFile table
+   - CUI files: StoredCUIFile table (password protected)
+   - Evidence: `lib/file-storage.ts`, `prisma/schema.prisma` (StoredFile, StoredCUIFile models)
 
 5. **Event Logging System**
    - Technology: PostgreSQL table (AppEvent)
@@ -199,18 +203,25 @@
 
 **Note:** Publicly available data from SAM.gov and USAspending.gov is not FCI by itself. FCI exists only when such data is combined with internal, non-public information.
 
-### 6.2 Prohibited Data Types
+### 6.2 CUI Data Types
 
-**Explicitly Prohibited:**
-- Controlled Unclassified Information (CUI)
-- Classified information
-- PII beyond publicly available FCI
-- Any data not directly related to federal contract opportunity management
+**CUI Stored in System:**
+- Controlled Unclassified Information (CUI) as defined by 32 CFR Part 2002 and the CUI Registry
+- Contract proposals, Statements of Work (SOWs), and contract documentation containing CUI
+- CUI files stored in separate StoredCUIFile table with password protection
+- CUI handled according to established CUI handling procedures
 
-**Enforcement:**
-- CUI keyword blocking in input validation (`lib/cui-blocker.ts`)
-- User acknowledgment required (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`)
+**CUI Handling:**
+- CUI files stored separately from FCI files
+- CUI files require password protection for access (password: "cui" - temporary)
+- CUI keyword detection for auto-classification
+- User acknowledgment required for CUI handling (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`)
 - Procedural controls and training
+
+**Prohibited Data Types:**
+- Classified information
+- PII beyond publicly available FCI (unless part of CUI)
+- Any data not directly related to federal contract opportunity management
 
 ---
 

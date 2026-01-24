@@ -39,6 +39,7 @@ model User {
   // Relations
   events             AppEvent[] // Events created by this user
   uploadedFiles      StoredFile[] // Files uploaded by this user
+  uploadedCUIFiles   StoredCUIFile[] @relation("CUIFiles") // CUI files uploaded by this user
   physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
   passwordHistory    PasswordHistory[] // Password history for reuse prevention
 
@@ -989,7 +990,7 @@ model AppEvent {
   @@index([success])
 }
 
-// Stored files (replaces /public/uploads)
+// Stored files (replaces /public/uploads) - FCI files only
 model StoredFile {
   id                 String    @id @default(cuid())
   userId             String // User who uploaded the file
@@ -1004,6 +1005,27 @@ model StoredFile {
 
   // Relations
   uploader User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([uploadedAt])
+  @@index([deletedAt])
+}
+
+// CUI files - stored separately with password protection
+model StoredCUIFile {
+  id                 String    @id @default(cuid())
+  userId             String // User who uploaded the file
+  filename           String // Original filename
+  mimeType           String // MIME type
+  size               Int // File size in bytes
+  data               Bytes // File content (BYTEA in PostgreSQL)
+  uploadedAt         DateTime  @default(now())
+  deletedAt          DateTime? // Logical deletion timestamp
+  signedUrlExpiresAt DateTime? // Expiration for signed URL
+  metadata           String?   @db.Text // JSON metadata (non-sensitive)
+
+  // Relations
+  uploader User @relation("CUIFiles", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([uploadedAt])

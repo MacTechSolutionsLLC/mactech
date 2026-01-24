@@ -281,7 +281,7 @@ async function main() {
           // If not found and it's a generic reference, create new file
           // Check if we should skip this generic reference
           const skipRefs = [
-            'Browser access', 'No local CUI', 'External APIs', 'Minimal features',
+            'Browser access', 'External APIs', 'Minimal features',
             'Platform/app maintenance', 'Platform/facility controls', 'Access controls',
             'RBAC', 'User acknowledgments', 'Tool controls', 'Network security',
             'Network segmentation', 'Connection management', 'Database encryption',

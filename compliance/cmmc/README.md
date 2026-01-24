@@ -30,17 +30,21 @@
 
 ## Scope Statement
 
-**System Scope:** This system is scoped to **FCI (Federal Contract Information) only**. 
-
-**CUI Prohibition:** CUI is prohibited and not intentionally processed or stored in this system. The system operates within an FCI-only boundary.
+**System Scope:** This system is scoped to **FCI (Federal Contract Information) and CUI (Controlled Unclassified Information)** per CMMC Level 2 requirements.
 
 **Data Types:**
 - Federal Contract Information (FCI) - Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data.
+- Controlled Unclassified Information (CUI) - CUI files are stored separately in StoredCUIFile table with password protection
 - User account information
 - System configuration and audit logs
 
+**CUI Handling:**
+- CUI files stored separately from FCI files (StoredCUIFile table)
+- CUI files require password protection for access (password: "cui" - temporary)
+- CUI keyword auto-detection for file classification
+- All CUI file access attempts logged to audit log
+
 **Out of Scope:**
-- CUI (Controlled Unclassified Information) - Not processed or stored
 - Classified information - Not applicable
 
 ---

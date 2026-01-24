@@ -1,17 +1,16 @@
 /**
- * CUI (Controlled Unclassified Information) keyword monitoring
+ * CUI (Controlled Unclassified Information) keyword detection and monitoring
  * 
- * MONITORING-ONLY: This module provides spill detection monitoring, NOT prevention.
- * The system does not process CUI. Keyword detection is used solely as a 
- * spill-detection mechanism and is not relied upon as a security boundary.
+ * CMMC Level 2: System now supports both FCI and CUI files.
+ * CUI files are stored separately and require password protection.
  * 
- * Note: System handles FCI only. CUI is explicitly excluded.
- * 
- * @deprecated validateNoCUI, validateFilename - These functions throw errors and block input.
- * Use monitorCUIKeywords instead for monitoring-only spill detection.
+ * This module provides:
+ * - CUI keyword detection for auto-classification of files
+ * - Monitoring for audit purposes
+ * - Legacy validation functions (now non-blocking for CUI)
  */
 
-// CUI-related keywords to block
+// CUI-related keywords for detection
 const CUI_KEYWORDS = [
   // Explicit CUI terms
   "CUI",
@@ -63,52 +62,64 @@ export function containsCUIKeywords(text: string): boolean {
 }
 
 /**
- * Validate that input does not contain CUI keywords
- * @deprecated Use monitorCUIKeywords or monitorCUIKeywordsSync for monitoring-only detection.
- * This function throws errors and blocks input, which is not the intended behavior.
- * @param input Input to validate (string, object, or array)
- * @throws Error if CUI keywords detected
+ * Detect if input contains CUI keywords
+ * Used for auto-classification of files as CUI
+ * @param input Input to check (string, object, or array)
+ * @returns true if CUI keywords detected, false otherwise
  */
-export function validateNoCUI(input: any): void {
+export function detectCUIKeywords(input: any): boolean {
   if (input === null || input === undefined) {
-    return
+    return false
   }
 
   // Check strings
   if (typeof input === "string") {
-    if (containsCUIKeywords(input)) {
-      throw new Error(
-        "Input contains prohibited terms. This system handles FCI only. CUI is not permitted."
-      )
-    }
-    return
+    return containsCUIKeywords(input)
   }
 
   // Check objects
-  if (typeof input === "object") {
+  if (typeof input === "object" && !Array.isArray(input)) {
     // Check object keys (field names)
     for (const key of Object.keys(input)) {
       const lowerKey = key.toLowerCase()
       if (RESTRICTED_FIELD_NAMES.some((restricted) => lowerKey.includes(restricted))) {
-        throw new Error(
-          `Field name "${key}" is not permitted. This system handles FCI only.`
-        )
+        return true
       }
     }
 
     // Check object values
     for (const value of Object.values(input)) {
-      validateNoCUI(value)
+      if (detectCUIKeywords(value)) {
+        return true
+      }
     }
-    return
+    return false
   }
 
   // Check arrays
   if (Array.isArray(input)) {
     for (const item of input) {
-      validateNoCUI(item)
+      if (detectCUIKeywords(item)) {
+        return true
+      }
     }
-    return
+    return false
+  }
+
+  return false
+}
+
+/**
+ * Validate that input does not contain CUI keywords
+ * @deprecated CUI is now supported. Use detectCUIKeywords() for detection instead.
+ * This function now only logs a warning and does not throw errors.
+ * @param input Input to validate (string, object, or array)
+ */
+export function validateNoCUI(input: any): void {
+  // CUI is now supported, so this function no longer blocks
+  // It's kept for backward compatibility but only logs warnings
+  if (detectCUIKeywords(input)) {
+    console.warn("[CUI Detection] CUI keywords detected in input. CUI files should be stored using storeCUIFile().")
   }
 }
 
@@ -244,15 +255,16 @@ export async function monitorCUIKeywords(
 }
 
 /**
- * Validate filename for CUI keywords
- * @deprecated Use monitorCUIKeywords instead for monitoring-only detection
+ * Validate filename format (no longer blocks CUI keywords)
  * @param filename Filename to validate
- * @throws Error if CUI keywords detected
+ * @throws Error only for invalid filename format, not for CUI keywords
  */
 export function validateFilename(filename: string): void {
-  if (containsCUIKeywords(filename)) {
-    throw new Error(
-      "Filename contains prohibited terms. This system handles FCI only. CUI is not permitted."
-    )
+  // Basic filename validation (no special characters, etc.)
+  if (!filename || filename.trim().length === 0) {
+    throw new Error("Filename cannot be empty")
   }
+  
+  // CUI keywords in filename are allowed - files with CUI keywords should be stored as CUI files
+  // This function now only validates basic filename format
 }

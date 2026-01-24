@@ -157,8 +157,10 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 - Reports and dashboards containing CUI
 
 **Storage:**
-- All CUI stored in PostgreSQL database (encrypted at rest)
-- No CUI stored on local devices
+- All CUI stored in PostgreSQL database (encrypted at rest) in separate StoredCUIFile table
+- CUI files stored separately from FCI files for enhanced access control
+- CUI files require password protection for access (password: "cui" - temporary, to be made configurable)
+- No CUI stored on local devices (browser-based access only)
 - No removable media used for CUI
 - CUI backups protected per media protection requirements
 
@@ -236,7 +238,42 @@ The system connects to the following external systems:
 - CI/CD integration for automated deployments
 - All data transmission encrypted
 
-### 4.4 Interconnection Agreements
+### 4.5 CUI File Handling Procedures
+
+**CUI File Storage:**
+- CUI files are stored in a separate `StoredCUIFile` database table
+- CUI files are segregated from FCI files for enhanced access control
+- All CUI files require password protection for access
+- Password: "cui" (temporary - to be made configurable via environment variable)
+
+**CUI File Upload:**
+- Users can mark files as CUI during upload via checkbox
+- System auto-detects CUI keywords in filename and metadata
+- Files with CUI keywords or user-selected CUI flag are stored in StoredCUIFile table
+- CUI files are not blocked - they are properly stored and protected
+
+**CUI File Access:**
+- CUI files require authentication (user must be logged in)
+- CUI files require password verification (password: "cui")
+- Users can only access their own CUI files (unless admin)
+- Admins can access all CUI files
+- All CUI file access attempts are logged to audit log
+
+**CUI File Management:**
+- CUI files listed separately in file manager UI
+- CUI files display CUI indicator badge
+- Password prompt shown when accessing CUI files
+- CUI files can be deleted by owner or admin
+
+**Evidence:**
+- CUI file storage: `lib/file-storage.ts` (storeCUIFile, getCUIFile functions)
+- CUI file upload: `app/api/files/upload/route.ts`
+- CUI file download: `app/api/files/cui/[id]/route.ts`
+- CUI file list: `app/api/files/cui/list/route.ts`
+- CUI password prompt: `components/CUIPasswordPrompt.tsx`
+- CUI file manager UI: `components/admin/FileManager.tsx`
+
+### 4.6 Interconnection Agreements
 
 **Public APIs (SAM.gov, USAspending.gov):**
 - No formal interconnection agreements required (public APIs)
@@ -647,17 +684,19 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.1.19: Encrypt CUI on mobile devices and mobile computing platforms
 
 **Implementation:**
-- No CUI stored on mobile devices
-- All CUI stored in cloud database (encrypted at rest)
-- Mobile device access is browser-based (no local storage)
+- CUI files stored in cloud database (encrypted at rest) in separate StoredCUIFile table
+- Mobile device access is browser-based (no local CUI storage on mobile devices)
 - CUI encryption at rest provided by Railway platform (inherited)
+- CUI files require password protection for access
+- All CUI data encrypted in transit via HTTPS/TLS
 
 **Evidence:**
 - Database encryption: Railway platform (inherited)
-- No local CUI storage architecture
+- CUI file storage: `lib/file-storage.ts` (storeCUIFile function)
+- Password protection: `lib/file-storage.ts` (verifyCUIPassword function)
 - System architecture: Section 2.1
 
-**Status:** ✅ Implemented (no CUI on mobile devices, cloud storage encrypted)
+**Status:** ✅ Implemented (CUI encrypted at rest and in transit, no local CUI storage on mobile devices)
 
 #### 3.1.20: Verify and control/limit connections to and use of external systems
 
@@ -709,11 +748,12 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.1.22: Control CUI posted or processed on publicly accessible systems
 
 **Implementation:**
-- No CUI posted to publicly accessible systems
-- CUI stored in protected database (authentication required)
+- CUI files stored in separate StoredCUIFile table (not accessible via public routes)
+- CUI files require authentication AND password protection for access
 - Public pages do not display CUI
 - Admin portal requires authentication for CUI access
 - PublicContent approval workflow prevents unauthorized public posting
+- CUI files can only be accessed via `/api/files/cui/[id]` endpoint with password
 
 **Evidence:**
 - `middleware.ts` (route protection)

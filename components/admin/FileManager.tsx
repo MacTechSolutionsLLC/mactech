@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import CUIWarningBanner from '@/components/CUIWarningBanner'
 import ComplianceFileBrowser from './ComplianceFileBrowser'
+import CUIPasswordPrompt from '@/components/CUIPasswordPrompt'
 
 interface File {
   id: string
@@ -18,16 +19,34 @@ interface File {
   }
 }
 
+interface CUIFile {
+  id: string
+  filename: string
+  mimeType: string
+  size: number
+  uploadedAt: Date
+  userId: string
+  uploader: {
+    id: string
+    email: string
+    name: string | null
+  }
+}
+
 interface FileManagerProps {
   files: File[]
 }
 
 export default function FileManager({ files }: FileManagerProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'database' | 'compliance'>('database')
+  const [activeTab, setActiveTab] = useState<'database' | 'compliance' | 'cui'>('database')
   const [loading, setLoading] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isCUI, setIsCUI] = useState(false)
+  const [cuiFiles, setCuiFiles] = useState<CUIFile[]>([])
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
+  const [selectedCUIFile, setSelectedCUIFile] = useState<{ id: string; filename: string } | null>(null)
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -64,6 +83,25 @@ export default function FileManager({ files }: FileManagerProps) {
     window.open(`/api/files/${fileId}`, '_blank')
   }
 
+  // Load CUI files on mount and when CUI tab is active
+  useEffect(() => {
+    if (activeTab === 'cui') {
+      loadCUIFiles()
+    }
+  }, [activeTab])
+
+  const loadCUIFiles = async () => {
+    try {
+      const response = await fetch('/api/files/cui/list')
+      const data = await response.json()
+      if (data.success) {
+        setCuiFiles(data.files)
+      }
+    } catch (error) {
+      console.error('Failed to load CUI files:', error)
+    }
+  }
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -74,6 +112,9 @@ export default function FileManager({ files }: FileManagerProps) {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      if (isCUI) {
+        formData.append('isCUI', 'true')
+      }
 
       const response = await fetch('/api/files/upload', {
         method: 'POST',
@@ -89,12 +130,47 @@ export default function FileManager({ files }: FileManagerProps) {
       // Refresh the page to show the new file
       router.refresh()
       
-      // Reset the input
+      // If CUI file, reload CUI files list
+      if (data.isCUI) {
+        await loadCUIFiles()
+      }
+      
+      // Reset the input and checkbox
       e.target.value = ''
+      setIsCUI(false)
     } catch (error: any) {
       setUploadError(error.message || 'Failed to upload file')
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleCUIDownload = (fileId: string, filename: string) => {
+    setSelectedCUIFile({ id: fileId, filename })
+    setShowPasswordPrompt(true)
+  }
+
+  const handleDeleteCUIFile = async (fileId: string, filename: string) => {
+    if (!confirm(`Delete CUI file "${filename}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setLoading(fileId)
+
+    try {
+      const response = await fetch(`/api/files/cui/${fileId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete CUI file')
+      }
+
+      await loadCUIFiles()
+    } catch (error) {
+      alert('Failed to delete CUI file')
+    } finally {
+      setLoading(null)
     }
   }
 
@@ -113,7 +189,17 @@ export default function FileManager({ files }: FileManagerProps) {
                 : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
             }`}
           >
-            Database Files
+            FCI Files
+          </button>
+          <button
+            onClick={() => setActiveTab('cui')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === 'cui'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+            }`}
+          >
+            CUI Files
           </button>
           <button
             onClick={() => setActiveTab('compliance')}
@@ -128,7 +214,7 @@ export default function FileManager({ files }: FileManagerProps) {
         </nav>
       </div>
 
-      {/* Database Files Tab */}
+      {/* FCI Files Tab */}
       {activeTab === 'database' && (
         <>
           <div className="mb-6 p-4 bg-white border border-neutral-200 rounded-lg">
@@ -150,8 +236,24 @@ export default function FileManager({ files }: FileManagerProps) {
                 <span className="text-sm text-red-600">{uploadError}</span>
               )}
             </div>
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isCUI"
+                checked={isCUI}
+                onChange={(e) => setIsCUI(e.target.checked)}
+                disabled={uploading}
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+              />
+              <label htmlFor="isCUI" className="text-sm text-neutral-700">
+                This file contains CUI (Controlled Unclassified Information)
+              </label>
+            </div>
             <p className="mt-2 text-sm text-neutral-500">
               Allowed types: PDF, Word, Excel, Text, CSV, JSON, Images (max 10MB)
+            </p>
+            <p className="mt-1 text-xs text-amber-600">
+              Note: Files with CUI keywords in filename or metadata will be automatically stored as CUI files.
             </p>
           </div>
 
@@ -230,9 +332,115 @@ export default function FileManager({ files }: FileManagerProps) {
         </>
       )}
 
+      {/* CUI Files Tab */}
+      {activeTab === 'cui' && (
+        <>
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <h2 className="text-lg font-semibold text-amber-900 mb-2">CUI Files</h2>
+            <p className="text-sm text-amber-800">
+              Files containing Controlled Unclassified Information (CUI) require password protection for access.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Filename
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Size
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Uploaded By
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Uploaded At
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {cuiFiles.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-neutral-500">
+                      No CUI files found
+                    </td>
+                  </tr>
+                ) : (
+                  cuiFiles.map((file) => (
+                    <tr key={file.id} className="hover:bg-neutral-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
+                        <div className="flex items-center gap-2">
+                          <span>{file.filename}</span>
+                          <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">
+                            CUI
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {file.mimeType}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {formatFileSize(file.size)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {file.uploader.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {new Date(file.uploadedAt).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleCUIDownload(file.id, file.filename)}
+                            className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200"
+                          >
+                            Download
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCUIFile(file.id, file.filename)}
+                            disabled={loading === file.id}
+                            className="px-3 py-1 text-xs font-medium rounded bg-red-100 text-red-800 hover:bg-red-200 disabled:opacity-50"
+                          >
+                            {loading === file.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
       {/* Compliance Documents Tab */}
       {activeTab === 'compliance' && (
         <ComplianceFileBrowser />
+      )}
+
+      {/* CUI Password Prompt Modal */}
+      {showPasswordPrompt && selectedCUIFile && (
+        <CUIPasswordPrompt
+          fileId={selectedCUIFile.id}
+          filename={selectedCUIFile.filename}
+          onSuccess={() => {
+            setShowPasswordPrompt(false)
+            setSelectedCUIFile(null)
+          }}
+          onCancel={() => {
+            setShowPasswordPrompt(false)
+            setSelectedCUIFile(null)
+          }}
+        />
       )}
     </div>
   )

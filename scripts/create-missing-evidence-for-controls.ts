@@ -25,7 +25,7 @@ async function fileExists(path: string): Promise<boolean> {
 async function createEvidenceFile(controlId: string, requirement: string, evidenceRef: string): Promise<string | null> {
   // Skip if it's a descriptive reference
   const descriptiveRefs = [
-    'System architecture', 'Railway platform', 'Browser access', 'No local CUI',
+    'System architecture', 'Railway platform', 'Browser access',
     'External APIs', 'Minimal features', 'Platform/app maintenance', 'SSP Section'
   ]
   

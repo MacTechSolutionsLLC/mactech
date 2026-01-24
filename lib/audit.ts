@@ -54,6 +54,9 @@ export type ActionType =
   | "mfa_backup_code_used"
   | "account_locked"
   | "account_unlocked"
+  | "cui_file_access"
+  | "cui_file_access_denied"
+  | "cui_file_delete"
 
 export type TargetType =
   | "user"
@@ -64,6 +67,7 @@ export type TargetType =
   | "endpoint_inventory"
   | "physical_access_log"
   | "poam"
+  | "cui_file"
 
 export interface EventFilters {
   startDate?: Date
