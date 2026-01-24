@@ -1,11 +1,22 @@
 /**
  * Seed script to add 14 not implemented controls as POA&M items
  * Run with: tsx scripts/seed-poam-items.ts
+ * 
+ * Note: Requires DATABASE_URL environment variable to be set.
+ * In production, this should be run after the migration has been deployed.
  */
 
 import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
+
+// Check if DATABASE_URL is set
+if (!process.env.DATABASE_URL) {
+  console.error("❌ Error: DATABASE_URL environment variable is not set.")
+  console.error("   Please set DATABASE_URL in your .env file or environment variables.")
+  console.error("   In production, Railway will set this automatically.")
+  process.exit(1)
+}
 
 const poamItems = [
   {
