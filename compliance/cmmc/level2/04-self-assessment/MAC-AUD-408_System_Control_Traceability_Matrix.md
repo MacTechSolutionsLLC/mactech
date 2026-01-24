@@ -98,7 +98,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-POL-220 | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
 | 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | MAC-POL-226_Software_Restriction_Policy.md, package.json | Restriction policy, inventory | 7.5, 3.4.8 |
-| 3.4.9 | Control user-installed software | 🚫 Not Applicable | MAC-POL-220 | - | System architecture | Cloud-only, users cannot install software on infrastructure | 7.5, 3.4.9 |
+| 3.4.9 | Control user-installed software | ✅ Implemented | MAC-POL-220 | - | Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
 
 ---
 
@@ -153,8 +153,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.8.4 | Mark media with CUI markings | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
 | 3.8.5 | Control access during transport | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
 | 3.8.6 | Cryptographic protection on digital media | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.6 |
-| 3.8.7 | Control removable media | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no removable media | 7.6, 3.8.7 |
-| 3.8.8 | Prohibit portable storage without owner | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no portable storage | 7.6, 3.8.8 |
+| 3.8.7 | Control removable media | ✅ Implemented | MAC-POL-213 | MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | Policy prohibition, user agreements, technical controls | Policy prohibition, browser-based restrictions, endpoint compliance | 7.6, 3.8.7 |
+| 3.8.8 | Prohibit portable storage without owner | ✅ Implemented | MAC-POL-213 | MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | Policy prohibition, owner identification requirements | Policy prohibition, owner identification (for exceptions), asset inventory | 7.6, 3.8.8 |
 | 3.8.9 | Protect backup CUI | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Backup encryption | 7.6, 3.8.9 |
 
 ---
@@ -244,11 +244,11 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 81 controls (74%)
+- ✅ **Implemented:** 84 controls (76%)
 - 🔄 **Inherited:** 20 controls (18%)
 - ⚠️ **Partially Satisfied:** 0 controls (0%)
 - ❌ **Not Implemented:** 3 controls (3%)
-- 🚫 **Not Applicable:** 14 controls (13%)
+- 🚫 **Not Applicable:** 11 controls (10%)
 
 **Control Families:**
 - AC (Access Control): 22 controls
@@ -285,6 +285,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 1.2 (2026-01-24): Converted 3 N/A controls (3.4.9, 3.8.7, 3.8.8) to Implemented with policy prohibition and endpoint compliance requirements
 - Version 1.1 (2026-01-24): Updated to reflect current implementation state (97% readiness, 81 implemented, 12 inherited, 3 in POA&M)
 - Version 1.0 (2026-01-23): Initial SCTM creation for CMMC Level 2 migration
 

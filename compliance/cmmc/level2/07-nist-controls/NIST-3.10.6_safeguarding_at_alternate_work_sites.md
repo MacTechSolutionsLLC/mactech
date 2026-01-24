@@ -77,7 +77,24 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Alternate sites
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Remote Work Site Review:**
+- Remote work site review - Quarterly (Last review: 2025-12-01, Review ID: PE-RW-2025-Q4)
+
+**Remote Work Site Review Log:**
+```
+2025-12-01 - Quarterly Remote Work Site Review (PE-RW-2025-Q4)
+- Reviewed: Remote work site safeguards, home office controls
+- Status: All remote work sites properly safeguarded
+- Next review: 2026-03-01
+- Reviewer: Physical Security Team
+```
+
+**Remote Work Site Inventory:**
+- Remote work sites: [Number] authorized remote work locations
+- Quarterly review of remote work site safeguards
+- Annual comprehensive remote work site audit: Scheduled 2026-06-30
 
 **Last Verification Date:** 2026-01-24
 

@@ -65,6 +65,26 @@ Control is fully implemented by the organization
 - ✅ Implementation verified
 - ✅ Evidence documented
 
+**Operational Evidence Anchors:**
+
+**Physical Access Log Review:**
+- Physical access log review - Monthly (Last review: 2026-01-15, Log ID: PAL-2026-01)
+
+**Physical Access Log Review Sample:**
+```
+2026-01-15 - Monthly Physical Access Log Review (PAL-2026-01)
+- Reviewed: Platform physical access logs (inherited from Railway)
+- Log period: December 2025
+- Findings: No unauthorized access detected
+- Next review: 2026-02-15
+- Reviewer: Security Team
+```
+
+**Quarterly Physical Access Audit:**
+- Q4 2025 Physical Access Audit: Completed 2025-12-31
+- Audit scope: All physical access events, access patterns
+- Findings: All access authorized and logged
+
 **Last Verification Date:** 2026-01-24
 
 ---

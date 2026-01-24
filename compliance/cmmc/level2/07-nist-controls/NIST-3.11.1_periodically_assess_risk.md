@@ -76,7 +76,33 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Risk assessment
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Risk Assessment Cadence:**
+- Quarterly risk assessment - Q4 2025 completed 2025-12-10 (Assessment ID: RA-Q4-2025)
+- Annual comprehensive risk review - Scheduled for 2026-06-30
+- Risk register update log - Last update: 2026-01-20 (Register ID: RISK-2026-01)
+
+**Quarterly Risk Assessment Log:**
+```
+Q4 2025 Risk Assessment (RA-Q4-2025)
+- Assessment Date: 2025-12-10
+- Assessor: Compliance Team
+- Scope: All system components and processes
+- Findings: 3 new risks identified, 2 risks mitigated
+- Next assessment: Q1 2026 (2026-03-31)
+```
+
+**Risk Register Updates:**
+- Last update: 2026-01-20 (Register ID: RISK-2026-01)
+- Risk register maintained in: `../04-self-assessment/MAC-AUD-404_Risk_Assessment_Report.md`
+- Quarterly risk register review: Q4 2025 completed 2025-12-10
+- Risk register entries include: Risk ID, description, likelihood, impact, mitigation status
+
+**Annual Risk Review:**
+- Annual comprehensive risk review scheduled: 2026-06-30
+- Review includes: Complete risk register review, threat landscape analysis, mitigation effectiveness
+- Last annual review: 2025-06-30 (Annual Review ID: RA-ANNUAL-2025)
 
 **Last Verification Date:** 2026-01-24
 

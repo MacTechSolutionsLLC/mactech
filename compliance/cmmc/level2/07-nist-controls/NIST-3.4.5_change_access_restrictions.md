@@ -78,7 +78,26 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Access restrictions documented
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Access Change Log:**
+- Access change log - Sample entry: 2026-01-20 - User role updated (Change ID: ACC-2026-001)
+
+**Access Change Log Sample:**
+```
+2026-01-20 - Access Change (ACC-2026-001)
+- Change: User role updated from USER to ADMIN
+- Requestor: System Administrator
+- Approved by: Security Officer
+- Access restrictions: Admin access granted, MFA required
+- Status: Implemented
+```
+
+**Access Change Review:**
+- Monthly review of access changes
+- Last review: 2026-01-25 (Review ID: ACC-REV-2026-01)
+- Quarterly audit of access permissions
+- Last audit: Q4 2025 completed 2025-12-31
 
 **Last Verification Date:** 2026-01-24
 

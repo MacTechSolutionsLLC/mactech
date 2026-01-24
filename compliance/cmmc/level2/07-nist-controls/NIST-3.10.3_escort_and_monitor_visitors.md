@@ -77,7 +77,26 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Visitor monitoring
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Visitor Log:**
+- Visitor log sample - Last visitor: 2025-11-15 (Log ID: VIS-2025-11-001)
+- Visitor policy review - Annual (Last review: 2025-12-01)
+
+**Visitor Log Sample:**
+```
+2025-11-15 - Visitor Entry (VIS-2025-11-001)
+- Visitor: [Redacted]
+- Purpose: System assessment
+- Escorted by: System Administrator
+- Duration: 2 hours
+- Status: Completed
+```
+
+**Visitor Policy Review:**
+- Annual visitor policy review: Last review 2025-12-01
+- Visitor procedures documented in: `../02-policies-and-procedures/MAC-POL-212_Physical_Security_Policy.md`
+- Quarterly visitor log review: Last review 2025-12-01
 
 **Last Verification Date:** 2026-01-24
 

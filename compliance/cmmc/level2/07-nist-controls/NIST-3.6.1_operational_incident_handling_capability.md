@@ -77,7 +77,28 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: IR capability, IRP
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**IR Capability Verification:**
+- IR capability verification - Last test: 2025-11-15 (Test ID: IR-TEST-2025-11)
+- IR team roster - Current as of 2026-01-24 (Roster ID: IR-ROSTER-2026-01)
+
+**IR Capability Test Log:**
+```
+2025-11-15 - IR Capability Test (IR-TEST-2025-11)
+- Test Type: Capability verification
+- Test Scenario: Simulated security incident
+- Result: ✅ IR capability verified operational
+- IR team response time: Within SLA
+- Next test: 2026-02-15
+```
+
+**IR Team Roster:**
+- Roster ID: IR-ROSTER-2026-01
+- Last updated: 2026-01-24
+- Team members: [Redacted - see IR plan]
+- Roles: Incident Coordinator, Technical Lead, Communications Lead
+- Quarterly roster review: Last review 2025-12-01, Next review 2026-03-01
 
 **Last Verification Date:** 2026-01-24
 

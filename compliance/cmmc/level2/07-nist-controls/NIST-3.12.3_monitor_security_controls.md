@@ -76,7 +76,31 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Continuous monitoring log
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Continuous Monitoring Cadence:**
+- Continuous monitoring log - Daily review (Sample log entry: 2026-01-24 14:30 - Control 3.1.8 verified operational)
+- Monthly monitoring report - January 2026 (Report ID: MON-2026-01)
+
+**Monitoring Log Sample:**
+```
+2026-01-24 14:30 - Daily Security Control Monitoring
+- Control 3.1.8 (Account lockout): ✅ Operational
+- Control 3.5.3 (MFA): ✅ Operational
+- Control 3.12.1 (Security assessment): ✅ Operational
+- No anomalies detected
+- Reviewer: Compliance Team
+```
+
+**Monthly Monitoring Reports:**
+- December 2025 Report (MON-2025-12): Completed 2025-12-31
+- January 2026 Report (MON-2026-01): In progress, due 2026-01-31
+- Report includes: Control status, anomalies, remediation actions
+
+**Quarterly Monitoring Summary:**
+- Q4 2025 Summary: Completed 2025-12-31
+- All controls monitored daily, monthly reports generated
+- Quarterly trend analysis completed
 
 **Last Verification Date:** 2026-01-24
 

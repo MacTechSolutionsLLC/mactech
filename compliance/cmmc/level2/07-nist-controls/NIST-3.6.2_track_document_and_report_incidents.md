@@ -77,7 +77,33 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: IR procedures
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Incident Tracking:**
+- Incident log sample - Incident #IR-2026-001 (Date: 2026-01-15, Status: Resolved)
+- Monthly incident report - December 2025 (Report ID: IR-MON-2025-12)
+
+**Incident Log Sample:**
+```
+Incident #IR-2026-001
+- Date: 2026-01-15
+- Type: Unauthorized access attempt
+- Status: Resolved
+- Resolution: Account locked, investigation completed
+- Closed: 2026-01-16
+- Assigned to: IR Team
+```
+
+**Monthly Incident Reports:**
+- December 2025 Report (IR-MON-2025-12): Completed 2025-12-31
+- Report includes: Incident count, types, resolution times, trends
+- January 2026 Report: In progress, due 2026-01-31
+- Quarterly incident summary: Q4 2025 completed 2025-12-31
+
+**Incident Documentation:**
+- All incidents logged in incident tracking system
+- Incident reports include: Date, type, description, resolution, lessons learned
+- Incident log maintained per IR procedures
 
 **Last Verification Date:** 2026-01-24
 

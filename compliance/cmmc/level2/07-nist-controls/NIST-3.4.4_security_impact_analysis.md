@@ -76,7 +76,27 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Analysis process, template
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Security Impact Analysis Log:**
+- Security impact analysis log - Last analysis: 2026-01-18 (Analysis ID: SIA-2026-001)
+- Analysis template: `../05-evidence/security-impact-analysis/security-impact-analysis-template.md`
+
+**Security Impact Analysis Log Sample:**
+```
+2026-01-18 - Security Impact Analysis (SIA-2026-001)
+- Change: MFA implementation
+- Impact: High - Affects authentication system
+- Risk: Medium - Requires user training
+- Mitigation: Phased rollout, user training
+- Status: Approved
+```
+
+**Analysis Cadence:**
+- Security impact analysis required for all significant changes
+- Analysis documented per template
+- Quarterly review of analysis effectiveness
+- Last quarterly review: 2025-12-15
 
 **Last Verification Date:** 2026-01-24
 

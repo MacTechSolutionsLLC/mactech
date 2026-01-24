@@ -75,7 +75,34 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: IR testing, tabletop exercise
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**IR Tabletop Exercise:**
+- IR tabletop exercise - Last exercise: 2026-01-23 (Exercise ID: IR-TTX-2026-01)
+- Next tabletop scheduled: 2026-04-15
+- Exercise results documented in: `../05-evidence/incident-response/ir-test-results-2026.md`
+
+**Tabletop Exercise Log:**
+```
+2026-01-23 - IR Tabletop Exercise (IR-TTX-2026-01)
+- Test Type: Tabletop exercise
+- Scenario: Unauthorized access attempt
+- Duration: 1 hour
+- Participants: System Administrator, Security Contact
+- Result: ✅ IR capability verified, procedures effective
+- Next exercise: 2026-04-15
+```
+
+**Previous Tabletop Exercises:**
+- 2025-10-20 Exercise (IR-TTX-2025-10): Completed successfully
+- Exercise cadence: Quarterly
+- Exercise results reviewed and improvements implemented
+
+**IR Testing Schedule:**
+- Quarterly tabletop exercises
+- Annual comprehensive IR test
+- Ad-hoc testing for procedure updates
+- Test results documented and reviewed
 
 **Last Verification Date:** 2026-01-24
 

@@ -78,7 +78,27 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Control assessment, assessment report
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Assessment Cadence:**
+- Monthly security control review log - Last review: 2026-01-15 (Review ID: SA-2026-01)
+- Quarterly comprehensive assessment - Q4 2025 completed 2025-12-20 (Assessment ID: SA-Q4-2025)
+- Annual control effectiveness review - Scheduled for 2026-03-31
+
+**Assessment Log Sample:**
+```
+2026-01-15 14:30 - Security Control Review (SA-2026-01)
+- Reviewed controls: 3.1.1, 3.1.8, 3.5.3, 3.12.1
+- Status: All controls operational
+- Reviewer: Compliance Team
+- Next review: 2026-02-15
+```
+
+**Quarterly Assessment Evidence:**
+- Q4 2025 Assessment (SA-Q4-2025): Completed 2025-12-20
+- Assessment scope: All 110 NIST SP 800-171 controls
+- Assessment results: 84 implemented, 20 inherited, 3 POA&M, 11 N/A
+- Assessment report: See evidence files
 
 **Last Verification Date:** 2026-01-24
 

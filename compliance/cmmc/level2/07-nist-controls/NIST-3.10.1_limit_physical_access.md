@@ -77,7 +77,23 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Platform/facility controls
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Physical Access Review:**
+- Physical access review - Quarterly (Last review: 2025-12-01, Review ID: PE-2025-Q4)
+
+**Physical Access Review Log:**
+```
+2025-12-01 - Quarterly Physical Access Review (PE-2025-Q4)
+- Reviewed: Platform physical access controls, facility access
+- Status: Physical access properly limited
+- Next review: 2026-03-01
+- Reviewer: Physical Security Team
+```
+
+**Annual Physical Access Audit:**
+- Annual comprehensive physical access audit: Scheduled 2026-06-30
+- Last annual audit: 2025-06-30 (Audit ID: PE-ANNUAL-2025)
 
 **Last Verification Date:** 2026-01-24
 

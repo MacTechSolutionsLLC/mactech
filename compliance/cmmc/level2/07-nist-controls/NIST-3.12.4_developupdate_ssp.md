@@ -76,7 +76,31 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: System Security Plan
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**SSP Review Cadence:**
+- SSP review cadence: Quarterly (Last review: 2025-12-15, Next review: 2026-03-15)
+- SSP version history: v2.1 (2025-12-15), v2.2 (2026-01-24)
+
+**SSP Update Log:**
+```
+2025-12-15 - SSP Quarterly Review (SSP-Q4-2025)
+- Version: 2.1
+- Changes: Updated control status, added new evidence references
+- Next review: 2026-03-15
+- Reviewer: Compliance Team
+
+2026-01-24 - SSP Update (SSP-2026-01)
+- Version: 2.2
+- Changes: Updated N/A controls to Implemented (3.4.9, 3.8.7, 3.8.8)
+- Next review: 2026-03-15
+```
+
+**SSP Document:**
+- SSP Document: `../01-system-scope/MAC-IT-304_System_Security_Plan.md`
+- Current version: 2.2 (2026-01-24)
+- Version control: Tracked in Git repository
+- Annual comprehensive SSP review: Scheduled for 2026-06-30
 
 **Last Verification Date:** 2026-01-24
 

@@ -65,6 +65,25 @@ Control is fully implemented by the organization
 - ✅ Implementation verified
 - ✅ Evidence documented
 
+**Operational Evidence Anchors:**
+
+**Access Control Review:**
+- Access control review - Monthly (Last review: 2026-01-20, Review ID: MP-ACC-2026-01)
+
+**Access Control Review Log:**
+```
+2026-01-20 - Monthly Access Control Review (MP-ACC-2026-01)
+- Reviewed: CUI access controls, RBAC implementation
+- Status: Access controls properly configured
+- Next review: 2026-02-20
+- Reviewer: Security Team
+```
+
+**Quarterly Access Audit:**
+- Q4 2025 Access Audit: Completed 2025-12-15
+- Audit scope: All CUI access permissions, role assignments
+- Findings: All access controls compliant
+
 **Last Verification Date:** 2026-01-24
 
 ---

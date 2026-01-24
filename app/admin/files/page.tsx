@@ -11,23 +11,41 @@ export default async function FilesPage() {
     redirect("/")
   }
 
-  const files = await prisma.storedFile.findMany({
-    where: {
-      deletedAt: null, // Only show non-deleted files
-      isFCI: false, // Exclude FCI files (they're shown in FCI tab)
-    },
-    include: {
-      uploader: {
-        select: {
-          id: true,
-          email: true,
-          name: true,
+  let files = []
+  try {
+    files = await prisma.storedFile.findMany({
+      where: {
+        deletedAt: null, // Only show non-deleted files
+        isFCI: false, // Exclude FCI files (they're shown in FCI tab)
+      },
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
         },
       },
-    },
-    orderBy: { uploadedAt: "desc" },
-    take: 100, // Limit to recent 100 files
-  })
+      orderBy: { uploadedAt: "desc" },
+      take: 100, // Limit to recent 100 files
+    })
+  } catch (error) {
+    console.error('Error loading files:', error)
+    // Continue with empty array if query fails
+    files = []
+  }
+
+  // Serialize dates to strings for client component
+  // Filter out any files with missing required data
+  const serializedFiles = files
+    .filter(file => file && file.uploadedAt)
+    .map(file => ({
+      ...file,
+      uploadedAt: file.uploadedAt instanceof Date 
+        ? file.uploadedAt.toISOString() 
+        : new Date(file.uploadedAt).toISOString(),
+    }))
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -41,7 +59,7 @@ export default async function FilesPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <FileManager files={files} />
+          <FileManager files={serializedFiles} />
         </div>
       </div>
     </div>

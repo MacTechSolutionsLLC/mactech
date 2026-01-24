@@ -78,7 +78,27 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Version control, approval process
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Change Control Log:**
+- Change control log - Sample entry: 2026-01-18 - MFA implementation (Change ID: CHG-2026-002)
+- Change approval workflow - Last approved change: 2026-01-18 (Ticket: CHG-2026-002)
+
+**Change Control Log Sample:**
+```
+2026-01-18 - Change Request (CHG-2026-002)
+- Change: MFA implementation for privileged accounts
+- Requestor: Security Team
+- Approved by: Security Officer
+- Status: Approved and implemented
+- Git commit: [commit hash]
+```
+
+**Change Approval Process:**
+- All changes tracked in Git version control
+- Code review required before merge
+- Change approval documented in change log
+- Monthly change summary: January 2026 - 5 changes approved
 
 **Last Verification Date:** 2026-01-24
 

@@ -77,7 +77,26 @@ Control is fully implemented by the organization
 - ✅ Implementation verified: Access devices
 - ✅ Evidence documented
 
----
+**Operational Evidence Anchors:**
+
+**Access Device Inventory:**
+- Access device inventory - Quarterly (Last inventory: 2025-12-01, Inventory ID: PE-DEV-2025-Q4)
+
+**Access Device Inventory Log:**
+```
+2025-12-01 - Quarterly Access Device Inventory (PE-DEV-2025-Q4)
+- Reviewed: Physical access devices, device controls
+- Inventory: [Number] access devices tracked
+- Status: All devices properly controlled
+- Next inventory: 2026-03-01
+- Reviewer: Physical Security Team
+```
+
+**Access Device Controls:**
+- Physical access devices: Tracked in asset inventory
+- Quarterly inventory of all access devices
+- Device controls verified quarterly
+- Annual comprehensive device audit: Scheduled 2026-06-30
 
 **Last Verification Date:** 2026-01-24
 

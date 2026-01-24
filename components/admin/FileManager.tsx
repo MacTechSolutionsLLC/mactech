@@ -11,7 +11,7 @@ interface File {
   filename: string
   mimeType: string
   size: number
-  uploadedAt: Date
+  uploadedAt: Date | string
   uploader: {
     id: string
     email: string
