@@ -146,12 +146,13 @@ export async function POST(request: NextRequest) {
     await logAdminAction(
       session.user.id,
       session.user.email || "",
-      "poam_item_created",
+      "admin_action",
       { type: "poam", id: poamItem.id },
       {
         poamId: poamItem.poamId,
         controlId: poamItem.controlId,
         title: poamItem.title,
+        action: "poam_item_created",
       }
     )
 

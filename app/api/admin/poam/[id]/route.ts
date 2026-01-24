@@ -106,11 +106,12 @@ export async function PATCH(
     await logAdminAction(
       session.user.id,
       session.user.email || "",
-      "poam_item_updated",
+      "admin_action",
       { type: "poam", id: updated.id },
       {
         poamId: updated.poamId,
         changes: Object.keys(updateData),
+        action: "poam_item_updated",
       }
     )
 
@@ -152,11 +153,12 @@ export async function DELETE(
     await logAdminAction(
       session.user.id,
       session.user.email || "",
-      "poam_item_deleted",
+      "admin_action",
       { type: "poam", id: params.id },
       {
         poamId: existing.poamId,
         controlId: existing.controlId,
+        action: "poam_item_deleted",
       }
     )
 

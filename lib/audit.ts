@@ -62,6 +62,7 @@ export type TargetType =
   | "content"
   | "endpoint_inventory"
   | "physical_access_log"
+  | "poam"
 
 export interface EventFilters {
   startDate?: Date
