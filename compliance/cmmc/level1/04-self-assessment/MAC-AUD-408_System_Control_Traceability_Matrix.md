@@ -40,7 +40,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.5 | Least privilege | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | RBAC | 7.1, 3.1.5 |
 | 3.1.6 | Non-privileged accounts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | USER role | 7.1, 3.1.6 |
 | 3.1.7 | Prevent privileged function execution | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts | Audit logging | 7.1, 3.1.7 |
-| 3.1.8 | Limit unsuccessful logon attempts | ❌ Not Implemented | MAC-POL-210 | MAC-SOP-222 (to be updated) | - | To be implemented | 7.1, 3.1.8 |
+| 3.1.8 | Limit unsuccessful logon attempts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105 | lib/auth.ts, app/api/auth/custom-signin/ | 7.1, 3.1.8 |
 | 3.1.9 | Privacy/security notices | ✅ Implemented | MAC-POL-210 | - | User agreements | User acknowledgments | 7.1, 3.1.9 |
 | 3.1.10 | Session lock | ⚠️ Partially Satisfied | MAC-POL-210 | MAC-SOP-222 (to be updated) | - | Policy established | 7.1, 3.1.10 |
 | 3.1.11 | Automatic session termination | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts | 8-hour timeout | 7.1, 3.1.11 |
@@ -75,8 +75,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.3.1 | Create and retain audit logs | ⚠️ Partially Satisfied | MAC-POL-218 | - | lib/audit.ts, AppEvent table | Audit logging | 7.4, 3.3.1 |
 | 3.3.2 | Unique user traceability | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | User identification | 7.4, 3.3.2 |
 | 3.3.3 | Review and update logged events | ❌ Not Implemented | MAC-POL-218 | MAC-SOP-226 | Review records (to be created) | Review process | 7.4, 3.3.3 |
-| 3.3.4 | Alert on audit logging failure | ❌ Not Implemented | MAC-POL-218 | - | Alert configuration (to be created) | Failure alerts | 7.4, 3.3.4 |
-| 3.3.5 | Correlate audit records | ❌ Not Implemented | MAC-POL-218 | - | Correlation tools (to be created) | Correlation | 7.4, 3.3.5 |
+| 3.3.4 | Alert on audit logging failure | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | generateFailureAlerts() function | 7.4, 3.3.4 |
+| 3.3.5 | Correlate audit records | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | correlateEvents() function | 7.4, 3.3.5 |
 | 3.3.6 | Audit record reduction/reporting | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export | CSV export | 7.4, 3.3.6 |
 | 3.3.7 | System clock synchronization | 🔄 Inherited | MAC-POL-218 | - | Railway platform | NTP sync | 7.4, 3.3.7 |
 | 3.3.8 | Protect audit information | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | Append-only | 7.4, 3.3.8 |
@@ -106,7 +106,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | prisma/schema.prisma | User model | 7.2, 3.5.1 |
 | 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | NextAuth.js | 7.2, 3.5.2 |
-| 3.5.3 | MFA for privileged accounts | ❌ Not Implemented | MAC-POL-211 | - | MAC-SEC-108 | MFA implementation | 7.2, 3.5.3 |
+| 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-SEC-108 | MAC-RPT-104 | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
 | 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ⚠️ Partially Satisfied | MAC-POL-211 | MAC-SOP-221 (to be updated) | prisma/schema.prisma | Unique constraint | 7.2, 3.5.5 |
 | 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 (to be updated) | - | Inactivity disable | 7.2, 3.5.6 |
