@@ -570,8 +570,18 @@ async function verifyImplementation(implementationRef: string, controlId: string
     if (ref.includes('/')) {
       filePath = join(CODE_ROOT, ref)
       // Check if it's a directory reference (ends with / or is a directory)
-      if (ref.endsWith('/') || (!ref.includes('.') && existsSync(filePath) && (await import('fs/promises')).stat(filePath).then(s => s.isDirectory()).catch(() => false))) {
+      if (ref.endsWith('/')) {
         isDirectory = true
+      } else if (!ref.includes('.') && existsSync(filePath)) {
+        // Check if it's actually a directory
+        try {
+          const fs = await import('fs/promises')
+          const stat = await fs.stat(filePath)
+          isDirectory = stat.isDirectory()
+        } catch {
+          // If stat fails, assume it's not a directory
+          isDirectory = false
+        }
       }
     } else if (ref.includes('.')) {
       // Assume it's a file in root or lib
