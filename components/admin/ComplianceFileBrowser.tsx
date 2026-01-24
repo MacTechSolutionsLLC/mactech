@@ -102,18 +102,22 @@ export default function ComplianceFileBrowser() {
   }
 
   return (
-    <div className="grid grid-cols-[300px_1fr] h-[600px] bg-white rounded-lg border border-neutral-200 overflow-hidden">
+    <div className="grid grid-cols-[300px_1fr] h-[600px] bg-white rounded-lg border border-neutral-200 overflow-hidden min-h-0">
       {/* File Tree Panel */}
-      <ComplianceFileTree
-        tree={tree}
-        selectedPath={selectedPath}
-        onFileSelect={handleFileSelect}
-        expandedPaths={expandedPaths}
-        onToggleExpand={handleToggleExpand}
-      />
+      <div className="min-h-0 overflow-hidden">
+        <ComplianceFileTree
+          tree={tree}
+          selectedPath={selectedPath}
+          onFileSelect={handleFileSelect}
+          expandedPaths={expandedPaths}
+          onToggleExpand={handleToggleExpand}
+        />
+      </div>
       
       {/* Document Viewer Panel */}
-      <ComplianceDocumentViewer filePath={selectedPath} />
+      <div className="min-h-0 overflow-hidden">
+        <ComplianceDocumentViewer filePath={selectedPath} />
+      </div>
     </div>
   )
 }

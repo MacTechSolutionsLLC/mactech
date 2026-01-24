@@ -102,15 +102,15 @@ export default function ComplianceDocumentViewer({ filePath }: ComplianceDocumen
   const filename = filePath.split('/').pop() || filePath
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white min-h-0">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+      <div className="flex-shrink-0 border-b border-neutral-200 bg-neutral-50 px-6 py-4">
         <h2 className="text-lg font-semibold text-neutral-900 mb-1">{filename}</h2>
         <p className="text-xs text-neutral-500 font-mono">{filePath}</p>
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8 min-h-0">
         <MarkdownRenderer content={content} />
       </div>
     </div>
