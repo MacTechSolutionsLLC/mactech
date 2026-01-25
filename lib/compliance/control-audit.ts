@@ -722,16 +722,22 @@ async function verifyImplementation(implementationRef: string, controlId: string
   const refs = implementationRef.split(',').map(r => {
     // Clean up the reference - remove function names and extra text after file paths
     let cleaned = r.trim()
+    
+    // Skip evidence file references (they belong in Evidence column, not Implementation)
+    if (cleaned.includes('audit-log-reviews/') || cleaned.includes('MAC-RPT-') || cleaned.includes('MAC-AUD-')) {
+      return null // Skip evidence files in implementation column
+    }
+    
     // If it contains a file extension, extract just the file path part (before any spaces that might have function names)
-    if (cleaned.includes('.ts') || cleaned.includes('.tsx') || cleaned.includes('.js') || cleaned.includes('.prisma')) {
+    if (cleaned.includes('.ts') || cleaned.includes('.tsx') || cleaned.includes('.js') || cleaned.includes('.prisma') || cleaned.includes('.md')) {
       // Extract file path up to the extension and a bit after, but stop at spaces that indicate function names
-      const match = cleaned.match(/^([^\s]+\.(ts|tsx|js|prisma))/)
+      const match = cleaned.match(/^([^\s]+\.(ts|tsx|js|prisma|md))/)
       if (match) {
         cleaned = match[1]
       }
     }
     return cleaned
-  })
+  }).filter((r): r is string => r !== null) // Remove nulls (evidence file references)
   
   for (const ref of refs) {
     // Check if it's a generic/descriptive reference first (BEFORE checking for file paths)
