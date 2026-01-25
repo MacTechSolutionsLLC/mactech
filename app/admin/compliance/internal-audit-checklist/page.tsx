@@ -14,7 +14,7 @@ export default async function InternalAuditChecklistPage() {
   }
 
   try {
-    const filePath = join(process.cwd(), "compliance", "cmmc", "level1", "04-self-assessment", "MAC-AUD-103_Internal_Audit_Checklist.md")
+    const filePath = join(process.cwd(), "compliance", "cmmc", "level2", "04-self-assessment", "MAC-AUD-103_Internal_Audit_Checklist.md")
     const content = await readFile(filePath, "utf-8")
     
     return (
