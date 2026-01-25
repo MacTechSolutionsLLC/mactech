@@ -15,7 +15,7 @@ const badgeConfig = [
     label: 'CMMC 2.0 Level 2',
     emoji: '🛡️',
     title: 'CMMC 2.0 Level 2 — Certified',
-    tooltip: 'MacTech Solutions has achieved CMMC 2.0 Level 2 certification through an independent assessment, validating implementation of all applicable NIST SP 800-171 security requirements for protecting Controlled Unclassified Information (CUI).',
+    tooltip: 'Independently certified implementation of NIST SP 800-171 controls for protecting Controlled Unclassified Information (CUI).',
   },
   {
     src: '/images/badges/fedramp.png',
@@ -23,23 +23,23 @@ const badgeConfig = [
     label: 'FedRAMP Moderate',
     emoji: '☁️',
     title: 'FedRAMP Moderate — Design Aligned',
-    tooltip: 'MacTech Solutions\' system architecture and security control design are aligned with the FedRAMP Moderate baseline. This reflects design and governance alignment only and does not imply FedRAMP authorization or ATO status.',
+    tooltip: 'Security architecture and control design aligned with the FedRAMP Moderate baseline. No FedRAMP authorization or ATO implied.',
   },
   {
     src: '/images/badges/rmf.png',
     alt: 'NIST RMF Alignment',
     label: 'NIST RMF',
     emoji: '🔁',
-    title: 'NIST Risk Management Framework — Governance Aligned',
-    tooltip: 'MacTech Solutions structures system security governance and risk decision-making using NIST RMF principles, supporting continuous risk awareness without asserting a formal Authorization to Operate (ATO).',
+    title: 'NIST RMF — Governance Aligned',
+    tooltip: 'Security risk governance structured around NIST Risk Management Framework (RMF) principles.',
   },
   {
     src: '/images/badges/soc.png',
     alt: 'SOC 2 Type I Readiness',
     label: 'SOC 2 Type I',
     emoji: '🔒',
-    title: 'SOC 2 Type I — Readiness',
-    tooltip: 'MacTech Solutions has completed an internal SOC 2 Type I readiness assessment. Our system design, policies, and governance are prepared for a SOC 2 Type I examination, with comprehensive documentation mapping our controls to Trust Services Criteria (Security/Common Criteria).',
+    title: 'SOC 2 Type I — Internal Readiness',
+    tooltip: 'Internal SOC 2 Type I readiness completed for security control design. No independent audit performed.',
   },
 ]
 
