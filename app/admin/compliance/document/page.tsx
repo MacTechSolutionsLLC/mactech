@@ -183,7 +183,7 @@ export default async function ComplianceDocumentPage({
           
           {/* Content */}
           <div className="p-8">
-            <MarkdownRenderer content={content} />
+            <MarkdownRenderer content={content} currentDocumentPath={requestedPath} />
           </div>
         </div>
       </div>

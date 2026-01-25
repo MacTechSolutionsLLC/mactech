@@ -9,6 +9,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 interface MarkdownRendererProps {
   content: string
   className?: string
+  currentDocumentPath?: string // Path of the document being rendered, for resolving relative links
 }
 
 interface CodeBlockProps {
@@ -60,7 +61,7 @@ function CodeBlock({ language, code }: CodeBlockProps) {
   )
 }
 
-export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content, className = '', currentDocumentPath }: MarkdownRendererProps) {
   return (
     <div className={`prose prose-neutral max-w-none ${className}`}>
       <ReactMarkdown
@@ -124,15 +125,89 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
             return <input {...props} />
           },
           
-          // Links
-          a: ({ node, ...props }) => (
-            <a
-              className="text-primary-600 hover:text-primary-700 underline font-medium"
-              target="_blank"
-              rel="noopener noreferrer"
-              {...props}
-            />
-          ),
+          // Links - transform compliance document links
+          a: ({ node, href, ...props }: any) => {
+            if (!href) {
+              return <a {...props} />
+            }
+            
+            // Skip external URLs (http/https)
+            if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) {
+              return (
+                <a
+                  href={href}
+                  className="text-primary-600 hover:text-primary-700 underline font-medium"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...props}
+                />
+              )
+            }
+            
+            // Handle relative paths and compliance document links
+            let documentPath = href
+            
+            // Remove leading slash if present (relative to root)
+            if (documentPath.startsWith('/')) {
+              documentPath = documentPath.substring(1)
+            }
+            
+            // If it's a relative path (starts with ../ or ./) and we have current document context
+            if ((documentPath.startsWith('../') || documentPath.startsWith('./')) && currentDocumentPath) {
+              // Resolve relative path based on current document location
+              const currentDir = currentDocumentPath.substring(0, currentDocumentPath.lastIndexOf('/'))
+              const parts = currentDir.split('/')
+              
+              if (documentPath.startsWith('../')) {
+                // Go up directories
+                let upCount = (documentPath.match(/\.\.\//g) || []).length
+                const targetPath = documentPath.replace(/\.\.\//g, '')
+                const resolvedParts = parts.slice(0, -upCount)
+                documentPath = [...resolvedParts, targetPath].join('/')
+              } else if (documentPath.startsWith('./')) {
+                // Same directory
+                documentPath = documentPath.replace('./', '')
+                documentPath = currentDir + '/' + documentPath
+              }
+            }
+            
+            // Check if this looks like a compliance document
+            const isComplianceDoc = documentPath.includes('compliance/cmmc/') || 
+                                   documentPath.endsWith('.md') ||
+                                   documentPath.match(/MAC-[A-Z]+-\d+/)
+            
+            if (isComplianceDoc) {
+              // Ensure it starts with compliance/cmmc/ if it's a markdown file
+              if (documentPath.endsWith('.md') && !documentPath.startsWith('compliance/cmmc/')) {
+                // Try to infer the path - if it's just a filename, we can't resolve it
+                // But if it has directory structure, use it
+                if (!documentPath.includes('/')) {
+                  // Just a filename - can't resolve without more context
+                  // Leave it as-is but make it a document link anyway
+                }
+              }
+              
+              const viewerUrl = `/admin/compliance/document?path=${encodeURIComponent(documentPath)}`
+              return (
+                <a
+                  href={viewerUrl}
+                  className="text-primary-600 hover:text-primary-700 underline font-medium"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...props}
+                />
+              )
+            }
+            
+            // For other relative links (anchors, etc.), use as-is
+            return (
+              <a
+                href={href}
+                className="text-primary-600 hover:text-primary-700 underline font-medium"
+                {...props}
+              />
+            )
+          },
           
           // Code blocks with syntax highlighting
           code: ({ node, inline, className, children, ...props }: any) => {
