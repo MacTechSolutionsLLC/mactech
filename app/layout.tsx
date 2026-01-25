@@ -4,6 +4,7 @@ import './globals.css'
 import SessionProvider from '@/components/SessionProvider'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import SessionLock from '@/components/SessionLock'
+import FeedbackButton from '@/components/FeedbackButton'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -84,6 +85,7 @@ export default function RootLayout({
         <SessionProvider>
           <SessionLock>
             <ConditionalLayout>{children}</ConditionalLayout>
+            <FeedbackButton />
           </SessionLock>
         </SessionProvider>
       </body>

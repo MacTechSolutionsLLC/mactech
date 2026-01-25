@@ -42,6 +42,7 @@ model User {
   uploadedCUIFiles   StoredCUIFile[] @relation("CUIFiles") // CUI files uploaded by this user
   physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
   passwordHistory    PasswordHistory[] // Password history for reuse prevention
+  feedback           Feedback[] // Feedback submitted by this user
 
   @@index([email])
   @@index([disabled])
@@ -1119,4 +1120,27 @@ model POAMItem {
   @@index([controlId])
   @@index([poamId])
   @@index([targetCompletionDate])
+}
+
+// User Feedback System
+model Feedback {
+  id             String   @id @default(cuid())
+  userId         String
+  content        String   @db.Text
+  status         String   @default("pending") // "pending", "reviewed", "implemented", "closed"
+  pageUrl        String? // Optional - track which page feedback was submitted from
+  elementSelector String? // CSS selector or element identifier
+  elementId       String? // Element ID if available
+  elementClass    String? // Element class if available
+  elementText     String? // Visible text content of element
+  elementType     String? // Element type (button, input, div, etc.)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
