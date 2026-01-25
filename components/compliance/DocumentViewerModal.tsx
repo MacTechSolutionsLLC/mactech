@@ -26,49 +26,46 @@ export default function DocumentViewerModal({
       setError(null)
       setContent(null)
 
-      // Determine if it's a code file or markdown file
-      const isCodeFile = documentPath.match(/\.(ts|tsx|js|jsx|py|java|cpp|c|h)$/i)
-      const isMarkdown = documentPath.endsWith('.md')
-
-      if (isCodeFile) {
-        // For code files, fetch from GitHub raw or use a code viewer API
-        // For now, we'll try to fetch it as text
-        fetch(`/api/compliance/document?path=${encodeURIComponent(documentPath)}`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Failed to load document')
-            }
-            return response.text()
-          })
-          .then((text) => {
-            setContent(text)
-            setLoading(false)
-          })
-          .catch((err) => {
-            setError(err instanceof Error ? err.message : 'Failed to load document')
-            setLoading(false)
-          })
-      } else if (isMarkdown) {
-        // For markdown files, use the same API
-        fetch(`/api/compliance/document?path=${encodeURIComponent(documentPath)}`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Failed to load document')
-            }
-            return response.text()
-          })
-          .then((text) => {
-            setContent(text)
-            setLoading(false)
-          })
-          .catch((err) => {
-            setError(err instanceof Error ? err.message : 'Failed to load document')
-            setLoading(false)
-          })
-      } else {
-        setError('Unsupported file type')
+      // Validate path
+      if (!documentPath || documentPath.trim() === '') {
+        setError('Invalid document path')
         setLoading(false)
+        return
       }
+
+      // Fetch document content
+      fetch(`/api/compliance/document?path=${encodeURIComponent(documentPath)}`)
+        .then(async (response) => {
+          if (!response.ok) {
+            // Try to get error message from JSON response
+            let errorMessage = 'Failed to load document'
+            try {
+              const errorData = await response.json()
+              errorMessage = errorData.error || errorMessage
+            } catch {
+              // If JSON parsing fails, use status text
+              errorMessage = response.statusText || errorMessage
+            }
+            throw new Error(`${errorMessage} (${response.status})`)
+          }
+          return response.text()
+        })
+        .then((text) => {
+          if (!text || text.trim() === '') {
+            throw new Error('Document is empty')
+          }
+          setContent(text)
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Error loading document:', err)
+          console.error('Document path:', documentPath)
+          setError(err instanceof Error ? err.message : 'Failed to load document')
+          setLoading(false)
+        })
+    } else if (isOpen && !documentPath) {
+      setError('No document path provided')
+      setLoading(false)
     }
   }, [isOpen, documentPath])
 
