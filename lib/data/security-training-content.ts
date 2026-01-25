@@ -7,7 +7,7 @@
 export interface TrainingSection {
   id: string
   title: string
-  content: string[]
+  content?: string[]
   subsections?: TrainingSection[]
 }
 

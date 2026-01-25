@@ -190,7 +190,7 @@ export default function SecurityTrainingModal({ isOpen, onClose, onComplete }: S
               className="training-section"
             >
               <h3 className="text-xl font-semibold text-neutral-900 mb-3">{section.title}</h3>
-              {section.content.map((paragraph, idx) => (
+              {section.content?.map((paragraph, idx) => (
                 <p key={idx} className="text-body text-neutral-700 mb-3">
                   {paragraph}
                 </p>
@@ -203,7 +203,7 @@ export default function SecurityTrainingModal({ isOpen, onClose, onComplete }: S
                   className="ml-4 mt-4 training-section"
                 >
                   <h4 className="text-lg font-semibold text-neutral-900 mb-2">{subsection.title}</h4>
-                  {subsection.content.map((paragraph, idx) => (
+                  {subsection.content?.map((paragraph, idx) => (
                     <p key={idx} className="text-body text-neutral-700 mb-2">
                       {paragraph}
                     </p>
