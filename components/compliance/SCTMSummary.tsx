@@ -63,9 +63,9 @@ export default function SCTMSummary({ summary, onFamilyClick }: SCTMSummaryProps
           </div>
         </div>
         <div className="mt-4">
-          <div className="w-full bg-neutral-300 rounded-full h-4 shadow-inner">
+          <div className="w-full bg-green-200 rounded-full h-4 shadow-inner">
             <div
-              className="bg-primary-700 h-4 rounded-full transition-all duration-300 shadow-md"
+              className="bg-green-600 h-4 rounded-full transition-all duration-300 shadow-md"
               style={{ width: `${summary.readinessPercentage}%` }}
             />
           </div>

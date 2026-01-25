@@ -94,7 +94,7 @@ export default function SCTMPage() {
             System Control Traceability Matrix (SCTM)
           </h1>
           <p className="mt-2 text-neutral-600">
-            CMMC Level 2 - All 110 NIST SP 800-171 Rev. 2 Controls
+            CMMC Level 2 - 110 Total NIST SP 800-171 Rev. 2 Controls (some controls are marked as Not Applicable)
           </p>
         </div>
 
