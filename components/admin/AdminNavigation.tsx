@@ -6,87 +6,7 @@ import { signOut } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 
-interface NavItem {
-  href: string
-  label: string
-  description?: string
-  icon?: string
-}
-
-const navItems: NavItem[] = [
-  {
-    href: '/admin',
-    label: 'Portal',
-    description: 'Overview and quick access',
-    icon: '⚙️',
-  },
-  {
-    href: '/user/capture',
-    label: 'Capture',
-    description: 'Federal Capture Dashboard',
-    icon: '📊',
-  },
-  {
-    href: '/user/contract-discovery',
-    label: 'Discovery',
-    description: 'Search SAM.gov opportunities',
-    icon: '🔍',
-  },
-  {
-    href: '/admin/users',
-    label: 'Users',
-    description: 'Manage user accounts',
-    icon: '👥',
-  },
-  {
-    href: '/admin/compliance',
-    label: 'Compliance',
-    description: 'CMMC compliance dashboard',
-    icon: '🛡️',
-  },
-  {
-    href: '/admin/poam',
-    label: 'POA&M',
-    description: 'Plan of Action and Milestones',
-    icon: '📋',
-  },
-  {
-    href: '/admin/events',
-    label: 'Events',
-    description: 'Audit log and events',
-    icon: '📝',
-  },
-  {
-    href: '/admin/physical-access-logs',
-    label: 'Physical Access',
-    description: 'Physical access logs',
-    icon: '🚪',
-  },
-  {
-    href: '/admin/endpoint-inventory',
-    label: 'Endpoints',
-    description: 'Endpoint inventory',
-    icon: '💻',
-  },
-  {
-    href: '/admin/files',
-    label: 'Files',
-    description: 'File management',
-    icon: '📁',
-  },
-  {
-    href: '/admin/generate-proposal',
-    label: 'Proposals',
-    description: 'Generate proposals from SOW (Admin only)',
-    icon: '📄',
-  },
-  {
-    href: '/feedback',
-    label: 'Feedback',
-    description: 'View and manage user feedback',
-    icon: '💬',
-  },
-]
+// Navigation simplified - all pages are now accessible via cards on the admin portal
 
 export default function AdminNavigation() {
   const pathname = usePathname()
@@ -147,28 +67,18 @@ export default function AdminNavigation() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5 bg-neutral-800/50 rounded-lg p-0.5 backdrop-blur-sm flex-1 min-w-0 overflow-x-auto">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || 
-                (item.href !== '/admin' && pathname.startsWith(item.href))
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
-                    isActive
-                      ? 'bg-accent-600 text-white shadow-md'
-                      : 'text-neutral-300 hover:text-white hover:bg-neutral-700/50'
-                  }`}
-                  title={item.description}
-                >
-                  <span className="text-sm">{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
+          {/* Desktop Navigation - Simplified */}
+          <div className="hidden lg:flex items-center gap-2 flex-1 justify-end">
+            {isAdmin && (
+              <Link
+                href="/user"
+                className="px-3 py-1.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-700/50 rounded-md transition-all duration-200 flex items-center gap-1.5"
+                title="Switch to User Panel"
+              >
+                <span className="text-sm">👤</span>
+                <span>User Panel</span>
+              </Link>
+            )}
           </div>
 
           {/* User Info and Logout */}
@@ -180,18 +90,7 @@ export default function AdminNavigation() {
                 </div>
                 <div className="text-right">
                   <p className="text-white text-xs font-medium leading-tight truncate max-w-[120px]">{session.user.name || session.user.email}</p>
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-neutral-400 text-[10px] leading-tight">{session.user.role}</p>
-                    {isAdmin && (
-                      <Link
-                        href="/user"
-                        className="text-[10px] text-accent-400 hover:text-accent-300 underline transition-colors"
-                        title="Switch to User Panel"
-                      >
-                        User Panel →
-                      </Link>
-                    )}
-                  </div>
+                  <p className="text-neutral-400 text-[10px] leading-tight">{session.user.role}</p>
                 </div>
               </div>
             )}
@@ -214,28 +113,15 @@ export default function AdminNavigation() {
             </button>
           </div>
 
-          {/* Mobile: Show current page and dropdown */}
+          {/* Mobile: User Panel Link */}
           <div className="lg:hidden flex items-center gap-2 flex-shrink-0">
-            <select
-              value={pathname}
-              onChange={(e) => {
-                router.push(e.target.value)
-              }}
-              className="px-2 py-1.5 text-xs font-medium bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-            >
-              {navItems.map((item) => (
-                <option key={item.href} value={item.href}>
-                  {item.icon} {item.label}
-                </option>
-              ))}
-            </select>
             {isAdmin && (
               <Link
                 href="/user"
                 className="px-2 py-1.5 text-xs text-accent-400 hover:text-accent-300 underline"
                 title="Switch to User Panel"
               >
-                User →
+                User Panel →
               </Link>
             )}
           </div>

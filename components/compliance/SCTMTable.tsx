@@ -300,12 +300,12 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
   }
 
   const exportToCSV = () => {
-    const headers = ['Control ID', 'Requirement', 'Status', 'Family', 'Policy', 'Procedure', 'Evidence', 'Implementation', 'SSP Section']
+    const headers = ['Family', 'Control ID', 'Requirement', 'Status', 'Policy', 'Procedure', 'Evidence', 'Implementation', 'SSP Section']
     const rows = filteredAndSortedControls.map(control => [
+      control.family,
       control.id,
       control.requirement,
       STATUS_LABELS[control.status],
-      control.family,
       control.policy,
       control.procedure,
       control.evidence,
@@ -412,6 +412,15 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
               <tr>
                 <th
                   className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
+                  onClick={() => handleSort('family')}
+                >
+                  <div className="flex items-center gap-1">
+                    Family
+                    <SortIcon field="family" />
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('id')}
                 >
                   <div className="flex items-center gap-1">
@@ -435,15 +444,6 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
                   <div className="flex items-center gap-1">
                     Status
                     <SortIcon field="status" />
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
-                  onClick={() => handleSort('family')}
-                >
-                  <div className="flex items-center gap-1">
-                    Family
-                    <SortIcon field="family" />
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -485,6 +485,9 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
                         className={`hover:bg-neutral-50 ${isEditing ? 'bg-blue-50' : ''} ${!isEditing ? 'cursor-pointer' : ''}`}
                         onClick={(e) => !isEditing && handleRowClick(control.id, e)}
                       >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+                          {control.family}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
                           {control.id}
                         </td>
@@ -514,9 +517,6 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
                               {STATUS_LABELS[control.status]}
                             </span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                          {control.family}
                         </td>
                         <td className="px-6 py-4 text-sm text-neutral-600 max-w-xs" onClick={(e) => e.stopPropagation()}>
                           {isEditing ? (
