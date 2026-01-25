@@ -197,6 +197,14 @@ export default function AdminPage() {
       color: 'bg-orange-50 border-orange-200 hover:border-orange-300',
       iconBg: 'bg-orange-100',
     },
+    {
+      href: '/user/security-obligations',
+      title: 'My Security Obligations',
+      description: 'Complete and acknowledge your required security responsibilities and attestations',
+      icon: '🔒',
+      color: 'bg-blue-50 border-blue-200 hover:border-blue-300',
+      iconBg: 'bg-blue-100',
+    },
   ]
 
   return (
