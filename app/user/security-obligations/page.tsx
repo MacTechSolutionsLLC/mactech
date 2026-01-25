@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import RoleBasedNavigation from '@/components/RoleBasedNavigation'
+import SecurityTrainingModal from '@/components/security-obligations/SecurityTrainingModal'
+import TrainingEnforcementBanner from '@/components/security-obligations/TrainingEnforcementBanner'
 import { REQUIRED_ATTESTATIONS, type AttestationType } from '@/lib/utils/attestation-status'
 
 interface AttestationData {
@@ -83,6 +85,7 @@ export default function SecurityObligationsPage() {
     incident_reporting: false,
     acceptable_use: false,
   })
+  const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -129,6 +132,11 @@ export default function SecurityObligationsPage() {
       // Reset checkbox and refresh data
       setChecked((prev) => ({ ...prev, [type]: false }))
       await fetchData()
+      
+      // Close training modal if it was open
+      if (type === 'security_training') {
+        setIsTrainingModalOpen(false)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -269,6 +277,16 @@ export default function SecurityObligationsPage() {
               </p>
             </div>
           )}
+
+          {/* Training Enforcement Banner */}
+          {data && (
+            <TrainingEnforcementBanner
+              trainingStatus={data.types.security_training.status}
+              lastAttestedAt={data.types.security_training.lastAttestedAt}
+              currentYear={data.currentYear}
+              onStartTraining={() => setIsTrainingModalOpen(true)}
+            />
+          )}
         </div>
       </section>
 
@@ -340,56 +358,91 @@ export default function SecurityObligationsPage() {
                       </div>
                     )}
 
-                    <div className="border-t border-neutral-200 pt-4">
-                      <div className="flex items-start gap-3 mb-4">
-                        <input
-                          type="checkbox"
-                          id={`checkbox-${type}`}
-                          checked={checked[type]}
-                          onChange={(e) => setChecked((prev) => ({ ...prev, [type]: e.target.checked }))}
-                          disabled={isDisabled}
-                          className="mt-1 w-4 h-4 text-accent-600 border-neutral-300 rounded focus:ring-accent-500 disabled:opacity-50"
-                        />
-                        <label
-                          htmlFor={`checkbox-${type}`}
-                          className={`text-body-sm text-neutral-700 ${isDisabled ? 'opacity-60' : ''}`}
-                        >
-                          {label.statement}
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-body-xs text-neutral-500">
-                          {typeData?.lastAttestedAt ? (
-                            <span>Last completed: {formatDate(typeData.lastAttestedAt)}</span>
-                          ) : (
-                            <span>Not yet completed</span>
-                          )}
-                          {typeData?.currentYearAttestedAt && (
-                            <span className="ml-3">
-                              Current year ({data?.currentYear}): {formatDate(typeData.currentYearAttestedAt)}
-                            </span>
-                          )}
+                    {type === 'security_training' ? (
+                      // Special handling for security training - use Start Training button
+                      <div className="border-t border-neutral-200 pt-4">
+                        <div className="mb-4">
+                          <p className="text-body-sm text-neutral-700 mb-4">
+                            Complete the interactive security awareness training to fulfill this requirement. The training covers security risks, policies, procedures, and your responsibilities.
+                          </p>
                         </div>
 
-                        <button
-                          onClick={() => handleSubmit(type)}
-                          disabled={!checked[type] || isDisabled}
-                          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-body-sm px-6 py-2"
-                        >
-                          {submitting[type] ? (
-                            <>
-                              <span className="inline-block animate-spin mr-2">⏳</span>
-                              Submitting...
-                            </>
-                          ) : isCompleted ? (
-                            'Already Completed'
-                          ) : (
-                            'Submit Acknowledgement'
-                          )}
-                        </button>
+                        <div className="flex items-center justify-between">
+                          <div className="text-body-xs text-neutral-500">
+                            {typeData?.lastAttestedAt ? (
+                              <span>Last completed: {formatDate(typeData.lastAttestedAt)}</span>
+                            ) : (
+                              <span>Not yet completed</span>
+                            )}
+                            {typeData?.currentYearAttestedAt && (
+                              <span className="ml-3">
+                                Current year ({data?.currentYear}): {formatDate(typeData.currentYearAttestedAt)}
+                              </span>
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() => setIsTrainingModalOpen(true)}
+                            disabled={isDisabled}
+                            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-body-sm px-6 py-2"
+                          >
+                            {isCompleted ? 'View Training' : 'Start Training'}
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      // Standard checkbox flow for other attestations
+                      <div className="border-t border-neutral-200 pt-4">
+                        <div className="flex items-start gap-3 mb-4">
+                          <input
+                            type="checkbox"
+                            id={`checkbox-${type}`}
+                            checked={checked[type]}
+                            onChange={(e) => setChecked((prev) => ({ ...prev, [type]: e.target.checked }))}
+                            disabled={isDisabled}
+                            className="mt-1 w-4 h-4 text-accent-600 border-neutral-300 rounded focus:ring-accent-500 disabled:opacity-50"
+                          />
+                          <label
+                            htmlFor={`checkbox-${type}`}
+                            className={`text-body-sm text-neutral-700 ${isDisabled ? 'opacity-60' : ''}`}
+                          >
+                            {label.statement}
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-body-xs text-neutral-500">
+                            {typeData?.lastAttestedAt ? (
+                              <span>Last completed: {formatDate(typeData.lastAttestedAt)}</span>
+                            ) : (
+                              <span>Not yet completed</span>
+                            )}
+                            {typeData?.currentYearAttestedAt && (
+                              <span className="ml-3">
+                                Current year ({data?.currentYear}): {formatDate(typeData.currentYearAttestedAt)}
+                              </span>
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() => handleSubmit(type)}
+                            disabled={!checked[type] || isDisabled}
+                            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-body-sm px-6 py-2"
+                          >
+                            {submitting[type] ? (
+                              <>
+                                <span className="inline-block animate-spin mr-2">⏳</span>
+                                Submitting...
+                              </>
+                            ) : isCompleted ? (
+                              'Already Completed'
+                            ) : (
+                              'Submit Acknowledgement'
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )
@@ -409,6 +462,15 @@ export default function SecurityObligationsPage() {
           </div>
         </section>
       )}
+
+      {/* Security Training Modal */}
+      <SecurityTrainingModal
+        isOpen={isTrainingModalOpen}
+        onClose={() => setIsTrainingModalOpen(false)}
+        onComplete={async () => {
+          await fetchData()
+        }}
+      />
     </div>
   )
 }
