@@ -1454,12 +1454,12 @@ export default function ShowcasePage() {
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
               {activeTools.map((tool, index) => {
-                // Use a truly unique key combining category, tool id, and index
-                const uniqueKey = `${activeTab}-${tool.id}-${index}`
+                // Use tool.id as unique key (tool.id should be unique across all tools)
+                const uniqueKey = tool.id
                 const isExpanded = expandedItems.has(uniqueKey)
                 return (
                   <div 
-                    key={`${tool.id}-${index}`} 
+                    key={tool.id} 
                     className={`card border border-neutral-200 transition-all duration-gentle fade-in${index > 0 ? `-delay-${Math.min(index, 3)}` : ''}`}
                   >
                     {/* Header - Always visible */}

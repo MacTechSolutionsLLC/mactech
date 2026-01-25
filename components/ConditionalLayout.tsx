@@ -11,8 +11,10 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname()
   const isAdminPage = pathname?.startsWith('/admin') || pathname?.startsWith('/auth')
+  const isUserPage = pathname?.startsWith('/user') || pathname?.startsWith('/feedback')
 
-  if (isAdminPage) {
+  // Don't show public Navigation/Footer for admin, auth, or user pages (they have their own navigation)
+  if (isAdminPage || isUserPage) {
     return <>{children}</>
   }
 

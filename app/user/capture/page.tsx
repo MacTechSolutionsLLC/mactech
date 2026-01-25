@@ -181,7 +181,26 @@ export default function CaptureDashboardPage() {
 
       {/* Tab Content */}
       <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
-        {activeTab === 'opportunities' && <OpportunityFeed />}
+        {activeTab === 'opportunities' && (
+          <div>
+            <OpportunityFeed />
+            {!stats || stats.total === 0 ? (
+              <div className="bg-white rounded-lg border border-neutral-200 p-8 text-center">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-2">No Opportunities Yet</h3>
+                <p className="text-neutral-600 mb-4">
+                  Opportunities will appear here once they are ingested from SAM.gov. 
+                  Check the ingestion status in the Admin Portal to ensure data is being collected.
+                </p>
+                <Link
+                  href="/user/contract-discovery"
+                  className="inline-flex items-center px-4 py-2 bg-accent-700 text-white rounded-lg hover:bg-accent-800 transition-colors"
+                >
+                  Search SAM.gov Opportunities →
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        )}
         {activeTab === 'incumbents' && <IncumbentIntelligence />}
         {activeTab === 'analytics' && <Analytics />}
       </section>
