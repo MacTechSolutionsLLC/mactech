@@ -35,18 +35,18 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.1.1 | Limit system access to authorized users, processes, devices | ✅ Implemented | MAC-POL-210 | MAC-SOP-221, MAC-SOP-222 | middleware.ts, lib/auth.ts | NextAuth.js, middleware | 7.1, 3.1.1 |
-| 3.1.2 | Limit access to transactions/functions | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, lib/authz.ts | RBAC, middleware | 7.1, 3.1.2 |
-| 3.1.3 | Control flow of CUI | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/authz.ts | Access controls | 7.1, 3.1.3 |
-| 3.1.4 | Separate duties | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117 | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence.md | RBAC enforcement (middleware.ts, lib/authz.ts) + SoD matrix documentation (MAC-SOP-235) | 7.1, 3.1.4 |
-| 3.1.5 | Least privilege | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | RBAC | 7.1, 3.1.5 |
-| 3.1.6 | Non-privileged accounts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts | USER role | 7.1, 3.1.6 |
-| 3.1.7 | Prevent privileged function execution | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts | RBAC enforcement (middleware.ts) + Audit logging (lib/audit.ts) | 7.1, 3.1.7 |
-| 3.1.8 | Limit unsuccessful logon attempts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105_Account_Lockout_Implementation_Evidence.md, MAC-RPT-105.md | lib/auth.ts, app/api/auth/custom-signin/ | 7.1, 3.1.8 |
-| 3.1.9 | Privacy/security notices | ✅ Implemented | MAC-POL-210 | user-agreements/MAC-USR-001-Patrick_User_Agreement.md | user-agreements/MAC-USR-001-Patrick_User_Agreement.md | User acknowledgments | 7.1, 3.1.9 |
-| 3.1.10 | Session lock | ✅ Implemented | MAC-POL-210 | MAC-RPT-106 | MAC-RPT-106_Session_Lock_Implementation_Evidence.md | Session lock component | 7.1, 3.1.10 |
-| 3.1.11 | Automatic session termination | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts | 8-hour timeout | 7.1, 3.1.11 |
-| 3.1.12 | Monitor remote access | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts | Audit logging | 7.1, 3.1.12 |
+| 3.1.1 | Limit system access to authorized users, processes, devices | ✅ Implemented | MAC-POL-210 | MAC-SOP-221, MAC-SOP-222 | middleware.ts, lib/auth.ts, 05-evidence/MAC-RPT-122_3_1_1_limit_system_access_Evidence | NextAuth.js, middleware | 7.1, 3.1.1 |
+| 3.1.2 | Limit access to transactions/functions | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, lib/authz.ts, 05-evidence/MAC-RPT-122_3_1_2_limit_access_to_transactions_functions_Evidence | RBAC, middleware | 7.1, 3.1.2 |
+| 3.1.3 | Control flow of CUI | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/authz.ts, 05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, 05-evidence/MAC-RPT-122_3_1_3_control_flow_of_cui_Evidence | Access controls | 7.1, 3.1.3 |
+| 3.1.4 | Separate duties | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117 | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence.md, 05-evidence/MAC-RPT-121_3_1_4_separate_duties_Evidence, 05-evidence/MAC-RPT-122_3_1_4_separate_duties_Evidence | RBAC enforcement (middleware.ts, lib/authz.ts) + SoD matrix documentation (MAC-SOP-235) | 7.1, 3.1.4 |
+| 3.1.5 | Least privilege | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, 05-evidence/MAC-RPT-122_3_1_5_least_privilege_Evidence | RBAC | 7.1, 3.1.5 |
+| 3.1.6 | Non-privileged accounts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, 05-evidence/MAC-RPT-122_3_1_6_non_privileged_accounts_Evidence | USER role | 7.1, 3.1.6 |
+| 3.1.7 | Prevent privileged function execution | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts, 05-evidence/MAC-RPT-122_3_1_7_prevent_privileged_function_execution_Evidence | RBAC enforcement (middleware.ts) + Audit logging (lib/audit.ts) | 7.1, 3.1.7 |
+| 3.1.8 | Limit unsuccessful logon attempts | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105_Account_Lockout_Implementation_Evidence.md, MAC-RPT-105.md | lib/auth.ts, app/api/auth/custom-signin/ (lib/auth.ts, app/api/auth/custom-signin/route.ts) | 7.1, 3.1.8 |
+| 3.1.9 | Privacy/security notices | ✅ Implemented | MAC-POL-210 | user-agreements/MAC-USR-001-Patrick_User_Agreement.md | user-agreements/MAC-USR-001-Patrick_User_Agreement.md, 05-evidence/MAC-RPT-121_3_1_9_privacy_security_notices_Evidence, 05-evidence/MAC-RPT-122_3_1_9_privacy_security_notices_Evidence | User acknowledgments | 7.1, 3.1.9 |
+| 3.1.10 | Session lock | ✅ Implemented | MAC-POL-210 | MAC-RPT-106 | MAC-RPT-106_Session_Lock_Implementation_Evidence.md, 05-evidence/MAC-RPT-121_3_1_10_session_lock_Evidence, 05-evidence/MAC-RPT-122_3_1_10_session_lock_Evidence | Session lock component | 7.1, 3.1.10 |
+| 3.1.11 | Automatic session termination | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts, 05-evidence/MAC-RPT-122_3_1_11_automatic_session_termination_Evidence | 8-hour timeout | 7.1, 3.1.11 |
+| 3.1.12 | Monitor remote access | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts, 05-evidence/MAC-RPT-122_3_1_12_monitor_remote_access_Evidence | Audit logging | 7.1, 3.1.12 |
 | 3.1.13 | Cryptographic remote access | 🔄 Inherited | MAC-POL-210 | - | Railway platform | TLS/HTTPS | 7.1, 3.1.13 |
 | 3.1.14 | Managed access control points | 🔄 Inherited | MAC-POL-210 | - | Railway platform | Platform routing | 7.1, 3.1.14 |
 | 3.1.15 | Authorize remote privileged commands | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts | Admin controls | 7.1, 3.1.15 |
@@ -55,8 +55,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.18 | Control mobile devices | ✅ Implemented | MAC-POL-210 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_18_control_mobile_devices_Evidence.md | Browser access | 7.1, 3.1.18 |
 | 3.1.19 | Encrypt CUI on mobile devices | ✅ Implemented | MAC-POL-210 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence.md | CUI encrypted at rest (Railway), password protected access, no local CUI storage | 7.1, 3.1.19 |
 | 3.1.20 | Verify external systems | ✅ Implemented | MAC-POL-210 | MAC-IT-304_System_Security_Plan.md | MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_1_20_verify_external_systems_Evidence.md | External APIs | 7.1, 3.1.20 |
-| 3.1.21 | Limit portable storage | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118 | MAC-RPT-118_Portable_Storage_Controls_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md | Policy, technical controls | 7.1, 3.1.21 |
-| 3.1.22 | Control CUI on public systems | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence | middleware.ts, MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence.md | Approval workflow | 7.1, 3.1.22 |
+| 3.1.21 | Limit portable storage | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118 | MAC-RPT-118_Portable_Storage_Controls_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md, 05-evidence/MAC-RPT-121_3_1_21_limit_portable_storage_Evidence, 05-evidence/MAC-RPT-122_3_1_21_limit_portable_storage_Evidence | Policy, technical controls | 7.1, 3.1.21 |
+| 3.1.22 | Control CUI on public systems | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence | middleware.ts, MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence.md, 05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, 05-evidence/MAC-RPT-122_3_1_22_control_cui_on_public_systems_Evidence | Approval workflow | 7.1, 3.1.22 |
 
 ---
 
@@ -64,9 +64,9 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.2.1 | Security awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/security-awareness-training-content.md, training/training-completion-log.md | Training program, tracking | 7.3, 3.2.1 |
-| 3.2.2 | Security training | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md | Training program, delivery | 7.3, 3.2.2 |
-| 3.2.3 | Insider threat awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md | Insider threat training, delivery | 7.3, 3.2.3 |
+| 3.2.1 | Security awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/security-awareness-training-content.md, training/training-completion-log.md, 05-evidence/MAC-RPT-121_3_2_1_security_awareness_Evidence, 05-evidence/MAC-RPT-122_3_2_1_security_awareness_Evidence | Training program, tracking | 7.3, 3.2.1 |
+| 3.2.2 | Security training | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, 05-evidence/MAC-RPT-121_3_2_2_security_training_Evidence, 05-evidence/MAC-RPT-122_3_2_2_security_training_Evidence | Training program, delivery | 7.3, 3.2.2 |
+| 3.2.3 | Insider threat awareness | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, 05-evidence/MAC-RPT-121_3_2_3_insider_threat_awareness_Evidence, 05-evidence/MAC-RPT-122_3_2_3_insider_threat_awareness_Evidence | Insider threat training, delivery | 7.3, 3.2.3 |
 
 ---
 
@@ -74,15 +74,15 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.3.1 | Create and retain audit logs | ✅ Implemented | MAC-POL-218 | MAC-RPT-107_Audit_Log_Retention_Evidence.md, MAC-RPT-107 | MAC-RPT-107_Audit_Log_Retention_Evidence.md, lib/audit.ts, MAC-RPT-107.md | Audit logging, retention verification | 7.4, 3.3.1 |
+| 3.3.1 | Create and retain audit logs | ✅ Implemented | MAC-POL-218 | MAC-RPT-107_Audit_Log_Retention_Evidence.md, MAC-RPT-107 | MAC-RPT-107_Audit_Log_Retention_Evidence.md, lib/audit.ts, MAC-RPT-107.md, 05-evidence/MAC-RPT-121_3_3_1_create_and_retain_audit_logs_Evidence, 05-evidence/MAC-RPT-122_3_3_1_create_and_retain_audit_logs_Evidence | Audit logging, retention verification | 7.4, 3.3.1 |
 | 3.3.2 | Unique user traceability | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | User identification | 7.4, 3.3.2 |
-| 3.3.3 | Review and update logged events | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | audit-log-reviews/audit-log-review-log.md | Review process, review log | 7.4, 3.3.3 |
-| 3.3.4 | Alert on audit logging failure | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | generateFailureAlerts() function | 7.4, 3.3.4 |
-| 3.3.5 | Correlate audit records | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts | correlateEvents() function | 7.4, 3.3.5 |
-| 3.3.6 | Audit record reduction/reporting | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export | CSV export | 7.4, 3.3.6 |
+| 3.3.3 | Review and update logged events | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | audit-log-reviews/audit-log-review-log.md, 05-evidence/MAC-RPT-121_3_3_3_review_and_update_logged_events_Evidence, 05-evidence/MAC-RPT-123_3_3_1_create_and_retain_audit_logs_Evidence | Review process, review log | 7.4, 3.3.3 |
+| 3.3.4 | Alert on audit logging failure | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, 05-evidence/MAC-RPT-122_3_3_4_alert_on_audit_logging_failure_Evidence | generateFailureAlerts() function | 7.4, 3.3.4 |
+| 3.3.5 | Correlate audit records | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, 05-evidence/MAC-RPT-122_3_3_5_correlate_audit_records_Evidence | correlateEvents() function | 7.4, 3.3.5 |
+| 3.3.6 | Audit record reduction/reporting | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export, 05-evidence/MAC-RPT-122_3_3_6_audit_record_reduction_reporting_Evidence | CSV export | 7.4, 3.3.6 |
 | 3.3.7 | System clock synchronization | 🔄 Inherited | MAC-POL-218 | - | Railway platform | NTP sync | 7.4, 3.3.7 |
-| 3.3.8 | Protect audit information | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | Append-only | 7.4, 3.3.8 |
-| 3.3.9 | Limit audit logging management | ✅ Implemented | MAC-POL-218 | - | middleware.ts | Admin-only | 7.4, 3.3.9 |
+| 3.3.8 | Protect audit information | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts, 05-evidence/MAC-RPT-122_3_3_8_protect_audit_information_Evidence | Append-only | 7.4, 3.3.8 |
+| 3.3.9 | Limit audit logging management | ✅ Implemented | MAC-POL-218 | - | middleware.ts, 05-evidence/MAC-RPT-122_3_3_9_limit_audit_logging_management_Evidence | Admin-only | 7.4, 3.3.9 |
 
 ---
 
@@ -90,14 +90,14 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.4.1 | Baseline configurations | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_1_baseline_configurations_Evidence, MAC-RPT-121_3_4_1_baseline_configurations_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md | CM plan, baseline inventory | 7.5, 3.4.1 |
-| 3.4.2 | Security configuration settings | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_2_security_configuration_settings_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md, next.config.js, middleware.ts | Baseline, config files | 7.5, 3.4.2 |
-| 3.4.3 | Change control | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_3_change_control_Evidence, MAC-RPT-121_3_4_3_change_control_Evidence | MAC-RPT-109_Change_Control_Evidence.md | Version control, approval process | 7.5, 3.4.3 |
-| 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, MAC-CMP-001_Configuration_Management_Plan.md | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
-| 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence.md | Access restrictions documented | 7.5, 3.4.5 |
-| 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-POL-220 | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
+| 3.4.1 | Baseline configurations | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_1_baseline_configurations_Evidence, MAC-RPT-121_3_4_1_baseline_configurations_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md, 05-evidence/MAC-RPT-121_3_4_1_baseline_configurations_Evidence, 05-evidence/MAC-RPT-122_3_4_1_baseline_configurations_Evidence | CM plan, baseline inventory | 7.5, 3.4.1 |
+| 3.4.2 | Security configuration settings | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_2_security_configuration_settings_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence.md, next.config.js, middleware.ts, 05-evidence/MAC-RPT-121_3_4_2_security_configuration_settings_Evidence, 05-evidence/MAC-RPT-122_3_4_2_security_configuration_settings_Evidence | Baseline, config files | 7.5, 3.4.2 |
+| 3.4.3 | Change control | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_3_change_control_Evidence, MAC-RPT-121_3_4_3_change_control_Evidence | MAC-RPT-109_Change_Control_Evidence.md, 05-evidence/MAC-RPT-121_3_4_3_change_control_Evidence, 05-evidence/MAC-RPT-122_3_4_3_change_control_Evidence | Version control, approval process | 7.5, 3.4.3 |
+| 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, MAC-CMP-001_Configuration_Management_Plan.md, 05-evidence/MAC-RPT-121_3_4_4_security_impact_analysis_Evidence, 05-evidence/MAC-RPT-124_Security_Impact_Analysis_Operational_Evidence | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
+| 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence.md, 05-evidence/MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, 05-evidence/MAC-RPT-122_3_4_5_change_access_restrictions_Evidence | Access restrictions documented | 7.5, 3.4.5 |
+| 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | MAC-IT-301_System_Description_and_Architecture.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-POL-220, 05-evidence/MAC-RPT-121_3_4_6_least_functionality_Evidence, 05-evidence/MAC-RPT-125_Least_Functionality_Operational_Evidence | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
-| 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | MAC-POL-226_Software_Restriction_Policy.md, package.json | Restriction policy, inventory | 7.5, 3.4.8 |
+| 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | MAC-POL-226_Software_Restriction_Policy.md, package.json, 05-evidence/MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, 05-evidence/MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory | 7.5, 3.4.8 |
 | 3.4.9 | Control user-installed software | ✅ Implemented | MAC-POL-220 | - | Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
 
 ---
@@ -106,17 +106,17 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | - | User model | 7.2, 3.5.1 |
-| 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | NextAuth.js | 7.2, 3.5.2 |
-| 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence.md, lib/mfa.ts | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
-| 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | JWT tokens | 7.2, 3.5.4 |
-| 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md | Unique constraint, procedure | 7.2, 3.5.5 |
+| 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | 05-evidence/MAC-RPT-122_3_5_1_identify_users_Evidence, 05-evidence/MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
+| 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, 05-evidence/MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js | 7.2, 3.5.2 |
+| 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence.md, lib/mfa.ts, 05-evidence/MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, 05-evidence/MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
+| 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, 05-evidence/MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
+| 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md, 05-evidence/MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, 05-evidence/MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
 | 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 | - | Inactivity disable | 7.2, 3.5.6 |
-| 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts | Password policy | 7.2, 3.5.7 |
-| 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md | Password history (5 generations) | 7.2, 3.5.8 |
+| 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts, 05-evidence/MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
+| 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md, 05-evidence/MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence, 05-evidence/MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence | Password history (5 generations) | 7.2, 3.5.8 |
 | 3.5.9 | Temporary passwords | 🚫 Not Applicable | MAC-POL-211 | - | System architecture | All accounts created with permanent passwords | 7.2, 3.5.9 |
-| 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | bcrypt | 7.2, 3.5.10 |
-| 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts | Error handling | 7.2, 3.5.11 |
+| 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, 05-evidence/MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence | bcrypt | 7.2, 3.5.10 |
+| 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, 05-evidence/MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence | Error handling | 7.2, 3.5.11 |
 
 ---
 
@@ -124,9 +124,9 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.6.1 | Operational incident-handling capability | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence, MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence | - | IR capability, IRP | 7.9, 3.6.1 |
-| 3.6.2 | Track, document, and report incidents | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence, MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence | - | IR procedures | 7.9, 3.6.2 |
-| 3.6.3 | Test incident response capability | ✅ Implemented | MAC-POL-215 | MAC-SOP-232 | - | IR testing, tabletop exercise | 7.9, 3.6.3 |
+| 3.6.1 | Operational incident-handling capability | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence, MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence | 05-evidence/MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence, 05-evidence/MAC-RPT-122_3_6_1_operational_incident_handling_capability_Evidence | IR capability, IRP | 7.9, 3.6.1 |
+| 3.6.2 | Track, document, and report incidents | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence, MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence | 05-evidence/MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence, 05-evidence/MAC-RPT-122_3_6_2_track_document_and_report_incidents_Evidence | IR procedures | 7.9, 3.6.2 |
+| 3.6.3 | Test incident response capability | ✅ Implemented | MAC-POL-215 | MAC-SOP-232 | 05-evidence/MAC-RPT-121_3_6_3_test_incident_response_capability_Evidence | IR testing, tabletop exercise | 7.9, 3.6.3 |
 
 ---
 
@@ -134,11 +134,11 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.7.1 | Perform maintenance | 🔄 Inherited / ✅ Implemented | MAC-POL-221 | MAC-IT-301_System_Description_and_Architecture.md, MAC-IT-304_System_Security_Plan.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-IT-304_System_Security_Plan.md | Platform/app maintenance | 7.10, 3.7.1 |
+| 3.7.1 | Perform maintenance | 🔄 Inherited / ✅ Implemented | MAC-POL-221 | MAC-IT-301_System_Description_and_Architecture.md, MAC-IT-304_System_Security_Plan.md | MAC-IT-301_System_Description_and_Architecture.md, MAC-IT-304_System_Security_Plan.md, 05-evidence/MAC-RPT-121_3_7_1_perform_maintenance_Evidence, 05-evidence/MAC-RPT-122_3_7_1_perform_maintenance_Evidence | Platform/app maintenance | 7.10, 3.7.1 |
 | 3.7.2 | Controls on maintenance tools | ❌ Not Implemented | MAC-POL-221 | - | Tool controls | Tool management | 7.10, 3.7.2 |
 | 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
 | 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
-| 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented (Inherited) | MAC-POL-221 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md | Platform MFA | 7.10, 3.7.5 |
+| 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented (Inherited) | MAC-POL-221 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md, 05-evidence/MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence, 05-evidence/MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence | Platform MFA | 7.10, 3.7.5 |
 | 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
 
 ---
@@ -147,9 +147,9 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.8.1 | Protect system media | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md | - | Database encryption | 7.6, 3.8.1 |
+| 3.8.1 | Protect system media | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md | 05-evidence/MAC-RPT-121_3_8_1_protect_system_media_Evidence | Database encryption | 7.6, 3.8.1 |
 | 3.8.2 | Limit access to CUI on media | ✅ Implemented | MAC-POL-213 | - | Access controls | RBAC | 7.6, 3.8.2 |
-| 3.8.3 | Sanitize/destroy media | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md | - | No removable media | 7.6, 3.8.3 |
+| 3.8.3 | Sanitize/destroy media | ✅ Implemented | MAC-POL-213 | MAC-IT-301_System_Description_and_Architecture.md | 05-evidence/MAC-RPT-121_3_8_3_sanitize_destroy_media_Evidence | No removable media | 7.6, 3.8.3 |
 | 3.8.4 | Mark media with CUI markings | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
 | 3.8.5 | Control access during transport | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
 | 3.8.6 | Cryptographic protection on digital media | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.6 |
@@ -163,8 +163,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.9.1 | Screen individuals prior to access | ✅ Implemented | MAC-POL-222 | MAC-SOP-233 | - | Screening process, records | 7.7, 3.9.1 |
-| 3.9.2 | Protect systems during/after personnel actions | ✅ Implemented | MAC-POL-222 | MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | personnel-screening/screening-completion-log.md, personnel-screening/screening-records-template.md | Termination procedures, access revocation | 7.7, 3.9.2 |
+| 3.9.1 | Screen individuals prior to access | ✅ Implemented | MAC-POL-222 | MAC-SOP-233 | 05-evidence/MAC-RPT-121_3_9_1_screen_individuals_prior_to_access_Evidence, 05-evidence/MAC-RPT-122_3_9_1_screen_individuals_prior_to_access_Evidence | Screening process, records | 7.7, 3.9.1 |
+| 3.9.2 | Protect systems during/after personnel actions | ✅ Implemented | MAC-POL-222 | MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | personnel-screening/screening-completion-log.md, personnel-screening/screening-records-template.md, 05-evidence/MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_a_Evidence, 05-evidence/MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | Termination procedures, access revocation | 7.7, 3.9.2 |
 
 ---
 
@@ -172,12 +172,12 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.10.1 | Limit physical access | ✅ Implemented | MAC-POL-212 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence.md | Platform/facility controls | 7.8, 3.10.1 |
-| 3.10.2 | Protect and monitor facility | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence | MAC-POL-212_Physical_Security_Policy.md | Facility protection | 7.8, 3.10.2 |
-| 3.10.3 | Escort and monitor visitors | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence | MAC-RPT-111_Visitor_Controls_Evidence.md | Visitor monitoring | 7.8, 3.10.3 |
+| 3.10.1 | Limit physical access | ✅ Implemented | MAC-POL-212 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence.md, 05-evidence/MAC-RPT-122_3_10_1_limit_physical_access_Evidence | Platform/facility controls | 7.8, 3.10.1 |
+| 3.10.2 | Protect and monitor facility | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence | MAC-POL-212_Physical_Security_Policy.md, 05-evidence/MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence, 05-evidence/MAC-RPT-122_3_10_2_protect_and_monitor_facility_Evidence | Facility protection | 7.8, 3.10.2 |
+| 3.10.3 | Escort and monitor visitors | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence | MAC-RPT-111_Visitor_Controls_Evidence.md, 05-evidence/MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence, 05-evidence/MAC-RPT-122_3_10_3_escort_and_monitor_visitors_Evidence | Visitor monitoring | 7.8, 3.10.3 |
 | 3.10.4 | Physical access audit logs | ✅ Implemented | MAC-POL-212 | - | /admin/physical-access-logs | Physical access logging | 7.8, 3.10.4 |
-| 3.10.5 | Control physical access devices | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence | - | Access devices | 7.8, 3.10.5 |
-| 3.10.6 | Safeguarding at alternate work sites | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence | - | Alternate sites | 7.8, 3.10.6 |
+| 3.10.5 | Control physical access devices | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence | 05-evidence/MAC-RPT-112_Physical_Access_Device_Evidence, 05-evidence/MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence, 05-evidence/MAC-RPT-122_3_10_5_control_physical_access_devices_Evidence | Access devices | 7.8, 3.10.5 |
+| 3.10.6 | Safeguarding at alternate work sites | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence | 05-evidence/MAC-RPT-113_Alternate_Work_Site_Safeguarding_Evidence, 05-evidence/MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence, 05-evidence/MAC-RPT-122_3_10_6_safeguarding_at_alternate_work_sites_Evidence | Alternate sites | 7.8, 3.10.6 |
 
 ---
 
@@ -185,9 +185,9 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.11.1 | Periodically assess risk | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence | - | Risk assessment | 7.11, 3.11.1 |
-| 3.11.2 | Scan for vulnerabilities | ✅ Implemented | MAC-POL-223 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md | Vulnerability scanning, schedule | 7.11, 3.11.2 |
-| 3.11.3 | Remediate vulnerabilities | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence | MAC-RPT-115_Vulnerability_Remediation_Evidence.md | Remediation process, timelines | 7.11, 3.11.3 |
+| 3.11.1 | Periodically assess risk | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence | 05-evidence/MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence, 05-evidence/MAC-RPT-122_3_11_1_periodically_assess_risk_Evidence | Risk assessment | 7.11, 3.11.1 |
+| 3.11.2 | Scan for vulnerabilities | ✅ Implemented | MAC-POL-223 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md, 05-evidence/MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence, 05-evidence/MAC-RPT-122_3_11_2_scan_for_vulnerabilities_Evidence | Vulnerability scanning, schedule | 7.11, 3.11.2 |
+| 3.11.3 | Remediate vulnerabilities | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence | MAC-RPT-115_Vulnerability_Remediation_Evidence.md, 05-evidence/MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence, 05-evidence/MAC-RPT-122_3_11_3_remediate_vulnerabilities_Evidence | Remediation process, timelines | 7.11, 3.11.3 |
 
 ---
 
@@ -195,10 +195,10 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.12.1 | Periodically assess security controls | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence | - | Control assessment, assessment report | 7.12, 3.12.1 |
-| 3.12.2 | Develop and implement POA&M | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence | - | POA&M process | 7.12, 3.12.2 |
-| 3.12.3 | Monitor security controls | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence | - | Continuous monitoring log | 7.12, 3.12.3 |
-| 3.12.4 | Develop/update SSP | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_4_develop_update_ssp_Evidence | MAC-IT-304_System_Security_Plan.md | System Security Plan | 7.12, 3.12.4 |
+| 3.12.1 | Periodically assess security controls | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence | 05-evidence/MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, 05-evidence/MAC-RPT-122_3_12_1_periodically_assess_security_controls_Evidence | Control assessment, assessment report | 7.12, 3.12.1 |
+| 3.12.2 | Develop and implement POA&M | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence | 05-evidence/MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence, 05-evidence/MAC-RPT-122_3_12_2_develop_and_implement_poa_m_Evidence | POA&M process | 7.12, 3.12.2 |
+| 3.12.3 | Monitor security controls | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence | 05-evidence/MAC-RPT-121_3_12_3_monitor_security_controls_Evidence, 05-evidence/MAC-RPT-122_3_12_3_monitor_security_controls_Evidence | Continuous monitoring log | 7.12, 3.12.3 |
+| 3.12.4 | Develop/update SSP | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_4_develop_update_ssp_Evidence | MAC-IT-304_System_Security_Plan.md, 05-evidence/MAC-RPT-121_3_12_4_develop_update_ssp_Evidence, 05-evidence/MAC-RPT-122_3_12_4_develop_update_ssp_Evidence | System Security Plan | 7.12, 3.12.4 |
 
 ---
 
@@ -206,19 +206,19 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | MAC-POL-225_System_and_Communications_Protection_Policy.md, MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence.md | Network security (Railway inherited), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js security headers) | 7.13, 3.13.1 |
-| 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | MAC-IT-301_System_Description_and_Architecture.md | System architecture | 7.13, 3.13.2 |
-| 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | - | Role separation | 7.13, 3.13.3 |
+| 3.13.1 | Monitor/control/protect communications | 🔄 Inherited / ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | MAC-POL-225_System_and_Communications_Protection_Policy.md, MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence.md, 05-evidence/MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | Network security (Railway inherited), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js security headers) | 7.13, 3.13.1 |
+| 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | MAC-IT-301_System_Description_and_Architecture.md, 05-evidence/MAC-RPT-121_3_13_2_architectural_designs_Evidence, 05-evidence/MAC-RPT-122_3_13_2_architectural_designs_Evidence | System architecture | 7.13, 3.13.2 |
+| 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md | 05-evidence/MAC-RPT-121_3_13_3_separate_user_system_management_Evidence | Role separation | 7.13, 3.13.3 |
 | 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 | - | Access controls | Information flow | 7.13, 3.13.4 |
 | 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
 | 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network controls | 7.13, 3.13.6 |
 | 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
 | 3.13.8 | Cryptographic mechanisms for CUI in transit | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS/HTTPS | 7.13, 3.13.8 |
 | 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Connection management | 7.13, 3.13.9 |
-| 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence.md | Key management, documentation | 7.13, 3.13.10 |
-| 3.13.11 | FIPS-validated cryptography | ❌ Not Implemented | MAC-POL-225 | - | MAC-RPT-110 | FIPS assessment | 7.13, 3.13.11 |
+| 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence.md, 05-evidence/MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, 05-evidence/MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
+| 3.13.11 | FIPS-validated cryptography | ❌ Not Implemented | MAC-POL-225 | - | MAC-RPT-110, 05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence | FIPS assessment | 7.13, 3.13.11 |
 | 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
-| 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117 | MAC-RPT-117_Mobile_Code_Control_Evidence.md | Mobile code policy, CSP | 7.13, 3.13.13 |
+| 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117 | MAC-RPT-117_Mobile_Code_Control_Evidence.md, 05-evidence/MAC-RPT-121_3_13_13_control_mobile_code_Evidence, 05-evidence/MAC-RPT-122_3_13_13_control_mobile_code_Evidence | Mobile code policy, CSP | 7.13, 3.13.13 |
 | 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
 | 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
 | 3.13.16 | Protect CUI at rest | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Database encryption | 7.13, 3.13.16 |
@@ -229,13 +229,13 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.14.1 | Identify/report/correct flaws | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence | MAC-RPT-103_Dependabot_Configuration_Evidence.md | Flaw management | 7.14, 3.14.1 |
-| 3.14.2 | Malicious code protection | 🔄 Inherited / ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-112_Physical_Access_Device_Evidence.md | MAC-RPT-112_Physical_Access_Device_Evidence.md | Malware protection | 7.14, 3.14.2 |
-| 3.14.3 | Monitor security alerts | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-114_Vulnerability_Scanning_Evidence.md | MAC-RPT-114_Vulnerability_Scanning_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md | Alert monitoring | 7.14, 3.14.3 |
-| 3.14.4 | Update malicious code protection | 🔄 Inherited / ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence | - | Protection updates | 7.14, 3.14.4 |
-| 3.14.5 | Periodic/real-time scans | ✅ Implemented / 🔄 Inherited | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md | MAC-RPT-103_Dependabot_Configuration_Evidence.md | Vulnerability scanning | 7.14, 3.14.5 |
-| 3.14.6 | Monitor systems and communications | ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence | - | System monitoring, procedures | 7.14, 3.14.6 |
-| 3.14.7 | Identify unauthorized use | ✅ Implemented | MAC-POL-214 | MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence | MAC-RPT-119_Unauthorized_Use_Detection_Evidence.md | Automated detection, alerts | 7.14, 3.14.7 |
+| 3.14.1 | Identify/report/correct flaws | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence | MAC-RPT-103_Dependabot_Configuration_Evidence.md, 05-evidence/MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence, 05-evidence/MAC-RPT-122_3_14_1_identify_report_correct_flaws_Evidence | Flaw management | 7.14, 3.14.1 |
+| 3.14.2 | Malicious code protection | 🔄 Inherited / ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-112_Physical_Access_Device_Evidence.md | MAC-RPT-112_Physical_Access_Device_Evidence.md, 05-evidence/MAC-RPT-121_3_14_2_malicious_code_protection_Evidence, 05-evidence/MAC-RPT-122_3_14_2_malicious_code_protection_Evidence | Malware protection | 7.14, 3.14.2 |
+| 3.14.3 | Monitor security alerts | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-RPT-114_Vulnerability_Scanning_Evidence.md | MAC-RPT-114_Vulnerability_Scanning_Evidence.md, MAC-RPT-103_Dependabot_Configuration_Evidence.md, 05-evidence/MAC-RPT-121_3_14_3_monitor_security_alerts_Evidence, 05-evidence/MAC-RPT-122_3_14_3_monitor_security_alerts_Evidence | Alert monitoring | 7.14, 3.14.3 |
+| 3.14.4 | Update malicious code protection | 🔄 Inherited / ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence | 05-evidence/MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence, 05-evidence/MAC-RPT-122_3_14_4_update_malicious_code_protection_Evidence | Protection updates | 7.14, 3.14.4 |
+| 3.14.5 | Periodic/real-time scans | ✅ Implemented / 🔄 Inherited | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence.md, MAC-IT-301_System_Description_and_Architecture.md | MAC-RPT-103_Dependabot_Configuration_Evidence.md, 05-evidence/MAC-RPT-121_3_14_5_periodic_real_time_scans_Evidence, 05-evidence/MAC-RPT-122_3_14_5_periodic_real_time_scans_Evidence | Vulnerability scanning | 7.14, 3.14.5 |
+| 3.14.6 | Monitor systems and communications | ✅ Implemented | MAC-POL-214 | MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence | 05-evidence/MAC-RPT-118_System_Monitoring_Evidence, 05-evidence/MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence, 05-evidence/MAC-RPT-122_3_14_6_monitor_systems_and_communications_Evidence | System monitoring, procedures | 7.14, 3.14.6 |
+| 3.14.7 | Identify unauthorized use | ✅ Implemented | MAC-POL-214 | MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence | MAC-RPT-119_Unauthorized_Use_Detection_Evidence.md, 05-evidence/MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence, 05-evidence/MAC-RPT-122_3_14_7_identify_unauthorized_use_Evidence | Automated detection, alerts | 7.14, 3.14.7 |
 
 ---
 
@@ -267,6 +267,4436 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 - SI (System and Information Integrity): 7 controls
 
 ---
+
+
+---
+
+## 17.1. Control Implementation Details (Enriched from NIST Control Files)
+
+This section provides detailed implementation information extracted from NIST SP 800-171 control assessment files.
+
+### AC - 22 Controls
+
+<details>
+<summary><strong>3.1.1</strong> - Limit system access to authorized users, processes, devices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/auth.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.1 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_1_limit_system_access_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.10</strong> - Session lock</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `components/SessionLock.tsx`
+
+
+
+ `app/layout.tsx`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.10 implemented as specified
+- ✅ Implementation verified: Session lock component
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-106_Session_Lock_Implementation_Evidence`
+- `05-evidence/MAC-RPT-121_3_1_10_session_lock_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_10_session_lock_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.11</strong> - Automatic session termination</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `lib/auth.ts`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.11 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_11_automatic_session_termination_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.12</strong> - Monitor remote access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.12 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_12_monitor_remote_access_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.13</strong> - Cryptographic remote access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.1.14</strong> - Managed access control points</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.1.15</strong> - Authorize remote privileged commands</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+  
+Admin controls
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.15 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.1.16</strong> - Authorize wireless access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.1.17</strong> - Protect wireless access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.1.18</strong> - Control mobile devices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/auth.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.18 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_1_18_control_mobile_devices_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.19</strong> - Encrypt CUI on mobile devices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `lib/file-storage.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.19 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.2</strong> - Limit access to transactions/functions</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/authz.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.2 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_2_limit_access_to_transactions_functions_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.20</strong> - Verify external systems</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `lib/sam/samClient.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.20 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_1_20_verify_external_systems_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.21</strong> - Limit portable storage</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+ `prisma/schema.prisma`
+
+
+
+ `app/api/admin/events/export/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.21 implemented as specified
+- ✅ Implementation verified: Policy, technical controls
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-118_Portable_Storage_Controls_Evidence`
+- `05-evidence/MAC-RPT-121_3_1_21_limit_portable_storage_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_21_limit_portable_storage_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.22</strong> - Control CUI on public systems</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/cui-blocker.ts`
+
+
+
+ `lib/file-storage.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.22 implemented as specified
+- ✅ Implementation verified: Approval workflow
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence`
+- `05-evidence/MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_22_control_cui_on_public_systems_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.3</strong> - Control flow of CUI</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/cui-blocker.ts`
+
+
+
+ `lib/file-storage.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_3_control_flow_of_cui_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.4</strong> - Separate duties</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/authz.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Role-based access enforced at middleware level
+- ✅ Non-admin users redirected from admin routes
+- ✅ Role changes logged in audit system
+- ✅ Separation of duties matrix documented
+- ✅ Administrative actions traceable via audit logs
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence`
+- `05-evidence/MAC-RPT-121_3_1_4_separate_duties_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_4_separate_duties_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.5</strong> - Least privilege</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/authz.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.5 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_5_least_privilege_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.6</strong> - Non-privileged accounts</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `prisma/schema.prisma`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.6 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_6_non_privileged_accounts_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.7</strong> - Prevent privileged function execution</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/authz.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.7 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_1_7_prevent_privileged_function_execution_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.8</strong> - Limit unsuccessful logon attempts</summary>
+
+#### Implementation Details
+
+**Code Files:**
+- `lib/auth.ts` - NextAuth credentials provider
+- `app/api/auth/custom-signin/route.ts` - Custom sign-in API route
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+- Maximum failed attempts: 5 consecutive failed login attempts
+- Lockout duration: 30 minutes
+- Lockout reset: Automatic on successful login
+
+
+- `lib/auth.ts` - NextAuth credentials provider
+- `app/api/auth/custom-signin/route.ts` - Custom...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-105`
+- `05-evidence/MAC-RPT-105_Account_Lockout_Implementation_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.1.9</strong> - Privacy/security notices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `app/auth/security-acknowledgment/page.tsx`
+
+
+
+ `prisma/schema.prisma`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.1.9 implemented as specified
+- ✅ Implementation verified: User acknowledgments
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_1_9_privacy_security_notices_Evidence`
+- `05-evidence/MAC-RPT-122_3_1_9_privacy_security_notices_Evidence`
+
+</details>
+
+### AT - 3 Controls
+
+<details>
+<summary><strong>3.2.1</strong> - Security awareness</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.2.1 implemented as specified
+- ✅ Implementation verified: Training program, tracking
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_2_1_security_awareness_Evidence`
+- `05-evidence/MAC-RPT-122_3_2_1_security_awareness_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.2.2</strong> - Security training</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.2.2 implemented as specified
+- ✅ Implementation verified: Training program, delivery
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_2_2_security_training_Evidence`
+- `05-evidence/MAC-RPT-122_3_2_2_security_training_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.2.3</strong> - Insider threat awareness</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.2.3 implemented as specified
+- ✅ Implementation verified: Insider threat training, delivery
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_2_3_insider_threat_awareness_Evidence`
+- `05-evidence/MAC-RPT-122_3_2_3_insider_threat_awareness_Evidence`
+
+</details>
+
+### AU - 9 Controls
+
+<details>
+<summary><strong>3.3.1</strong> - Create and retain audit logs</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+ `lib/auth.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Audit logs created for all authentication events
+- ✅ Audit logs created for all admin actions
+- ✅ Audit logs retained for minimum 90 days
+- ✅ CSV export functionality operational
+- ✅ Admin-only access enforced
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-107`
+- `05-evidence/MAC-RPT-107_Audit_Log_Retention_Evidence`
+- `05-evidence/MAC-RPT-121_3_3_1_create_and_retain_audit_logs_Evidence`
+- `05-evidence/MAC-RPT-122_3_3_1_create_and_retain_audit_logs_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.2</strong> - Unique user traceability</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+  
+User identification
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.2 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.3.3</strong> - Review and update logged events</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.3 implemented as specified
+- ✅ Implementation verified: Review process, review log
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_3_3_review_and_update_logged_events_Evidence`
+- `05-evidence/MAC-RPT-123_3_3_1_create_and_retain_audit_logs_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.4</strong> - Alert on audit logging failure</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.4 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_3_4_alert_on_audit_logging_failure_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.5</strong> - Correlate audit records</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.5 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_3_5_correlate_audit_records_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.6</strong> - Audit record reduction/reporting</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+ `app/api/admin/events/export/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.6 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_3_6_audit_record_reduction_reporting_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.7</strong> - System clock synchronization</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.3.8</strong> - Protect audit information</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+ `prisma/schema.prisma`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.8 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_3_8_protect_audit_information_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.3.9</strong> - Limit audit logging management</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `app/api/admin/events/export/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.3.9 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_3_9_limit_audit_logging_management_Evidence`
+
+</details>
+
+### CM - 9 Controls
+
+<details>
+<summary><strong>3.4.1</strong> - Baseline configurations</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+ `next.config.js`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.1 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-108_Configuration_Baseline_Evidence`
+- `05-evidence/MAC-RPT-121_3_4_1_baseline_configurations_Evidence`
+- `05-evidence/MAC-RPT-122_3_4_1_baseline_configurations_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.2</strong> - Security configuration settings</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `next.config.js`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.2 implemented as specified
+- ✅ Implementation verified: Baseline, config files
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-108_Configuration_Baseline_Evidence`
+- `05-evidence/MAC-RPT-121_3_4_2_security_configuration_settings_Evidence`
+- `05-evidence/MAC-RPT-122_3_4_2_security_configuration_settings_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.3</strong> - Change control</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.3 implemented as specified
+- ✅ Implementation verified: Version control, approval process
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-109_Change_Control_Evidence`
+- `05-evidence/MAC-RPT-121_3_4_3_change_control_Evidence`
+- `05-evidence/MAC-RPT-122_3_4_3_change_control_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.4</strong> - Security impact analysis</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.4 implemented as specified
+- ✅ Implementation verified: Analysis process, template
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_4_4_security_impact_analysis_Evidence`
+- `05-evidence/MAC-RPT-124_Security_Impact_Analysis_Operational_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.5</strong> - Change access restrictions</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.5 implemented as specified
+- ✅ Implementation verified: Access restrictions documented
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-109_Change_Control_Evidence`
+- `05-evidence/MAC-RPT-121_3_4_5_change_access_restrictions_Evidence`
+- `05-evidence/MAC-RPT-122_3_4_5_change_access_restrictions_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.6</strong> - Least functionality</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.6 implemented as specified
+- ✅ Implementation verified: Minimal features
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_4_6_least_functionality_Evidence`
+- `05-evidence/MAC-RPT-125_Least_Functionality_Operational_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.7</strong> - Restrict nonessential programs</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.4.8</strong> - Software restriction policy</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.4.8 implemented as specified
+- ✅ Implementation verified: Restriction policy, inventory
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_4_8_software_restriction_policy_Evidence`
+- `05-evidence/MAC-RPT-122_3_4_8_software_restriction_policy_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.4.9</strong> - Control user-installed software</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+The organization implements control of user-installed software through explicit policy prohibition on endpoints accessing CUI systems. While the cloud-hosted application infrastructure does not allow user software installation, endpoints u...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Policy prohibition documented
+- ✅ Endpoint compliance requirements established
+- ✅ Approved software list process implemented
+- ✅ Change control process for software installation established
+- ✅ Software inventory process documented
+- ✅ Exception handling process established
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+### IA - 11 Controls
+
+<details>
+<summary><strong>3.5.1</strong> - Identify users</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+ `prisma/schema.prisma`
+
+
+
+ `app/api/admin/create-user/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.1 implemented as specified
+- ✅ Implementation verified: User model
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_1_identify_users_Evidence`
+- `05-evidence/MAC-RPT-130_3_5_1_identify_users_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.10</strong> - Cryptographically-protected passwords</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/auth.ts`
+
+
+
+ `lib/password-policy.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.10 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.11</strong> - Obscure authentication feedback</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `lib/auth.ts`
+
+
+
+ `app/api/auth/custom-signin/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.11 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.2</strong> - Authenticate users</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/auth.ts`
+
+
+
+ `lib/password-policy.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.2 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_2_authenticate_users_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.3</strong> - MFA for privileged accounts</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+ NextAuth.js with TOTP (Time-based One-Time Password) Provider
+
+
+- NextAuth.js v5.0.0-beta.30
+- @otplib/preset-default v12.0.1
+- qrcode library for QR code generation
+- bcryptjs for backup code hashing
+
+ TOTP (RFC 6238)
+- Algorithm: SHA1
+- ...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.3 implemented as specified
+- ✅ Implementation verified: lib/mfa.ts, app/auth/mfa/
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-104_MFA_Implementation_Evidence`
+- `05-evidence/MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence`
+- `05-evidence/MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.4</strong> - Replay-resistant authentication</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/auth.ts`
+
+
+
+ `middleware.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.4 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.5</strong> - Prevent identifier reuse</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+ `prisma/schema.prisma`
+
+
+
+ `app/api/admin/create-user/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.5 implemented as specified
+- ✅ Implementation verified: Unique constraint, procedure
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-120_Identifier_Reuse_Prevention_Evidence`
+- `05-evidence/MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence`
+- `05-evidence/MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.6</strong> - Disable identifiers after inactivity</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ⚠️ Control requires implementation (see POA&M)
+
+**Last Verification Date:** 2026-01-24
+
+#### Assessment Notes
+
+**Open Items:**
+- POA&M item open - see POA&M document for details
+
+</details>
+
+<details>
+<summary><strong>3.5.7</strong> - Password complexity</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `lib/password-policy.ts`
+
+
+
+ `app/api/auth/change-password/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.7 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-122_3_5_7_password_complexity_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.8</strong> - Prohibit password reuse</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `prisma/schema.prisma`
+
+
+
+ `app/api/admin/create-user/route.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.5.8 implemented as specified
+- ✅ Implementation verified: Password history (5 generations)
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-120_Identifier_Reuse_Prevention_Evidence`
+- `05-evidence/MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence`
+- `05-evidence/MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.5.9</strong> - Temporary passwords</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+### IR - 3 Controls
+
+<details>
+<summary><strong>3.6.1</strong> - Operational incident-handling capability</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.6.1 implemented as specified
+- ✅ Implementation verified: IR capability, IRP
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence`
+- `05-evidence/MAC-RPT-122_3_6_1_operational_incident_handling_capability_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.6.2</strong> - Track, document, and report incidents</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.6.2 implemented as specified
+- ✅ Implementation verified: IR procedures
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence`
+- `05-evidence/MAC-RPT-122_3_6_2_track_document_and_report_incidents_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.6.3</strong> - Test incident response capability</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.6.3 implemented as specified
+- ✅ Implementation verified: IR testing, tabletop exercise
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_6_3_test_incident_response_capability_Evidence`
+
+</details>
+
+### MA - 6 Controls
+
+<details>
+<summary><strong>3.7.1</strong> - Perform maintenance</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.7.1 implemented as specified
+- ✅ Implementation verified: Platform/app maintenance
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_7_1_perform_maintenance_Evidence`
+- `05-evidence/MAC-RPT-122_3_7_1_perform_maintenance_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.7.2</strong> - Controls on maintenance tools</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ⚠️ Control requires implementation (see POA&M)
+
+**Last Verification Date:** 2026-01-24
+
+#### Assessment Notes
+
+**Open Items:**
+- POA&M item open - see POA&M document for details
+
+</details>
+
+<details>
+<summary><strong>3.7.3</strong> - Sanitize equipment for off-site maintenance</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.7.4</strong> - Check maintenance media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.7.5</strong> - MFA for nonlocal maintenance</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.7.5 implemented as specified
+- ✅ Implementation verified: Platform MFA
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-110_Maintenance_MFA_Evidence`
+- `05-evidence/MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence`
+- `05-evidence/MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.7.6</strong> - Supervise maintenance personnel</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+### MP - 9 Controls
+
+<details>
+<summary><strong>3.8.1</strong> - Protect system media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.8.1 implemented as specified
+- ✅ Implementation verified: Database encryption
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_8_1_protect_system_media_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.8.2</strong> - Limit access to CUI on media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.8.2 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.3</strong> - Sanitize/destroy media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.8.3 implemented as specified
+- ✅ Implementation verified: No removable media
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_8_3_sanitize_destroy_media_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.8.4</strong> - Mark media with CUI markings</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.5</strong> - Control access during transport</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.6</strong> - Cryptographic protection on digital media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.7</strong> - Control removable media</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+The organization implements control of removable media through explicit policy prohibition, technical controls, and user agreements. The Media Handling Policy (MAC-POL-213) prohibits the use of removable media for storing or processing FCI...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Policy prohibition documented in MAC-POL-213
+- ✅ User acknowledgment requirement implemented
+- ✅ Browser-based technical controls verified
+- ✅ Database storage architecture confirmed (no removable media)
+- ✅ Endpoint compliance requirements documented
+- ✅ Exception handling process established
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.8</strong> - Prohibit portable storage without owner</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+The organization prohibits the use of portable storage devices for CUI, and requires owner identification for any authorized portable storage. The Media Handling Policy (MAC-POL-213) explicitly prohibits portable storage devices for storin...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Policy prohibition documented in MAC-POL-213
+- ✅ User acknowledgment requirement implemented
+- ✅ Portable storage prohibition enforced
+- ✅ Owner identification requirements documented (for authorized exceptions)
+- ✅ Asset inventory process established
+- ✅ Exception handling process documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.8.9</strong> - Protect backup CUI</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+### PE - 6 Controls
+
+<details>
+<summary><strong>3.10.1</strong> - Limit physical access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.1 implemented as specified
+- ✅ Implementation verified: Platform/facility controls
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_10_1_limit_physical_access_Evidence`
+- `05-evidence/MAC-RPT-122_3_10_1_limit_physical_access_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.10.2</strong> - Protect and monitor facility</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.2 implemented as specified
+- ✅ Implementation verified: Facility protection
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence`
+- `05-evidence/MAC-RPT-122_3_10_2_protect_and_monitor_facility_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.10.3</strong> - Escort and monitor visitors</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.3 implemented as specified
+- ✅ Implementation verified: Visitor monitoring
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-111_Visitor_Controls_Evidence`
+- `05-evidence/MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence`
+- `05-evidence/MAC-RPT-122_3_10_3_escort_and_monitor_visitors_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.10.4</strong> - Physical access audit logs</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.4 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.10.5</strong> - Control physical access devices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.5 implemented as specified
+- ✅ Implementation verified: Access devices
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-112_Physical_Access_Device_Evidence`
+- `05-evidence/MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence`
+- `05-evidence/MAC-RPT-122_3_10_5_control_physical_access_devices_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.10.6</strong> - Safeguarding at alternate work sites</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.10.6 implemented as specified
+- ✅ Implementation verified: Alternate sites
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-113_Alternate_Work_Site_Safeguarding_Evidence`
+- `05-evidence/MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence`
+- `05-evidence/MAC-RPT-122_3_10_6_safeguarding_at_alternate_work_sites_Evidence`
+
+</details>
+
+### PS - 2 Controls
+
+<details>
+<summary><strong>3.9.1</strong> - Screen individuals prior to access</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.9.1 implemented as specified
+- ✅ Implementation verified: Screening process, records
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_9_1_screen_individuals_prior_to_access_Evidence`
+- `05-evidence/MAC-RPT-122_3_9_1_screen_individuals_prior_to_access_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.9.2</strong> - Protect systems during/after personnel actions</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.9.2 implemented as specified
+- ✅ Implementation verified: Termination procedures, access revocation
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_a_Evidence`
+- `05-evidence/MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence`
+
+</details>
+
+### RA - 3 Controls
+
+<details>
+<summary><strong>3.11.1</strong> - Periodically assess risk</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.11.1 implemented as specified
+- ✅ Implementation verified: Risk assessment
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence`
+- `05-evidence/MAC-RPT-122_3_11_1_periodically_assess_risk_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.11.2</strong> - Scan for vulnerabilities</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.11.2 implemented as specified
+- ✅ Implementation verified: Vulnerability scanning, schedule
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-103_Dependabot_Configuration_Evidence`
+- `05-evidence/MAC-RPT-114_Vulnerability_Scanning_Evidence`
+- `05-evidence/MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence`
+- `05-evidence/MAC-RPT-122_3_11_2_scan_for_vulnerabilities_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.11.3</strong> - Remediate vulnerabilities</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.11.3 implemented as specified
+- ✅ Implementation verified: Remediation process, timelines
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-115_Vulnerability_Remediation_Evidence`
+- `05-evidence/MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence`
+- `05-evidence/MAC-RPT-122_3_11_3_remediate_vulnerabilities_Evidence`
+
+</details>
+
+### SA - 4 Controls
+
+<details>
+<summary><strong>3.12.1</strong> - Periodically assess security controls</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.12.1 implemented as specified
+- ✅ Implementation verified: Control assessment, assessment report
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence`
+- `05-evidence/MAC-RPT-122_3_12_1_periodically_assess_security_controls_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.12.2</strong> - Develop and implement POA&M</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.12.2 implemented as specified
+- ✅ Implementation verified: POA&M process
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Assessment Notes
+
+**Open Items:**
+- POA&M item open - see POA&M document for details
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence`
+- `05-evidence/MAC-RPT-122_3_12_2_develop_and_implement_poa_m_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.12.3</strong> - Monitor security controls</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.12.3 implemented as specified
+- ✅ Implementation verified: Continuous monitoring log
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_12_3_monitor_security_controls_Evidence`
+- `05-evidence/MAC-RPT-122_3_12_3_monitor_security_controls_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.12.4</strong> - Develop/update SSP</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.12.4 implemented as specified
+- ✅ Implementation verified: System Security Plan
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_12_4_develop_update_ssp_Evidence`
+- `05-evidence/MAC-RPT-122_3_12_4_develop_update_ssp_Evidence`
+
+</details>
+
+### SC - 16 Controls
+
+<details>
+<summary><strong>3.13.1</strong> - Monitor/control/protect communications</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/auth.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.1 implemented as specified
+- ✅ Implementation verified: Network security
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence`
+- `05-evidence/MAC-RPT-126_Communications_Protection_Operational_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.10</strong> - Cryptographic key management</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.10 implemented as specified
+- ✅ Implementation verified: Key management, documentation
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-116_Cryptographic_Key_Management_Evidence`
+- `05-evidence/MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence`
+- `05-evidence/MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.11</strong> - FIPS-validated cryptography</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+ ⚠️ FIPS Validation Assessment In Progress
+
+
+- TLS/HTTPS encryption (CUI in transit) - Provided by Railway platform
+- Database encryption at rest (CUI at rest) - Provided by Railway PostgreSQL service
+- Password hashing (bcrypt) - Applicati...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ⚠️ Control requires implementation (see POA&M)
+
+**Last Verification Date:** 2026-01-24
+
+#### Assessment Notes
+
+**Open Items:**
+- POA&M item open - see POA&M document for details
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.12</strong> - Collaborative computing devices</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.13</strong> - Control mobile code</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+ `next.config.js`
+
+
+
+ `lib/security-headers.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.13 implemented as specified
+- ✅ Implementation verified: Mobile code policy, CSP
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-117_Mobile_Code_Control_Evidence`
+- `05-evidence/MAC-RPT-121_3_13_13_control_mobile_code_Evidence`
+- `05-evidence/MAC-RPT-122_3_13_13_control_mobile_code_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.14</strong> - Control VoIP</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.15</strong> - Protect authenticity of communications</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.16</strong> - Protect CUI at rest</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.2</strong> - Architectural designs</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `middleware.ts`
+
+
+
+ `lib/authz.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.2 implemented as specified
+- ✅ Implementation verified: System architecture
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_13_2_architectural_designs_Evidence`
+- `05-evidence/MAC-RPT-122_3_13_2_architectural_designs_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.3</strong> - Separate user/system management</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.3 implemented as specified
+- ✅ Implementation verified: Role separation
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_13_3_separate_user_system_management_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.13.4</strong> - Prevent unauthorized information transfer</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.13.4 implemented as specified
+- ✅ Implementation verified
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.5</strong> - Implement subnetworks</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.6</strong> - Deny-by-default network communications</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.7</strong> - Prevent remote device dual connections</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Not applicable justification documented
+- ✅ Architecture review confirms non-applicability
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.8</strong> - Cryptographic mechanisms for CUI in transit</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+<details>
+<summary><strong>3.13.9</strong> - Terminate network connections</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+
+### 4.4 Inherited Control Details
+
+ Railway Platform
+
+  
+This control is provided by the Railway Platform and relied upon operationally. The organization does not imple...
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Inherited control validated through provider assurance artifacts
+- ✅ Provider controls verified
+- ✅ Validation documented
+
+**Last Verification Date:** 2026-01-24
+
+</details>
+
+### SI - 7 Controls
+
+<details>
+<summary><strong>3.14.1</strong> - Identify/report/correct flaws</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.1 implemented as specified
+- ✅ Implementation verified: Flaw management
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-103_Dependabot_Configuration_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_1_identify_report_correct_flaws_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.2</strong> - Malicious code protection</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+ `lib/prisma.ts`
+
+
+
+ `prisma/schema.prisma`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.2 implemented as specified
+- ✅ Implementation verified: Malware protection
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-112_Physical_Access_Device_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_2_malicious_code_protection_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_2_malicious_code_protection_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.3</strong> - Monitor security alerts</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.3 implemented as specified
+- ✅ Implementation verified: Alert monitoring
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-103_Dependabot_Configuration_Evidence`
+- `05-evidence/MAC-RPT-114_Vulnerability_Scanning_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_3_monitor_security_alerts_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_3_monitor_security_alerts_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.4</strong> - Update malicious code protection</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.4 implemented as specified
+- ✅ Implementation verified: Protection updates
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_4_update_malicious_code_protection_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.5</strong> - Periodic/real-time scans</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.5 implemented as specified
+- ✅ Implementation verified: Vulnerability scanning
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-103_Dependabot_Configuration_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_5_periodic_real_time_scans_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_5_periodic_real_time_scans_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.6</strong> - Monitor systems and communications</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.6 implemented as specified
+- ✅ Implementation verified: System monitoring, procedures
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-118_System_Monitoring_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_6_monitor_systems_and_communications_Evidence`
+
+</details>
+
+<details>
+<summary><strong>3.14.7</strong> - Identify unauthorized use</summary>
+
+#### Implementation Details
+
+**Summary:** ## 4. Implementation Evidence
+
+### 4.1 Code Implementation
+
+
+
+
+
+
+
+ `lib/audit.ts`
+
+
+
+### 4.2 System/Configuration Evidence
+
+### 4.3 Operational Procedures
+
+#### Testing and Verification
+
+**Verification Methods:**
+- Code review: Verify implementation code exists
+- Operational testing: Verify control functions as specified
+- Configuration review: Verify settings are properly configured
+
+**Test Results:**
+- ✅ Control 3.14.7 implemented as specified
+- ✅ Implementation verified: Automated detection, alerts
+- ✅ Evidence documented
+
+**Last Verification Date:** 2026-01-24
+
+#### Evidence Files
+
+- `05-evidence/MAC-RPT-119_Unauthorized_Use_Detection_Evidence`
+- `05-evidence/MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence`
+- `05-evidence/MAC-RPT-122_3_14_7_identify_unauthorized_use_Evidence`
+
+</details>
+
+---
+
 
 ## 18. Related Documents
 
