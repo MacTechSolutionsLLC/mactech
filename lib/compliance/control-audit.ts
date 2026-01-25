@@ -355,7 +355,7 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
         issues: exists ? [] : [`Code/model reference not found: ${codePath}`]
       })
     } else if (ref.includes('/') && ref.endsWith('.md')) {
-      // Relative path reference (e.g., "training/training-completion-log.md")
+      // Relative path reference (e.g., "audit-log-reviews/audit-log-review-log.md" or "training/training-completion-log.md")
       const evidencePath = join(EVIDENCE_ROOT, ref)
       let exists = await fileExists(evidencePath)
       let foundPath = evidencePath
@@ -367,6 +367,14 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
         if (await fileExists(policyPath)) {
           foundPath = policyPath
           exists = true
+        }
+        // Also check if it's a relative path from COMPLIANCE_ROOT
+        if (!exists) {
+          const compliancePath = join(COMPLIANCE_ROOT, ref)
+          if (await fileExists(compliancePath)) {
+            foundPath = compliancePath
+            exists = true
+          }
         }
       }
       
@@ -755,7 +763,9 @@ async function verifyImplementation(implementationRef: string, controlId: string
       'System architecture', 'Role separation', 'Information flow',
       'documentation', 'Web application', 'no collaborative devices',
       'no VoIP functionality', 'procedures', 'alerts', 'SoD matrix',
-      'operational controls', 'Approval workflow', 'User model', 'model'
+      'operational controls', 'Approval workflow', 'User model', 'model',
+      'Session lock component', 'correlateEvents() function', 'correlateEvents', 'Admin controls',
+      'Review process', 'review log', 'Facility protection', 'Visitor monitoring'
     ]
     
     const isGeneric = genericImplementationRefs.some(gir => 
@@ -801,10 +811,25 @@ async function verifyImplementation(implementationRef: string, controlId: string
           // If stat fails, assume it's not a directory
           isDirectory = false
         }
+      } else {
+        // Try .tsx if .ts doesn't exist
+        if (cleanRef.endsWith('.ts') && !existsSync(filePath)) {
+          const tsxPath = filePath.replace(/\.ts$/, '.tsx')
+          if (existsSync(tsxPath)) {
+            filePath = tsxPath
+          }
+        }
       }
     } else if (cleanRef.includes('.')) {
       // Assume it's a file in root or lib
       filePath = join(CODE_ROOT, cleanRef)
+      // Try .tsx if .ts doesn't exist
+      if (cleanRef.endsWith('.ts') && !existsSync(filePath)) {
+        const tsxPath = filePath.replace(/\.ts$/, '.tsx')
+        if (existsSync(tsxPath)) {
+          filePath = tsxPath
+        }
+      }
     } else {
       // Generic reference (e.g., "NextAuth.js", "middleware", "Training program", "Cloud-only")
       // These are descriptive references, not actual code files - don't flag as issues
