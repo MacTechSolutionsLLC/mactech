@@ -6,24 +6,68 @@ import { join, normalize, resolve, relative } from "path"
 export const dynamic = 'force-dynamic'
 
 /**
+ * Framework path mapping configuration
+ */
+interface FrameworkPathMapping {
+  virtualPath: string // Virtual path prefix from API
+  baseDir: string // Actual file system base directory
+}
+
+const FRAMEWORK_MAPPINGS: FrameworkPathMapping[] = [
+  {
+    virtualPath: 'cmmc-level2',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+  },
+  {
+    virtualPath: 'nist-800-171',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+  },
+  {
+    virtualPath: 'nist-csf-2.0',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-csf-2.0')
+  },
+  {
+    virtualPath: 'fedramp-moderate-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  }
+]
+
+/**
  * Validates that the requested path is within the allowed directory
+ * Maps virtual framework paths to actual file system paths
  * Prevents directory traversal attacks
  */
 function validatePath(requestedPath: string): { valid: boolean; fullPath: string | null; error?: string } {
-  // Base directory for compliance files
-  const baseDir = resolve(process.cwd(), "compliance", "cmmc", "level2")
-  
   // Normalize the requested path (remove .., ., etc.)
   const normalizedRequested = normalize(requestedPath)
   
+  // Find matching framework mapping
+  let baseDir: string | null = null
+  let relativePath: string = normalizedRequested
+  
+  for (const mapping of FRAMEWORK_MAPPINGS) {
+    if (normalizedRequested.startsWith(mapping.virtualPath + '/') || normalizedRequested === mapping.virtualPath) {
+      baseDir = mapping.baseDir
+      // Remove framework prefix to get relative path within framework directory
+      relativePath = normalizedRequested.substring(mapping.virtualPath.length + 1) || ''
+      break
+    }
+  }
+  
+  // If no framework mapping found, try legacy CMMC path
+  if (!baseDir) {
+    baseDir = resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+    relativePath = normalizedRequested
+  }
+  
   // Resolve the full path
-  const fullPath = resolve(baseDir, normalizedRequested)
+  const fullPath = relativePath ? resolve(baseDir, relativePath) : baseDir
   
   // Ensure the resolved path is within the base directory
-  const relativePath = relative(baseDir, fullPath)
+  const pathRelative = relative(baseDir, fullPath)
   
   // Check for directory traversal attempts
-  if (relativePath.startsWith('..') || relativePath.includes('..')) {
+  if (pathRelative.startsWith('..') || pathRelative.includes('..')) {
     return {
       valid: false,
       fullPath: null,

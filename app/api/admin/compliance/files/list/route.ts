@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/authz"
 import { readdir } from "fs/promises"
-import { join } from "path"
+import { join, resolve } from "path"
 import { stat } from "fs/promises"
 
 export const dynamic = 'force-dynamic'
@@ -14,9 +14,41 @@ interface FileTreeItem {
 }
 
 /**
+ * Framework directory configuration
+ */
+interface FrameworkConfig {
+  name: string
+  path: string // Virtual path for the framework folder
+  baseDir: string // Actual file system path
+}
+
+const FRAMEWORKS: FrameworkConfig[] = [
+  {
+    name: 'CMMC 2.0 Level 2 compliance',
+    path: 'cmmc-level2',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+  },
+  {
+    name: 'NIST SP 800-171 Rev. 2 alignment',
+    path: 'nist-800-171',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2') // Same as CMMC
+  },
+  {
+    name: 'NIST Cybersecurity Framework (CSF) 2.0 Profile',
+    path: 'nist-csf-2.0',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-csf-2.0')
+  },
+  {
+    name: 'FedRAMP Moderate Design Alignment',
+    path: 'fedramp-moderate-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  }
+]
+
+/**
  * Recursively build file tree structure
  */
-async function buildFileTree(dirPath: string, relativePath: string = ''): Promise<FileTreeItem[]> {
+async function buildFileTree(dirPath: string, relativePath: string = '', frameworkPath: string = ''): Promise<FileTreeItem[]> {
   const items: FileTreeItem[] = []
   
   try {
@@ -32,13 +64,15 @@ async function buildFileTree(dirPath: string, relativePath: string = ''): Promis
     for (const entry of sortedEntries) {
       const fullPath = join(dirPath, entry.name)
       const itemPath = relativePath ? `${relativePath}/${entry.name}` : entry.name
+      // Prepend framework path for virtual path
+      const virtualPath = frameworkPath ? `${frameworkPath}/${itemPath}` : itemPath
       
       if (entry.isDirectory()) {
         // Recursively get children
-        const children = await buildFileTree(fullPath, itemPath)
+        const children = await buildFileTree(fullPath, itemPath, frameworkPath)
         items.push({
           name: entry.name,
-          path: itemPath,
+          path: virtualPath,
           type: 'folder',
           children
         })
@@ -46,7 +80,7 @@ async function buildFileTree(dirPath: string, relativePath: string = ''): Promis
         // Only include markdown files
         items.push({
           name: entry.name,
-          path: itemPath,
+          path: virtualPath,
           type: 'file'
         })
       }
@@ -58,41 +92,53 @@ async function buildFileTree(dirPath: string, relativePath: string = ''): Promis
   return items
 }
 
+/**
+ * Build framework folder tree
+ */
+async function buildFrameworkTree(): Promise<FileTreeItem[]> {
+  const frameworkFolders: FileTreeItem[] = []
+  
+  for (const framework of FRAMEWORKS) {
+    try {
+      // Check if directory exists
+      const stats = await stat(framework.baseDir)
+      if (!stats.isDirectory()) {
+        continue
+      }
+      
+      // Build file tree for this framework
+      const children = await buildFileTree(framework.baseDir, '', framework.path)
+      
+      frameworkFolders.push({
+        name: framework.name,
+        path: framework.path,
+        type: 'folder',
+        children
+      })
+    } catch (error: any) {
+      // Skip frameworks whose directories don't exist
+      if (error.code !== 'ENOENT') {
+        console.error(`Error reading framework directory ${framework.baseDir}:`, error)
+      }
+    }
+  }
+  
+  return frameworkFolders
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Require admin authentication
     await requireAdmin()
     
-    // Base directory for compliance files
-    const baseDir = join(process.cwd(), "compliance", "cmmc", "level2")
-    
-    // Verify the directory exists
-    try {
-      const stats = await stat(baseDir)
-      if (!stats.isDirectory()) {
-        return NextResponse.json(
-          { error: 'Compliance directory not found' },
-          { status: 404 }
-        )
-      }
-    } catch (error: any) {
-      if (error.code === 'ENOENT') {
-        return NextResponse.json(
-          { error: 'Compliance directory not found' },
-          { status: 404 }
-        )
-      }
-      throw error
-    }
-    
-    // Build the file tree
-    const tree = await buildFileTree(baseDir, '')
+    // Build framework-organized tree structure
+    const frameworkFolders = await buildFrameworkTree()
     
     return NextResponse.json({
-      name: 'level2',
+      name: 'Compliance Documents',
       path: '',
       type: 'folder' as const,
-      children: tree
+      children: frameworkFolders
     })
   } catch (error: any) {
     console.error('File list error:', error)

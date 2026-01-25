@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import ComplianceFileTree from './ComplianceFileTree'
 import ComplianceDocumentViewer from './ComplianceDocumentViewer'
 
@@ -11,7 +12,39 @@ interface FileTreeItem {
   children?: FileTreeItem[]
 }
 
+/**
+ * Recursively find a path in the tree and collect all parent paths
+ */
+function findPathInTree(tree: FileTreeItem, targetPath: string): string[] {
+  const paths: string[] = []
+  
+  function search(node: FileTreeItem, currentPath: string[]): boolean {
+    // Add current node to path if it's not the root
+    const newPath = node.path ? [...currentPath, node.path] : currentPath
+    
+    if (node.path === targetPath) {
+      // Found the target - return all parent paths (excluding the target itself for expansion)
+      paths.push(...currentPath)
+      return true
+    }
+    
+    if (node.children) {
+      for (const child of node.children) {
+        if (search(child, newPath)) {
+          return true
+        }
+      }
+    }
+    
+    return false
+  }
+  
+  search(tree, [])
+  return paths
+}
+
 export default function ComplianceFileBrowser() {
+  const searchParams = useSearchParams()
   const [tree, setTree] = useState<FileTreeItem | null>(null)
   const [selectedPath, setSelectedPath] = useState<string | null>(null)
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
@@ -33,8 +66,26 @@ export default function ComplianceFileBrowser() {
       })
       .then((data) => {
         setTree(data)
-        // Expand root by default
-        setExpandedPaths(new Set(['']))
+        
+        // Check for folder query parameter
+        const folderParam = searchParams?.get('folder')
+        if (folderParam && data) {
+          // Find the folder path in the tree and expand all parents
+          const pathsToExpand = findPathInTree(data, folderParam)
+          if (pathsToExpand.length > 0) {
+            // Expand all parent paths
+            setExpandedPaths(new Set(pathsToExpand))
+            // Select the target folder
+            setSelectedPath(folderParam)
+          } else {
+            // If folder not found, just expand root
+            setExpandedPaths(new Set(['']))
+          }
+        } else {
+          // Expand root by default
+          setExpandedPaths(new Set(['']))
+        }
+        
         setLoading(false)
       })
       .catch((err) => {
@@ -42,7 +93,7 @@ export default function ComplianceFileBrowser() {
         setError(err.message || 'Failed to load file tree')
         setLoading(false)
       })
-  }, [])
+  }, [searchParams])
 
   const handleFileSelect = (path: string) => {
     setSelectedPath(path)

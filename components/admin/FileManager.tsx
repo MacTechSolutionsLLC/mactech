@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import CUIWarningBanner from '@/components/CUIWarningBanner'
 import ComplianceFileBrowser from './ComplianceFileBrowser'
 import CUIPasswordPrompt from '@/components/CUIPasswordPrompt'
@@ -54,6 +54,7 @@ interface FileManagerProps {
 
 export default function FileManager({ files }: FileManagerProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'database' | 'fci' | 'compliance' | 'cui'>('database')
   const [loading, setLoading] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -67,6 +68,14 @@ export default function FileManager({ files }: FileManagerProps) {
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
   const systemFiles = files
+
+  // Handle tab query parameter on mount
+  useEffect(() => {
+    const tabParam = searchParams?.get('tab')
+    if (tabParam && ['database', 'fci', 'compliance', 'cui'].includes(tabParam)) {
+      setActiveTab(tabParam as 'database' | 'fci' | 'compliance' | 'cui')
+    }
+  }, [searchParams])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -615,7 +624,16 @@ export default function FileManager({ files }: FileManagerProps) {
 
       {/* Compliance Documents Tab */}
       {activeTab === 'compliance' && (
-        <ComplianceFileBrowser />
+        <Suspense fallback={
+          <div className="h-[600px] flex items-center justify-center bg-neutral-50 rounded-lg border border-neutral-200">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <p className="text-sm text-neutral-600">Loading compliance documents...</p>
+            </div>
+          </div>
+        }>
+          <ComplianceFileBrowser />
+        </Suspense>
       )}
 
       {/* CUI Password Prompt Modal */}

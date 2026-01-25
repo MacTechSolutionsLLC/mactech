@@ -9,22 +9,76 @@ import MarkdownRenderer from "@/components/compliance/MarkdownRenderer"
 export const dynamic = 'force-dynamic'
 
 /**
+ * Framework path mapping configuration
+ */
+interface FrameworkPathMapping {
+  virtualPath: string // Virtual path prefix from API
+  baseDir: string // Actual file system base directory
+}
+
+const FRAMEWORK_MAPPINGS: FrameworkPathMapping[] = [
+  {
+    virtualPath: 'cmmc-level2',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+  },
+  {
+    virtualPath: 'nist-800-171',
+    baseDir: resolve(process.cwd(), 'compliance', 'cmmc', 'level2')
+  },
+  {
+    virtualPath: 'nist-csf-2.0',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-csf-2.0')
+  },
+  {
+    virtualPath: 'fedramp-moderate-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  }
+]
+
+/**
  * Validates that the requested path is within the allowed directory
+ * Maps virtual framework paths to actual file system paths
  * Prevents directory traversal attacks
  */
 function validatePath(requestedPath: string): { valid: boolean; fullPath: string | null; error?: string } {
-  // Base directories for compliance files (support both level1 and level2)
+  // Base directories for compliance files (support both level1 and level2, and other CMMC subdirectories)
   const baseDirs = [
     resolve(process.cwd(), "compliance", "cmmc", "level1"),
     resolve(process.cwd(), "compliance", "cmmc", "level2"),
     resolve(process.cwd(), "compliance", "cmmc", "system"),
     resolve(process.cwd(), "compliance", "cmmc", "fci"),
+    resolve(process.cwd(), "compliance", "nist-csf-2.0"),
+    resolve(process.cwd(), "compliance", "fedramp-moderate-alignment"),
   ]
   
   // Normalize the requested path (remove .., ., etc.)
   const normalizedRequested = normalize(requestedPath)
   
-  // Try each base directory
+  // First, try framework path mappings (virtual paths from API)
+  for (const mapping of FRAMEWORK_MAPPINGS) {
+    if (normalizedRequested.startsWith(mapping.virtualPath + '/') || normalizedRequested === mapping.virtualPath) {
+      const relativePath = normalizedRequested.substring(mapping.virtualPath.length + 1) || ''
+      const fullPath = relativePath ? resolve(mapping.baseDir, relativePath) : mapping.baseDir
+      const pathRelative = relative(mapping.baseDir, fullPath)
+      
+      // Check for directory traversal attempts
+      if (pathRelative.startsWith('..') || pathRelative.includes('..')) {
+        continue
+      }
+      
+      // Ensure it's a markdown file
+      if (!fullPath.endsWith('.md')) {
+        continue
+      }
+      
+      return {
+        valid: true,
+        fullPath
+      }
+    }
+  }
+  
+  // Try each base directory (legacy support)
   for (const baseDir of baseDirs) {
     // Resolve the full path
     const fullPath = resolve(baseDir, normalizedRequested)
@@ -49,10 +103,10 @@ function validatePath(requestedPath: string): { valid: boolean; fullPath: string
     }
   }
   
-  // If path starts with compliance/cmmc, try resolving from project root
-  if (normalizedRequested.startsWith('compliance/cmmc/')) {
+  // If path starts with compliance/, try resolving from project root
+  if (normalizedRequested.startsWith('compliance/')) {
     const fullPath = resolve(process.cwd(), normalizedRequested)
-    const relativePath = relative(resolve(process.cwd(), 'compliance', 'cmmc'), fullPath)
+    const relativePath = relative(resolve(process.cwd(), 'compliance'), fullPath)
     
     if (!relativePath.startsWith('..') && !relativePath.includes('..') && fullPath.endsWith('.md')) {
       return {
@@ -65,7 +119,7 @@ function validatePath(requestedPath: string): { valid: boolean; fullPath: string
   return {
     valid: false,
     fullPath: null,
-    error: 'Invalid path: file must be within compliance/cmmc directory structure'
+    error: 'Invalid path: file must be within compliance directory structure'
   }
 }
 

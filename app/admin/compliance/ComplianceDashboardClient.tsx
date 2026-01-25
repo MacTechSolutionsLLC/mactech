@@ -145,6 +145,12 @@ export default function ComplianceDashboardClient() {
           <p className="text-sm text-neutral-500 mb-4">
             CSF 2.0 Profile available in compliance documentation: <code className="text-xs">compliance/nist-csf-2.0/</code>
           </p>
+          <Link
+            href="/admin/files?tab=compliance&folder=nist-csf-2.0"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View CSF 2.0 Profile →
+          </Link>
         </div>
       </div>
 
