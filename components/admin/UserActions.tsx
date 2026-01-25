@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import UserDetailsModal from './UserDetailsModal'
@@ -34,6 +34,25 @@ export default function UserActions({ user }: UserActionsProps) {
     action: () => Promise<void>
   } | null>(null)
   const [showUserDetails, setShowUserDetails] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isDropdownOpen])
 
   // Clear success message after 3 seconds
   const showSuccessMessage = (message: string) => {
@@ -194,83 +213,126 @@ export default function UserActions({ user }: UserActionsProps) {
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
+      <div className="relative" ref={dropdownRef}>
         {/* Success Message */}
         {success && (
-          <div className="text-xs text-green-600 bg-green-50 border border-green-200 rounded px-2 py-1">
+          <div className="mb-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded px-2 py-1">
             {success}
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
+          <div className="mb-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
             {error}
           </div>
         )}
 
-        {/* Account Actions */}
-        <div className="flex flex-col gap-2">
-          <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Account Actions</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={handleDisable}
-              disabled={loading}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
-                user.disabled
-                  ? "bg-green-100 text-green-800 hover:bg-green-200"
-                  : "bg-red-100 text-red-800 hover:bg-red-200"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {loading ? '...' : user.disabled ? "Enable" : "Disable"}
-            </button>
-            {user.role === "USER" && (
-              <button
-                onClick={() => handleRoleChange("ADMIN")}
-                disabled={loading}
-                className="px-3 py-1.5 text-xs font-medium rounded bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? '...' : 'Make Admin'}
-              </button>
-            )}
-            {user.role === "ADMIN" && (
-              <button
-                onClick={() => handleRoleChange("USER")}
-                disabled={loading}
-                className="px-3 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? '...' : 'Make User'}
-              </button>
-            )}
-          </div>
-        </div>
+        {/* Dropdown Button */}
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          disabled={loading}
+          className="px-3 py-1.5 text-xs font-medium rounded bg-neutral-100 text-neutral-700 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+          aria-label="User actions menu"
+        >
+          <span>Actions</span>
+          <svg
+            className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-        {/* Security Actions */}
-        <div className="flex flex-col gap-2">
-          <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Security Actions</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setShowPasswordReset(!showPasswordReset)}
-              disabled={loading}
-              className="px-3 py-1.5 text-xs font-medium rounded bg-orange-100 text-orange-800 hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Reset Password
-            </button>
-            <button
-              onClick={() => setShowUserDetails(true)}
-              disabled={loading}
-              className="px-3 py-1.5 text-xs font-medium rounded bg-neutral-100 text-neutral-700 hover:bg-neutral-200 disabled:opacity-50 transition-colors"
-            >
-              View Details
-            </button>
-            <Link
-              href={`/admin/events?actorUserId=${user.id}`}
-              className="px-3 py-1.5 text-xs font-medium rounded bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
-            >
-              View Activity
-            </Link>
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 z-50 py-1">
+            {/* Account Actions Section */}
+            <div className="px-3 py-2 border-b border-neutral-200">
+              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">
+                Account Actions
+              </div>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false)
+                    handleDisable()
+                  }}
+                  disabled={loading}
+                  className={`w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                    user.disabled
+                      ? "text-green-700 hover:bg-green-50"
+                      : "text-red-700 hover:bg-red-50"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {loading ? '...' : user.disabled ? "Enable User" : "Disable User"}
+                </button>
+                {user.role === "USER" && (
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false)
+                      handleRoleChange("ADMIN")
+                    }}
+                    disabled={loading}
+                    className="w-full text-left px-3 py-2 text-sm text-purple-700 rounded hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loading ? '...' : 'Make Admin'}
+                  </button>
+                )}
+                {user.role === "ADMIN" && (
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false)
+                      handleRoleChange("USER")
+                    }}
+                    disabled={loading}
+                    className="w-full text-left px-3 py-2 text-sm text-blue-700 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loading ? '...' : 'Make User'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Security Actions Section */}
+            <div className="px-3 py-2">
+              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">
+                Security Actions
+              </div>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false)
+                    setShowPasswordReset(!showPasswordReset)
+                  }}
+                  disabled={loading}
+                  className="w-full text-left px-3 py-2 text-sm text-orange-700 rounded hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Reset Password
+                </button>
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false)
+                    setShowUserDetails(true)
+                  }}
+                  disabled={loading}
+                  className="w-full text-left px-3 py-2 text-sm text-neutral-700 rounded hover:bg-neutral-50 disabled:opacity-50 transition-colors"
+                >
+                  View Details
+                </button>
+                <Link
+                  href={`/admin/events?actorUserId=${user.id}`}
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="block w-full text-left px-3 py-2 text-sm text-neutral-700 rounded hover:bg-neutral-50 transition-colors"
+                >
+                  View Activity
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Password Reset Form */}
         {showPasswordReset && (
