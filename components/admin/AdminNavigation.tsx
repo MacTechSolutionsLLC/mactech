@@ -127,16 +127,6 @@ export default function AdminNavigation() {
                 </Link>
               )
             })}
-            {isAdmin && (
-              <Link
-                href="/user"
-                className="px-3 py-1.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-700/50 rounded-md transition-all duration-200 flex items-center gap-1.5 ml-2"
-                title="Switch to User Panel"
-              >
-                <span className="text-sm">👤</span>
-                <span>User Panel</span>
-              </Link>
-            )}
           </div>
 
           {/* User Info and Logout */}
@@ -186,15 +176,6 @@ export default function AdminNavigation() {
                 </option>
               ))}
             </select>
-            {isAdmin && (
-              <Link
-                href="/user"
-                className="px-2 py-1.5 text-xs text-accent-400 hover:text-accent-300 underline"
-                title="Switch to User Panel"
-              >
-                User Panel →
-              </Link>
-            )}
           </div>
         </div>
       </div>
