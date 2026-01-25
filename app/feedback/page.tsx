@@ -230,10 +230,14 @@ export default function FeedbackForumPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div>
-                            <p className="font-medium text-neutral-900">
-                              {item.user.name || item.user.email}
-                            </p>
-                            <p className="text-sm text-neutral-500">{item.user.email}</p>
+                            {item.user.name ? (
+                              <>
+                                <p className="font-medium text-neutral-900">{item.user.name}</p>
+                                <p className="text-sm text-neutral-500">{item.user.email}</p>
+                              </>
+                            ) : (
+                              <p className="font-medium text-neutral-900">{item.user.email}</p>
+                            )}
                           </div>
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(
