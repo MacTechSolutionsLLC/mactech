@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 import SecurityTrainingModal from '@/components/security-obligations/SecurityTrainingModal'
 import TrainingEnforcementBanner from '@/components/security-obligations/TrainingEnforcementBanner'
+import PolicyViewerModal from '@/components/security-obligations/PolicyViewerModal'
 import { REQUIRED_ATTESTATIONS, type AttestationType } from '@/lib/utils/attestation-status'
 
 interface AttestationData {
@@ -62,9 +63,9 @@ const ATTESTATION_LABELS: Record<AttestationType, { title: string; description: 
 }
 
 const POLICY_LIST = [
-  'Acceptable Use Policy',
-  'CUI Handling Policy',
-  'Incident Reporting Policy',
+  { name: 'Acceptable Use Policy', path: 'acceptable-use-policy' },
+  { name: 'CUI Handling Policy', path: 'cui-handling-policy' },
+  { name: 'Incident Reporting Policy', path: 'incident-reporting-policy' },
 ]
 
 export default function SecurityObligationsPage() {
@@ -86,6 +87,7 @@ export default function SecurityObligationsPage() {
     acceptable_use: false,
   })
   const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false)
+  const [policyModal, setPolicyModal] = useState<{ name: string; path: string } | null>(null)
 
   const fetchData = async () => {
     try {
@@ -350,11 +352,21 @@ export default function SecurityObligationsPage() {
                     {type === 'policy_acknowledgement' && (
                       <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-sm">
                         <p className="text-body-sm font-semibold text-neutral-900 mb-2">Policies to review:</p>
-                        <ul className="list-disc list-inside space-y-1 text-body-sm text-neutral-700">
+                        <ul className="list-disc list-inside space-y-2 text-body-sm text-neutral-700">
                           {POLICY_LIST.map((policy) => (
-                            <li key={policy}>{policy}</li>
+                            <li key={policy.path}>
+                              <button
+                                onClick={() => setPolicyModal({ name: policy.name, path: policy.path })}
+                                className="text-accent-700 hover:text-accent-800 hover:underline text-left"
+                              >
+                                {policy.name}
+                              </button>
+                            </li>
                           ))}
                         </ul>
+                        <p className="text-body-xs text-neutral-600 mt-3">
+                          Click on a policy name to view the full policy document.
+                        </p>
                       </div>
                     )}
 
@@ -471,6 +483,16 @@ export default function SecurityObligationsPage() {
           await fetchData()
         }}
       />
+
+      {/* Policy Viewer Modal */}
+      {policyModal && (
+        <PolicyViewerModal
+          isOpen={!!policyModal}
+          onClose={() => setPolicyModal(null)}
+          policyName={policyModal.name}
+          policyPath={policyModal.path}
+        />
+      )}
     </div>
   )
 }
