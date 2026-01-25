@@ -173,7 +173,11 @@ export default function AuditSummary() {
           {Object.entries(summary.byFamily)
             .sort((a, b) => b[1].averageScore - a[1].averageScore)
             .map(([family, data]) => (
-              <div key={family} className="flex items-center justify-between">
+              <Link
+                key={family}
+                href={`/admin/compliance/sctm?family=${family}`}
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
+              >
                 <div className="flex items-center gap-3">
                   <span className="font-medium text-neutral-700">
                     {family} - {FAMILY_NAMES[family] || family}
@@ -198,8 +202,9 @@ export default function AuditSummary() {
                   <span className="text-sm font-medium text-neutral-700 w-12 text-right">
                     {data.averageScore}%
                   </span>
+                  <span className="text-xs text-primary-600 ml-2">View →</span>
                 </div>
-              </div>
+              </Link>
             ))}
         </div>
       </div>

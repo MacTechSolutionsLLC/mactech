@@ -17,6 +17,17 @@ export default function SCTMPage() {
   const [loading, setLoading] = useState(true)
   const [familyFilter, setFamilyFilter] = useState<string>('all')
 
+  // Read family filter from URL query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const familyParam = params.get('family')
+      if (familyParam) {
+        setFamilyFilter(familyParam)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/')

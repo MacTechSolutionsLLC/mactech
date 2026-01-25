@@ -99,7 +99,7 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                             if (event.actionType === "logout") {
                               return (
                                 <div className="space-y-1 bg-blue-50 p-2 rounded border border-blue-200">
-                                  <div><strong>Who:</strong> {details.userName || details.userEmail || "Unknown"} ({details.userRole})</div>
+                                  <div><strong>Who:</strong> {event.actor?.name || details.userName || event.actor?.email || details.userEmail || "Unknown"} ({event.actor?.role || details.userRole})</div>
                                   <div><strong>What:</strong> User logout - Session terminated</div>
                                   <div><strong>Impact:</strong> {details.impact?.type || "session_termination"} - User {details.impact?.affectedUserEmail || details.userEmail} logged out</div>
                                   <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
@@ -112,7 +112,7 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                             if (event.actionType === "role_change") {
                               return (
                                 <div className="space-y-1 bg-purple-50 p-2 rounded border border-purple-200">
-                                  <div><strong>Who:</strong> {details.who?.adminName || details.who?.adminEmail || "Unknown"} ({details.who?.adminRole || "ADMIN"})</div>
+                                  <div><strong>Who:</strong> {event.actor?.name || details.who?.adminName || event.actor?.email || details.who?.adminEmail || "Unknown"} ({event.actor?.role || details.who?.adminRole || "ADMIN"})</div>
                                   <div><strong>What:</strong> Role change</div>
                                   <div><strong>Target User:</strong> {details.targetUser?.userName || details.targetUser?.userEmail || "Unknown"} ({details.targetUser?.userEmail})</div>
                                   <div><strong>Change:</strong> {details.change?.from || details.previousRole} → {details.change?.to || details.newRole}</div>
@@ -127,7 +127,7 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                             if (event.actionType === "admin_action" && details.action) {
                               return (
                                 <div className="space-y-1 bg-indigo-50 p-2 rounded border border-indigo-200">
-                                  <div><strong>Who:</strong> {details.who?.adminName || details.who?.adminEmail || "Unknown"} ({details.who?.adminRole || "ADMIN"})</div>
+                                  <div><strong>Who:</strong> {event.actor?.name || details.who?.adminName || event.actor?.email || details.who?.adminEmail || "Unknown"} ({event.actor?.role || details.who?.adminRole || "ADMIN"})</div>
                                   <div><strong>What:</strong> {details.what || details.action.replace('_', ' ')}</div>
                                   {details.targetUser && (
                                     <div><strong>Target User:</strong> {details.targetUser.userName || details.targetUser.userEmail || "Unknown"} ({details.targetUser.userEmail})</div>
