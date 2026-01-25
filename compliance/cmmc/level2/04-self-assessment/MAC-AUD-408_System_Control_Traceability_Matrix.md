@@ -2681,20 +2681,82 @@ The organization implements control of user-installed software through explicit 
 
 **Summary:** Temporary password functionality implemented. System generates cryptographically secure temporary passwords for new user accounts and password resets. Users must change temporary passwords to permanent passwords immediately upon first login. Temporary passwords expire after 72 hours.
 
-**Implementation:**
-- Temporary password generation: `lib/temporary-password.ts`
-- User creation: `app/api/admin/create-user/route.ts` - Generates temporary password automatically
-- Password reset: `app/api/admin/reset-user-password/route.ts` - Generates temporary password automatically
-- Authentication: `lib/auth.ts` - Validates temporary password expiration
-- Password change: `app/api/auth/change-password/route.ts` - Handles temporary to permanent transition
-- Database: `prisma/schema.prisma` - `isTemporaryPassword` and `temporaryPasswordExpiresAt` fields
+### 4.1 Code Implementation
+
+#### Temporary Password Generation
+
+**Implementation Files:**
+- `lib/temporary-password.ts` - Core temporary password generation library
+  - `generateTemporaryPassword()` (lines 30-60) - Generates 20-character cryptographically secure random password using `crypto.randomBytes()`
+  - `getTemporaryPasswordExpiration()` (lines 95-100) - Returns expiration timestamp (72 hours from now)
+  - `TEMPORARY_PASSWORD_CONFIG` (lines 10-18) - Configuration constants (minLength: 16, defaultLength: 20, expirationHours: 72)
+
+**User Creation:**
+- `app/api/admin/create-user/route.ts` (lines 41-43, 49-56, 114-120)
+  - Line 42: `generateTemporaryPassword()` - Generates temporary password
+  - Line 43: `getTemporaryPasswordExpiration()` - Sets 72-hour expiration
+  - Lines 49-56: Creates user with `isTemporaryPassword: true`, `temporaryPasswordExpiresAt`, `mustChangePassword: true`
+  - Lines 114-120: Returns temporary password in API response
+
+**Password Reset:**
+- `app/api/admin/reset-user-password/route.ts` (lines 48-50, 65-74, 104-111)
+  - Line 49: `generateTemporaryPassword()` - Generates temporary password
+  - Line 50: `getTemporaryPasswordExpiration()` - Sets 72-hour expiration
+  - Lines 65-74: Updates user with `isTemporaryPassword: true`, `temporaryPasswordExpiresAt`, `mustChangePassword: true`
+  - Lines 104-111: Returns temporary password in API response
+
+#### Expiration Checking
+
+**Implementation Files:**
+- `lib/temporary-password.ts`
+  - `isTemporaryPasswordExpired()` (lines 82-89) - Validates if temporary password has expired
+  - `validateTemporaryPasswordExpiration()` (lines 131-137 in `lib/password-policy.ts`) - Additional validation function
+
+**Authentication:**
+- `lib/auth.ts` (lines 83-93)
+  - Lines 86-93: Checks `user.isTemporaryPassword` and `user.temporaryPasswordExpiresAt`
+  - Line 88: Calls `isTemporaryPasswordExpired()` to validate expiration
+  - Line 92: Rejects login if temporary password expired
+
+**Database Schema:**
+- `prisma/schema.prisma` (lines 22-23)
+  - `isTemporaryPassword: Boolean @default(false)` - Flag indicating temporary password
+  - `temporaryPasswordExpiresAt: DateTime?` - Expiration timestamp
+
+#### Forced Password Change
+
+**Implementation Files:**
+- `middleware.ts` (lines 38-43, 61-66)
+  - Lines 39-42: Checks `session.user?.mustChangePassword` for `/user` routes, redirects to `/auth/change-password`
+  - Lines 62-65: Checks `session.user?.mustChangePassword` for `/admin` routes, redirects to `/auth/change-password`
+  - Lines 20-22: Allows `/auth/change-password` route without restriction
+
+**Password Change:**
+- `app/api/auth/change-password/route.ts` (lines 95-105, 131-147)
+  - Lines 97-98: Detects if changing from temporary password (`wasTemporaryPassword`)
+  - Lines 99-105: Updates user with `isTemporaryPassword: false`, `temporaryPasswordExpiresAt: null`, `mustChangePassword: false`
+  - Lines 131-147: Logs temporary to permanent password change in audit trail
+
+**Sign-In Flow:**
+- `app/api/auth/custom-signin/route.ts` (lines 99-110)
+  - Lines 100-110: Checks `user.mustChangePassword` BEFORE MFA enrollment
+  - Returns `requiresPasswordChange: true` if password change needed
+- `app/auth/signin/page.tsx` (lines 37-44)
+  - Lines 37-44: Redirects to `/auth/change-password?required=true` if password change required
+  - Ensures password change happens before MFA enrollment
+
+**MFA Enrollment Protection:**
+- `app/api/auth/mfa/enroll/route.ts` (lines 22-30)
+  - Lines 22-30: Checks for `mustChangePassword` and rejects MFA enrollment if password change required
+- `app/auth/mfa/enroll/page.tsx` (lines 18-38)
+  - Lines 18-38: Client-side check for password change requirement, redirects if needed
 
 **Features:**
-- Cryptographically secure random password generation (20 characters)
-- 72-hour expiration for temporary passwords
-- Forced password change on first login
-- Expired temporary passwords rejected at login
-- Audit logging for temporary password operations
+- Cryptographically secure random password generation (20 characters) - `lib/temporary-password.ts:generateTemporaryPassword()`
+- 72-hour expiration for temporary passwords - `lib/temporary-password.ts:getTemporaryPasswordExpiration()`
+- Forced password change on first login - `middleware.ts` (lines 38-43, 61-66)
+- Expired temporary passwords rejected at login - `lib/auth.ts` (lines 83-93)
+- Audit logging for temporary password operations - `app/api/admin/create-user/route.ts`, `app/api/admin/reset-user-password/route.ts`, `app/api/auth/change-password/route.ts`
 
 #### Testing and Verification
 

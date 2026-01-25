@@ -259,23 +259,38 @@ if (newPassword.length < 8) {
 - System automatically generates temporary passwords (no admin input required)
 - Passwords are 20 characters long with mix of uppercase, lowercase, numbers, and special characters
 - Generation uses cryptographically secure random number generator (`crypto.randomBytes()`)
-- Evidence: `lib/temporary-password.ts` (`generateTemporaryPassword()`)
+- **Code Implementation:**
+  - `lib/temporary-password.ts:generateTemporaryPassword()` (lines 30-60) - Core generation function
+  - `lib/temporary-password.ts:getTemporaryPasswordExpiration()` (lines 95-100) - Sets 72-hour expiration
+  - `app/api/admin/create-user/route.ts` (lines 41-43, 49-56) - Generates temporary password during user creation
+  - `app/api/admin/reset-user-password/route.ts` (lines 48-50, 65-74) - Generates temporary password during password reset
+- **Configuration:** `lib/temporary-password.ts:TEMPORARY_PASSWORD_CONFIG` (lines 10-18) - minLength: 16, defaultLength: 20, expirationHours: 72
 
 **Temporary Password Expiration:**
 - Temporary passwords expire 72 hours after generation
 - Expiration timestamp stored in `temporaryPasswordExpiresAt` field
 - System checks expiration before allowing login
 - Expired temporary passwords are rejected with appropriate error message
-- Evidence: `lib/temporary-password.ts` (`isTemporaryPasswordExpired()`)
-- Evidence: `lib/auth.ts` (expiration check in `authorize` function)
+- **Code Implementation:**
+  - `lib/temporary-password.ts:isTemporaryPasswordExpired()` (lines 82-89) - Validates expiration
+  - `lib/password-policy.ts:validateTemporaryPasswordExpiration()` (lines 131-137) - Additional validation
+  - `lib/auth.ts` (lines 83-93) - Checks expiration in `authorize` function before allowing login
+  - `prisma/schema.prisma` (line 23) - `temporaryPasswordExpiresAt: DateTime?` database field
 
 **Forced Password Change:**
 - Users with temporary passwords are required to change password on first login
 - System redirects to password change page before allowing access
 - User must set permanent password meeting full complexity requirements (14+ characters)
 - After change, password is marked as permanent and expiration is cleared
-- Evidence: `middleware.ts` (redirect enforcement)
-- Evidence: `app/api/auth/change-password/route.ts` (temporary to permanent transition)
+- **Code Implementation:**
+  - `middleware.ts` (lines 38-43, 61-66) - Enforces redirect to `/auth/change-password` when `mustChangePassword: true`
+  - `app/api/auth/custom-signin/route.ts` (lines 99-110) - Checks `mustChangePassword` BEFORE MFA enrollment
+  - `app/auth/signin/page.tsx` (lines 37-44) - Redirects to password change page if required
+  - `app/api/auth/change-password/route.ts` (lines 95-105) - Handles temporary to permanent transition, clears flags
+  - `app/api/auth/mfa/enroll/route.ts` (lines 22-30) - Prevents MFA enrollment if password change required
+  - `app/auth/mfa/enroll/page.tsx` (lines 18-38) - Client-side check and redirect for password change requirement
+  - `prisma/schema.prisma` (line 22) - `isTemporaryPassword: Boolean @default(false)` database field
+  - `prisma/schema.prisma` (line 21) - `mustChangePassword: Boolean @default(false)` database field
 
 **Temporary Password Distribution:**
 - Temporary passwords are returned in API response for user creation and password reset
