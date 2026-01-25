@@ -1051,36 +1051,60 @@ export default function ContractDiscoveryPage() {
                                   </div>
                                 )}
                                 
-                                {/* USAspending Enrichment Display */}
+                                {/* USAspending Enrichment Display - Expandable */}
                                 {result.usaspending_enrichment && (
                                   <div className="mt-4">
                                     {(() => {
                                       try {
                                         const enrichmentData = JSON.parse(result.usaspending_enrichment)
+                                        const isEnrichmentExpanded = expandedIds.has(`enrichment-${result.id}`)
                                         return (
-                                          <>
-                                            <EnrichedDataDisplay
-                                              contractId={result.id}
-                                              enrichmentData={enrichmentData}
-                                            />
-                                            {enrichmentData.ai_analysis && (
-                                              <div className="mt-4">
-                                                <AIAnalysisDisplay
-                                                  aiAnalysis={enrichmentData.ai_analysis}
-                                                  contractTitle={result.title}
+                                          <div className="border border-neutral-200 rounded-lg overflow-hidden">
+                                            <button
+                                              onClick={() => {
+                                                const newExpanded = new Set(expandedIds)
+                                                if (isEnrichmentExpanded) {
+                                                  newExpanded.delete(`enrichment-${result.id}`)
+                                                } else {
+                                                  newExpanded.add(`enrichment-${result.id}`)
+                                                }
+                                                setExpandedIds(newExpanded)
+                                              }}
+                                              className="w-full px-4 py-3 bg-neutral-50 hover:bg-neutral-100 flex items-center justify-between text-left transition-colors"
+                                            >
+                                              <span className="text-sm font-medium text-neutral-900">
+                                                Enrichment Data
+                                              </span>
+                                              <span className="text-neutral-500">
+                                                {isEnrichmentExpanded ? '▼' : '▶'}
+                                              </span>
+                                            </button>
+                                            {isEnrichmentExpanded && (
+                                              <div className="p-4 bg-white">
+                                                <EnrichedDataDisplay
+                                                  contractId={result.id}
+                                                  enrichmentData={enrichmentData}
                                                 />
+                                                {enrichmentData.ai_analysis && (
+                                                  <div className="mt-4">
+                                                    <AIAnalysisDisplay
+                                                      aiAnalysis={enrichmentData.ai_analysis}
+                                                      contractTitle={result.title}
+                                                    />
+                                                  </div>
+                                                )}
+                                                {enrichmentData.ai_analysis?.deliverables && (
+                                                  <div className="mt-4">
+                                                    <DeliverablesExport
+                                                      contractTitle={result.title}
+                                                      deliverables={enrichmentData.ai_analysis.deliverables}
+                                                      strategicInsights={enrichmentData.ai_analysis.strategic_insights}
+                                                    />
+                                                  </div>
+                                                )}
                                               </div>
                                             )}
-                                            {enrichmentData.ai_analysis?.deliverables && (
-                                              <div className="mt-4">
-                                                <DeliverablesExport
-                                                  contractTitle={result.title}
-                                                  deliverables={enrichmentData.ai_analysis.deliverables}
-                                                  strategicInsights={enrichmentData.ai_analysis.strategic_insights}
-                                                />
-                                              </div>
-                                            )}
-                                          </>
+                                          </div>
                                         )
                                       } catch (e) {
                                         return null

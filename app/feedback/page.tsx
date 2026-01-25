@@ -306,6 +306,85 @@ export default function FeedbackForumPage() {
                         </a>
                       </div>
                     )}
+
+                    {/* Status Update Actions */}
+                    {item.status !== 'implemented' && item.status !== 'closed' && (
+                      <div className="mt-4 pt-4 border-t border-neutral-200 flex items-center gap-2">
+                        <button
+                          onClick={async () => {
+                            if (!confirm('Mark this feedback as implemented?')) return
+                            
+                            try {
+                              const response = await fetch(`/api/feedback/${item.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: 'implemented' }),
+                              })
+
+                              if (response.ok) {
+                                // Refresh the feedback list
+                                const params = new URLSearchParams({
+                                  page: currentPage.toString(),
+                                  limit: '50',
+                                  sortOrder: 'desc',
+                                })
+                                if (filterStatus !== 'all') {
+                                  params.append('status', filterStatus)
+                                }
+                                const refreshResponse = await fetch(`/api/feedback?${params.toString()}`)
+                                const refreshData: FeedbackResponse = await refreshResponse.json()
+                                if (refreshData.feedback) {
+                                  setFeedback(refreshData.feedback)
+                                }
+                              } else {
+                                const error = await response.json()
+                                alert(error.error || 'Failed to update feedback status')
+                              }
+                            } catch (error) {
+                              console.error('Error updating feedback:', error)
+                              alert('Failed to update feedback status')
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                        >
+                          Mark as Implemented
+                        </button>
+                        {item.status === 'pending' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const response = await fetch(`/api/feedback/${item.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'reviewed' }),
+                                })
+
+                                if (response.ok) {
+                                  const params = new URLSearchParams({
+                                    page: currentPage.toString(),
+                                    limit: '50',
+                                    sortOrder: 'desc',
+                                  })
+                                  if (filterStatus !== 'all') {
+                                    params.append('status', filterStatus)
+                                  }
+                                  const refreshResponse = await fetch(`/api/feedback?${params.toString()}`)
+                                  const refreshData: FeedbackResponse = await refreshResponse.json()
+                                  if (refreshData.feedback) {
+                                    setFeedback(refreshData.feedback)
+                                  }
+                                }
+                              } catch (error) {
+                                console.error('Error updating feedback:', error)
+                              }
+                            }}
+                            className="px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-md transition-colors"
+                          >
+                            Mark as Reviewed
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
