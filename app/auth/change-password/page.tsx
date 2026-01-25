@@ -38,8 +38,8 @@ function ChangePasswordForm() {
       return
     }
 
-    if (newPassword.length < 8) {
-      setError('New password must be at least 8 characters long')
+    if (newPassword.length < 14) {
+      setError('New password must be at least 14 characters long')
       return
     }
 
@@ -158,12 +158,12 @@ function ChangePasswordForm() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                minLength={8}
+                minLength={14}
                 className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors"
-                placeholder="Enter new password (min. 8 characters)"
+                placeholder="Enter new password (min. 14 characters)"
               />
               <p className="mt-1 text-xs text-neutral-500">
-                Password must be at least 8 characters long
+                Password must be at least 14 characters long and meet complexity requirements
               </p>
             </div>
 
@@ -177,7 +177,7 @@ function ChangePasswordForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                minLength={8}
+                minLength={14}
                 className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors"
                 placeholder="Confirm new password"
               />

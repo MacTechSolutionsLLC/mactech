@@ -210,8 +210,8 @@ The following security controls are inherited from the Railway cloud platform:
 ### 6.2 Authentication Requirements
 - All users must authenticate using email and password
 - Passwords are hashed using bcrypt (12 rounds)
-- Minimum password length: 8 characters
-- Evidence: `lib/auth.ts` (lines 39-42), `app/api/auth/change-password/route.ts` (lines 26-31, 68)
+- Minimum password length: 14 characters
+- Evidence: `lib/password-policy.ts` (PASSWORD_POLICY.minLength: 14), `app/api/auth/change-password/route.ts` (uses validatePassword())
 
 ### 6.3 Role-Based Access
 - **ADMIN role:** Full access to admin portal and system management functions

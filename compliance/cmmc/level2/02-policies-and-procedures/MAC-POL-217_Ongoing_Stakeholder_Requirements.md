@@ -38,7 +38,7 @@ This document applies to:
 **Current Status:** Password expiration policies are not currently enforced by the system. However, stakeholders are expected to:
 
 - Change passwords if they suspect compromise
-- Use strong passwords (minimum 8 characters, though complexity requirements are not enforced)
+- Use strong passwords (minimum 14 characters with complexity requirements enforced)
 - Not reuse passwords across systems
 - Not share passwords with anyone
 

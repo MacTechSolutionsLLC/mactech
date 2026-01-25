@@ -176,23 +176,28 @@ User submits credentials
 
 ### 5.2 Password Requirements
 
-**Minimum Length:** 8 characters
+**Minimum Length:** 14 characters
 
 **Enforcement:**
 - Password length validation occurs during password change
-- Validation error returned if password is less than 8 characters
-- Evidence: `app/api/auth/change-password/route.ts` (lines 26-31)
+- Validation error returned if password is less than 14 characters
+- Evidence: `app/api/auth/change-password/route.ts` (uses `validatePassword()` from `lib/password-policy.ts`)
 
 **Password Requirements:**
-- Minimum 8 characters
+- Minimum 14 characters
 - No maximum length specified
 - Password complexity requirements implemented per Level 2 controls
+- Cannot be a common password (denylist check)
+- Cannot reuse any of the last 5 passwords
 
 **Password Change Validation:**
 ```typescript
-if (newPassword.length < 8) {
+// Password validation uses validatePassword() from lib/password-policy.ts
+// which enforces minimum 14 characters and other complexity requirements
+const passwordValidation = validatePassword(newPassword)
+if (!passwordValidation.valid) {
   return NextResponse.json(
-    { error: 'New password must be at least 8 characters long' },
+    { error: 'Password does not meet requirements', errors: passwordValidation.errors },
     { status: 400 }
   )
 }
@@ -208,7 +213,7 @@ if (newPassword.length < 8) {
 1. User must provide current password
 2. User must provide new password
 3. System validates current password
-4. System validates new password meets requirements (minimum 8 characters)
+4. System validates new password meets requirements (minimum 14 characters, complexity, not common password, not reused)
 5. System verifies new password is different from current password
 6. System hashes new password using bcrypt
 7. System updates password in database
