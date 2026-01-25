@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import UserNavigation from '@/components/user/UserNavigation'
+import AdminNavigation from '@/components/admin/AdminNavigation'
 
 interface FeedbackItem {
   id: string
@@ -81,8 +83,17 @@ export default function FeedbackForumPage() {
         if (data.feedback && data.pagination) {
           setFeedback(data.feedback)
           setPagination(data.pagination)
+        } else if (data.error) {
+          throw new Error(data.error)
         } else {
-          throw new Error('Invalid response format')
+          // Handle case where feedback array might be empty but response is valid
+          setFeedback(data.feedback || [])
+          setPagination(data.pagination || {
+            page: 1,
+            limit: 50,
+            total: 0,
+            totalPages: 0,
+          })
         }
       } catch (err: any) {
         console.error('Error fetching feedback:', err)
@@ -136,8 +147,12 @@ export default function FeedbackForumPage() {
     return null
   }
 
+  const isAdmin = session?.user?.role === 'ADMIN'
+
   return (
     <div className="bg-neutral-50 min-h-screen">
+      {isAdmin ? <AdminNavigation /> : <UserNavigation />}
+      
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">

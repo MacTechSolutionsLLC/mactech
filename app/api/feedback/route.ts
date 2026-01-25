@@ -169,8 +169,8 @@ export async function GET(req: NextRequest) {
         elementClass: f.elementClass,
         elementText: f.elementText,
         elementType: f.elementType,
-        createdAt: f.createdAt,
-        updatedAt: f.updatedAt,
+        createdAt: f.createdAt.toISOString(),
+        updatedAt: f.updatedAt.toISOString(),
         user: {
           id: f.user.id,
           name: f.user.name,
