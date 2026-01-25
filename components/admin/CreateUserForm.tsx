@@ -3,6 +3,16 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface TemporaryPasswordData {
+  temporaryPassword: string
+  temporaryPasswordExpiresAt: string
+  user: {
+    email: string
+    name: string | null
+    role: string
+  }
+}
+
 export default function CreateUserForm() {
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
@@ -10,9 +20,10 @@ export default function CreateUserForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [tempPasswordData, setTempPasswordData] = useState<TemporaryPasswordData | null>(null)
+  const [passwordCopied, setPasswordCopied] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
     name: '',
     role: 'USER' as 'USER' | 'ADMIN',
   })
@@ -29,21 +40,6 @@ export default function CreateUserForm() {
     return emailRegex.test(email)
   }
 
-  // Calculate password strength
-  const getPasswordStrength = (password: string): { strength: 'weak' | 'medium' | 'strong', score: number } => {
-    let score = 0
-    if (password.length >= 14) score += 1
-    if (password.length >= 20) score += 1
-    if (/[a-z]/.test(password)) score += 1
-    if (/[A-Z]/.test(password)) score += 1
-    if (/[0-9]/.test(password)) score += 1
-    if (/[^a-zA-Z0-9]/.test(password)) score += 1
-
-    if (score <= 2) return { strength: 'weak', score }
-    if (score <= 4) return { strength: 'medium', score }
-    return { strength: 'strong', score }
-  }
-
   const handleEmailChange = (email: string) => {
     setFormData({ ...formData, email })
     if (email && !validateEmail(email)) {
@@ -54,14 +50,26 @@ export default function CreateUserForm() {
     }
   }
 
-  const handlePasswordChange = (password: string) => {
-    setFormData({ ...formData, password })
-    if (password && password.length < 14) {
-      setFieldErrors({ ...fieldErrors, password: 'Password must be at least 14 characters' })
-    } else {
-      const { password: _, ...rest } = fieldErrors
-      setFieldErrors(rest)
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setPasswordCopied(true)
+      setTimeout(() => setPasswordCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
     }
+  }
+
+  const formatExpirationDate = (expiresAt: string): string => {
+    const date = new Date(expiresAt)
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,16 +86,10 @@ export default function CreateUserForm() {
       setFieldErrors({ email: 'Please enter a valid email address' })
       return
     }
-    if (!formData.password) {
-      setFieldErrors({ password: 'Password is required' })
-      return
-    }
-    if (formData.password.length < 14) {
-      setFieldErrors({ password: 'Password must be at least 14 characters' })
-      return
-    }
 
     setLoading(true)
+    setError(null)
+    setTempPasswordData(null)
 
     try {
       const response = await fetch('/api/admin/create-user', {
@@ -95,7 +97,11 @@ export default function CreateUserForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          role: formData.role,
+        }),
       })
 
       const data = await response.json()
@@ -106,21 +112,22 @@ export default function CreateUserForm() {
           const errors: Record<string, string> = {}
           data.errors.forEach((err: string) => {
             if (err.includes('email')) errors.email = err
-            if (err.includes('password')) errors.password = err
           })
           setFieldErrors(errors)
         }
         throw new Error(data.error || 'Failed to create user')
       }
 
+      // Store temporary password data for display
+      if (data.temporaryPassword && data.temporaryPasswordExpiresAt) {
+        setTempPasswordData({
+          temporaryPassword: data.temporaryPassword,
+          temporaryPasswordExpiresAt: data.temporaryPasswordExpiresAt,
+          user: data.user,
+        })
+      }
+
       showSuccessMessage(`User ${data.user.email} created successfully!`)
-      setShowForm(false)
-      setFormData({
-        email: '',
-        password: '',
-        name: '',
-        role: 'USER',
-      })
       setFieldErrors({})
       router.refresh()
     } catch (err: any) {
@@ -129,8 +136,6 @@ export default function CreateUserForm() {
       setLoading(false)
     }
   }
-
-  const passwordStrength = formData.password ? getPasswordStrength(formData.password) : null
 
   if (!showForm) {
     return (
@@ -157,13 +162,13 @@ export default function CreateUserForm() {
             setShowForm(false)
             setFormData({
               email: '',
-              password: '',
               name: '',
               role: 'USER',
             })
             setError(null)
             setFieldErrors({})
             setSuccess(null)
+            setTempPasswordData(null)
           }}
           className="text-neutral-500 hover:text-neutral-700 text-xl leading-none"
           aria-label="Close form"
@@ -181,6 +186,58 @@ export default function CreateUserForm() {
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
           {error}
+        </div>
+      )}
+
+      {/* Temporary Password Display Modal */}
+      {tempPasswordData && (
+        <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-yellow-900 mb-1">
+                ⚠️ Temporary Password Generated
+              </h3>
+              <p className="text-xs text-yellow-800">
+                A temporary password has been automatically generated for this user. 
+                Provide this password securely to the user (out of band, not via email).
+              </p>
+            </div>
+            <button
+              onClick={() => setTempPasswordData(null)}
+              className="text-yellow-700 hover:text-yellow-900 text-lg leading-none"
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="bg-white rounded border border-yellow-300 p-3 mb-3">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium text-neutral-700">Temporary Password:</label>
+              <button
+                onClick={() => copyToClipboard(tempPasswordData.temporaryPassword)}
+                className="text-xs text-accent-700 hover:text-accent-900 font-medium"
+              >
+                {passwordCopied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+            <div className="font-mono text-sm bg-neutral-50 p-2 rounded border border-neutral-200 break-all">
+              {tempPasswordData.temporaryPassword}
+            </div>
+          </div>
+
+          <div className="text-xs text-yellow-800 space-y-1">
+            <p>
+              <strong>Expires:</strong> {formatExpirationDate(tempPasswordData.temporaryPasswordExpiresAt)} (72 hours from now)
+            </p>
+            <p>
+              <strong>User:</strong> {tempPasswordData.user.email}
+            </p>
+            <p className="mt-2 text-yellow-900 font-medium">
+              ⚠️ Important: The user must change this password on first login. 
+              This password will expire in 72 hours if not changed.
+            </p>
+          </div>
         </div>
       )}
 
@@ -204,53 +261,12 @@ export default function CreateUserForm() {
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">
-            Password <span className="text-red-500">*</span> (min 14 characters)
-          </label>
-          <input
-            type="password"
-            required
-            minLength={14}
-            value={formData.password}
-            onChange={(e) => handlePasswordChange(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 ${
-              fieldErrors.password ? 'border-red-300' : 'border-neutral-300'
-            }`}
-            placeholder="Enter secure password"
-          />
-          {fieldErrors.password && (
-            <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>
-          )}
-          {passwordStrength && !fieldErrors.password && (
-            <div className="mt-2">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all ${
-                      passwordStrength.strength === 'weak'
-                        ? 'bg-red-500 w-1/3'
-                        : passwordStrength.strength === 'medium'
-                        ? 'bg-yellow-500 w-2/3'
-                        : 'bg-green-500 w-full'
-                    }`}
-                  />
-                </div>
-                <span className={`text-xs font-medium ${
-                  passwordStrength.strength === 'weak'
-                    ? 'text-red-600'
-                    : passwordStrength.strength === 'medium'
-                    ? 'text-yellow-600'
-                    : 'text-green-600'
-                }`}>
-                  {passwordStrength.strength.charAt(0).toUpperCase() + passwordStrength.strength.slice(1)}
-                </span>
-              </div>
-              <p className="text-xs text-neutral-500">
-                Password must be at least 14 characters and meet security requirements
-              </p>
-            </div>
-          )}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <p className="text-xs text-blue-800">
+            <strong>ℹ️ Automatic Password Generation:</strong> A secure temporary password will be automatically 
+            generated for this user. The password will expire in 72 hours and the user will be required to 
+            change it on first login.
+          </p>
         </div>
 
         <div>
@@ -299,13 +315,13 @@ export default function CreateUserForm() {
               setShowForm(false)
               setFormData({
                 email: '',
-                password: '',
                 name: '',
                 role: 'USER',
               })
               setError(null)
               setFieldErrors({})
               setSuccess(null)
+              setTempPasswordData(null)
             }}
             disabled={loading}
             className="px-6 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 font-medium disabled:opacity-50 transition-colors"

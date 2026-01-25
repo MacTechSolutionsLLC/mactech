@@ -26,8 +26,11 @@ export default function UserActions({ user }: UserActionsProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showPasswordReset, setShowPasswordReset] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [tempPasswordData, setTempPasswordData] = useState<{
+    temporaryPassword: string
+    temporaryPasswordExpiresAt: string
+  } | null>(null)
+  const [passwordCopied, setPasswordCopied] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'disable' | 'enable' | 'role'
     message: string
@@ -133,19 +136,9 @@ export default function UserActions({ user }: UserActionsProps) {
   }
 
   const handlePasswordReset = async () => {
-    if (!newPassword) {
-      setPasswordError('Password is required')
-      return
-    }
-
-    if (newPassword.length < 14) {
-      setPasswordError('Password must be at least 14 characters')
-      return
-    }
-
     setLoading(true)
     setError(null)
-    setPasswordError(null)
+    setTempPasswordData(null)
 
     try {
       const response = await fetch('/api/admin/reset-user-password', {
@@ -155,7 +148,6 @@ export default function UserActions({ user }: UserActionsProps) {
         },
         body: JSON.stringify({
           email: user.email,
-          newPassword,
         }),
       })
 
@@ -165,18 +157,43 @@ export default function UserActions({ user }: UserActionsProps) {
         throw new Error(data.error || 'Failed to reset password')
       }
 
-      showSuccessMessage(`Password reset successfully for ${user.email}`)
-      setShowPasswordReset(false)
-      setNewPassword('')
+      // Store temporary password data for display
+      if (data.temporaryPassword && data.temporaryPasswordExpiresAt) {
+        setTempPasswordData({
+          temporaryPassword: data.temporaryPassword,
+          temporaryPasswordExpiresAt: data.temporaryPasswordExpiresAt,
+        })
+      }
+
+      showSuccessMessage(`Temporary password generated for ${user.email}`)
       router.refresh()
     } catch (err: any) {
       setError(err.message || 'An error occurred')
-      if (err.message?.includes('Password does not meet requirements')) {
-        setPasswordError(err.message)
-      }
     } finally {
       setLoading(false)
     }
+  }
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setPasswordCopied(true)
+      setTimeout(() => setPasswordCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }
+
+  const formatExpirationDate = (expiresAt: string): string => {
+    const date = new Date(expiresAt)
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
   }
 
   return (
@@ -334,48 +351,93 @@ export default function UserActions({ user }: UserActionsProps) {
           </div>
         )}
 
-        {/* Password Reset Form */}
+        {/* Password Reset Section */}
         {showPasswordReset && (
           <div className="mt-2 p-3 bg-neutral-50 rounded border border-neutral-200">
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <label className="block text-xs font-medium text-neutral-700 mb-1">
-                  New Password (min 14 characters)
-                </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value)
-                    setPasswordError(null)
-                  }}
-                  className="w-full px-3 py-1.5 text-sm border border-neutral-300 rounded focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                  placeholder="Enter new password"
-                  disabled={loading}
-                />
-                {passwordError && (
-                  <p className="text-xs text-red-600 mt-1">{passwordError}</p>
-                )}
+            {!tempPasswordData ? (
+              <div className="space-y-3">
+                <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                  <p className="text-xs text-blue-800">
+                    <strong>ℹ️ Automatic Password Generation:</strong> A secure temporary password will be automatically 
+                    generated. The password will expire in 72 hours and the user will be required to change it on next login.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handlePasswordReset}
+                    disabled={loading}
+                    className="px-4 py-1.5 text-xs font-medium bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loading ? 'Generating...' : 'Generate Temporary Password'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPasswordReset(false)
+                      setTempPasswordData(null)
+                    }}
+                    disabled={loading}
+                    className="px-3 py-1.5 text-xs font-medium bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 disabled:opacity-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={handlePasswordReset}
-                disabled={loading || !newPassword}
-                className="px-4 py-1.5 text-xs font-medium bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? 'Resetting...' : 'Reset'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowPasswordReset(false)
-                  setNewPassword('')
-                  setPasswordError(null)
-                }}
-                disabled={loading}
-                className="px-3 py-1.5 text-xs font-medium bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 disabled:opacity-50 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
+            ) : (
+              <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h4 className="text-xs font-semibold text-yellow-900 mb-1">
+                      ⚠️ Temporary Password Generated
+                    </h4>
+                    <p className="text-xs text-yellow-800">
+                      Provide this password securely to the user (out of band, not via email).
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setTempPasswordData(null)}
+                    className="text-yellow-700 hover:text-yellow-900 text-sm leading-none"
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <div className="bg-white rounded border border-yellow-300 p-2 mb-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-neutral-700">Temporary Password:</label>
+                    <button
+                      onClick={() => copyToClipboard(tempPasswordData.temporaryPassword)}
+                      className="text-xs text-accent-700 hover:text-accent-900 font-medium"
+                    >
+                      {passwordCopied ? '✓ Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="font-mono text-xs bg-neutral-50 p-2 rounded border border-neutral-200 break-all">
+                    {tempPasswordData.temporaryPassword}
+                  </div>
+                </div>
+
+                <div className="text-xs text-yellow-800 space-y-1">
+                  <p>
+                    <strong>Expires:</strong> {formatExpirationDate(tempPasswordData.temporaryPasswordExpiresAt)} (72 hours from now)
+                  </p>
+                  <p className="mt-1 text-yellow-900 font-medium">
+                    ⚠️ Important: The user must change this password on next login. 
+                    This password will expire in 72 hours if not changed.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setShowPasswordReset(false)
+                    setTempPasswordData(null)
+                  }}
+                  className="mt-2 w-full px-3 py-1.5 text-xs font-medium bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
