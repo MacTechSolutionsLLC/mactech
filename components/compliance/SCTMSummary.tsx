@@ -54,6 +54,9 @@ export default function SCTMSummary({ summary, onFamilyClick }: SCTMSummaryProps
             <p className="text-sm text-neutral-700 font-medium">
               {summary.implemented + summary.inherited} of {applicableTotal} applicable controls satisfied
             </p>
+            <p className="text-xs text-neutral-600 mt-1">
+              110 Total NIST SP 800-171 Rev. 2 Controls, with some marked as Not Applicable
+            </p>
           </div>
           <div className="text-right">
             <div className="text-5xl font-bold text-primary-700">
