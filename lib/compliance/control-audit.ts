@@ -685,7 +685,19 @@ async function verifyImplementation(implementationRef: string, controlId: string
   }
   
   const verifications: CodeVerification[] = []
-  const refs = implementationRef.split(',').map(r => r.trim())
+  const refs = implementationRef.split(',').map(r => {
+    // Clean up the reference - remove function names and extra text after file paths
+    let cleaned = r.trim()
+    // If it contains a file extension, extract just the file path part (before any spaces that might have function names)
+    if (cleaned.includes('.ts') || cleaned.includes('.tsx') || cleaned.includes('.js') || cleaned.includes('.prisma')) {
+      // Extract file path up to the extension and a bit after, but stop at spaces that indicate function names
+      const match = cleaned.match(/^([^\s]+\.(ts|tsx|js|prisma))/)
+      if (match) {
+        cleaned = match[1]
+      }
+    }
+    return cleaned
+  })
   
   for (const ref of refs) {
     // Check if it's a generic/descriptive reference first (BEFORE checking for file paths)
@@ -734,12 +746,22 @@ async function verifyImplementation(implementationRef: string, controlId: string
       continue
     }
     
-    // Extract file path from reference
+    // Extract file path from reference (remove function names and extra text)
+    let cleanRef = ref.trim()
+    // If reference contains a file extension, extract just the file path part
+    if (cleanRef.includes('.ts') || cleanRef.includes('.tsx') || cleanRef.includes('.js') || cleanRef.includes('.prisma')) {
+      // Extract file path up to the extension and stop at spaces (which indicate function names)
+      const match = cleanRef.match(/^([^\s]+\.(ts|tsx|js|prisma))/)
+      if (match) {
+        cleanRef = match[1]
+      }
+    }
+    
     let filePath: string
     let isDirectory = false
     
-    if (ref.includes('/')) {
-      filePath = join(CODE_ROOT, ref)
+    if (cleanRef.includes('/')) {
+      filePath = join(CODE_ROOT, cleanRef)
       // Check if it's a directory reference (ends with / or is a directory)
       if (ref.endsWith('/')) {
         isDirectory = true
@@ -754,9 +776,9 @@ async function verifyImplementation(implementationRef: string, controlId: string
           isDirectory = false
         }
       }
-    } else if (ref.includes('.')) {
+    } else if (cleanRef.includes('.')) {
       // Assume it's a file in root or lib
-      filePath = join(CODE_ROOT, ref)
+      filePath = join(CODE_ROOT, cleanRef)
     } else {
       // Generic reference (e.g., "NextAuth.js", "middleware", "Training program", "Cloud-only")
       // These are descriptive references, not actual code files - don't flag as issues
@@ -878,11 +900,11 @@ async function verifyImplementation(implementationRef: string, controlId: string
     }
     
     verifications.push({
-      file: ref,
+      file: cleanRef, // Use cleaned reference (without function names) for display
       exists,
       containsRelevantCode: hasRelevantCode,
       codeSnippets: snippets.slice(0, 2),
-      issues: hasRelevantCode ? [] : [`No relevant code patterns found for control ${controlId} in ${ref}`]
+      issues: hasRelevantCode ? [] : [`No relevant code patterns found for control ${controlId} in ${cleanRef}`]
     })
   }
   
