@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/user/contract-discovery',
-    label: 'Discovery',
+    label: 'Capture',
     description: 'Search SAM.gov opportunities',
     icon: '🔍',
   },
