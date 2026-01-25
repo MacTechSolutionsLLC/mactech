@@ -94,18 +94,38 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
 
   const getEvidencePath = (item: EvidenceItem): string | null => {
     if (!item.path) return null
+    
     // Convert absolute path to relative path for modal
-    let relativePath: string
+    let relativePath: string = item.path
+    
+    // If it's an absolute path, extract the relative portion
     if (item.path.includes('compliance/cmmc')) {
-      // Remove any absolute path prefix (works in both Node and browser)
-      relativePath = item.path.replace(/^.*?compliance\/cmmc\//, 'compliance/cmmc/')
-      // If it's already a relative path starting with compliance/cmmc, use it as-is
-      if (!relativePath.startsWith('compliance/cmmc/')) {
-        relativePath = item.path
+      // Extract path after compliance/cmmc/
+      const match = item.path.match(/compliance\/cmmc\/(.+)$/)
+      if (match) {
+        relativePath = `compliance/cmmc/${match[1]}`
+      } else {
+        // Fallback: try to extract from any position
+        relativePath = item.path.replace(/^.*?compliance\/cmmc\//, 'compliance/cmmc/')
       }
-    } else {
-      relativePath = item.path
+    } else if (item.path.startsWith('/') || item.path.includes(process.cwd?.() || '')) {
+      // Absolute path - try to extract relative portion
+      // Check if it's in the compliance directory structure
+      const complianceMatch = item.path.match(/(compliance\/cmmc\/.+)$/)
+      if (complianceMatch) {
+        relativePath = complianceMatch[1]
+      } else {
+        // For code files, try to extract relative to project root
+        const codeMatch = item.path.match(/(lib\/.+|app\/.+|components\/.+|middleware\.ts)$/)
+        if (codeMatch) {
+          relativePath = codeMatch[1]
+        } else {
+          // Can't convert, return as-is (might fail, but better than nothing)
+          relativePath = item.path
+        }
+      }
     }
+    
     // Return the relative path for the modal
     return relativePath
   }
