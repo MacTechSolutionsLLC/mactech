@@ -48,7 +48,7 @@ const FAMILY_MAP: Record<number, string> = {
   11: 'PS',  // Personnel Security
   12: 'PE',  // Physical Protection
   13: 'RA',  // Risk Assessment
-  14: 'SA',  // Security Assessment
+  14: 'CA',  // Security Assessment
   15: 'SC',  // System and Communications Protection
   16: 'SI',  // System and Information Integrity
 }

@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         "3.9": "PS",
         "3.10": "PE",
         "3.11": "RA",
-        "3.12": "SA",
+        "3.12": "CA",
         "3.13": "SC",
         "3.14": "SI",
       }

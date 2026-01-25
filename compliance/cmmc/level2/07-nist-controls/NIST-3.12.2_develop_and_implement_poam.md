@@ -2,7 +2,7 @@
 
 **Control ID:** 3.12.2  
 **Requirement:** Develop and implement POA&M  
-**Control Family:** Security Assessment (SA)  
+**Control Family:** Security Assessment (CA)  
 **Reference:** NIST SP 800-171 Rev. 2
 
 ---
@@ -114,7 +114,7 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 
 ## 8. Related Controls
 
-**Control Family:** Security Assessment (SA)
+**Control Family:** Security Assessment (CA)
 
 **Related Controls in Same Family:**  
 - See SCTM for complete control family mapping: `../04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`

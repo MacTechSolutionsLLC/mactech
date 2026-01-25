@@ -191,7 +191,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 ---
 
-## 14. Security Assessment (SA) - 4 Requirements
+## 14. Security Assessment (CA) - 4 Requirements
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|

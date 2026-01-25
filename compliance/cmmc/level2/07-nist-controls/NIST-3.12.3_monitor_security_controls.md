@@ -2,7 +2,7 @@
 
 **Control ID:** 3.12.3  
 **Requirement:** Monitor security controls  
-**Control Family:** Security Assessment (SA)  
+**Control Family:** Security Assessment (CA)  
 **Reference:** NIST SP 800-171 Rev. 2
 
 ---
@@ -116,7 +116,7 @@ Control is fully implemented by the organization
 
 ## 8. Related Controls
 
-**Control Family:** Security Assessment (SA)
+**Control Family:** Security Assessment (CA)
 
 **Related Controls in Same Family:**  
 - See SCTM for complete control family mapping: `../04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`

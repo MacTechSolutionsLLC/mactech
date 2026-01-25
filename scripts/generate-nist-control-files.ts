@@ -33,7 +33,7 @@ const familyMap: Record<string, { name: string; code: string }> = {
   '3.9': { name: 'Personnel Security', code: 'PS' },
   '3.10': { name: 'Physical Protection', code: 'PE' },
   '3.11': { name: 'Risk Assessment', code: 'RA' },
-  '3.12': { name: 'Security Assessment', code: 'SA' },
+  '3.12': { name: 'Security Assessment', code: 'CA' },
   '3.13': { name: 'System and Communications Protection', code: 'SC' },
   '3.14': { name: 'System and Information Integrity', code: 'SI' },
 };
