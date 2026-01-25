@@ -755,7 +755,7 @@ async function verifyImplementation(implementationRef: string, controlId: string
       'System architecture', 'Role separation', 'Information flow',
       'documentation', 'Web application', 'no collaborative devices',
       'no VoIP functionality', 'procedures', 'alerts', 'SoD matrix',
-      'operational controls', 'Approval workflow'
+      'operational controls', 'Approval workflow', 'User model', 'model'
     ]
     
     const isGeneric = genericImplementationRefs.some(gir => 
