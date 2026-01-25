@@ -35,7 +35,7 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex justify-between items-center min-h-32 md:min-h-40 py-4">
+        <div className="flex justify-between items-center h-16 md:h-20 py-2">
           {/* Logo - restrained, confident */}
           <Link 
             href="/" 
@@ -47,7 +47,7 @@ export default function Navigation() {
               alt="MacTech Solutions"
               width={1800}
               height={360}
-              className="h-48 md:h-64 w-auto transition-opacity duration-gentle group-hover:opacity-80"
+              className="h-12 md:h-16 w-auto transition-opacity duration-gentle group-hover:opacity-80"
               priority
             />
           </Link>
