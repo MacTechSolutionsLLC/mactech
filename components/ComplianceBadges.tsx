@@ -154,7 +154,7 @@ export default function ComplianceBadges({
 
   return (
     <div className={`flex flex-wrap items-center justify-center gap-4 md:gap-6 ${className}`}>
-      {badgeConfig.map((badge) => (
+      {badgeConfig.filter(badge => badge.src !== '/images/badges/CMMC2.png').map((badge) => (
         <div 
           key={badge.src}
           ref={(el) => { badgeRefs.current[badge.src] = el }}
