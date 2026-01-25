@@ -15,6 +15,7 @@ export default function SCTMPage() {
   const [controls, setControls] = useState<Control[]>([])
   const [summary, setSummary] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [familyFilter, setFamilyFilter] = useState<string>('all')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -99,12 +100,24 @@ export default function SCTMPage() {
 
         {summary && (
           <div className="mb-8">
-            <SCTMSummary summary={summary} />
+            <SCTMSummary 
+              summary={summary} 
+              onFamilyClick={(family) => {
+                setFamilyFilter(family)
+                // Scroll to table and trigger filter
+                const tableElement = document.getElementById('sctm-table')
+                if (tableElement) {
+                  tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+                // Dispatch event to filter table
+                window.dispatchEvent(new CustomEvent('sctm-family-filter', { detail: { family } }))
+              }}
+            />
           </div>
         )}
 
-        <div>
-          <SCTMTable controls={controls} />
+        <div id="sctm-table">
+          <SCTMTable controls={controls} initialFamilyFilter={familyFilter} />
         </div>
       </div>
     </div>

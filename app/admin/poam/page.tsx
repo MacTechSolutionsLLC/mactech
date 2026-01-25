@@ -38,11 +38,23 @@ function POAMContent() {
   const [loading, setLoading] = useState(true)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
   const [updatingAllStatuses, setUpdatingAllStatuses] = useState(false)
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>(
+    searchParams.get('tab') === 'archive' ? 'archive' : 'active'
+  )
   const [filters, setFilters] = useState({
-    status: searchParams.get('status') || 'all',
+    status: searchParams.get('status') || (searchParams.get('tab') === 'archive' ? 'closed' : 'open'),
     priority: searchParams.get('priority') || 'all',
     controlId: searchParams.get('controlId') || '',
   })
+
+  useEffect(() => {
+    // Update filters when tab changes
+    if (activeTab === 'archive') {
+      setFilters(prev => ({ ...prev, status: 'closed' }))
+    } else {
+      setFilters(prev => ({ ...prev, status: prev.status === 'closed' ? 'open' : prev.status }))
+    }
+  }, [activeTab])
 
   useEffect(() => {
     fetchPOAMData()
@@ -227,6 +239,52 @@ function POAMContent() {
           </div>
         )}
 
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="border-b border-neutral-200">
+            <nav className="flex -mb-px">
+              <button
+                onClick={() => {
+                  setActiveTab('active')
+                  setFilters(prev => ({ ...prev, status: 'open' }))
+                  router.push('/admin/poam?tab=active')
+                }}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'active'
+                    ? 'border-accent-600 text-accent-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                }`}
+              >
+                Active POA&Ms
+                {stats && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {stats.statusBreakdown.open || 0}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('archive')
+                  setFilters(prev => ({ ...prev, status: 'closed' }))
+                  router.push('/admin/poam?tab=archive')
+                }}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'archive'
+                    ? 'border-accent-600 text-accent-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                }`}
+              >
+                Archive
+                {stats && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    {stats.statusBreakdown.closed || 0}
+                  </span>
+                )}
+              </button>
+            </nav>
+          </div>
+        </div>
+
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -238,10 +296,16 @@ function POAMContent() {
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                disabled={activeTab === 'archive'}
               >
-                <option value="all">All Statuses</option>
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
+                {activeTab === 'archive' ? (
+                  <option value="closed">Closed</option>
+                ) : (
+                  <>
+                    <option value="all">All Statuses</option>
+                    <option value="open">Open</option>
+                  </>
+                )}
               </select>
             </div>
             <div>

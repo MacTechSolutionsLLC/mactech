@@ -13,6 +13,7 @@ interface SummaryStats {
 
 interface SCTMSummaryProps {
   summary: SummaryStats
+  onFamilyClick?: (family: string) => void
 }
 
 const FAMILY_NAMES: Record<string, string> = {
@@ -32,33 +33,39 @@ const FAMILY_NAMES: Record<string, string> = {
   SI: 'System and Information Integrity',
 }
 
-export default function SCTMSummary({ summary }: SCTMSummaryProps) {
+export default function SCTMSummary({ summary, onFamilyClick }: SCTMSummaryProps) {
   const applicableTotal = summary.total - summary.notApplicable
+
+  const handleFamilyClick = (family: string) => {
+    if (onFamilyClick) {
+      onFamilyClick(family)
+    }
+  }
 
   return (
     <div className="space-y-6">
       {/* Readiness Score */}
-      <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg shadow p-6">
+      <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg shadow p-6 border-2 border-primary-200">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-neutral-900 mb-1">
               CMMC Level 2 Readiness
             </h2>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-700 font-medium">
               {summary.implemented + summary.inherited} of {applicableTotal} applicable controls satisfied
             </p>
           </div>
           <div className="text-right">
-            <div className="text-5xl font-bold text-primary-600">
+            <div className="text-5xl font-bold text-primary-700">
               {summary.readinessPercentage}%
             </div>
-            <div className="text-sm text-neutral-600 mt-1">Readiness</div>
+            <div className="text-sm text-neutral-700 font-medium mt-1">Readiness</div>
           </div>
         </div>
         <div className="mt-4">
-          <div className="w-full bg-neutral-200 rounded-full h-3">
+          <div className="w-full bg-neutral-300 rounded-full h-4 shadow-inner">
             <div
-              className="bg-primary-600 h-3 rounded-full transition-all duration-300"
+              className="bg-primary-700 h-4 rounded-full transition-all duration-300 shadow-md"
               style={{ width: `${summary.readinessPercentage}%` }}
             />
           </div>
@@ -117,9 +124,11 @@ export default function SCTMSummary({ summary }: SCTMSummaryProps) {
           {Object.entries(summary.familyCounts)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([family, count]) => (
-              <div
+              <button
                 key={family}
-                className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                onClick={() => handleFamilyClick(family)}
+                className="flex items-center justify-between p-3 bg-neutral-50 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer text-left border-2 border-transparent hover:border-accent-300"
+                title={`Click to filter by ${family} family`}
               >
                 <div>
                   <div className="font-medium text-neutral-900">{family}</div>
@@ -128,7 +137,7 @@ export default function SCTMSummary({ summary }: SCTMSummaryProps) {
                   </div>
                 </div>
                 <div className="text-xl font-bold text-primary-600">{count}</div>
-              </div>
+              </button>
             ))}
         </div>
       </div>

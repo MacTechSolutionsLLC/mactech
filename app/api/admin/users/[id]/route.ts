@@ -26,7 +26,7 @@ export async function PATCH(
     // Get current user state
     const currentUser = await prisma.user.findUnique({
       where: { id },
-      select: { email: true, role: true, disabled: true },
+      select: { email: true, name: true, role: true, disabled: true },
     })
 
     if (!currentUser) {
@@ -80,6 +80,31 @@ export async function PATCH(
 
     // Prepare update data
     const updateData: any = {}
+
+    if (body.email !== undefined) {
+      const email = body.email.trim()
+      if (!email || !email.includes('@')) {
+        return NextResponse.json(
+          { error: "Invalid email address" },
+          { status: 400 }
+        )
+      }
+      // Check if email is already taken by another user
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      })
+      if (existingUser && existingUser.id !== id) {
+        return NextResponse.json(
+          { error: "Email address is already in use" },
+          { status: 400 }
+        )
+      }
+      updateData.email = email
+    }
+
+    if (body.name !== undefined) {
+      updateData.name = body.name.trim() || null
+    }
 
     if (body.role !== undefined) {
       if (!["USER", "ADMIN"].includes(body.role)) {
@@ -141,6 +166,8 @@ export async function PATCH(
         },
         changes: updateData,
         previousState: {
+          email: currentUser.email,
+          name: currentUser.name,
           role: currentUser.role,
           disabled: currentUser.disabled,
         },

@@ -10,6 +10,7 @@ interface AppEvent {
   ip: string | null
   success: boolean
   details: string | null
+  poamId?: string | null
   actor?: {
     id: string
     email: string
@@ -179,7 +180,11 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                   {event.targetType && event.targetId ? (
                     <div className="flex flex-col">
                       <span className="font-medium text-neutral-700">{event.targetType}</span>
-                      <code className="text-xs text-neutral-500">{event.targetId.substring(0, 12)}...</code>
+                      {event.targetType === "poam" && event.poamId ? (
+                        <code className="text-xs font-semibold text-accent-700">{event.poamId}</code>
+                      ) : (
+                        <code className="text-xs text-neutral-500">{event.targetId.substring(0, 12)}...</code>
+                      )}
                     </div>
                   ) : event.actionType === "logout" ? (
                     <span className="text-neutral-400 italic">Session termination</span>

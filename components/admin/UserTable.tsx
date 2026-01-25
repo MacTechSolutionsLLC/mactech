@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import UserActions from './UserActions'
 
 interface User {
@@ -23,12 +24,16 @@ type SortDirection = 'asc' | 'desc'
 type ViewMode = 'table' | 'cards'
 
 export default function UserTable({ users }: UserTableProps) {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [viewMode, setViewMode] = useState<ViewMode>('table')
+  const [editingField, setEditingField] = useState<{ userId: string; field: 'email' | 'name' | 'role' } | null>(null)
+  const [editValue, setEditValue] = useState('')
+  const [saving, setSaving] = useState(false)
 
   const formatDate = (date: Date | null) => {
     if (!date) return "Never"
@@ -75,6 +80,55 @@ export default function UserTable({ users }: UserTableProps) {
     ) : (
       <span className="text-accent-600">↓</span>
     )
+  }
+
+  const handleStartEdit = (userId: string, field: 'email' | 'name' | 'role', currentValue: string) => {
+    setEditingField({ userId, field })
+    setEditValue(currentValue)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingField(null)
+    setEditValue('')
+  }
+
+  const handleSaveEdit = async (userId: string, field: 'email' | 'name' | 'role') => {
+    if (!editValue.trim() && field !== 'name') {
+      return
+    }
+
+    setSaving(true)
+    try {
+      const updateData: any = {}
+      if (field === 'email') {
+        updateData.email = editValue.trim()
+      } else if (field === 'name') {
+        updateData.name = editValue.trim() || null
+      } else if (field === 'role') {
+        updateData.role = editValue.trim()
+      }
+
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update user')
+      }
+
+      setEditingField(null)
+      setEditValue('')
+      router.refresh()
+    } catch (error: any) {
+      alert(error.message || 'Failed to update user')
+    } finally {
+      setSaving(false)
+    }
   }
 
   // Filter and sort users
@@ -306,27 +360,105 @@ export default function UserTable({ users }: UserTableProps) {
                           }`}>
                             {(user.name || user.email || 'A').charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <div className="text-sm font-medium text-neutral-900">{user.email}</div>
-                            {user.name && (
+                          <div className="flex-1 min-w-0">
+                            {editingField?.userId === user.id && editingField?.field === 'email' ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="email"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={() => handleSaveEdit(user.id, 'email')}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleSaveEdit(user.id, 'email')
+                                    } else if (e.key === 'Escape') {
+                                      handleCancelEdit()
+                                    }
+                                  }}
+                                  className="text-sm font-medium text-neutral-900 border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                                  autoFocus
+                                  disabled={saving}
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="text-sm font-medium text-neutral-900 cursor-pointer hover:text-accent-700 hover:underline"
+                                onClick={() => handleStartEdit(user.id, 'email', user.email)}
+                                title="Click to edit email"
+                              >
+                                {user.email}
+                              </div>
+                            )}
+                            {user.name && editingField?.userId !== user.id && (
                               <div className="text-xs text-neutral-500">{user.name}</div>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-neutral-900">
-                          {user.name || <span className="text-neutral-400 italic">No name</span>}
-                        </div>
+                        {editingField?.userId === user.id && editingField?.field === 'name' ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onBlur={() => handleSaveEdit(user.id, 'name')}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleSaveEdit(user.id, 'name')
+                                } else if (e.key === 'Escape') {
+                                  handleCancelEdit()
+                                }
+                              }}
+                              className="text-sm text-neutral-900 border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                              autoFocus
+                              disabled={saving}
+                              placeholder="No name"
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="text-sm text-neutral-900 cursor-pointer hover:text-accent-700 hover:underline"
+                            onClick={() => handleStartEdit(user.id, 'name', user.name || '')}
+                            title="Click to edit name"
+                          >
+                            {user.name || <span className="text-neutral-400 italic">No name</span>}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          user.role === "ADMIN"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}>
-                          {user.role}
-                        </span>
+                        {editingField?.userId === user.id && editingField?.field === 'role' ? (
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onBlur={() => handleSaveEdit(user.id, 'role')}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                  handleCancelEdit()
+                                }
+                              }}
+                              className="text-xs font-semibold border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                              autoFocus
+                              disabled={saving}
+                            >
+                              <option value="USER">USER</option>
+                              <option value="ADMIN">ADMIN</option>
+                            </select>
+                          </div>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
+                              user.role === "ADMIN"
+                                ? "bg-purple-100 text-purple-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                            onClick={() => handleStartEdit(user.id, 'role', user.role)}
+                            title="Click to edit role"
+                          >
+                            {user.role}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm">
@@ -416,18 +548,92 @@ export default function UserTable({ users }: UserTableProps) {
                       }`}>
                         {(user.name || user.email || 'A').charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <div className="font-semibold text-neutral-900">{user.name || 'No name'}</div>
-                        <div className="text-sm text-neutral-500">{user.email}</div>
+                      <div className="flex-1 min-w-0">
+                        {editingField?.userId === user.id && editingField?.field === 'name' ? (
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => handleSaveEdit(user.id, 'name')}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveEdit(user.id, 'name')
+                              } else if (e.key === 'Escape') {
+                                handleCancelEdit()
+                              }
+                            }}
+                            className="font-semibold text-neutral-900 border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500 w-full"
+                            autoFocus
+                            disabled={saving}
+                            placeholder="No name"
+                          />
+                        ) : (
+                          <div
+                            className="font-semibold text-neutral-900 cursor-pointer hover:text-accent-700 hover:underline"
+                            onClick={() => handleStartEdit(user.id, 'name', user.name || '')}
+                            title="Click to edit name"
+                          >
+                            {user.name || 'No name'}
+                          </div>
+                        )}
+                        {editingField?.userId === user.id && editingField?.field === 'email' ? (
+                          <input
+                            type="email"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => handleSaveEdit(user.id, 'email')}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveEdit(user.id, 'email')
+                              } else if (e.key === 'Escape') {
+                                handleCancelEdit()
+                              }
+                            }}
+                            className="text-sm text-neutral-500 border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500 w-full mt-1"
+                            autoFocus
+                            disabled={saving}
+                          />
+                        ) : (
+                          <div
+                            className="text-sm text-neutral-500 cursor-pointer hover:text-accent-700 hover:underline"
+                            onClick={() => handleStartEdit(user.id, 'email', user.email)}
+                            title="Click to edit email"
+                          >
+                            {user.email}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      user.role === "ADMIN"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}>
-                      {user.role}
-                    </span>
+                    {editingField?.userId === user.id && editingField?.field === 'role' ? (
+                      <select
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onBlur={() => handleSaveEdit(user.id, 'role')}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            handleCancelEdit()
+                          }
+                        }}
+                        className="text-xs font-semibold border border-accent-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        autoFocus
+                        disabled={saving}
+                      >
+                        <option value="USER">USER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
+                          user.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                        onClick={() => handleStartEdit(user.id, 'role', user.role)}
+                        title="Click to edit role"
+                      >
+                        {user.role}
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-3 mb-4">

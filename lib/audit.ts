@@ -573,8 +573,30 @@ export async function getEvents(filters: EventFilters = {}) {
     prisma.appEvent.count({ where }),
   ])
 
+  // Enrich events with POAM IDs when targetType is "poam"
+  const enrichedEvents = await Promise.all(
+    events.map(async (event) => {
+      if (event.targetType === "poam" && event.targetId) {
+        try {
+          const poam = await prisma.pOAMItem.findUnique({
+            where: { id: event.targetId },
+            select: { poamId: true },
+          })
+          return {
+            ...event,
+            poamId: poam?.poamId || null,
+          }
+        } catch (error) {
+          // If POAM lookup fails, continue without poamId
+          return event
+        }
+      }
+      return event
+    })
+  )
+
   return {
-    events,
+    events: enrichedEvents,
     total,
     limit,
     offset,

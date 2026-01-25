@@ -33,6 +33,7 @@ interface AuditResult {
 
 interface SCTMTableProps {
   controls: Control[]
+  initialFamilyFilter?: string
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -71,10 +72,26 @@ const FAMILY_NAMES: Record<string, string> = {
 type SortField = 'id' | 'requirement' | 'status' | 'family'
 type SortDirection = 'asc' | 'desc'
 
-export default function SCTMTable({ controls }: SCTMTableProps) {
+export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTableProps) {
   const [searchText, setSearchText] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [familyFilter, setFamilyFilter] = useState<string>('all')
+  const [familyFilter, setFamilyFilter] = useState<string>(initialFamilyFilter || 'all')
+
+  // Listen for family filter events from summary
+  useEffect(() => {
+    const handleFamilyFilter = (event: CustomEvent) => {
+      setFamilyFilter(event.detail.family)
+    }
+    window.addEventListener('sctm-family-filter', handleFamilyFilter as EventListener)
+    return () => window.removeEventListener('sctm-family-filter', handleFamilyFilter as EventListener)
+  }, [])
+
+  // Update filter when initialFamilyFilter changes
+  useEffect(() => {
+    if (initialFamilyFilter) {
+      setFamilyFilter(initialFamilyFilter)
+    }
+  }, [initialFamilyFilter])
   const [sortField, setSortField] = useState<SortField>('id')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)

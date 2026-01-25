@@ -113,89 +113,124 @@ export default function AdminPage() {
     }
   }
 
-  const contractManagementTools = [
+  const adminCategories = [
     {
-      href: '/user/capture',
-      title: 'Federal Capture Dashboard',
-      description: 'Discover opportunities, analyze incumbents, and prepare to bid on federal contracts',
-      icon: '📊',
-      color: 'bg-blue-50 border-blue-200 hover:border-blue-300',
-      iconBg: 'bg-blue-100',
+      title: 'Contract Management',
+      description: 'Discover, analyze, and manage federal contract opportunities',
+      tools: [
+        {
+          href: '/user/capture',
+          title: 'Federal Capture Dashboard',
+          description: 'Discover opportunities, analyze incumbents, and prepare to bid on federal contracts',
+          icon: '📊',
+          color: 'bg-blue-50 border-blue-200 hover:border-blue-300',
+          iconBg: 'bg-blue-100',
+        },
+        {
+          href: '/user/contract-discovery',
+          title: 'Contract Discovery',
+          description: 'Search for VetCert-eligible contract opportunities on SAM.gov using keywords and filters',
+          icon: '🔍',
+          color: 'bg-green-50 border-green-200 hover:border-green-300',
+          iconBg: 'bg-green-100',
+        },
+      ],
     },
     {
-      href: '/user/contract-discovery',
-      title: 'Contract Discovery',
-      description: 'Search for VetCert-eligible contract opportunities on SAM.gov using keywords and filters',
-      icon: '🔍',
-      color: 'bg-green-50 border-green-200 hover:border-green-300',
-      iconBg: 'bg-green-100',
-    },
-  ]
-
-  const complianceTools = [
-    {
-      href: '/admin/compliance',
-      title: 'Compliance Dashboard',
-      description: 'CMMC Level 1 compliance overview and evidence mapping',
-      icon: '🛡️',
-      color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300',
-      iconBg: 'bg-indigo-100',
-    },
-    {
-      href: '/admin/poam',
-      title: 'POA&M Dashboard',
-      description: 'Track and manage Plans of Action and Milestones for CMMC Level 2 controls',
-      icon: '📋',
-      color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
-      iconBg: 'bg-purple-100',
-    },
-    {
-      href: '/admin/users',
       title: 'User Management',
-      description: 'Manage user accounts, roles, and access controls',
-      icon: '👥',
-      color: 'bg-teal-50 border-teal-200 hover:border-teal-300',
-      iconBg: 'bg-teal-100',
+      description: 'Manage user accounts, roles, access controls, and feedback',
+      tools: [
+        {
+          href: '/admin/users',
+          title: 'User Management',
+          description: 'Manage user accounts, roles, and access controls',
+          icon: '👥',
+          color: 'bg-teal-50 border-teal-200 hover:border-teal-300',
+          iconBg: 'bg-teal-100',
+        },
+        {
+          href: '/feedback',
+          title: 'Feedback Forum',
+          description: 'View and manage user feedback submissions',
+          icon: '💬',
+          color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-300',
+          iconBg: 'bg-cyan-100',
+        },
+      ],
     },
     {
-      href: '/admin/events',
-      title: 'Audit Log',
-      description: 'View application event logs and export audit trail for compliance',
-      icon: '📝',
-      color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-300',
-      iconBg: 'bg-cyan-100',
+      title: 'Compliance & Auditing',
+      description: 'CMMC compliance tools, evidence management, and audit trails',
+      tools: [
+        {
+          href: '/admin/compliance',
+          title: 'Compliance Dashboard',
+          description: 'CMMC Level 1 compliance overview and evidence mapping',
+          icon: '🛡️',
+          color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300',
+          iconBg: 'bg-indigo-100',
+        },
+        {
+          href: '/admin/poam',
+          title: 'POA&M Dashboard',
+          description: 'Track and manage Plans of Action and Milestones for CMMC Level 2 controls',
+          icon: '📋',
+          color: 'bg-purple-50 border-purple-200 hover:border-purple-300',
+          iconBg: 'bg-purple-100',
+        },
+        {
+          href: '/admin/events',
+          title: 'Audit Log',
+          description: 'View application event logs and export audit trail for compliance',
+          icon: '📝',
+          color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-300',
+          iconBg: 'bg-cyan-100',
+        },
+      ],
     },
     {
-      href: '/admin/physical-access-logs',
-      title: 'Physical Access Logs',
-      description: 'Record and manage physical access entries for CMMC PE.L1-3.10.4',
-      icon: '🚪',
-      color: 'bg-amber-50 border-amber-200 hover:border-amber-300',
-      iconBg: 'bg-amber-100',
+      title: 'Security & Infrastructure',
+      description: 'Physical access, endpoint inventory, and file management',
+      tools: [
+        {
+          href: '/admin/physical-access-logs',
+          title: 'Physical Access Logs',
+          description: 'Record and manage physical access entries for CMMC PE.L1-3.10.4',
+          icon: '🚪',
+          color: 'bg-amber-50 border-amber-200 hover:border-amber-300',
+          iconBg: 'bg-amber-100',
+        },
+        {
+          href: '/admin/endpoint-inventory',
+          title: 'Endpoint Inventory',
+          description: 'Track authorized endpoints with antivirus status for CMMC SI.L1-3.14.2',
+          icon: '💻',
+          color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-300',
+          iconBg: 'bg-emerald-100',
+        },
+        {
+          href: '/admin/files',
+          title: 'File Management',
+          description: 'Manage stored files and access controls',
+          icon: '📁',
+          color: 'bg-slate-50 border-slate-200 hover:border-slate-300',
+          iconBg: 'bg-slate-100',
+        },
+      ],
     },
     {
-      href: '/admin/endpoint-inventory',
-      title: 'Endpoint Inventory',
-      description: 'Track authorized endpoints with antivirus status for CMMC SI.L1-3.14.2',
-      icon: '💻',
-      color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-300',
-      iconBg: 'bg-emerald-100',
-    },
-    {
-      href: '/admin/files',
-      title: 'File Management',
-      description: 'Manage stored files and access controls',
-      icon: '📁',
-      color: 'bg-slate-50 border-slate-200 hover:border-slate-300',
-      iconBg: 'bg-slate-100',
-    },
-    {
-      href: '/admin/generate-proposal',
-      title: 'Generate Proposal & BOE',
-      description: 'Upload a Statement of Work (SOW) to automatically generate Proposal and BOE documents (Admin only - CMMC compliance)',
-      icon: '📄',
-      color: 'bg-orange-50 border-orange-200 hover:border-orange-300',
-      iconBg: 'bg-orange-100',
+      title: 'Tools & Automation',
+      description: 'Document generation, data ingestion, and system administration',
+      tools: [
+        {
+          href: '/admin/generate-proposal',
+          title: 'Generate Proposal & BOE',
+          description: 'Upload a Statement of Work (SOW) to automatically generate Proposal and BOE documents',
+          icon: '📄',
+          color: 'bg-orange-50 border-orange-200 hover:border-orange-300',
+          iconBg: 'bg-orange-100',
+        },
+      ],
     },
   ]
 
@@ -215,219 +250,142 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12 space-y-8">
-        {/* Contract Management Section */}
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">Contract Management</h2>
-            <p className="text-neutral-600">Discover, analyze, and manage federal contract opportunities</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {contractManagementTools.map((tool) => (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className={`group block p-6 rounded-xl border-2 transition-all duration-200 ${tool.color}`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`${tool.iconBg} p-3 rounded-lg text-2xl flex-shrink-0`}>
-                    {tool.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-neutral-900 mb-2 group-hover:text-accent-700 transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-sm text-neutral-600 leading-relaxed">
-                      {tool.description}
-                    </p>
-                    <div className="mt-4 flex items-center text-sm font-medium text-accent-700 group-hover:text-accent-800">
-                      Open →
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12 space-y-12">
+        {/* Render all categories as card grids */}
+        {adminCategories.map((category) => (
+          <div key={category.title}>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-neutral-900 mb-2">{category.title}</h2>
+              <p className="text-neutral-600">{category.description}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {category.tools.map((tool) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className={`group block p-6 rounded-xl border-2 transition-all duration-200 ${tool.color}`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`${tool.iconBg} p-3 rounded-lg text-2xl flex-shrink-0`}>
+                      {tool.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-neutral-900 mb-2 group-hover:text-accent-700 transition-colors">
+                        {tool.title}
+                      </h3>
+                      <p className="text-sm text-neutral-600 leading-relaxed">
+                        {tool.description}
+                      </p>
+                      <div className="mt-4 flex items-center text-sm font-medium text-accent-700 group-hover:text-accent-800">
+                        Open →
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        ))}
 
-        {/* Database Migrations Section */}
-        <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-2">Database Migrations</h2>
-          <p className="text-sm text-neutral-700 mb-4">
-            Sync database schema and create missing tables (PhysicalAccessLog, EndpointInventory, etc.). 
-            This will ensure all CMMC compliance tables exist in the database.
-          </p>
-          <button
-            onClick={handleMigrate}
-            disabled={isMigrating}
-            className="px-6 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isMigrating ? 'Running Migrations...' : 'Sync Database Schema'}
-          </button>
-          
-          {migrationResult && (
-            <div className={`mt-4 p-4 rounded-lg ${
-              migrationResult.success 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
-              <div className="flex items-start justify-between mb-2">
-                <h4 className={`font-semibold ${
-                  migrationResult.success ? 'text-green-800' : 'text-red-800'
-                }`}>
-                  {migrationResult.success ? '✅ Success' : '❌ Failed'}
-                </h4>
-                {migrationResult.timestamp && (
-                  <span className="text-xs text-neutral-500">
-                    {new Date(migrationResult.timestamp).toLocaleString()}
-                  </span>
-                )}
+        {/* System Administration Actions */}
+        <div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">System Administration</h2>
+            <p className="text-neutral-600">Database migrations, evidence generation, and data ingestion controls</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Database Migrations Card */}
+            <div className="bg-white rounded-xl border-2 border-yellow-200 hover:border-yellow-300 shadow-sm p-6 transition-all">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="bg-yellow-100 p-3 rounded-lg text-2xl flex-shrink-0">
+                  🗄️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-2">Database Migrations</h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    Sync database schema and create missing tables for CMMC compliance
+                  </p>
+                </div>
               </div>
-              <p className={`text-sm mb-2 ${
-                migrationResult.success ? 'text-green-700' : 'text-red-700'
-              }`}>
-                {migrationResult.message}
-              </p>
-              {migrationResult.results && migrationResult.results.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {migrationResult.results.map((result, index) => (
-                    <p key={index} className="text-xs font-mono text-neutral-600">
-                      {result}
-                    </p>
-                  ))}
+              <button
+                onClick={handleMigrate}
+                disabled={isMigrating}
+                className="w-full px-4 py-2.5 bg-accent-700 text-white rounded-lg text-sm font-medium hover:bg-accent-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isMigrating ? 'Running Migrations...' : 'Sync Database Schema'}
+              </button>
+              {migrationResult && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  migrationResult.success 
+                    ? 'bg-green-50 border border-green-200 text-green-800' 
+                    : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
+                  <p className="font-semibold mb-1">
+                    {migrationResult.success ? '✅ Success' : '❌ Failed'}
+                  </p>
+                  <p>{migrationResult.message}</p>
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Compliance & Security Section */}
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">Compliance & Security</h2>
-            <p className="text-neutral-600">CMMC Level 1 compliance tools and evidence management</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {complianceTools.map((tool) => (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className={`group block p-6 rounded-xl border-2 transition-all duration-200 ${tool.color}`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`${tool.iconBg} p-3 rounded-lg text-2xl flex-shrink-0`}>
-                    {tool.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-neutral-900 mb-2 group-hover:text-accent-700 transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-sm text-neutral-600 leading-relaxed">
-                      {tool.description}
-                    </p>
-                    <div className="mt-4 flex items-center text-sm font-medium text-accent-700 group-hover:text-accent-800">
-                      Open →
-                    </div>
-                  </div>
+            {/* Evidence Generation Card */}
+            <div className="bg-white rounded-xl border-2 border-indigo-200 hover:border-indigo-300 shadow-sm p-6 transition-all">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="bg-indigo-100 p-3 rounded-lg text-2xl flex-shrink-0">
+                  📋
                 </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Evidence Generation */}
-          <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">CMMC Evidence Generation</h3>
-            <p className="text-sm text-neutral-700 mb-4">
-              Generate all CMMC Level 1 evidence exports (users, audit logs, physical access logs, endpoint inventory). 
-              All exports include metadata headers and are ready for assessor review.
-            </p>
-            <button
-              onClick={handleGenerateEvidence}
-              disabled={isGeneratingEvidence}
-              className="px-6 py-2.5 bg-indigo-700 text-white rounded-lg text-sm font-medium hover:bg-indigo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGeneratingEvidence ? 'Generating Evidence...' : 'Generate All Evidence Exports'}
-            </button>
-            
-            {evidenceResult && (
-              <div className={`mt-4 p-4 rounded-lg ${
-                evidenceResult.success 
-                  ? 'bg-green-50 border border-green-200' 
-                  : 'bg-red-50 border border-red-200'
-              }`}>
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className={`font-semibold ${
-                    evidenceResult.success ? 'text-green-800' : 'text-red-800'
-                  }`}>
-                    {evidenceResult.success ? '✅ Success' : '❌ Failed'}
-                  </h4>
-                  {evidenceResult.timestamp && (
-                    <span className="text-xs text-neutral-500">
-                      {new Date(evidenceResult.timestamp).toLocaleString()}
-                    </span>
-                  )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-2">CMMC Evidence Generation</h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    Generate all CMMC Level 1 evidence exports for assessor review
+                  </p>
                 </div>
-                <p className={`text-sm mb-2 ${
-                  evidenceResult.success ? 'text-green-700' : 'text-red-700'
-                }`}>
-                  {evidenceResult.message}
-                </p>
-                {evidenceResult.files && evidenceResult.files.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    <p className="text-sm font-medium text-green-800">Generated Files (uploaded to /admin/files):</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      {evidenceResult.files.map((file, index) => (
-                        <li key={index} className="text-sm text-green-700">
-                          📄 {file.filename}
-                        </li>
-                      ))}
-                    </ul>
-                    <a
-                      href="/admin/files"
-                      className="inline-block mt-3 px-4 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 transition-colors"
-                    >
-                      View Files in /admin/files →
-                    </a>
-                  </div>
-                )}
               </div>
-            )}
-          </div>
-        </div>
+              <button
+                onClick={handleGenerateEvidence}
+                disabled={isGeneratingEvidence}
+                className="w-full px-4 py-2.5 bg-indigo-700 text-white rounded-lg text-sm font-medium hover:bg-indigo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingEvidence ? 'Generating...' : 'Generate All Evidence'}
+              </button>
+              {evidenceResult && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  evidenceResult.success 
+                    ? 'bg-green-50 border border-green-200 text-green-800' 
+                    : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
+                  <p className="font-semibold mb-1">
+                    {evidenceResult.success ? '✅ Success' : '❌ Failed'}
+                  </p>
+                  <p>{evidenceResult.message}</p>
+                </div>
+              )}
+            </div>
 
-        {/* User Management Section */}
-        <div className="bg-white rounded-xl border border-teal-200 shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-2">User Management</h2>
-          <p className="text-sm text-neutral-700 mb-4">
-            Create, manage, and monitor user accounts. Control access roles and reset passwords.
-          </p>
-          <div className="flex gap-3">
-            <Link
-              href="/admin/users"
-              className="px-6 py-2.5 bg-teal-700 text-white rounded-lg text-sm font-medium hover:bg-teal-800 transition-colors"
-            >
-              Manage Users →
-            </Link>
-          </div>
-        </div>
-
-        {/* Ingestion Controls Section */}
-        <div className="bg-white rounded-xl border border-blue-200 shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-4">Ingestion Controls</h2>
-          <p className="text-sm text-neutral-700 mb-6">
-            Control data ingestion from SAM.gov and USAspending.gov. Monitor ingestion status and trigger manual runs.
-          </p>
-          
-          {/* SAM.gov Ingestion */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3">SAM.gov Ingestion</h3>
-            <IngestionStatus />
-          </div>
-
-          {/* USAspending Ingestion */}
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3">USAspending Awards Ingestion</h3>
-            <UsaSpendingIngest />
+            {/* Ingestion Controls Card */}
+            <div className="bg-white rounded-xl border-2 border-blue-200 hover:border-blue-300 shadow-sm p-6 transition-all">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="bg-blue-100 p-3 rounded-lg text-2xl flex-shrink-0">
+                  📥
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-2">Data Ingestion</h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    Control SAM.gov and USAspending.gov data ingestion
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-700 mb-2">SAM.gov Ingestion</h4>
+                  <IngestionStatus />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-700 mb-2">USAspending Awards</h4>
+                  <UsaSpendingIngest />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
