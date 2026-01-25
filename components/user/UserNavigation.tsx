@@ -38,6 +38,12 @@ const navItems: NavItem[] = [
     description: 'View award history',
     icon: '🏆',
   },
+  {
+    href: '/feedback',
+    label: 'Feedback',
+    description: 'View and submit feedback',
+    icon: '💬',
+  },
 ]
 
 export default function UserNavigation() {

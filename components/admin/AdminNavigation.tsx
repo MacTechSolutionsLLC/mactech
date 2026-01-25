@@ -80,6 +80,12 @@ const navItems: NavItem[] = [
     description: 'Generate proposals from SOW (Admin only)',
     icon: '📄',
   },
+  {
+    href: '/feedback',
+    label: 'Feedback',
+    description: 'View and manage user feedback',
+    icon: '💬',
+  },
 ]
 
 export default function AdminNavigation() {
