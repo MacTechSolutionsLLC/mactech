@@ -127,6 +127,24 @@ export const PASSWORD_POLICY = {
 }
 
 /**
+ * Temporary password configuration (NIST SP 800-171 Rev. 2, Section 3.5.9)
+ */
+export const TEMPORARY_PASSWORD_EXPIRATION_HOURS = 72 // Temporary passwords expire after 72 hours
+export const TEMPORARY_PASSWORD_MIN_LENGTH = 16 // Minimum length for temporary passwords
+
+/**
+ * Validate if temporary password expiration is valid
+ * @param expiresAt Expiration timestamp (Date or null)
+ * @returns true if expiration is valid (not null and in the future), false otherwise
+ */
+export function validateTemporaryPasswordExpiration(expiresAt: Date | null): boolean {
+  if (!expiresAt) {
+    return false // No expiration date is invalid
+  }
+  return new Date() < expiresAt
+}
+
+/**
  * Get password policy requirements
  */
 export function getPasswordPolicy() {

@@ -3660,8 +3660,8 @@
       "controlId": "3.5.9",
       "requirement": "Temporary passwords",
       "family": "IA",
-      "claimedStatus": "not_applicable",
-      "verifiedStatus": "not_applicable",
+      "claimedStatus": "implemented",
+      "verifiedStatus": "implemented",
       "verificationStatus": "verified",
       "issues": [],
       "evidence": {

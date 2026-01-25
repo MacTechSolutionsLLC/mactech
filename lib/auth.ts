@@ -4,6 +4,7 @@ import { prisma } from "./prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { logLogin } from "./audit"
+import { isTemporaryPasswordExpired } from "./temporary-password"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -87,6 +88,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Don't fail auth if logging fails
           })
           return null
+        }
+
+        // Check if temporary password has expired (NIST SP 800-171 Rev. 2, Section 3.5.9)
+        if (user.isTemporaryPassword && user.temporaryPasswordExpiresAt) {
+          if (isTemporaryPasswordExpired(user.temporaryPasswordExpiresAt)) {
+            // Log expired temporary password attempt
+            await logLogin(user.id, user.email, false).catch(() => {
+              // Don't fail auth if logging fails
+            })
+            return null // Reject login - temporary password expired
+          }
         }
 
         // Reset failed login attempts on successful password verification

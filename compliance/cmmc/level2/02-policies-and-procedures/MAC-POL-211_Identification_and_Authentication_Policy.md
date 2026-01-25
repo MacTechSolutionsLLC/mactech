@@ -243,6 +243,63 @@ if (newPassword.length < 8) {
 
 ---
 
+### 5.5 Temporary Passwords (NIST SP 800-171 Rev. 2, Section 3.5.9)
+
+**Requirement:** Allow temporary password use for system logons with an immediate change to a permanent password.
+
+**Implementation:**
+- Temporary passwords are automatically generated for new user accounts
+- Temporary passwords are automatically generated for password resets
+- Temporary passwords are cryptographically secure (20 characters, random)
+- Temporary passwords expire after 72 hours
+- Users must change temporary passwords to permanent passwords immediately upon first login
+- Expired temporary passwords are rejected at login
+
+**Temporary Password Generation:**
+- System automatically generates temporary passwords (no admin input required)
+- Passwords are 20 characters long with mix of uppercase, lowercase, numbers, and special characters
+- Generation uses cryptographically secure random number generator (`crypto.randomBytes()`)
+- Evidence: `lib/temporary-password.ts` (`generateTemporaryPassword()`)
+
+**Temporary Password Expiration:**
+- Temporary passwords expire 72 hours after generation
+- Expiration timestamp stored in `temporaryPasswordExpiresAt` field
+- System checks expiration before allowing login
+- Expired temporary passwords are rejected with appropriate error message
+- Evidence: `lib/temporary-password.ts` (`isTemporaryPasswordExpired()`)
+- Evidence: `lib/auth.ts` (expiration check in `authorize` function)
+
+**Forced Password Change:**
+- Users with temporary passwords are required to change password on first login
+- System redirects to password change page before allowing access
+- User must set permanent password meeting full complexity requirements (14+ characters)
+- After change, password is marked as permanent and expiration is cleared
+- Evidence: `middleware.ts` (redirect enforcement)
+- Evidence: `app/api/auth/change-password/route.ts` (temporary to permanent transition)
+
+**Temporary Password Distribution:**
+- Temporary passwords are returned in API response for user creation and password reset
+- Administrators must provide temporary passwords to users securely (out of band)
+- Temporary passwords should not be logged or stored in plaintext
+- Evidence: `app/api/admin/create-user/route.ts` (returns `temporaryPassword` in response)
+- Evidence: `app/api/admin/reset-user-password/route.ts` (returns `temporaryPassword` in response)
+
+**Database Fields:**
+- `isTemporaryPassword: Boolean` - Flag indicating if current password is temporary
+- `temporaryPasswordExpiresAt: DateTime?` - Expiration timestamp for temporary passwords
+- Evidence: `prisma/schema.prisma` (User model)
+
+**Audit Logging:**
+- Temporary password generation is logged
+- Temporary password usage for login is logged
+- Temporary password expiration attempts are logged
+- Temporary to permanent password changes are logged
+- Evidence: `app/api/admin/create-user/route.ts` (audit logging)
+- Evidence: `app/api/admin/reset-user-password/route.ts` (audit logging)
+- Evidence: `app/api/auth/change-password/route.ts` (audit logging)
+
+---
+
 ## 6. Admin Account Protection
 
 ### 6.1 Admin Account Identification
@@ -463,7 +520,7 @@ if (newPassword.length < 8) {
 - ❌ Disable identifiers after inactivity (3.5.6) - To be implemented
 - ✅ Password complexity (3.5.7) - Implemented
 - ❌ Password reuse prevention (3.5.8) - To be implemented
-- 🚫 Temporary passwords (3.5.9) - Not applicable
+- ✅ Temporary passwords (3.5.9) - Implemented
 - ✅ Cryptographically-protected passwords (3.5.10)
 - ✅ Obscure authentication feedback (3.5.11)
 

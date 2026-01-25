@@ -41,31 +41,42 @@ Before provisioning a user account, ensure:
 - **Email:** Enter user's email address (must be unique)
 - **Name:** Enter user's full name
 - **Role:** Select USER or ADMIN based on business need
-- **Password:** Generate or enter initial password (minimum 14 characters per password policy)
+- **Password:** System automatically generates temporary password (no admin input required)
 
 **Step 4: Validate Input**
 - System validates email format
-- System validates password against password policy (minimum 14 characters, not in common password list)
 - System validates no CUI-related keywords in input fields
 - System checks for duplicate email addresses
+- System automatically generates cryptographically secure temporary password (20 characters)
 
 **Step 5: Create Account**
 - Click "Create User" button
-- System hashes password using bcrypt (12 rounds)
-- System creates user record in database
-- System logs account creation event (AppEvent table)
+- System generates temporary password automatically (NIST SP 800-171 Rev. 2, Section 3.5.9)
+- System hashes temporary password using bcrypt (12 rounds)
+- System creates user record with:
+  - `isTemporaryPassword: true`
+  - `temporaryPasswordExpiresAt: 72 hours from creation`
+  - `mustChangePassword: true`
+- System logs account creation event with temporary password generation (AppEvent table)
+- System returns temporary password in API response
 
 **Step 6: Notify User**
-- User receives notification (email or other method)
-- User is provided with:
+- Admin receives temporary password from API response
+- Admin provides temporary password to user securely (out of band, not via email)
+- User receives notification (email or other method) with:
   - System URL
-  - Initial credentials (if applicable) or password reset instructions
+  - Temporary password (provided securely by admin)
+  - Instructions to change password on first login
+  - Expiration information (72 hours)
   - Link to User Access and FCI Handling Acknowledgement form
 
 **Step 7: User Onboarding**
-- User accesses system
+- User accesses system using temporary password
+- System validates temporary password expiration (must be within 72 hours)
+- System redirects user to password change page (enforced by `mustChangePassword` flag)
+- User sets permanent password meeting complexity requirements (14+ characters)
+- System marks password as permanent and clears temporary password flags
 - User completes User Access and FCI Handling Acknowledgement (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`)
-- User changes password on first login (if required)
 - Access is activated
 
 **Evidence:** Account creation is logged in AppEvent table with actionType `admin_action` and details indicating user creation.
@@ -201,12 +212,24 @@ Before deprovisioning a user account, ensure:
 **Step 2: Initiate Password Reset**
 - Select user account
 - Click "Reset Password" or equivalent
-- Generate new temporary password or send reset link
+- System automatically generates temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
+- System sets:
+  - `isTemporaryPassword: true`
+  - `temporaryPasswordExpiresAt: 72 hours from reset`
+  - `mustChangePassword: true`
+- System returns temporary password in API response
 
 **Step 3: Notify User**
-- User receives password reset instructions
-- User completes password reset
-- User changes password on next login
+- Admin receives temporary password from API response
+- Admin provides temporary password to user securely (out of band)
+- User receives password reset instructions with:
+  - Temporary password (provided securely by admin)
+  - Instructions to change password on first login
+  - Expiration information (72 hours)
+- User logs in with temporary password
+- System redirects user to password change page
+- User sets permanent password meeting complexity requirements
+- System marks password as permanent and clears temporary password flags
 
 **Evidence:** Password resets are logged in AppEvent table.
 
@@ -219,12 +242,17 @@ Before deprovisioning a user account, ensure:
 **Endpoint:** `POST /api/admin/create-user`
 
 **Implementation:**
-- Requires admin re-authentication (`requireAdminReauth()`)
-- Validates password against password policy
+- Requires admin authentication (`requireAdmin()`)
+- Generates temporary password automatically using `generateTemporaryPassword()`
+- Sets temporary password expiration to 72 hours from creation
 - Validates input for CUI keywords
-- Hashes password using bcrypt (12 rounds)
-- Creates user record in database
-- Logs account creation event
+- Hashes temporary password using bcrypt (12 rounds)
+- Creates user record with temporary password flags:
+  - `isTemporaryPassword: true`
+  - `temporaryPasswordExpiresAt: 72 hours from now`
+  - `mustChangePassword: true`
+- Returns temporary password in API response
+- Logs account creation event with temporary password generation
 
 **Code Location:** `app/api/admin/create-user/route.ts`
 

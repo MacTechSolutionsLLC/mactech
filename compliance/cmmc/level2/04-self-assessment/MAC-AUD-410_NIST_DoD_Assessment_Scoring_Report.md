@@ -176,7 +176,7 @@ Controls inherited from service providers (Railway, GitHub) are treated as imple
 | 3.5.6 | Disable identifiers after inactivity | 1 | ❌ Not Implemented | **-1** | POA&M: POAM-011 |
 | 3.5.7 | Password complexity | 1 | ✅ Implemented | 0 | lib/password-policy.ts |
 | 3.5.8 | Prohibit password reuse | 1 | ✅ Implemented | 0 | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence.md |
-| 3.5.9 | Temporary passwords | 1 | 🚫 Not Applicable | 0 | All accounts use permanent passwords |
+| 3.5.9 | Temporary passwords | 1 | ✅ Implemented | 0 | Temporary passwords generated, forced change on first login |
 | 3.5.10 | Cryptographically-protected passwords | 5 | ✅ Implemented | 0 | lib/auth.ts (bcrypt) |
 | 3.5.11 | Obscure authentication feedback | 1 | ✅ Implemented | 0 | lib/auth.ts |
 

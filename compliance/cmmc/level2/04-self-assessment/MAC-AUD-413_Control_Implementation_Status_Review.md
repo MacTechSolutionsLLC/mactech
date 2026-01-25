@@ -19,7 +19,7 @@ This report reviews the implementation status of all 110 CMMC Level 2 controls, 
 - **Claimed Inherited:** 12 (11%)
 - **Verified Inherited:** 0 (0%) - Verification issue with inherited controls
 - **Not Implemented:** 3 (3%) - All tracked in POA&M
-- **Not Applicable:** 11 (10%)
+- **Not Applicable:** 10 (9%)
 - **Verification Rate:** 97 of 110 controls verified (88%)
 - **Discrepancies:** 0 significant discrepancies
 
@@ -31,9 +31,9 @@ This report reviews the implementation status of all 110 CMMC Level 2 controls, 
 
 | Status | Claimed | Verified | Verification Rate | Notes |
 |--------|---------|----------|-------------------|-------|
-| Implemented | 84 | 83 | 99% | 1 control needs review |
+| Implemented | 85 | 84 | 99% | 1 control needs review |
 | Inherited | 12 | 0 | 0% | Verification system doesn't verify inherited controls |
-| Not Applicable | 11 | 11 | 100% | All verified |
+| Not Applicable | 10 | 10 | 100% | All verified |
 | Not Implemented | 3 | 3 | 100% | All verified, tracked in POA&M |
 
 ### Verification Status
@@ -175,7 +175,7 @@ This report reviews the implementation status of all 110 CMMC Level 2 controls, 
 **Controls Not Applicable:**
 - 3.1.16 - Authorize wireless access (No organizational wireless)
 - 3.1.17 - Protect wireless access (No organizational wireless)
-- 3.5.9 - Temporary passwords (All accounts use permanent passwords)
+- 3.5.9 - Temporary passwords (Implemented - temporary passwords generated, forced change on first login)
 - 3.7.3 - Sanitize equipment for off-site maintenance (Cloud-only, no customer equipment)
 - 3.7.4 - Check maintenance media (Cloud-only, no diagnostic media)
 - 3.7.6 - Supervise maintenance personnel (Cloud-only, no customer maintenance personnel)

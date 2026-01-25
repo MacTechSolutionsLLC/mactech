@@ -20,6 +20,8 @@ model User {
   image                            String?
   emailVerified                    DateTime?
   mustChangePassword               Boolean   @default(false) // Force password change on next login
+  isTemporaryPassword              Boolean   @default(false) // Flag indicating if current password is temporary (NIST SP 800-171 Rev. 2, Section 3.5.9)
+  temporaryPasswordExpiresAt       DateTime? // Expiration timestamp for temporary passwords (NIST SP 800-171 Rev. 2, Section 3.5.9)
   lastLoginAt                      DateTime? // Last successful login timestamp
   disabled                         Boolean   @default(false) // Account disabled flag
   securityAcknowledgmentVersion    String? // Version of security acknowledgment accepted

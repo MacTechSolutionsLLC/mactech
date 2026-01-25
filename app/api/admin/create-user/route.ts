@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { requireAdmin } from '@/lib/authz'
-import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
+import { PASSWORD_POLICY } from '@/lib/password-policy'
 import { monitorCUIKeywords } from '@/lib/cui-blocker'
 import { logAdminAction, logEvent } from '@/lib/audit'
+import { generateTemporaryPassword, getTemporaryPasswordExpiration } from '@/lib/temporary-password'
 
 // API route to create admin users (protected - only existing admins can create new users)
 // Requires admin authentication
@@ -13,29 +14,17 @@ export async function POST(req: NextRequest) {
     // Require admin authentication
     const session = await requireAdmin()
 
-    const { email, password, name, role = 'ADMIN' } = await req.json()
+    const { email, name, role = 'ADMIN' } = await req.json()
 
-    if (!email || !password) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
 
     // Monitor input for CUI keywords (monitoring-only, does not block)
     await monitorCUIKeywords({ email, name, role }, "user_creation", session.user.id, session.user.email || null)
-
-    // Validate password against policy
-    const passwordValidation = validatePassword(password)
-    if (!passwordValidation.valid) {
-      return NextResponse.json(
-        {
-          error: 'Password does not meet requirements',
-          errors: passwordValidation.errors,
-        },
-        { status: 400 }
-      )
-    }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -49,16 +38,23 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Hash password with configured cost factor
-    const hashedPassword = await bcrypt.hash(password, PASSWORD_POLICY.bcryptRounds)
+    // Generate temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
+    const temporaryPassword = generateTemporaryPassword()
+    const temporaryPasswordExpiresAt = getTemporaryPasswordExpiration()
 
-    // Create user
+    // Hash temporary password with configured cost factor
+    const hashedPassword = await bcrypt.hash(temporaryPassword, PASSWORD_POLICY.bcryptRounds)
+
+    // Create user with temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name: name || null,
         role: role === 'ADMIN' ? 'ADMIN' : 'USER',
+        isTemporaryPassword: true, // Mark as temporary password
+        temporaryPasswordExpiresAt: temporaryPasswordExpiresAt, // Set expiration (72 hours)
+        mustChangePassword: true, // Force password change on first login
       },
       select: {
         id: true,
@@ -66,6 +62,8 @@ export async function POST(req: NextRequest) {
         name: true,
         role: true,
         createdAt: true,
+        isTemporaryPassword: true,
+        temporaryPasswordExpiresAt: true,
       }
     })
 
@@ -76,7 +74,7 @@ export async function POST(req: NextRequest) {
       "user_create",
       { type: "user", id: user.id },
       {
-        what: "User creation",
+        what: "User creation with temporary password",
         toWhom: {
           targetType: "user",
           targetId: user.id,
@@ -84,8 +82,10 @@ export async function POST(req: NextRequest) {
           createdEmail: email,
           createdRole: role || "USER",
           createdName: name || null,
+          temporaryPasswordGenerated: true,
+          temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
         },
-        message: `Created new user: ${email} (${role || "USER"})`,
+        message: `Created new user: ${email} (${role || "USER"}) with temporary password`,
       }
     )
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       "user",
       user.id,
       {
-        what: "User creation",
+        what: "User creation with temporary password",
         toWhom: {
           targetType: "user",
           targetId: user.id,
@@ -106,15 +106,19 @@ export async function POST(req: NextRequest) {
           createdEmail: email,
           createdRole: role || "USER",
           createdName: name || null,
+          temporaryPasswordGenerated: true,
+          temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
         },
-        message: `Created new user: ${email} (${role || "USER"})`,
+        message: `Created new user: ${email} (${role || "USER"}) with temporary password`,
       }
     )
 
     return NextResponse.json({
       success: true,
       user,
-      message: 'User created successfully'
+      temporaryPassword: temporaryPassword, // Return temporary password for admin to provide to user securely
+      temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
+      message: 'User created successfully with temporary password. User must change password on first login.'
     })
   } catch (error: any) {
     console.error('Error creating user:', error)

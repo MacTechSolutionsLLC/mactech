@@ -10,21 +10,21 @@
 ## 1. Control Requirement
 
 **NIST SP 800-171 Rev. 2, Section 3.5.9:**
-"Temporary passwords"
+"Allow temporary password use for system logons with an immediate change to a permanent password."
 
 ---
 
 ## 2. Implementation Status
 
-**Status:** 🚫 Not Applicable
+**Status:** ✅ Implemented
 
 **Status Description:**  
-Control is not applicable to system architecture (justification provided)
+Control is fully implemented by the organization
 
-**Justification:**  
-All accounts created with permanent passwords
+**Implementation Summary:**
+The system generates cryptographically secure temporary passwords for new user accounts and password resets. Users must change temporary passwords to permanent passwords immediately upon first login. Temporary passwords expire after 72 hours if not changed.
 
-**Last Assessment Date:** 2026-01-24
+**Last Assessment Date:** 2026-01-25
 
 ---
 
@@ -45,14 +45,95 @@ All accounts created with permanent passwords
 
 ### 4.1 Code Implementation
 
+**Temporary Password Generation:**
+- `lib/temporary-password.ts` - Cryptographically secure temporary password generation
+  - `generateTemporaryPassword()` - Generates 20-character random passwords
+  - `getTemporaryPasswordExpiration()` - Sets 72-hour expiration
+  - `isTemporaryPasswordExpired()` - Validates expiration
+
+**User Creation:**
+- `app/api/admin/create-user/route.ts` - Generates temporary password for new users
+  - Automatically generates temporary password (no admin input required)
+  - Sets `isTemporaryPassword: true`
+  - Sets `temporaryPasswordExpiresAt` to 72 hours from creation
+  - Sets `mustChangePassword: true`
+  - Returns temporary password in response for secure distribution
+
+**Password Reset:**
+- `app/api/admin/reset-user-password/route.ts` - Generates temporary password for resets
+  - Automatically generates temporary password (no admin input required)
+  - Sets `isTemporaryPassword: true`
+  - Sets `temporaryPasswordExpiresAt` to 72 hours from reset
+  - Sets `mustChangePassword: true`
+  - Returns temporary password in response for secure distribution
+
+**Authentication:**
+- `lib/auth.ts` - Validates temporary password expiration
+  - Checks `isTemporaryPassword` flag
+  - Validates `temporaryPasswordExpiresAt` before allowing login
+  - Rejects login if temporary password has expired
+
+**Password Change:**
+- `app/api/auth/change-password/route.ts` - Handles temporary to permanent transition
+  - Detects when changing from temporary password
+  - Sets `isTemporaryPassword: false`
+  - Clears `temporaryPasswordExpiresAt`
+  - Clears `mustChangePassword` flag
+  - Validates new password meets permanent password requirements
+  - Logs temporary to permanent password change
+
+**Password Policy:**
+- `lib/password-policy.ts` - Temporary password configuration
+  - `TEMPORARY_PASSWORD_EXPIRATION_HOURS = 72`
+  - `TEMPORARY_PASSWORD_MIN_LENGTH = 16`
+  - `validateTemporaryPasswordExpiration()` function
+
+**Database Schema:**
+- `prisma/schema.prisma` - User model fields
+  - `isTemporaryPassword: Boolean` - Flag indicating temporary password
+  - `temporaryPasswordExpiresAt: DateTime?` - Expiration timestamp
+- Migration: `prisma/migrations/20260125000000_add_temporary_password_fields/migration.sql`
+
 ### 4.2 System/Configuration Evidence
 
+**Temporary Password Characteristics:**
+- Length: 20 characters (minimum 16)
+- Character set: Uppercase, lowercase, numbers, special characters
+- Generation: Cryptographically secure using `crypto.randomBytes()`
+- Expiration: 72 hours from generation
+- Distribution: Returned in API response for secure out-of-band delivery
+
+**Enforcement:**
+- Middleware (`middleware.ts`) enforces password change redirect for `mustChangePassword: true`
+- Authentication (`lib/auth.ts`) rejects expired temporary passwords
+- Password change API validates permanent password requirements
+
 ### 4.3 Operational Procedures
+
+**User Creation Process:**
+1. Admin creates user via `/api/admin/create-user`
+2. System generates temporary password automatically
+3. Temporary password returned in API response
+4. Admin provides temporary password to user securely (out of band)
+5. User logs in with temporary password
+6. System redirects to password change page
+7. User sets permanent password meeting complexity requirements
+8. System marks password as permanent and clears flags
+
+**Password Reset Process:**
+1. Admin resets password via `/api/admin/reset-user-password`
+2. System generates temporary password automatically
+3. Temporary password returned in API response
+4. Admin provides temporary password to user securely
+5. User logs in with temporary password
+6. System redirects to password change page
+7. User sets permanent password
+8. System marks password as permanent and clears flags
 
 ## 5. Evidence Documents
 
 **MAC-RPT Evidence Files:**  
-- No dedicated MAC-RPT evidence file for this control
+- `MAC-RPT-122_3_5_9_temporary_passwords_Evidence.md` - Comprehensive implementation evidence
 
 ---
 
@@ -64,10 +145,22 @@ All accounts created with permanent passwords
 - Configuration review: Verify settings are properly configured
 
 **Test Results:**  
-- ✅ Not applicable justification documented
-- ✅ Architecture review confirms non-applicability
+- ✅ Temporary password generation implemented
+- ✅ Temporary password expiration checking implemented
+- ✅ Forced password change on first login implemented
+- ✅ Temporary to permanent password transition implemented
+- ✅ Expired temporary passwords rejected at login
+- ✅ Audit logging for temporary password operations implemented
 
-**Last Verification Date:** 2026-01-24
+**Test Scenarios Verified:**
+1. User creation generates temporary password
+2. Temporary password can be used for login
+3. User is forced to change password on first login
+4. Expired temporary passwords are rejected
+5. Password change from temporary to permanent works correctly
+6. Temporary password flags are cleared after change
+
+**Last Verification Date:** 2026-01-25
 
 ---
 
@@ -113,6 +206,7 @@ All accounts created with permanent passwords
 **Change History:**
 - Version 1.0 (2026-01-24): Initial control assessment file creation
 - Version 1.1 (2026-01-24): Enriched with comprehensive evidence from MAC-RPT files
+- Version 2.0 (2026-01-25): Converted from Not Applicable to Implemented. Added temporary password generation, expiration checking, and forced change functionality.
 
 ---
 

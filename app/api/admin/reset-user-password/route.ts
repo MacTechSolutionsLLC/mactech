@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { requireAdmin } from '@/lib/authz'
-import { validatePassword, PASSWORD_POLICY } from '@/lib/password-policy'
+import { PASSWORD_POLICY } from '@/lib/password-policy'
 import { monitorCUIKeywords } from '@/lib/cui-blocker'
 import { logAdminAction } from '@/lib/audit'
+import { generateTemporaryPassword, getTemporaryPasswordExpiration } from '@/lib/temporary-password'
 
 // Admin endpoint to reset a user's password
 // Requires admin authentication
@@ -15,29 +16,17 @@ export async function POST(req: NextRequest) {
     
     // Read request body
     const body = await req.json()
-    const { email, newPassword } = body
+    const { email } = body
 
-    if (!email || !newPassword) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'Email and newPassword are required' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
 
     // Monitor input for CUI keywords (monitoring-only, does not block)
     await monitorCUIKeywords({ email }, "password_reset", session.user.id, session.user.email || null)
-
-    // Validate password against policy
-    const passwordValidation = validatePassword(newPassword)
-    if (!passwordValidation.valid) {
-      return NextResponse.json(
-        {
-          error: 'Password does not meet requirements',
-          errors: passwordValidation.errors,
-        },
-        { status: 400 }
-      )
-    }
 
     // Find user by email or name (case-insensitive)
     const user = await prisma.user.findFirst({
@@ -56,40 +45,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check password history to prevent reuse (NIST SP 800-171 Rev. 2, Section 3.5.8)
-    const passwordHistory = await prisma.passwordHistory.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      take: PASSWORD_POLICY.passwordHistoryCount,
-    })
+    // Generate temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
+    const temporaryPassword = generateTemporaryPassword()
+    const temporaryPasswordExpiresAt = getTemporaryPasswordExpiration()
 
-    // Check against password history
-    for (const historyEntry of passwordHistory) {
-      const isReusedPassword = await bcrypt.compare(newPassword, historyEntry.passwordHash)
-      if (isReusedPassword) {
-        return NextResponse.json(
-          { 
-            error: `Password cannot be reused. The user cannot use any of their last ${PASSWORD_POLICY.passwordHistoryCount} passwords.`,
-            errors: [`Password reuse is prohibited for the last ${PASSWORD_POLICY.passwordHistoryCount} passwords`]
-          },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Check if new password is same as current password
-    if (user.password) {
-      const isSamePassword = await bcrypt.compare(newPassword, user.password)
-      if (isSamePassword) {
-        return NextResponse.json(
-          { error: 'New password must be different from current password' },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Hash new password with configured cost factor
-    const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_POLICY.bcryptRounds)
+    // Hash temporary password with configured cost factor
+    const hashedPassword = await bcrypt.hash(temporaryPassword, PASSWORD_POLICY.bcryptRounds)
 
     // Save current password to history before updating (if user has a password)
     if (user.password) {
@@ -101,11 +62,13 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Update password and reset mustChangePassword flag
+    // Update password with temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
     await prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
+        isTemporaryPassword: true, // Mark as temporary password
+        temporaryPasswordExpiresAt: temporaryPasswordExpiresAt, // Set expiration (72 hours)
         mustChangePassword: true, // Force password change on next login
       }
     })
@@ -133,12 +96,16 @@ export async function POST(req: NextRequest) {
       { type: "user", id: user.id },
       {
         targetEmail: user.email,
+        temporaryPasswordGenerated: true,
+        temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
       }
     )
 
     return NextResponse.json({
       success: true,
-      message: `Password reset successfully for ${user.email}`,
+      message: `Password reset successfully for ${user.email}. Temporary password generated.`,
+      temporaryPassword: temporaryPassword, // Return temporary password for admin to provide to user securely
+      temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
       user: {
         email: user.email,
         name: user.name,

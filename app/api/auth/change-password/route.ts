@@ -95,12 +95,17 @@ export async function POST(req: NextRequest) {
     // Hash new password with configured cost factor
     const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_POLICY.bcryptRounds)
 
-    // Update password and clear mustChangePassword flag
+    // Check if changing from temporary password (NIST SP 800-171 Rev. 2, Section 3.5.9)
+    const wasTemporaryPassword = user.isTemporaryPassword
+
+    // Update password and clear temporary password flags (NIST SP 800-171 Rev. 2, Section 3.5.9)
     await prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
-        mustChangePassword: false,
+        mustChangePassword: false, // Clear forced change flag
+        isTemporaryPassword: false, // Mark as permanent password
+        temporaryPasswordExpiresAt: null, // Clear expiration
       }
     })
 
@@ -136,13 +141,16 @@ export async function POST(req: NextRequest) {
       "user",
       user.id,
       {
-        what: "Password change",
+        what: wasTemporaryPassword ? "Password change from temporary to permanent" : "Password change",
         toWhom: {
           targetType: "user",
           targetId: user.id,
           targetEmail: user.email,
+          wasTemporaryPassword: wasTemporaryPassword,
         },
-        message: `User ${user.email} changed their password`,
+        message: wasTemporaryPassword 
+          ? `User ${user.email} changed temporary password to permanent password (NIST 3.5.9)`
+          : `User ${user.email} changed their password`,
       }
     )
 

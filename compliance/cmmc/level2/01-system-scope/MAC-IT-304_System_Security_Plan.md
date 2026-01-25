@@ -1060,19 +1060,63 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.5.9: Allow temporary password use for system logons with an immediate change to a permanent password
 
 **Implementation:**
-- Temporary password mechanism not used in system architecture
-- User accounts are created with permanent passwords that meet password policy requirements
-- Account creation process requires administrator to provide a password that meets complexity requirements
-- No temporary password generation or distribution mechanism exists
-- Password reset functionality (if implemented) would require immediate change, but current system does not use temporary passwords
-- All user accounts are provisioned with permanent passwords from initial creation
+- Temporary password generation implemented using cryptographically secure random number generation
+- User accounts are created with temporary passwords that expire after 72 hours
+- Password resets generate temporary passwords that expire after 72 hours
+- Temporary passwords are 20 characters long with mix of uppercase, lowercase, numbers, and special characters
+- Users must change temporary passwords to permanent passwords immediately upon first login
+- System enforces password change before allowing access to protected resources
+- Expired temporary passwords are rejected at login
+- Temporary password flags are cleared when user changes to permanent password
+
+**Temporary Password Generation:**
+- `lib/temporary-password.ts` - Secure random password generation using `crypto.randomBytes()`
+- `generateTemporaryPassword()` - Generates 20-character random passwords
+- `getTemporaryPasswordExpiration()` - Sets 72-hour expiration from generation
+- `isTemporaryPasswordExpired()` - Validates expiration before login
+
+**User Creation:**
+- `app/api/admin/create-user/route.ts` - Automatically generates temporary password
+- Sets `isTemporaryPassword: true` and `temporaryPasswordExpiresAt` to 72 hours from creation
+- Sets `mustChangePassword: true` to force change on first login
+- Returns temporary password in API response for secure distribution
+
+**Password Reset:**
+- `app/api/admin/reset-user-password/route.ts` - Automatically generates temporary password
+- Sets `isTemporaryPassword: true` and `temporaryPasswordExpiresAt` to 72 hours from reset
+- Sets `mustChangePassword: true` to force change on first login
+- Returns temporary password in API response for secure distribution
+
+**Authentication:**
+- `lib/auth.ts` - Validates temporary password expiration before allowing login
+- Rejects login if temporary password has expired
+- Allows login with valid temporary password but enforces password change
+
+**Password Change:**
+- `app/api/auth/change-password/route.ts` - Handles temporary to permanent transition
+- Detects when changing from temporary password
+- Sets `isTemporaryPassword: false` and clears `temporaryPasswordExpiresAt`
+- Validates new password meets permanent password requirements (14+ characters, complexity)
+- Logs temporary to permanent password change in audit trail
+
+**Database Schema:**
+- `prisma/schema.prisma` - User model includes:
+  - `isTemporaryPassword: Boolean` - Flag indicating temporary password
+  - `temporaryPasswordExpiresAt: DateTime?` - Expiration timestamp
+- Migration: `prisma/migrations/20260125000000_add_temporary_password_fields/migration.sql`
 
 **Evidence:**
-- User account creation: `app/api/admin/create-user/route.ts` (lines 16, 28-38, 53) - requires permanent password that meets policy
-- Password policy: `lib/password-policy.ts` - validates permanent passwords
+- Temporary password generation: `lib/temporary-password.ts`
+- User creation: `app/api/admin/create-user/route.ts`
+- Password reset: `app/api/admin/reset-user-password/route.ts`
+- Authentication: `lib/auth.ts`
+- Password change: `app/api/auth/change-password/route.ts`
+- Password policy: `lib/password-policy.ts` - Temporary password constants
+- Database schema: `prisma/schema.prisma`
 - User provisioning procedure: `../02-policies-and-procedures/MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+- Evidence document: `../05-evidence/MAC-RPT-122_3_5_9_temporary_passwords_Evidence.md`
 
-**Status:** 🚫 Not Applicable (temporary passwords not used - all accounts created with permanent passwords meeting policy requirements)
+**Status:** ✅ Implemented (temporary passwords generated for new users and password resets, immediate change to permanent password enforced, expiration validated)
 
 #### 3.5.10: Store and transmit only cryptographically-protected passwords
 

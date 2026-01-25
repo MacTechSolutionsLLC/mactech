@@ -76,17 +76,9 @@ Each "Not Applicable" control was validated against:
 
 ---
 
-### 4.3 Identification and Authentication (IA) - 1 control
+### 4.3 Identification and Authentication (IA) - 0 controls
 
-#### 3.5.9: Temporary passwords
-**Justification:** All user accounts are created with permanent passwords that meet password policy requirements. No temporary password mechanism exists.
-
-**Validation:** ✅ **VALID** - User account creation process (`app/api/admin/create-user/route.ts`) requires administrator to provide a permanent password that meets complexity requirements. No temporary password generation or distribution mechanism exists.
-
-**Evidence:**
-- User account creation: `app/api/admin/create-user/route.ts` (lines 16, 28-38, 53)
-- Password policy: `lib/password-policy.ts`
-- User provisioning procedure: `MAC-SOP-221_User_Account_Provisioning_and_Deprovisioning_Procedure.md`
+**Note:** Control 3.5.9 (Temporary passwords) was previously marked as Not Applicable but has been implemented as of 2026-01-25. See `NIST-3.5.9_temporary_passwords.md` for implementation details.
 
 ---
 
@@ -204,10 +196,10 @@ Each "Not Applicable" control was validated against:
 
 ## 5. Validation Summary
 
-**Total Controls Validated:** 14
+**Total Controls Validated:** 10 (Note: Control 3.5.9 was implemented on 2026-01-25 and is no longer Not Applicable)
 
 **Validation Results:**
-- ✅ **All 14 controls validated as truly not applicable**
+- ✅ **All 10 controls validated as truly not applicable**
 - ✅ **All justifications are sound and well-documented**
 - ✅ **All justifications reference system architecture documentation**
 - ✅ **All justifications are acceptable for CMMC Level 2 assessment**
@@ -217,6 +209,7 @@ Each "Not Applicable" control was validated against:
 2. Justifications are specific and reference system architecture
 3. Alternative controls address the intent where applicable (e.g., digital CUI protection via access controls)
 4. No gaps identified that require alternative controls
+5. Control 3.5.9 (Temporary passwords) has been implemented and is no longer Not Applicable
 
 ---
 
@@ -224,7 +217,9 @@ Each "Not Applicable" control was validated against:
 
 **Previous Count:** 2 controls marked as "Not Applicable" (incorrect)
 
-**Corrected Count:** 14 controls marked as "Not Applicable" (correct)
+**Corrected Count:** 10 controls marked as "Not Applicable" (correct as of 2026-01-25)
+
+**Note:** Control 3.5.9 (Temporary passwords) was previously marked as Not Applicable but has been implemented. Current Not Applicable count is 10 controls.
 
 **Updated Documents:**
 - `MAC-AUD-408_System_Control_Traceability_Matrix.md` - Summary statistics updated
@@ -244,10 +239,11 @@ All 14 controls have been enhanced with:
 **Enhanced Controls:**
 - 3.1.16, 3.1.17 (Wireless access)
 - 3.4.9 (User-installed software)
-- 3.5.9 (Temporary passwords)
 - 3.7.3, 3.7.4, 3.7.6 (Maintenance controls)
 - 3.8.4, 3.8.5, 3.8.7, 3.8.8 (Media protection)
 - 3.13.7, 3.13.12, 3.13.14 (System and communications protection)
+
+**Note:** Control 3.5.9 (Temporary passwords) was previously in this list but has been implemented as of 2026-01-25.
 
 ---
 
@@ -292,7 +288,6 @@ All "Not Applicable" controls are:
 | 3.1.16 | Authorize wireless access | AC | Not Applicable |
 | 3.1.17 | Protect wireless access | AC | Not Applicable |
 | 3.4.9 | Control user-installed software | CM | Not Applicable |
-| 3.5.9 | Temporary passwords | IA | Not Applicable |
 | 3.7.3 | Sanitize equipment for off-site maintenance | MA | Not Applicable |
 | 3.7.4 | Check maintenance media | MA | Not Applicable |
 | 3.7.6 | Supervise maintenance personnel | MA | Not Applicable |
@@ -304,4 +299,6 @@ All "Not Applicable" controls are:
 | 3.13.12 | Collaborative computing devices | SC | Not Applicable |
 | 3.13.14 | Control VoIP | SC | Not Applicable |
 
-**Total:** 14 controls
+**Total:** 10 controls
+
+**Note:** Control 3.5.9 (Temporary passwords) was previously listed as Not Applicable but has been implemented as of 2026-01-25.
