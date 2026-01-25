@@ -135,6 +135,17 @@ export default function ComplianceDashboardClient() {
             Run Audit →
           </Link>
         </div>
+
+        {/* NIST CSF 2.0 Alignment Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-neutral-900 mb-4">NIST CSF 2.0 Alignment</h2>
+          <p className="text-neutral-600 mb-4">
+            MacTech Solutions aligns its cybersecurity program with NIST CSF 2.0. Our alignment is documented in our CSF 2.0 Profile, which maps existing CMMC Level 2 controls to CSF 2.0 outcomes.
+          </p>
+          <p className="text-sm text-neutral-500 mb-4">
+            CSF 2.0 Profile available in compliance documentation: <code className="text-xs">compliance/nist-csf-2.0/</code>
+          </p>
+        </div>
       </div>
 
       {/* Control Status Overview */}

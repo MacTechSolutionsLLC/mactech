@@ -34,6 +34,10 @@ The MacTech Solutions Application is a CMMC 2.0 Level 2 system that processes, s
 
 The system implements all 110 NIST SP 800-171 Rev. 2 security controls required for CMMC Level 2 compliance. Security controls are implemented internally, inherited from service providers (Railway, GitHub), or tracked in the Plan of Action and Milestones (POA&M) where not yet fully implemented.
 
+### 1.3 Related Frameworks
+
+**NIST Cybersecurity Framework 2.0 Alignment:** MacTech Solutions' cybersecurity program aligns with the NIST Cybersecurity Framework (CSF) 2.0. This alignment is documented in the CSF 2.0 Profile (`../../nist-csf-2.0/`) and is based on the existing CMMC Level 2 implementation described in this System Security Plan. All six CSF 2.0 functions (Govern, Identify, Protect, Detect, Respond, Recover) are supported by existing NIST SP 800-171 controls implemented for CMMC Level 2 compliance. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
+
 ---
 
 ## 2. System Boundary

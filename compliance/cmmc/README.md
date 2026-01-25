@@ -33,6 +33,20 @@
 
 ---
 
+## NIST Cybersecurity Framework 2.0 Alignment
+
+MacTech Solutions aligns its cybersecurity program with the NIST Cybersecurity Framework (CSF) 2.0. Our CSF 2.0 alignment is documented in our CSF 2.0 Profile, which maps our existing CMMC Level 2 controls to CSF 2.0 functions and categories. All six CSF 2.0 functions (Govern, Identify, Protect, Detect, Respond, Recover) are addressed through our existing cybersecurity controls.
+
+**CSF 2.0 Profile Documentation:**
+- Location: `../nist-csf-2.0/`
+- Profile Overview: `../nist-csf-2.0/csf-profile-overview.md`
+- Current State Profile: `../nist-csf-2.0/csf-current-state-profile.md`
+- Target State Profile: `../nist-csf-2.0/csf-target-state-profile.md`
+- Control Mapping: `../nist-csf-2.0/csf-control-mapping.md`
+- Claim Language: `../nist-csf-2.0/csf-claim-language.md`
+
+**Note:** CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts. CSF 2.0 alignment is derived from existing CMMC implementation and demonstrates how our controls support CSF 2.0 outcomes.
+
 ---
 
 ## Scope Statement

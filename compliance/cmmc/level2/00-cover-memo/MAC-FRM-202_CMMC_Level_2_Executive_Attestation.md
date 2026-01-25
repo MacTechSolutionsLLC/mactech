@@ -143,6 +143,9 @@ This attestation is supported by the following documentation:
    - Inherited Control Statement Railway (MAC-SEC-310)
 5. **Self-Assessment** (`04-self-assessment/MAC-AUD-401_Internal_Cybersecurity_Self-Assessment.md`)
 
+**Additional Framework Alignment:**
+Additionally, MacTech Solutions maintains a NIST Cybersecurity Framework (CSF) 2.0 Profile documenting alignment of our CMMC Level 2 controls with CSF 2.0 outcomes. See `../../nist-csf-2.0/` for CSF 2.0 alignment documentation. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
+
 ---
 
 **Document Status:** This document reflects the system state as of 2026-01-21 and is maintained under configuration control.
