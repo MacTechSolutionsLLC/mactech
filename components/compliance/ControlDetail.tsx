@@ -232,10 +232,7 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                // Extract the path from the URL
-                                const url = new URL(path, window.location.origin)
-                                const docPath = url.searchParams.get('path') || path
-                                setDocumentModal({ path: docPath, name: policy.reference })
+                                setDocumentModal({ path: path, name: policy.reference })
                               }}
                               className="text-xs text-primary-600 hover:text-primary-700 ml-2 underline"
                             >
