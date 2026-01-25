@@ -96,13 +96,29 @@ export async function POST(request: NextRequest) {
       }).catch(() => {})
     }
 
+    // Check if password change is required (NIST SP 800-171 Rev. 2, Section 3.5.9)
+    // Password change must happen BEFORE MFA enrollment
+    if (user.mustChangePassword) {
+      // Log successful password authentication (but password change required)
+      await logLogin(user.id, user.email, true).catch(() => {})
+      
+      return NextResponse.json({
+        success: true,
+        requiresPasswordChange: true,
+        userId: user.id,
+        userEmail: user.email,
+        userRole: user.role,
+        isTemporaryPassword: user.isTemporaryPassword || false,
+      })
+    }
+
     // Update last login timestamp
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     }).catch(() => {})
 
-    // Check MFA requirements
+    // Check MFA requirements (only after password change is not required)
     const mfaRequired = await isMFARequired(user.id)
     const mfaEnrolled = await isMFAEnrolled(user.id)
 

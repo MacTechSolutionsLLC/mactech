@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { generateMFASecret, generateTOTPURI, generateBackupCodes } from "@/lib/mfa"
 import { isMFAEnrolled, isMFARequired } from "@/lib/mfa"
 import QRCode from "qrcode"
@@ -21,6 +22,20 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id
     const userEmail = session.user.email || ""
+
+    // Check if password change is required (NIST SP 800-171 Rev. 2, Section 3.5.9)
+    // Password change must happen BEFORE MFA enrollment
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { mustChangePassword: true },
+    })
+
+    if (user?.mustChangePassword) {
+      return NextResponse.json(
+        { error: "Password change required before MFA enrollment. Please change your password first." },
+        { status: 403 }
+      )
+    }
 
     // Check if MFA is required (ADMIN role)
     const mfaRequired = await isMFARequired(userId)

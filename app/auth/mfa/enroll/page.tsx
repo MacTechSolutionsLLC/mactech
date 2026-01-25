@@ -16,11 +16,32 @@ export default function MFAEnrollPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Fetch MFA enrollment data
-    fetch('/api/auth/mfa/enroll')
+    // Check if password change is required first
+    fetch('/api/auth/session')
       .then((res) => res.json())
+      .then((sessionData) => {
+        // If password change is required, redirect to password change page
+        if (sessionData?.user?.mustChangePassword) {
+          router.push('/auth/change-password?required=true')
+          return
+        }
+        
+        // Fetch MFA enrollment data
+        return fetch('/api/auth/mfa/enroll')
+      })
+      .then((res) => {
+        if (!res) return // Already redirected
+        return res.json()
+      })
       .then((data) => {
+        if (!data) return // Already redirected
+        
         if (data.error) {
+          // If error is about password change, redirect
+          if (data.error.includes('Password change required')) {
+            router.push('/auth/change-password?required=true')
+            return
+          }
           setError(data.error)
           setStep('qr')
         } else {
@@ -35,7 +56,7 @@ export default function MFAEnrollPage() {
         setError('Failed to load MFA enrollment')
         setStep('qr')
       })
-  }, [])
+  }, [router])
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()

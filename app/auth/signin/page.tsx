@@ -34,6 +34,27 @@ export default function SignInPage() {
         return
       }
 
+      // If password change required, complete authentication and redirect to password change
+      // Password change must happen BEFORE MFA enrollment (NIST SP 800-171 Rev. 2, Section 3.5.9)
+      if (customSignInData.requiresPasswordChange) {
+        // Complete password authentication with NextAuth (session will be created)
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError('Authentication failed')
+          setIsLoading(false)
+          return
+        }
+
+        // Redirect to password change page
+        router.push('/auth/change-password?required=true')
+        return
+      }
+
       // If MFA enrollment required, redirect to enrollment
       if (customSignInData.requiresMFAEnrollment) {
         sessionStorage.setItem('mfa_userId', customSignInData.userId)
