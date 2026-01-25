@@ -26,6 +26,7 @@ export default function Navigation() {
     { href: '/leadership', label: 'Leadership' },
     { href: '/capabilities', label: 'Capabilities' },
     { href: '/contact', label: 'Contact' },
+    { href: '/admin/files', label: 'Files' },
   ]
 
   return (
