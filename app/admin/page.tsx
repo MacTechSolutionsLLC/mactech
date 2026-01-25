@@ -202,7 +202,7 @@ export default function AdminPage() {
     {
       href: '/admin/compliance/sctm',
       title: 'SCTM Management',
-      description: 'System Control Traceability Matrix for CMMC compliance tracking',
+      description: 'System Control Traceability Matrix for CMMC compliance tracking. Controls documented in SCTM support alignment with NIST CSF 2.0, FedRAMP Moderate, SOC 2, and NIST RMF.',
       icon: '📊',
       category: 'Compliance & Security',
       gradient: 'from-indigo-50 to-purple-100/50',

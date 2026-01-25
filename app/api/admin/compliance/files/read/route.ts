@@ -29,6 +29,14 @@ const FRAMEWORK_MAPPINGS: FrameworkPathMapping[] = [
   {
     virtualPath: 'fedramp-moderate-alignment',
     baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  },
+  {
+    virtualPath: 'soc2-type1-readiness',
+    baseDir: resolve(process.cwd(), 'compliance', 'soc2-type1-readiness')
+  },
+  {
+    virtualPath: 'nist-rmf-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-rmf-alignment')
   }
 ]
 

@@ -49,6 +49,58 @@ MacTech Solutions aligns its cybersecurity program with the NIST Cybersecurity F
 
 ---
 
+## FedRAMP Moderate Design Alignment
+
+MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. Our FedRAMP Moderate alignment is documented in our FedRAMP Moderate Design Alignment Package, which maps our existing CMMC Level 2 controls to FedRAMP Moderate baseline expectations. All applicable FedRAMP Moderate control families are addressed through our existing security controls.
+
+**FedRAMP Moderate Design Alignment Documentation:**
+- Location: `../fedramp-moderate-alignment/`
+- Alignment Overview: `../fedramp-moderate-alignment/fedramp-alignment-overview.md`
+- System Boundary and Architecture: `../fedramp-moderate-alignment/system-boundary-and-architecture.md`
+- Control Family Alignment: `../fedramp-moderate-alignment/fedramp-control-family-alignment.md`
+- Inherited Controls: `../fedramp-moderate-alignment/inherited-controls-and-external-services.md`
+- Continuous Monitoring Concept: `../fedramp-moderate-alignment/continuous-monitoring-concept.md`
+- Claim Language: `../fedramp-moderate-alignment/fedramp-claim-language.md`
+
+**Note:** CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts. FedRAMP Moderate design alignment is derived from existing CMMC implementation and demonstrates how our security architecture aligns with FedRAMP Moderate baseline expectations.
+
+---
+
+## SOC 2 Type I Readiness
+
+MacTech Solutions has completed an internal SOC 2 Type I readiness assessment. Our system design is prepared for a SOC 2 Type I examination, with controls designed to meet SOC 2 Trust Services Criteria (Security). Our SOC 2 Type I readiness is documented in our SOC 2 Type I Readiness Package, which maps our existing CMMC Level 2 controls to SOC 2 Trust Services Criteria. All 9 Common Criteria (CC1-CC9) are addressed through our existing security controls.
+
+**SOC 2 Type I Readiness Documentation:**
+- Location: `../soc2-type1-readiness/`
+- Readiness Overview: `../soc2-type1-readiness/soc2-readiness-overview.md`
+- System Description: `../soc2-type1-readiness/system-description.md`
+- Risk Assessment: `../soc2-type1-readiness/soc2-risk-assessment.md`
+- Trust Services Criteria Mapping: `../soc2-type1-readiness/trust-services-criteria-mapping.md`
+- Claim Language: `../soc2-type1-readiness/soc2-claim-language.md`
+
+**Note:** CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts. SOC 2 Type I readiness is derived from existing CMMC implementation and demonstrates how our system design is prepared for a SOC 2 Type I examination.
+
+---
+
+## NIST RMF Alignment
+
+MacTech Solutions aligns its system security governance with the NIST Risk Management Framework (RMF). Our security practices are informed by RMF principles, and our system security governance is structured consistent with RMF. Our RMF alignment is documented in our RMF Alignment Package, which maps our existing CMMC Level 2 controls and governance practices to RMF principles. All six RMF steps (Categorize, Select, Implement, Assess, Authorize, Monitor) are addressed through our existing security governance and control implementation.
+
+**NIST RMF Alignment Documentation:**
+- Location: `../nist-rmf-alignment/`
+- Alignment Overview: `../nist-rmf-alignment/rmf-alignment-overview.md`
+- System Categorization: `../nist-rmf-alignment/rmf-system-categorization.md`
+- Control Selection and Inheritance: `../nist-rmf-alignment/rmf-control-selection-and-inheritance.md`
+- Implementation Summary: `../nist-rmf-alignment/rmf-implementation-summary.md`
+- Risk Assessment and Treatment: `../nist-rmf-alignment/rmf-risk-assessment-and-treatment.md`
+- Authorization Boundary and Decision Context: `../nist-rmf-alignment/rmf-authorization-boundary-and-decision-context.md`
+- Continuous Monitoring Concept: `../nist-rmf-alignment/rmf-continuous-monitoring-concept.md`
+- Claim Language: `../nist-rmf-alignment/rmf-claim-language.md`
+
+**Note:** CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts. NIST RMF alignment is derived from existing CMMC implementation and demonstrates how our system security governance aligns with RMF principles.
+
+---
+
 ## Scope Statement
 
 **System Scope:** This system is scoped to **FCI (Federal Contract Information) and CUI (Controlled Unclassified Information)** per CMMC Level 2 requirements.

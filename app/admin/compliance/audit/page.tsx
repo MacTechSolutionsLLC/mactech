@@ -29,7 +29,7 @@ export default async function ComplianceAuditPage() {
             CMMC Level 2 Compliance Audit
           </h1>
           <p className="mt-2 text-neutral-600">
-            Comprehensive verification of control implementation, evidence, and documentation
+            Comprehensive verification of control implementation, evidence, and documentation. Audited controls support alignment with NIST CSF 2.0, FedRAMP Moderate, SOC 2, and NIST RMF. See compliance documentation for framework-specific alignment details.
           </p>
         </div>
 

@@ -152,6 +152,57 @@ export default function ComplianceDashboardClient() {
             View CSF 2.0 Profile →
           </Link>
         </div>
+
+        {/* FedRAMP Moderate Design Alignment Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-neutral-900 mb-4">FedRAMP Moderate Design Alignment</h2>
+          <p className="text-neutral-600 mb-4">
+            MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. Our alignment is documented in our FedRAMP Moderate Design Alignment Package, which maps existing CMMC Level 2 controls to FedRAMP Moderate baseline expectations.
+          </p>
+          <p className="text-sm text-neutral-500 mb-4">
+            FedRAMP Alignment Package available in compliance documentation: <code className="text-xs">compliance/fedramp-moderate-alignment/</code>
+          </p>
+          <Link
+            href="/admin/files?tab=compliance&folder=fedramp-moderate-alignment"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View FedRAMP Alignment →
+          </Link>
+        </div>
+
+        {/* SOC 2 Type I Readiness Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-neutral-900 mb-4">SOC 2 Type I Readiness</h2>
+          <p className="text-neutral-600 mb-4">
+            MacTech Solutions has completed an internal SOC 2 Type I readiness assessment. Our system design is prepared for a SOC 2 Type I examination, with controls designed to meet SOC 2 Trust Services Criteria (Security).
+          </p>
+          <p className="text-sm text-neutral-500 mb-4">
+            SOC 2 Type I Readiness Package available in compliance documentation: <code className="text-xs">compliance/soc2-type1-readiness/</code>
+          </p>
+          <Link
+            href="/admin/files?tab=compliance&folder=soc2-type1-readiness"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View SOC 2 Readiness →
+          </Link>
+        </div>
+
+        {/* NIST RMF Alignment Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-neutral-900 mb-4">NIST RMF Alignment</h2>
+          <p className="text-neutral-600 mb-4">
+            MacTech Solutions aligns its system security governance with the NIST Risk Management Framework (RMF). Our security practices are informed by RMF principles, and our system security governance is structured consistent with RMF.
+          </p>
+          <p className="text-sm text-neutral-500 mb-4">
+            RMF Alignment Package available in compliance documentation: <code className="text-xs">compliance/nist-rmf-alignment/</code>
+          </p>
+          <Link
+            href="/admin/files?tab=compliance&folder=nist-rmf-alignment"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View RMF Alignment →
+          </Link>
+        </div>
       </div>
 
       {/* Control Status Overview */}

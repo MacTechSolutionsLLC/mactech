@@ -32,6 +32,14 @@ const FRAMEWORK_MAPPINGS: FrameworkPathMapping[] = [
   {
     virtualPath: 'fedramp-moderate-alignment',
     baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  },
+  {
+    virtualPath: 'soc2-type1-readiness',
+    baseDir: resolve(process.cwd(), 'compliance', 'soc2-type1-readiness')
+  },
+  {
+    virtualPath: 'nist-rmf-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-rmf-alignment')
   }
 ]
 
@@ -49,6 +57,8 @@ function validatePath(requestedPath: string): { valid: boolean; fullPath: string
     resolve(process.cwd(), "compliance", "cmmc", "fci"),
     resolve(process.cwd(), "compliance", "nist-csf-2.0"),
     resolve(process.cwd(), "compliance", "fedramp-moderate-alignment"),
+    resolve(process.cwd(), "compliance", "soc2-type1-readiness"),
+    resolve(process.cwd(), "compliance", "nist-rmf-alignment"),
   ]
   
   // Normalize the requested path (remove .., ., etc.)

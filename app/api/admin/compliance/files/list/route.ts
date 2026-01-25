@@ -42,6 +42,16 @@ const FRAMEWORKS: FrameworkConfig[] = [
     name: 'FedRAMP Moderate Design Alignment',
     path: 'fedramp-moderate-alignment',
     baseDir: resolve(process.cwd(), 'compliance', 'fedramp-moderate-alignment')
+  },
+  {
+    name: 'SOC 2 Type I Readiness',
+    path: 'soc2-type1-readiness',
+    baseDir: resolve(process.cwd(), 'compliance', 'soc2-type1-readiness')
+  },
+  {
+    name: 'NIST RMF Alignment',
+    path: 'nist-rmf-alignment',
+    baseDir: resolve(process.cwd(), 'compliance', 'nist-rmf-alignment')
   }
 ]
 

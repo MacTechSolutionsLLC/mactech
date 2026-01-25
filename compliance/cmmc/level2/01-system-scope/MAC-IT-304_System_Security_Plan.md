@@ -38,6 +38,12 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
 
 **NIST Cybersecurity Framework 2.0 Alignment:** MacTech Solutions' cybersecurity program aligns with the NIST Cybersecurity Framework (CSF) 2.0. This alignment is documented in the CSF 2.0 Profile (`../../nist-csf-2.0/`) and is based on the existing CMMC Level 2 implementation described in this System Security Plan. All six CSF 2.0 functions (Govern, Identify, Protect, Detect, Respond, Recover) are supported by existing NIST SP 800-171 controls implemented for CMMC Level 2 compliance. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
 
+**FedRAMP Moderate Design Alignment:** MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. This alignment is documented in the FedRAMP Moderate Design Alignment Package (`../../fedramp-moderate-alignment/`) and is based on the existing CMMC Level 2 implementation described in this System Security Plan. All applicable FedRAMP Moderate control families are addressed through existing NIST SP 800-171 controls implemented for CMMC Level 2 compliance. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
+
+**SOC 2 Type I Readiness:** MacTech Solutions has completed an internal SOC 2 Type I readiness assessment. This readiness is documented in the SOC 2 Type I Readiness Package (`../../soc2-type1-readiness/`) and is based on the existing CMMC Level 2 implementation described in this System Security Plan. All 9 Common Criteria (CC1-CC9) are addressed through existing NIST SP 800-171 controls implemented for CMMC Level 2 compliance. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
+
+**NIST RMF Alignment:** MacTech Solutions aligns its system security governance with the NIST Risk Management Framework (RMF). This alignment is documented in the RMF Alignment Package (`../../nist-rmf-alignment/`) and is based on the existing CMMC Level 2 implementation described in this System Security Plan. All six RMF steps (Categorize, Select, Implement, Assess, Authorize, Monitor) are addressed through existing security governance and control implementation. CMMC 2.0 Level 2 remains the primary compliance framework for DoD contracts.
+
 ---
 
 ## 2. System Boundary
