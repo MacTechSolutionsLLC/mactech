@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import UserNavigation from '@/components/user/UserNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 
 export default function UserPage() {
   const userTools = [
@@ -26,7 +26,7 @@ export default function UserPage() {
 
   return (
     <div className="bg-neutral-50 min-h-screen">
-      <UserNavigation />
+      <RoleBasedNavigation />
       
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">

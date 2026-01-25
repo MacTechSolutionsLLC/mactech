@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import UserNavigation from '@/components/user/UserNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 import OpportunityFeed from './components/OpportunityFeed'
 import IncumbentIntelligence from './components/IncumbentIntelligence'
 import Analytics from './components/Analytics'
@@ -68,7 +68,7 @@ export default function CaptureDashboardPage() {
 
   return (
     <div className="bg-neutral-50 min-h-screen">
-      <UserNavigation />
+      <RoleBasedNavigation />
       
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">

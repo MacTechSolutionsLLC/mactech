@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import UserNavigation from '@/components/user/UserNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 
 interface UsaSpendingAward {
   id?: string
@@ -149,7 +149,7 @@ export default function UsaSpendingPage() {
 
   return (
     <div className="bg-neutral-50 min-h-screen">
-      <UserNavigation />
+      <RoleBasedNavigation />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
       <div className="mb-8">

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import UserNavigation from '@/components/user/UserNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 import AwardHistory from '@/components/usaspending/AwardHistory'
 import EnrichmentButton from '@/components/contracts/EnrichmentButton'
 import EnrichedDataDisplay from '@/components/contracts/EnrichedDataDisplay'
@@ -363,7 +363,7 @@ export default function ContractDiscoveryPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <UserNavigation />
+      <RoleBasedNavigation />
       
       {/* Header */}
       <section className="section-narrow bg-white border-b border-neutral-200">

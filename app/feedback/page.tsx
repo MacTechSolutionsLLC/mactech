@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import UserNavigation from '@/components/user/UserNavigation'
-import AdminNavigation from '@/components/admin/AdminNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 
 interface FeedbackItem {
   id: string
@@ -147,11 +146,9 @@ export default function FeedbackForumPage() {
     return null
   }
 
-  const isAdmin = session?.user?.role === 'ADMIN'
-
   return (
     <div className="bg-neutral-50 min-h-screen">
-      {isAdmin ? <AdminNavigation /> : <UserNavigation />}
+      <RoleBasedNavigation />
       
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">

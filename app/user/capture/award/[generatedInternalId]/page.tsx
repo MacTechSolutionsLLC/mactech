@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import UserNavigation from '@/components/user/UserNavigation'
+import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 
 type Tab = 'overview' | 'incumbent' | 'activity' | 'related'
 
@@ -117,7 +117,7 @@ export default function AwardDetailPage({
   if (loading) {
     return (
       <div className="bg-neutral-50 min-h-screen">
-        <UserNavigation />
+        <RoleBasedNavigation />
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
           <div className="text-center text-neutral-600">Loading award details...</div>
         </div>
@@ -128,7 +128,7 @@ export default function AwardDetailPage({
   if (error || !awardData) {
     return (
       <div className="bg-neutral-50 min-h-screen">
-        <UserNavigation />
+        <RoleBasedNavigation />
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-700">{error || 'Failed to load award'}</p>
@@ -163,7 +163,7 @@ export default function AwardDetailPage({
 
   return (
     <div className="bg-neutral-50 min-h-screen">
-      <UserNavigation />
+      <RoleBasedNavigation />
 
       {/* Header */}
       <section className="bg-white border-b border-neutral-200">
