@@ -157,7 +157,7 @@ export default function ComplianceDashboardClient() {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-neutral-900 mb-4">FedRAMP Moderate Design Alignment</h2>
           <p className="text-neutral-600 mb-4">
-            MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. Our alignment is documented in our FedRAMP Moderate Design Alignment Package, which maps existing CMMC Level 2 controls to FedRAMP Moderate baseline expectations.
+            MacTech Solutions&apos; security architecture and control design are aligned with the FedRAMP Moderate baseline. Our alignment is documented in our FedRAMP Moderate Design Alignment Package, which maps existing CMMC Level 2 controls to FedRAMP Moderate baseline expectations.
           </p>
           <p className="text-sm text-neutral-500 mb-4">
             FedRAMP Alignment Package available in compliance documentation: <code className="text-xs">compliance/fedramp-moderate-alignment/</code>

@@ -203,7 +203,8 @@ export default function LeadershipPage() {
                     Patrick is a recognized expert in DoD cybersecurity, Risk Management Framework (RMF), 
                     and authorization processes. He has successfully led multiple ATO efforts for mission-critical 
                     systems and has deep experience with STIG compliance, continuous monitoring, and security 
-                    control implementation.
+                    control implementation. Under Patrick's leadership, MacTech Solutions maintains CMMC 2.0 Level 2 
+                    compliance and aligns with NIST CSF 2.0, NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
                   </p>
                   <div className="mb-6">
                     <h4 className="text-body-sm font-semibold text-neutral-900 mb-4 uppercase tracking-wide">
@@ -245,6 +246,18 @@ export default function LeadershipPage() {
                           <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
                         </div>
                         <span className="text-body text-neutral-700">DoD Cybersecurity Policy and Requirements</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">CMMC 2.0 Level 2 compliance implementation</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1.5">
+                          <div className="h-1.5 w-1.5 bg-accent-700 rounded-full"></div>
+                        </div>
+                        <span className="text-body text-neutral-700">Framework alignment (NIST CSF 2.0, NIST RMF, FedRAMP Moderate, SOC 2 Type I)</span>
                       </li>
                     </ul>
                   </div>

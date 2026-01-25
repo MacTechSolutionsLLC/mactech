@@ -159,7 +159,8 @@ export default function ServicesPage() {
             <h2 className="heading-2 mb-4">Cybersecurity & RMF Services</h2>
             <p className="text-body-lg text-neutral-700 max-w-3xl leading-relaxed mb-2">
               Comprehensive Risk Management Framework implementation and authorization support 
-              for DoD and federal information systems.
+              for DoD and federal information systems. MacTech Solutions maintains CMMC 2.0 Level 2 
+              compliance and aligns with NIST CSF 2.0, NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
             </p>
             <p className="text-body-sm text-neutral-600 italic">
               Led by {pillarInfo.Security.leader} • {pillarInfo.Security.description}
@@ -217,6 +218,18 @@ export default function ServicesPage() {
                     <div className={`h-1.5 w-1.5 ${pillarInfo.Security.accentColor} rounded-full`}></div>
                   </div>
                   <span className="text-body text-neutral-700">Risk Assessment Report (RAR) development</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className={`h-1.5 w-1.5 ${pillarInfo.Security.accentColor} rounded-full`}></div>
+                  </div>
+                  <span className="text-body text-neutral-700">CMMC 2.0 Level 2 compliance implementation and documentation</span>
+                </li>
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className={`h-1.5 w-1.5 ${pillarInfo.Security.accentColor} rounded-full`}></div>
+                  </div>
+                  <span className="text-body text-neutral-700">Framework alignment documentation (NIST CSF 2.0, NIST RMF, FedRAMP Moderate, SOC 2 Type I)</span>
                 </li>
               </ul>
             </div>

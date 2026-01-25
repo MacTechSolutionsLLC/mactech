@@ -55,6 +55,12 @@ export default function CapabilitiesPage() {
               implementation, authorization processes, ISO compliance, and audit readiness—all critical 
               capabilities for DoD and federal information systems.
             </p>
+            <p className="text-body text-neutral-700 leading-relaxed mb-4 print:text-sm">
+              MacTech Solutions maintains CMMC 2.0 Level 2 compliance and aligns with NIST CSF 2.0, 
+              NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness. Our comprehensive framework 
+              alignment documentation demonstrates how our security controls and governance practices 
+              support multiple compliance and alignment objectives.
+            </p>
             <p className="text-body text-neutral-700 leading-relaxed print:text-sm">
               Our services are organized into four pillars of expertise—Security, Infrastructure, Quality, 
               and Governance—each led by senior practitioners with proven track records in federal programs. 
@@ -86,6 +92,8 @@ export default function CapabilitiesPage() {
                   <li className="text-body text-neutral-700 print:text-sm">• Security Control Assessment (SCA)</li>
                   <li className="text-body text-neutral-700 print:text-sm">• Cybersecurity architecture and documentation</li>
                   <li className="text-body text-neutral-700 print:text-sm">• DoD cybersecurity policy and requirements</li>
+                  <li className="text-body text-neutral-700 print:text-sm">• CMMC 2.0 Level 2 compliance implementation</li>
+                  <li className="text-body text-neutral-700 print:text-sm">• Framework alignment documentation (CSF 2.0, RMF, FedRAMP, SOC 2)</li>
                 </ul>
               </div>
 
@@ -180,6 +188,66 @@ export default function CapabilitiesPage() {
                   <li className="text-body text-neutral-700 print:text-sm">• D307 – IT & Telecom: IT Strategy and Architecture</li>
                   <li className="text-body text-neutral-700 print:text-sm">• D399 – IT & Telecom: Other IT and Telecommunications</li>
                 </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Compliance Frameworks & Alignments */}
+          <section className="mb-8 print:mb-6">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4 print:text-lg print:mb-3">
+              Compliance Frameworks & Alignments
+            </h2>
+            <div className="space-y-4 print:space-y-3">
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">
+                  CMMC 2.0 Level 2 Compliance
+                </h3>
+                <p className="text-body text-neutral-700 print:text-sm">
+                  MacTech Solutions maintains CMMC 2.0 Level 2 compliance, implementing all required 
+                  security controls based on NIST SP 800-171 Rev. 2. Our compliance package includes 
+                  comprehensive System Security Plans (SSP), Plans of Action and Milestones (POA&M), 
+                  and evidence documentation.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">
+                  NIST CSF 2.0 Alignment
+                </h3>
+                <p className="text-body text-neutral-700 print:text-sm">
+                  MacTech Solutions aligns its cybersecurity program with the NIST Cybersecurity Framework (CSF) 2.0. 
+                  Our CSF 2.0 Profile demonstrates how existing CMMC Level 2 controls and practices map to CSF 
+                  functions, categories, and subcategories.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">
+                  NIST RMF Alignment
+                </h3>
+                <p className="text-body text-neutral-700 print:text-sm">
+                  MacTech Solutions aligns its system security governance with the NIST Risk Management Framework (RMF). 
+                  Our security practices are informed by RMF principles, and our system security governance is 
+                  structured consistent with RMF.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">
+                  FedRAMP Moderate Design Alignment
+                </h3>
+                <p className="text-body text-neutral-700 print:text-sm">
+                  MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. 
+                  Our system architecture, control implementation, and governance practices demonstrate alignment with 
+                  FedRAMP Moderate requirements.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">
+                  SOC 2 Type I Readiness
+                </h3>
+                <p className="text-body text-neutral-700 print:text-sm">
+                  MacTech Solutions has completed an internal SOC 2 Type I readiness assessment. Our system design, 
+                  policies, and governance are prepared for a SOC 2 Type I examination, with comprehensive documentation 
+                  mapping our controls to Trust Services Criteria (Security/Common Criteria).
+                </p>
               </div>
             </div>
           </section>

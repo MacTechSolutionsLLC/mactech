@@ -104,7 +104,8 @@ export default function HomePage() {
               <h3 className="heading-3 mb-4">Cybersecurity & RMF</h3>
               <p className="text-body text-neutral-700 mb-6 leading-relaxed">
                 Risk Management Framework (RMF) implementation, Authorization to Operate (ATO) support, 
-                Continuous Monitoring (ConMon), and STIG compliance.
+                Continuous Monitoring (ConMon), and STIG compliance. MacTech Solutions maintains CMMC 2.0 Level 2 
+                compliance and aligns with NIST CSF 2.0, NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
               </p>
               <Link 
                 href="/services" 
