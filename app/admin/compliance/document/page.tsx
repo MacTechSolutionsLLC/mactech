@@ -13,39 +13,59 @@ export const dynamic = 'force-dynamic'
  * Prevents directory traversal attacks
  */
 function validatePath(requestedPath: string): { valid: boolean; fullPath: string | null; error?: string } {
-  // Base directory for compliance files
-  const baseDir = resolve(process.cwd(), "compliance", "cmmc", "level1")
+  // Base directories for compliance files (support both level1 and level2)
+  const baseDirs = [
+    resolve(process.cwd(), "compliance", "cmmc", "level1"),
+    resolve(process.cwd(), "compliance", "cmmc", "level2"),
+    resolve(process.cwd(), "compliance", "cmmc", "system"),
+    resolve(process.cwd(), "compliance", "cmmc", "fci"),
+  ]
   
   // Normalize the requested path (remove .., ., etc.)
   const normalizedRequested = normalize(requestedPath)
   
-  // Resolve the full path
-  const fullPath = resolve(baseDir, normalizedRequested)
-  
-  // Ensure the resolved path is within the base directory
-  const relativePath = relative(baseDir, fullPath)
-  
-  // Check for directory traversal attempts
-  if (relativePath.startsWith('..') || relativePath.includes('..')) {
+  // Try each base directory
+  for (const baseDir of baseDirs) {
+    // Resolve the full path
+    const fullPath = resolve(baseDir, normalizedRequested)
+    
+    // Ensure the resolved path is within the base directory
+    const relativePath = relative(baseDir, fullPath)
+    
+    // Check for directory traversal attempts
+    if (relativePath.startsWith('..') || relativePath.includes('..')) {
+      continue
+    }
+    
+    // Ensure it's a markdown file
+    if (!fullPath.endsWith('.md')) {
+      continue
+    }
+    
+    // Check if file exists (we'll verify this later, but check structure now)
     return {
-      valid: false,
-      fullPath: null,
-      error: 'Invalid path: directory traversal detected'
+      valid: true,
+      fullPath
     }
   }
   
-  // Ensure it's a markdown file
-  if (!fullPath.endsWith('.md')) {
-    return {
-      valid: false,
-      fullPath: null,
-      error: 'Only markdown files are allowed'
+  // If path starts with compliance/cmmc, try resolving from project root
+  if (normalizedRequested.startsWith('compliance/cmmc/')) {
+    const fullPath = resolve(process.cwd(), normalizedRequested)
+    const relativePath = relative(resolve(process.cwd(), 'compliance', 'cmmc'), fullPath)
+    
+    if (!relativePath.startsWith('..') && !relativePath.includes('..') && fullPath.endsWith('.md')) {
+      return {
+        valid: true,
+        fullPath
+      }
     }
   }
   
   return {
-    valid: true,
-    fullPath
+    valid: false,
+    fullPath: null,
+    error: 'Invalid path: file must be within compliance/cmmc directory structure'
   }
 }
 

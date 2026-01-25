@@ -94,10 +94,19 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
   const getEvidencePath = (item: EvidenceItem): string | null => {
     if (!item.path) return null
     // Convert absolute path to relative path for linking
+    let relativePath: string
     if (item.path.includes('compliance/cmmc')) {
-      return item.path.replace(process.cwd() + '/', '')
+      // Remove any absolute path prefix (works in both Node and browser)
+      relativePath = item.path.replace(/^.*?compliance\/cmmc\//, 'compliance/cmmc/')
+      // If it's already a relative path starting with compliance/cmmc, use it as-is
+      if (!relativePath.startsWith('compliance/cmmc/')) {
+        relativePath = item.path
+      }
+    } else {
+      relativePath = item.path
     }
-    return item.path
+    // Return the path formatted for the document viewer
+    return `/admin/compliance/document?path=${encodeURIComponent(relativePath)}`
   }
 
   const getCodePath = (file: string): string | null => {
@@ -205,26 +214,40 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
             </button>
             {expandedSections.has('policies') && (
               <div className="mt-3 space-y-2">
-                {auditResult.evidence.policies.map((policy, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded border ${
-                      policy.exists ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{policy.reference}</span>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        policy.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {policy.exists ? '✓ Found' : '✗ Missing'}
-                      </span>
+                {auditResult.evidence.policies.map((policy, idx) => {
+                  const path = getEvidencePath(policy)
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded border ${
+                        policy.exists ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <span className="font-medium text-sm">{policy.reference}</span>
+                          {path && (
+                            <Link
+                              href={path}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
+                              target="_blank"
+                            >
+                              View →
+                            </Link>
+                          )}
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          policy.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {policy.exists ? '✓ Found' : '✗ Missing'}
+                        </span>
+                      </div>
+                      {policy.issues && policy.issues.length > 0 && (
+                        <p className="text-xs text-red-700 mt-1">{policy.issues[0]}</p>
+                      )}
                     </div>
-                    {policy.issues && policy.issues.length > 0 && (
-                      <p className="text-xs text-red-700 mt-1">{policy.issues[0]}</p>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -244,26 +267,40 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
             </button>
             {expandedSections.has('procedures') && (
               <div className="mt-3 space-y-2">
-                {auditResult.evidence.procedures.map((procedure, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded border ${
-                      procedure.exists ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{procedure.reference}</span>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        procedure.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {procedure.exists ? '✓ Found' : '✗ Missing'}
-                      </span>
+                {auditResult.evidence.procedures.map((procedure, idx) => {
+                  const path = getEvidencePath(procedure)
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded border ${
+                        procedure.exists ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <span className="font-medium text-sm">{procedure.reference}</span>
+                          {path && (
+                            <Link
+                              href={path}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
+                              target="_blank"
+                            >
+                              View →
+                            </Link>
+                          )}
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          procedure.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {procedure.exists ? '✓ Found' : '✗ Missing'}
+                        </span>
+                      </div>
+                      {procedure.issues && procedure.issues.length > 0 && (
+                        <p className="text-xs text-red-700 mt-1">{procedure.issues[0]}</p>
+                      )}
                     </div>
-                    {procedure.issues && procedure.issues.length > 0 && (
-                      <p className="text-xs text-red-700 mt-1">{procedure.issues[0]}</p>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -297,7 +334,7 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                           <span className="font-medium text-sm">{evidence.reference}</span>
                           {path && (
                             <Link
-                              href={`/${path}`}
+                              href={path}
                               className="text-xs text-primary-600 hover:text-primary-700 ml-2"
                               target="_blank"
                             >
