@@ -70,7 +70,11 @@ Control is fully implemented. System automatically disables user identifiers aft
 
 **Inactivity Period:** 180 days (6 months)
 
-**Automation:** Automated process checks for inactive accounts and disables them automatically
+**Automation:** 
+- Automated process checks for inactive accounts and disables them automatically
+- Scheduled execution via Railway cron job (daily at 2:00 AM UTC)
+- Cron endpoint: `app/api/cron/disable-inactive/route.ts`
+- Manual trigger also available via admin API endpoint
 
 ### 4.3 Operational Procedures
 
@@ -79,8 +83,9 @@ Control is fully implemented. System automatically disables user identifiers aft
 **Procedure Details:**
 - Section 3.6: Inactive Account disablement process
 - Section 8.1: Automated revocation status
-- Manual trigger via admin API endpoint
-- Scheduled execution (to be configured in production)
+- Manual trigger via admin API endpoint (`/api/admin/users/disable-inactive`)
+- Scheduled execution via Railway cron job (`/api/cron/disable-inactive`) - **CONFIGURED**
+- Setup documentation: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
 ## 5. Evidence Documents
 

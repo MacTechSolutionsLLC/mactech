@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { execSync } from 'child_process'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { logMaintenanceToolOperation } from '@/lib/maintenance-tool-logging'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest) {
     }
 
     // If not first setup, require admin authentication
+    let userId: string | null = null
+    let userEmail: string | null = null
+    
     if (!isFirstSetup) {
       const session = await auth()
       if (!session?.user) {
@@ -33,15 +37,31 @@ export async function POST(request: NextRequest) {
 
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { role: true },
+        select: { role: true, email: true },
       })
 
       if (user?.role !== "ADMIN") {
         return NextResponse.json({ error: "Forbidden - Admin only" }, { status: 403 })
       }
+      
+      userId = session.user.id
+      userEmail = session.user.email || null
     }
 
     console.log('[Migration API] Starting manual migration...')
+    
+    // Log maintenance tool access (Prisma CLI)
+    const prismaVersion = '5.22.0'
+    await logMaintenanceToolOperation(
+      userId,
+      userEmail,
+      'Prisma CLI',
+      prismaVersion,
+      'database migration',
+      'Migration initiated',
+      true,
+      { isFirstSetup, operationType: 'manual_migration' }
+    ).catch(err => console.error('Failed to log maintenance tool access:', err))
 
     const results: string[] = []
     let success = false
@@ -59,11 +79,35 @@ export async function POST(request: NextRequest) {
         results.push('✅ Database schema synced successfully')
         results.push(`   ${pushOutput.split('\n').filter((l: string) => l.trim()).join('\n   ')}`)
         success = true
+        
+        // Log successful Prisma operation
+        await logMaintenanceToolOperation(
+          userId,
+          userEmail,
+          'Prisma CLI',
+          prismaVersion,
+          'prisma db push',
+          'Schema synced successfully',
+          true,
+          { output: pushOutput.substring(0, 500) }
+        ).catch(err => console.error('Failed to log Prisma operation:', err))
       } catch (pushError: any) {
         const pushErrorMsg = pushError.message || String(pushError)
         results.push(`⚠️  Schema sync warning: ${pushErrorMsg}`)
         // Continue anyway - some warnings are non-fatal
         success = true
+        
+        // Log Prisma operation with warning
+        await logMaintenanceToolOperation(
+          userId,
+          userEmail,
+          'Prisma CLI',
+          prismaVersion,
+          'prisma db push',
+          `Warning: ${pushErrorMsg.substring(0, 200)}`,
+          true,
+          { warning: true }
+        ).catch(err => console.error('Failed to log Prisma operation:', err))
       }
 
       // Step 2: Apply any pending migrations
@@ -82,6 +126,17 @@ export async function POST(request: NextRequest) {
         })
         results.push('✅ Migrations applied successfully')
         success = true
+        
+        // Log successful migration deploy
+        await logMaintenanceToolOperation(
+          userId,
+          userEmail,
+          'Prisma CLI',
+          prismaVersion,
+          'prisma migrate deploy',
+          'Migrations applied successfully',
+          true
+        ).catch(err => console.error('Failed to log Prisma operation:', err))
       } catch (error: any) {
         const errorMessage = error.message || String(error)
         
@@ -149,6 +204,18 @@ export async function POST(request: NextRequest) {
             })
             results.push('✅ Migrations applied successfully after resolving failed migrations')
             success = true
+            
+            // Log successful migration after resolution
+            await logMaintenanceToolOperation(
+              userId,
+              userEmail,
+              'Prisma CLI',
+              prismaVersion,
+              'prisma migrate deploy (after resolution)',
+              'Migrations applied successfully after resolving failed migrations',
+              true,
+              { resolvedMigrations: failedMigrations }
+            ).catch(err => console.error('Failed to log Prisma operation:', err))
           } catch (retryError: any) {
             const retryErrorMsg = retryError.message || String(retryError)
             results.push(`❌ Retry failed: ${retryErrorMsg}`)
@@ -200,13 +267,49 @@ export async function POST(request: NextRequest) {
             })
             results.push('✅ Migrations applied successfully after baseline')
             success = true
+            
+            // Log successful migration after baseline
+            await logMaintenanceToolOperation(
+              userId,
+              userEmail,
+              'Prisma CLI',
+              prismaVersion,
+              'prisma migrate deploy (after baseline)',
+              'Migrations applied successfully after baseline',
+              true,
+              { baselinedMigrations: existingMigrations }
+            ).catch(err => console.error('Failed to log Prisma operation:', err))
           } catch (retryError: any) {
             results.push(`❌ Retry failed: ${retryError.message || String(retryError)}`)
             success = false
+            
+            // Log failed migration
+            await logMaintenanceToolOperation(
+              userId,
+              userEmail,
+              'Prisma CLI',
+              prismaVersion,
+              'prisma migrate deploy',
+              `Failed: ${retryError.message || String(retryError)}`,
+              false,
+              { error: retryError.message }
+            ).catch(err => console.error('Failed to log Prisma operation:', err))
           }
         } else {
           results.push(`❌ Migration error: ${errorMessage}`)
           success = false
+          
+          // Log failed migration
+          await logMaintenanceToolOperation(
+            userId,
+            userEmail,
+            'Prisma CLI',
+            prismaVersion,
+            'prisma migrate deploy',
+            `Failed: ${errorMessage}`,
+            false,
+            { error: errorMessage }
+          ).catch(err => console.error('Failed to log Prisma operation:', err))
         }
       }
 
@@ -237,6 +340,21 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+
+      // Log final migration operation result
+      await logMaintenanceToolOperation(
+        userId,
+        userEmail,
+        'Prisma CLI',
+        prismaVersion,
+        'database migration (complete)',
+        success ? 'Migration completed successfully' : 'Migration completed with errors',
+        success,
+        { 
+          tablesVerified: criticalTables.length,
+          resultsCount: results.length 
+        }
+      ).catch(err => console.error('Failed to log final migration result:', err))
 
       return NextResponse.json({
         success,

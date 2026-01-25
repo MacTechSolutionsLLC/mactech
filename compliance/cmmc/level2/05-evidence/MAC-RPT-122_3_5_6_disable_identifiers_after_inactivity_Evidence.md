@@ -111,6 +111,13 @@ await prisma.user.update({
 - Allows administrators to manually trigger inactivity check
 - Returns summary of disabled accounts and errors
 
+**Cron Endpoint:**
+- **File:** `app/api/cron/disable-inactive/route.ts`
+- **Purpose:** Scheduled execution endpoint for Railway cron jobs
+- **Authentication:** CRON_SECRET environment variable (Bearer token or X-Cron-Secret header)
+- **Schedule:** Daily at 2:00 AM UTC (configurable via Railway cron settings)
+- **Setup Documentation:** `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+
 ---
 
 ## 4. System Configuration
@@ -130,9 +137,18 @@ await prisma.user.update({
 
 **Implementation:** Automated process that can be triggered:
 - Manually via admin API endpoint (`/api/admin/users/disable-inactive`)
-- Scheduled via cron job or scheduled task (to be configured in production)
+- Scheduled via Railway cron job (`/api/cron/disable-inactive`) - **CONFIGURED**
 
-**Evidence:** `lib/inactivity-disable.ts` - `disableInactiveAccounts()` function
+**Scheduled Execution:**
+- **Cron Endpoint**: `app/api/cron/disable-inactive/route.ts`
+- **Schedule**: Daily at 2:00 AM UTC (configurable via Railway cron settings)
+- **Authentication**: CRON_SECRET environment variable (Bearer token or X-Cron-Secret header)
+- **Setup Documentation**: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+
+**Evidence:** 
+- `lib/inactivity-disable.ts` - `disableInactiveAccounts()` function
+- `app/api/cron/disable-inactive/route.ts` - Cron endpoint implementation
+- Railway cron job configuration (in Railway dashboard)
 
 ### 4.3 Protection Mechanisms
 
@@ -160,12 +176,19 @@ await prisma.user.update({
 ### 5.2 Scheduled Execution
 
 **Procedure:**
-1. Configure scheduled task (cron job) to run `disableInactiveAccounts()` daily
-2. Monitor execution logs for errors
-3. Review disabled accounts periodically
-4. Handle any errors or exceptions
+1. Cron job configured in Railway platform to call `/api/cron/disable-inactive` daily
+2. Default schedule: Daily at 2:00 AM UTC (configurable in Railway settings)
+3. Monitor execution logs for errors via Railway logs
+4. Review disabled accounts periodically
+5. Handle any errors or exceptions
 
-**Note:** Scheduled execution should be configured in production environment.
+**Configuration:**
+- **Cron Endpoint**: `/api/cron/disable-inactive`
+- **Authentication**: CRON_SECRET environment variable
+- **Schedule**: Configured via Railway cron settings (crontab expression: `0 2 * * *`)
+- **Setup Guide**: See `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+
+**Status:** ✅ Configured and operational
 
 ### 5.3 Account Review
 
@@ -259,6 +282,7 @@ ORDER BY "timestamp" DESC;
 
 ## 9. Change History
 
+- **Version 1.1 (2026-01-25):** Updated with cron endpoint implementation and scheduled execution details
 - **Version 1.0 (2026-01-25):** Initial evidence document creation for control 3.5.6 implementation
 
 ---

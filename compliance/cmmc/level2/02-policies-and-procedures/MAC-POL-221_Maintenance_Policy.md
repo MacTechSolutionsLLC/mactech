@@ -74,9 +74,11 @@ This policy applies to:
 - Maintenance activities supervised
 
 **Evidence:**
-- Maintenance Tool Control Procedure: To be created
+- Maintenance Tool Control Procedure: `MAC-SOP-238_Maintenance_Tool_Control_Procedure.md`
+- Maintenance Tool Inventory: `../05-evidence/MAC-RPT-123_Maintenance_Tool_Inventory_Evidence.md`
+- Tool Logging Implementation: `lib/maintenance-tool-logging.ts`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 6)
+**Status:** ✅ Implemented
 
 ---
 

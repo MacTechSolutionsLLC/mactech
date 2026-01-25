@@ -8,18 +8,70 @@
 const { execSync } = require('child_process');
 const { spawn } = require('child_process');
 
+// Import maintenance tool logging (Node.js compatible)
+// Note: Using dynamic import to handle TypeScript compilation
+let logMaintenanceToolOperationNode;
+try {
+  // Try to use the compiled version
+  const loggingModule = require('../lib/maintenance-tool-logging-node.js');
+  logMaintenanceToolOperationNode = loggingModule.logMaintenanceToolOperationNode;
+} catch (error) {
+  // If not available, create a no-op function
+  logMaintenanceToolOperationNode = () => Promise.resolve();
+  console.log('Note: Maintenance tool logging not available in this context');
+}
+
+// Helper to log maintenance tool operations (non-blocking)
+function logToolOperation(toolName, version, operation, result, success, details) {
+  logMaintenanceToolOperationNode(toolName, version, operation, result, success, details)
+    .catch(err => console.error('Failed to log maintenance tool operation:', err));
+}
+
 console.log('🚀 Starting application...');
 
 // Run database migrations
 try {
   console.log('🗄️  Running database migrations...');
+  
+  // Log Prisma CLI access
+  const prismaVersion = '5.22.0';
+  logToolOperation(
+    'Prisma CLI',
+    prismaVersion,
+    'prisma migrate deploy',
+    'Migration initiated',
+    true,
+    { context: 'startup_script' }
+  );
+  
   execSync('npx prisma migrate deploy', {
     stdio: 'inherit',
     env: { ...process.env }
   });
   console.log('✅ Database migrations completed successfully');
+  
+  // Log successful migration
+  logToolOperation(
+    'Prisma CLI',
+    prismaVersion,
+    'prisma migrate deploy',
+    'Migrations deployed successfully',
+    true,
+    { context: 'startup_script', completed: true }
+  );
 } catch (error) {
   console.error('⚠️  Migration error:', error.message);
+  
+  // Log failed migration attempt
+  const prismaVersion = '5.22.0';
+  logToolOperation(
+    'Prisma CLI',
+    prismaVersion,
+    'prisma migrate deploy',
+    `Error: ${error.message}`,
+    false,
+    { context: 'startup_script', error: error.message }
+  );
   
   // If the error is about non-empty database (baseline needed), try to resolve it
   if (error.message.includes('not empty') || error.message.includes('P3005')) {
@@ -51,9 +103,29 @@ try {
         env: { ...process.env }
       });
       console.log('✅ Database migrations completed successfully after baseline');
+      
+      // Log successful migration after baseline
+      logToolOperation(
+        'Prisma CLI',
+        prismaVersion,
+        'prisma migrate deploy (after baseline)',
+        'Migrations deployed successfully after baseline',
+        true,
+        { context: 'startup_script', baselinedMigrations: existingMigrations }
+      );
     } catch (baselineError) {
       console.error('⚠️  Baseline error:', baselineError.message);
       console.log('⚠️  Continuing with server start...');
+      
+      // Log baseline error
+      logToolOperation(
+        'Prisma CLI',
+        prismaVersion,
+        'prisma migrate resolve (baseline)',
+        `Baseline error: ${baselineError.message}`,
+        false,
+        { context: 'startup_script', error: baselineError.message }
+      );
     }
   } else {
     // Continue anyway - tables might already exist or migration might not be critical

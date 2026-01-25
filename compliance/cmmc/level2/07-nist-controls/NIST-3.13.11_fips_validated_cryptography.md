@@ -57,10 +57,10 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 This control requires FIPS-validated cryptography modules. An assessment has been conducted to identify all cryptography components and determine their FIPS validation status. The assessment is documented in the FIPS Cryptography Assessment Evidence file.
 
 **Assessment Findings:**
-- TLS/HTTPS: Provided by Railway platform - FIPS validation status pending verification
-- Database Encryption: Provided by Railway PostgreSQL - FIPS validation status pending verification
-- Password Hashing (bcrypt): Application-level - FIPS validation status pending verification
-- JWT Tokens: Application-level - FIPS validation status pending verification
+- TLS/HTTPS: Provided by Railway platform - FIPS validation status pending Railway documentation
+- Database Encryption: Provided by Railway PostgreSQL - FIPS validation status pending Railway documentation
+- Password Hashing (bcrypt): Application-level - ✅ Not subject to FIPS validation (password hashing, not encryption)
+- JWT Tokens: Application-level - Runtime information identified (Node.js 24.6.0, OpenSSL 3.6.0), FIPS validation status pending NIST CMVP verification
 
 **POA&M Status:**
 This control is tracked in POA&M (POAM-008) with a target completion date within 180 days. The POA&M item includes:
@@ -72,6 +72,9 @@ This control is tracked in POA&M (POAM-008) with a target completion date within
 
 **FIPS Assessment Evidence:**
 - FIPS Cryptography Assessment Evidence: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
+- FIPS Verification Process: `../../docs/FIPS_VERIFICATION_PROCESS.md`
+- FIPS Migration Plan: `../05-evidence/MAC-RPT-124_FIPS_Migration_Plan.md`
+- FIPS Verification Process: `../../docs/FIPS_VERIFICATION_PROCESS.md`
 
 **Cryptography Components:**
 1. **TLS/HTTPS (CUI in Transit)**
