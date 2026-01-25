@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import AdminNavigation from "@/components/admin/AdminNavigation"
+import ComplianceDashboardClient from "./ComplianceDashboardClient"
 
 export default async function ComplianceDashboardPage() {
   const session = await auth()
@@ -17,24 +18,11 @@ export default async function ComplianceDashboardPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900">Compliance Dashboard</h1>
           <p className="mt-2 text-neutral-600">
-            CMMC Level 1 (FAR 52.204-21) Compliance Overview
+            CMMC Level 2 (FCI and CUI) Compliance Overview
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* System Boundary Card */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-4">System Boundary</h2>
-            <p className="text-neutral-600 mb-4">
-              FCI-only scope. CUI explicitly excluded.
-            </p>
-            <Link
-              href="/admin/compliance#boundary"
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              View Details →
-            </Link>
-          </div>
+        <ComplianceDashboardClient />
 
           {/* Access Control Card */}
           <div className="bg-white rounded-lg shadow p-6">
@@ -146,56 +134,6 @@ export default async function ComplianceDashboardPage() {
             >
               Run Audit →
             </Link>
-          </div>
-        </div>
-
-        {/* System Boundary Section */}
-        <div id="boundary" className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-neutral-900 mb-4">System Boundary & Data Flow</h2>
-          
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-neutral-800 mb-2">Scope Statement</h3>
-            <p className="text-neutral-700">
-              This system processes and stores <strong>Federal Contract Information (FCI) only</strong>, 
-              as defined by FAR 52.204-21. <strong>Controlled Unclassified Information (CUI) is explicitly excluded</strong> 
-              and prohibited from being uploaded or stored in the system.
-            </p>
-          </div>
-
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-neutral-800 mb-2">Data Flow</h3>
-            <pre className="bg-neutral-50 p-4 rounded text-sm font-mono overflow-x-auto">
-{`Browser (HTTPS)
-    ↓
-Next.js Application (Railway)
-    ↓
-PostgreSQL Database (Railway)
-    ↓
-File Storage (PostgreSQL BYTEA)
-    ↓
-Signed URLs for Downloads`}
-            </pre>
-          </div>
-
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-neutral-800 mb-2">In-Scope Components</h3>
-            <ul className="list-disc list-inside text-neutral-700 space-y-1">
-              <li>Next.js web application (Railway)</li>
-              <li>PostgreSQL database (Railway)</li>
-              <li>Authentication system (NextAuth.js)</li>
-              <li>File storage (PostgreSQL BYTEA)</li>
-              <li>Event logging (AppEvent table)</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-800 mb-2">Out-of-Scope Components</h3>
-            <ul className="list-disc list-inside text-neutral-700 space-y-1">
-              <li>Developer workstations</li>
-              <li>Third-party APIs (SAM.gov, USAspending.gov)</li>
-              <li>End-user browsers</li>
-              <li>Railway infrastructure (inherited controls)</li>
-            </ul>
           </div>
         </div>
 
