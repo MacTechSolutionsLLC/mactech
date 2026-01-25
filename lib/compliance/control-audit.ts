@@ -920,6 +920,10 @@ function getCodePatternsForControl(controlId: string, family: string): string[] 
     if (controlId === '3.5.8') {
       patterns.push('PasswordHistory', 'passwordHistory', 'passwordHistoryCount', 'prevent.*reuse')
     }
+    // Specific patterns for temporary passwords (3.5.9)
+    if (controlId === '3.5.9') {
+      patterns.push('generateTemporaryPassword', 'isTemporaryPasswordExpired', 'temporaryPassword', 'isTemporaryPassword', 'temporaryPasswordExpiresAt', 'mustChangePassword', 'getTemporaryPasswordExpiration')
+    }
   }
   
   // Configuration Management patterns
