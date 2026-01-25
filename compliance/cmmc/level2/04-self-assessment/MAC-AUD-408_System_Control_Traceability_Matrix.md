@@ -614,6 +614,22 @@ Admin controls
 
 ### 4.3 Operational Procedures
 
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to authorize wireless access before allowing such connections. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not maintain any on-premises infrastructure, servers, or network equipment that would require wireless access authorization.
+
+2. **No Organizational Wireless Infrastructure**: The organization does not deploy, manage, or maintain any wireless access points, wireless networks, or wireless infrastructure. All system access occurs through standard web browsers over HTTPS connections to the cloud-hosted application.
+
+3. **Remote Access Model**: All user access to the system is remote and occurs through standard web browsers. There are no organizational wireless networks that users connect to in order to access the system. Users access the system from their own networks (home, office, mobile) using standard internet connectivity.
+
+4. **Control Scope**: This control applies to organizational infrastructure where the organization directly manages wireless access points and must authorize wireless connections. Since the organization has no such infrastructure, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the organization does not maintain any wireless infrastructure that would require authorization controls. All system access is cloud-based and occurs through standard web browsers over standard internet connections.
+
 #### Testing and Verification
 
 **Verification Methods:**
@@ -641,6 +657,22 @@ Admin controls
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to protect wireless access using authentication and encryption. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not maintain any on-premises infrastructure, servers, or network equipment that would require wireless access protection.
+
+2. **No Organizational Wireless Infrastructure**: The organization does not deploy, manage, or maintain any wireless access points, wireless networks, or wireless infrastructure. All system access occurs through standard web browsers over HTTPS connections to the cloud-hosted application.
+
+3. **Remote Access Model**: All user access to the system is remote and occurs through standard web browsers. There are no organizational wireless networks that users connect to in order to access the system. Users access the system from their own networks (home, office, mobile) using standard internet connectivity.
+
+4. **Control Scope**: This control applies to organizational infrastructure where the organization directly manages wireless access points and must protect wireless connections. Since the organization has no such infrastructure, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the organization does not maintain any wireless infrastructure that would require protection controls. All system access is cloud-based and occurs through standard web browsers over standard internet connections, with protection provided by TLS/HTTPS encryption.
 
 #### Testing and Verification
 
@@ -2960,6 +2992,22 @@ The organization implements control of user-installed software through explicit 
 
 ### 4.3 Operational Procedures
 
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to sanitize equipment containing CUI before releasing it for off-site maintenance. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not own, maintain, or have physical custody of any equipment (servers, storage devices, network equipment) that contains CUI or system components.
+
+2. **No Customer Equipment**: The organization does not maintain any physical equipment that would require off-site maintenance. All system infrastructure is managed by the cloud service provider (Railway), and the organization has no physical access to or ownership of the underlying hardware.
+
+3. **No Physical Media**: The system operates entirely in a digital environment with no physical media (hard drives, tapes, USB devices) that could be removed for maintenance. All data is stored in cloud databases with no physical storage components under organizational control.
+
+4. **Service Provider Responsibility**: Equipment maintenance, including any sanitization requirements, is the responsibility of the cloud service provider (Railway). The organization has no equipment to sanitize or release for maintenance.
+
+**Conclusion**: This control is not applicable because the organization does not own, maintain, or have physical custody of any equipment that would require sanitization before off-site maintenance. All system infrastructure is cloud-based and managed by the service provider.
+
 #### Testing and Verification
 
 **Verification Methods:**
@@ -2987,6 +3035,22 @@ The organization implements control of user-installed software through explicit 
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to check maintenance media for malicious code before use in system maintenance. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not own, maintain, or have physical custody of any equipment that would require maintenance media.
+
+2. **No Diagnostic Media**: The organization does not use, maintain, or have access to any diagnostic media (CDs, DVDs, USB drives, external hard drives) that would be used for system maintenance. All system maintenance is performed by the cloud service provider through their management interfaces.
+
+3. **No Physical Equipment**: The organization does not maintain any physical equipment (servers, storage devices, network equipment) that would require maintenance media. All system infrastructure is managed by the cloud service provider (Railway), and the organization has no physical access to the underlying hardware.
+
+4. **Service Provider Responsibility**: Equipment maintenance, including any diagnostic media checks, is the responsibility of the cloud service provider (Railway). The organization does not perform physical maintenance activities that would require diagnostic media.
+
+**Conclusion**: This control is not applicable because the organization does not use, maintain, or have access to any diagnostic media for system maintenance. All system infrastructure is cloud-based and maintenance is performed by the service provider through their management interfaces.
 
 #### Testing and Verification
 
@@ -3050,6 +3114,22 @@ The organization implements control of user-installed software through explicit 
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to supervise maintenance personnel who perform maintenance on organizational systems. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not own, maintain, or have physical custody of any equipment that would require on-site maintenance personnel.
+
+2. **No Customer Maintenance Personnel**: The organization does not employ, contract, or supervise any maintenance personnel who perform physical maintenance on system equipment. All system infrastructure is managed by the cloud service provider (Railway), and the organization has no physical access to or ownership of the underlying hardware.
+
+3. **No Physical Equipment**: The organization does not maintain any physical equipment (servers, storage devices, network equipment) that would require maintenance personnel. All system infrastructure is managed by the cloud service provider, and the organization has no physical access to the underlying hardware.
+
+4. **Service Provider Responsibility**: Equipment maintenance, including supervision of maintenance personnel, is the responsibility of the cloud service provider (Railway). The organization does not perform or supervise physical maintenance activities.
+
+**Conclusion**: This control is not applicable because the organization does not employ, contract, or supervise any maintenance personnel who perform physical maintenance on system equipment. All system infrastructure is cloud-based and maintenance is performed by the service provider.
 
 #### Testing and Verification
 
@@ -3176,6 +3256,22 @@ The organization implements control of user-installed software through explicit 
 
 ### 4.3 Operational Procedures
 
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to mark media containing CUI with appropriate CUI markings. However, this control is not applicable to our environment because:
+
+1. **Digital-Only Environment**: The system operates entirely in a digital environment with no physical media (hard drives, tapes, USB devices, CDs, DVDs, printed materials) that contains CUI. All CUI is stored in cloud databases and accessed through web browsers.
+
+2. **No Physical Media**: The organization does not create, use, or maintain any physical media (removable storage devices, printed documents, backup tapes) that would require CUI markings. All data storage and access is digital and cloud-based.
+
+3. **Cloud Storage**: All CUI is stored in cloud databases (Railway platform) with no physical storage components under organizational control. There are no physical media items that could be marked with CUI designations.
+
+4. **Control Scope**: This control applies to physical media that contains CUI and must be marked to indicate the presence and handling requirements of CUI. Since the organization does not use physical media, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the organization does not use, maintain, or have custody of any physical media that contains CUI. All CUI is stored digitally in cloud databases with no physical media requiring markings.
+
 #### Testing and Verification
 
 **Verification Methods:**
@@ -3203,6 +3299,22 @@ The organization implements control of user-installed software through explicit 
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to control access to media containing CUI during transport. However, this control is not applicable to our environment because:
+
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not transport any physical media (hard drives, tapes, USB devices, printed documents) that contains CUI.
+
+2. **No Physical Media Transport**: The organization does not create, use, or transport any physical media (removable storage devices, printed documents, backup tapes) that would require access controls during transport. All data storage and access is digital and cloud-based.
+
+3. **Digital Data Transfer**: All CUI is transferred digitally over encrypted connections (TLS/HTTPS) through web browsers. There is no physical transport of media containing CUI that would require access controls.
+
+4. **Control Scope**: This control applies to physical media containing CUI that must be transported and requires access controls during transport. Since the organization does not transport physical media, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the organization does not transport any physical media containing CUI. All CUI is transferred digitally over encrypted connections with no physical media requiring transport controls.
 
 #### Testing and Verification
 
@@ -4024,6 +4136,22 @@ This control is provided by the Railway Platform and relied upon operationally. 
 
 ### 4.3 Operational Procedures
 
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to establish usage restrictions and implementation guidance for collaborative computing devices. However, this control is not applicable to our environment because:
+
+1. **Web Application Architecture**: The system is a web application accessed through standard web browsers. The organization does not deploy, manage, or maintain any collaborative computing devices (video conferencing systems, interactive whiteboards, shared displays, telepresence systems) that are part of the system infrastructure.
+
+2. **No Collaborative Devices**: The organization does not use or maintain any collaborative computing devices that are integrated with or provide access to the system. All system access occurs through standard web browsers on user-owned devices (laptops, desktops, mobile devices).
+
+3. **User-Controlled Devices**: Any collaborative computing devices that users may use (such as video conferencing systems for meetings) are user-controlled and not part of the system infrastructure. The system itself does not include or integrate with collaborative computing devices.
+
+4. **Control Scope**: This control applies to organizational collaborative computing devices that are part of the system infrastructure and require usage restrictions and implementation guidance. Since the system is a web application with no integrated collaborative devices, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the system is a web application with no integrated collaborative computing devices. All system access occurs through standard web browsers, and the organization does not deploy or maintain collaborative computing devices as part of the system infrastructure.
+
 #### Testing and Verification
 
 **Verification Methods:**
@@ -4096,6 +4224,22 @@ This control is provided by the Railway Platform and relied upon operationally. 
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to implement controls for Voice over Internet Protocol (VoIP) technologies. However, this control is not applicable to our environment because:
+
+1. **Web Application Architecture**: The system is a web application accessed through standard web browsers. The system does not include, integrate with, or provide VoIP functionality as part of its core capabilities.
+
+2. **No VoIP Functionality**: The organization does not deploy, manage, or maintain any VoIP systems, VoIP infrastructure, or VoIP services as part of the system. The system does not provide voice communication capabilities, VoIP calling features, or integration with VoIP technologies.
+
+3. **System Scope**: The system is designed for web-based data management and compliance tracking. It does not include voice communication features, telephony services, or VoIP components that would require control implementation.
+
+4. **Control Scope**: This control applies to organizational VoIP systems and services that are part of the system infrastructure and require security controls. Since the system is a web application with no VoIP functionality, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because the system is a web application with no VoIP functionality. The system does not include, integrate with, or provide VoIP services, and therefore does not require VoIP control implementation.
 
 #### Testing and Verification
 
@@ -4382,6 +4526,22 @@ This control is provided by the Railway Platform and relied upon operationally. 
 ### 4.2 System/Configuration Evidence
 
 ### 4.3 Operational Procedures
+
+#### Verification Details
+
+**Justification/Rationale for Not Applicable Status:**
+
+This control requires organizations to prevent remote devices from maintaining simultaneous non-remote and remote connections. However, this control is not applicable to our environment because:
+
+1. **All Access is Remote**: The system operates entirely in a cloud environment (Railway platform), and all user access to the system is remote. There are no non-remote connections to the system, as the organization does not maintain any on-premises infrastructure or local network connections.
+
+2. **No Non-Remote Connections**: The organization does not maintain any on-premises infrastructure, local area networks, or direct physical connections to system components. All system access occurs remotely through web browsers over the internet.
+
+3. **Cloud-Only Architecture**: The system infrastructure is entirely cloud-based, and users access the system from remote locations (home, office, mobile) using standard web browsers. There are no scenarios where a device could maintain both a non-remote and remote connection simultaneously.
+
+4. **Control Scope**: This control applies to environments where devices can maintain both non-remote (local network) and remote (internet) connections simultaneously. Since all system access is remote with no non-remote connections possible, this control is outside the scope of our system architecture.
+
+**Conclusion**: This control is not applicable because all system access is remote, and there are no non-remote connections to the system. The system architecture does not support scenarios where dual connections (non-remote and remote) could occur simultaneously.
 
 #### Testing and Verification
 
