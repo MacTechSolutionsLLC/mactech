@@ -1070,12 +1070,12 @@ export default function ContractDiscoveryPage() {
                                                 }
                                                 setExpandedIds(newExpanded)
                                               }}
-                                              className="w-full px-4 py-3 bg-neutral-50 hover:bg-neutral-100 flex items-center justify-between text-left transition-colors"
+                                              className="w-full px-4 py-3 bg-neutral-50 hover:bg-neutral-100 flex items-center justify-between text-left transition-colors border-b border-neutral-200"
                                             >
                                               <span className="text-sm font-medium text-neutral-900">
-                                                Enrichment Data
+                                                Enrichment Data {isEnrichmentExpanded ? '(Expanded)' : '(Click to Expand)'}
                                               </span>
-                                              <span className="text-neutral-500">
+                                              <span className="text-neutral-500 text-lg">
                                                 {isEnrichmentExpanded ? '▼' : '▶'}
                                               </span>
                                             </button>

@@ -560,6 +560,35 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
       })
     } else {
       // Generic reference (e.g., "System architecture", "Railway platform", "Training program")
+      // First check if it's a web route
+      if (ref.startsWith('/api/') || ref.startsWith('/admin/')) {
+        const routeParts = ref.replace(/^\//, '').split('/').filter(p => p)
+        let routeFile = ''
+        
+        // Handle export route specifically (/api/admin/events/export)
+        if (routeParts.includes('export')) {
+          const exportIndex = routeParts.indexOf('export')
+          const basePath = routeParts.slice(0, exportIndex)
+          // Remove 'api' from basePath if present, then build path
+          const apiPath = basePath[0] === 'api' ? basePath.slice(1) : basePath
+          routeFile = join(CODE_ROOT, 'app', 'api', ...apiPath, 'export', 'route.ts')
+        } else if (routeParts[0] === 'api') {
+          // API route (e.g., /api/admin/events)
+          routeFile = join(CODE_ROOT, 'app', 'api', ...routeParts.slice(1), 'route.ts')
+        } else if (routeParts[0] === 'admin') {
+          // Admin page route (e.g., /admin/physical-access-logs)
+          routeFile = join(CODE_ROOT, 'app', ...routeParts, 'page.tsx')
+        }
+        
+        items.push({
+          reference: ref,
+          exists: true,
+          path: routeFile ? (await fileExists(routeFile) ? routeFile : `[Web Route] ${ref}`) : `[Web Route] ${ref}`,
+          issues: []
+        })
+        continue
+      }
+      
       // Check if it's a known generic reference that doesn't need a file
       const genericReferences = [
         'System architecture', 'Railway platform', 'Training program', 'Insider threat training',
@@ -567,7 +596,9 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
         'Screening process', 'Dependabot', 'audit logs', 'Cloud-only',
         'AppEvent table', 'Review process', 'review log', 'CM plan',
         'baseline inventory', 'Analysis process', 'template', 'Restriction policy',
-        'inventory', 'Audit logs', 'User acknowledgments', 'User agreements'
+        'inventory', 'Audit logs', 'User acknowledgments', 'User agreements',
+        'Policy prohibition', 'owner identification requirements', 'endpoint compliance',
+        'technical controls', 'user agreements', 'Tool controls'
       ]
       
       const isGeneric = genericReferences.some(gr => ref.toLowerCase().includes(gr.toLowerCase())) ||
@@ -623,7 +654,11 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
                        ref.toLowerCase().includes('assessment report') ||
                        ref.toLowerCase().includes('poa&m process') ||
                        ref.toLowerCase().includes('continuous monitoring log') ||
-                       ref.toLowerCase().includes('system security plan')
+                       ref.toLowerCase().includes('system security plan') ||
+                       ref.toLowerCase().includes('policy prohibition') ||
+                       ref.toLowerCase().includes('owner identification') ||
+                       ref.toLowerCase().includes('endpoint compliance') ||
+                       ref.toLowerCase().includes('technical controls')
       
       items.push({
         reference: ref,

@@ -1,15 +1,15 @@
 # CMMC Level 2 Current State Analysis
 
-Generated: 2026-01-24T10:08:32.011Z
+Generated: 2026-01-25T05:33:24.730Z
 
 ## Overall Compliance Status
 
 **Total Controls:** 110
-**Implemented:** 81 (74%)
+**Implemented:** 84 (76%)
 **Inherited:** 12 (11%)
 **Partially Satisfied:** 0 (0%)
 **Not Implemented:** 3 (3%)
-**Not Applicable:** 14 (13%)
+**Not Applicable:** 11 (10%)
 
 **Overall Readiness:** 97% (Implemented + Inherited)
 
@@ -20,11 +20,11 @@ Generated: 2026-01-24T10:08:32.011Z
 | AC (Access Control) | 22 | 18 | 2 | 0 | 0 | 2 | 100% |
 | AT (Awareness and Training) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |
 | AU (Audit and Accountability) | 9 | 8 | 1 | 0 | 0 | 0 | 100% |
-| CM (Configuration Management) | 9 | 7 | 1 | 0 | 0 | 1 | 100% |
+| CM (Configuration Management) | 9 | 8 | 1 | 0 | 0 | 0 | 100% |
 | IA (Identification and Authentication) | 11 | 9 | 0 | 0 | 1 | 1 | 90% |
 | IR (Incident Response) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |
 | MA (Maintenance) | 6 | 2 | 0 | 0 | 1 | 3 | 67% |
-| MP (Media Protection) | 9 | 3 | 2 | 0 | 0 | 4 | 100% |
+| MP (Media Protection) | 9 | 5 | 2 | 0 | 0 | 2 | 100% |
 | PE (Physical Protection) | 6 | 6 | 0 | 0 | 0 | 0 | 100% |
 | PS (Personnel Security) | 2 | 2 | 0 | 0 | 0 | 0 | 100% |
 | RA (Risk Assessment) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |

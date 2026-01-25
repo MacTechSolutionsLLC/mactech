@@ -35,7 +35,7 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center min-h-32 md:min-h-40 py-4">
           {/* Logo - restrained, confident */}
           <Link 
             href="/" 

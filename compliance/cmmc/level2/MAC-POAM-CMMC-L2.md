@@ -222,7 +222,7 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 **Responsible Role:** System Administrator
 
-**Target Completion Timeframe:** ≤ 180 days (by 2026-07-26)
+**Target Completion Timeframe:** ≤ 180 days (by 2026-07-22)
 
 **Status:** Open
 
