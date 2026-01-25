@@ -58,7 +58,7 @@ function Tooltip({ badge, isVisible, badgeRef }: {
   badgeRef: React.RefObject<HTMLDivElement>
 }) {
   const tooltipRef = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState<'top' | 'bottom'>('top')
+  const [position, setPosition] = useState<'top' | 'bottom'>('bottom')
 
   useEffect(() => {
     if (!isVisible || !tooltipRef.current || !badgeRef.current) return
@@ -70,10 +70,10 @@ function Tooltip({ badge, isVisible, badgeRef }: {
       const viewportHeight = window.innerHeight
       const spaceAbove = badgeRect.top
       const spaceBelow = viewportHeight - badgeRect.bottom
-      const tooltipHeight = 200 // Approximate tooltip height
+      const tooltipHeight = 150 // Approximate tooltip height
 
-      // Position tooltip above if there's more space, otherwise below
-      setPosition(spaceAbove > spaceBelow + tooltipHeight ? 'top' : 'bottom')
+      // Position tooltip below by default, only use top if not enough space below
+      setPosition(spaceBelow < tooltipHeight && spaceAbove > spaceBelow ? 'top' : 'bottom')
     }
 
     // Use requestAnimationFrame to ensure DOM is updated
@@ -104,7 +104,8 @@ function Tooltip({ badge, isVisible, badgeRef }: {
         shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)]
         border border-neutral-200/60
         p-6
-        max-w-[340px]
+        w-[calc(100vw-2rem)] max-w-[480px]
+        sm:w-[420px]
         relative
         overflow-hidden
       ">
