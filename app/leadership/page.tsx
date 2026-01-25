@@ -203,7 +203,7 @@ export default function LeadershipPage() {
                     Patrick is a recognized expert in DoD cybersecurity, Risk Management Framework (RMF), 
                     and authorization processes. He has successfully led multiple ATO efforts for mission-critical 
                     systems and has deep experience with STIG compliance, continuous monitoring, and security 
-                    control implementation. Under Patrick's leadership, MacTech Solutions maintains CMMC 2.0 Level 2 
+                    control implementation. Under Patrick&apos;s leadership, MacTech Solutions maintains CMMC 2.0 Level 2 
                     compliance and aligns with NIST CSF 2.0, NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
                   </p>
                   <div className="mb-6">

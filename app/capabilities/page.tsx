@@ -234,7 +234,7 @@ export default function CapabilitiesPage() {
                   FedRAMP Moderate Design Alignment
                 </h3>
                 <p className="text-body text-neutral-700 print:text-sm">
-                  MacTech Solutions' security architecture and control design are aligned with the FedRAMP Moderate baseline. 
+                  MacTech Solutions&apos; security architecture and control design are aligned with the FedRAMP Moderate baseline. 
                   Our system architecture, control implementation, and governance practices demonstrate alignment with 
                   FedRAMP Moderate requirements.
                 </p>
