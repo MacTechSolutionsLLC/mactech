@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 
 interface NavItem {
   href: string
@@ -13,120 +13,78 @@ interface NavItem {
   icon?: string
 }
 
-interface NavSection {
-  label: string
-  icon?: string
-  items: NavItem[]
-}
-
-const navSections: NavSection[] = [
+const navItems: NavItem[] = [
   {
+    href: '/admin',
     label: 'Portal',
+    description: 'Overview and quick access',
     icon: '⚙️',
-    items: [
-      {
-        href: '/admin',
-        label: 'Dashboard',
-        description: 'Overview and quick access',
-        icon: '⚙️',
-      },
-    ],
   },
   {
-    label: 'Contracts',
+    href: '/user/capture',
+    label: 'Capture',
+    description: 'Federal Capture Dashboard',
     icon: '📊',
-    items: [
-      {
-        href: '/user/capture',
-        label: 'Capture',
-        description: 'Federal Capture Dashboard',
-        icon: '📊',
-      },
-      {
-        href: '/user/contract-discovery',
-        label: 'Discovery',
-        description: 'Search SAM.gov opportunities',
-        icon: '🔍',
-      },
-    ],
   },
   {
+    href: '/user/contract-discovery',
+    label: 'Discovery',
+    description: 'Search SAM.gov opportunities',
+    icon: '🔍',
+  },
+  {
+    href: '/admin/users',
     label: 'Users',
+    description: 'Manage user accounts',
     icon: '👥',
-    items: [
-      {
-        href: '/admin/users',
-        label: 'User Management',
-        description: 'Manage user accounts',
-        icon: '👥',
-      },
-      {
-        href: '/feedback',
-        label: 'Feedback',
-        description: 'View and manage user feedback',
-        icon: '💬',
-      },
-    ],
   },
   {
+    href: '/admin/compliance',
     label: 'Compliance',
+    description: 'CMMC compliance dashboard',
     icon: '🛡️',
-    items: [
-      {
-        href: '/admin/compliance',
-        label: 'Compliance',
-        description: 'CMMC compliance dashboard',
-        icon: '🛡️',
-      },
-      {
-        href: '/admin/poam',
-        label: 'POA&M',
-        description: 'Plan of Action and Milestones',
-        icon: '📋',
-      },
-      {
-        href: '/admin/events',
-        label: 'Events',
-        description: 'Audit log and events',
-        icon: '📝',
-      },
-    ],
   },
   {
-    label: 'Security',
-    icon: '🔒',
-    items: [
-      {
-        href: '/admin/physical-access-logs',
-        label: 'Physical Access',
-        description: 'Physical access logs',
-        icon: '🚪',
-      },
-      {
-        href: '/admin/endpoint-inventory',
-        label: 'Endpoints',
-        description: 'Endpoint inventory',
-        icon: '💻',
-      },
-      {
-        href: '/admin/files',
-        label: 'Files',
-        description: 'File management',
-        icon: '📁',
-      },
-    ],
+    href: '/admin/poam',
+    label: 'POA&M',
+    description: 'Plan of Action and Milestones',
+    icon: '📋',
   },
   {
-    label: 'Tools',
-    icon: '🛠️',
-    items: [
-      {
-        href: '/admin/generate-proposal',
-        label: 'Proposals',
-        description: 'Generate proposals from SOW (Admin only)',
-        icon: '📄',
-      },
-    ],
+    href: '/admin/events',
+    label: 'Events',
+    description: 'Audit log and events',
+    icon: '📝',
+  },
+  {
+    href: '/admin/physical-access-logs',
+    label: 'Physical Access',
+    description: 'Physical access logs',
+    icon: '🚪',
+  },
+  {
+    href: '/admin/endpoint-inventory',
+    label: 'Endpoints',
+    description: 'Endpoint inventory',
+    icon: '💻',
+  },
+  {
+    href: '/admin/files',
+    label: 'Files',
+    description: 'File management',
+    icon: '📁',
+  },
+  {
+    href: '/admin/generate-proposal',
+    label: 'Proposals',
+    description: 'Generate proposals from SOW (Admin only)',
+    icon: '📄',
+  },
+  {
+    href: '/feedback',
+    label: 'Feedback',
+    description: 'View and manage user feedback',
+    icon: '💬',
   },
 ]
 
@@ -135,7 +93,6 @@ export default function AdminNavigation() {
   const router = useRouter()
   const { data: session } = useSession()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -171,20 +128,6 @@ export default function AdminNavigation() {
   }
 
   const isAdmin = session?.user?.role === 'ADMIN'
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openDropdown && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null)
-      }
-    }
-    if (openDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [openDropdown])
 
   return (
     <nav className="bg-gradient-to-r from-neutral-900 to-neutral-800 border-b border-neutral-700 sticky top-0 z-50 shadow-lg">
@@ -204,84 +147,26 @@ export default function AdminNavigation() {
             </div>
           </Link>
 
-          {/* Desktop Navigation with Dropdowns */}
-          <div className="hidden lg:flex items-center gap-1 bg-neutral-800/50 rounded-lg p-0.5 backdrop-blur-sm flex-1 min-w-0 overflow-x-auto">
-            {navSections.map((section) => {
-              const hasActiveItem = section.items.some(
-                (item) => pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
-              )
-              const isOpen = openDropdown === section.label
-
-              // If section has only one item, render as direct link
-              if (section.items.length === 1) {
-                const item = section.items[0]
-                const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
-                return (
-                  <Link
-                    key={section.label}
-                    href={item.href}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
-                      isActive
-                        ? 'bg-accent-600 text-white shadow-md'
-                        : 'text-neutral-300 hover:text-white hover:bg-neutral-700/50'
-                    }`}
-                    title={item.description}
-                  >
-                    <span className="text-sm">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              }
-
-              // Multiple items - render as dropdown
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-0.5 bg-neutral-800/50 rounded-lg p-0.5 backdrop-blur-sm flex-1 min-w-0 overflow-x-auto">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || 
+                (item.href !== '/admin' && pathname.startsWith(item.href))
+              
               return (
-                <div key={section.label} className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setOpenDropdown(isOpen ? null : section.label)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
-                      hasActiveItem
-                        ? 'bg-accent-600 text-white shadow-md'
-                        : 'text-neutral-300 hover:text-white hover:bg-neutral-700/50'
-                    }`}
-                  >
-                    <span className="text-sm">{section.icon}</span>
-                    <span>{section.label}</span>
-                    <svg
-                      className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {isOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-56 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 z-50 py-1">
-                      {section.items.map((item) => {
-                        const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className={`block px-4 py-2 text-sm transition-colors ${
-                              isActive
-                                ? 'bg-accent-600 text-white'
-                                : 'text-neutral-300 hover:bg-neutral-700 hover:text-white'
-                            }`}
-                            title={item.description}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span>{item.icon}</span>
-                              <span>{item.label}</span>
-                            </div>
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
+                    isActive
+                      ? 'bg-accent-600 text-white shadow-md'
+                      : 'text-neutral-300 hover:text-white hover:bg-neutral-700/50'
+                  }`}
+                  title={item.description}
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
               )
             })}
           </div>
@@ -338,13 +223,11 @@ export default function AdminNavigation() {
               }}
               className="px-2 py-1.5 text-xs font-medium bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
             >
-              {navSections.map((section) =>
-                section.items.map((item) => (
-                  <option key={item.href} value={item.href}>
-                    {item.icon} {section.label} - {item.label}
-                  </option>
-                ))
-              )}
+              {navItems.map((item) => (
+                <option key={item.href} value={item.href}>
+                  {item.icon} {item.label}
+                </option>
+              ))}
             </select>
             {isAdmin && (
               <Link
