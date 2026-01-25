@@ -1,6 +1,37 @@
 import { PrismaClient } from '@prisma/client'
+import { config } from 'dotenv'
+import { resolve } from 'path'
 
-const prisma = new PrismaClient()
+// Load environment variables - .env.local takes precedence over .env
+const envResult = config({ path: resolve(process.cwd(), '.env') })
+const envLocalResult = config({ path: resolve(process.cwd(), '.env.local'), override: true }) // Override .env values
+
+// Ensure DATABASE_URL is set and properly formatted
+if (!process.env.DATABASE_URL) {
+  console.error('Error: DATABASE_URL is not set in environment variables')
+  console.error('Please set DATABASE_URL in .env.local or .env file')
+  process.exit(1)
+}
+
+// Remove quotes if present
+if (process.env.DATABASE_URL.startsWith('"') && process.env.DATABASE_URL.endsWith('"')) {
+  process.env.DATABASE_URL = process.env.DATABASE_URL.slice(1, -1)
+}
+
+// Verify DATABASE_URL format
+if (!process.env.DATABASE_URL.startsWith('postgresql://') && !process.env.DATABASE_URL.startsWith('postgres://')) {
+  console.error(`Error: DATABASE_URL must start with postgresql:// or postgres://`)
+  console.error(`Current value starts with: ${process.env.DATABASE_URL.substring(0, 20)}...`)
+  process.exit(1)
+}
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+})
 
 /**
  * Process feedback script
