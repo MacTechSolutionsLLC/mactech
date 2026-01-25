@@ -47,6 +47,7 @@ export interface CodeVerification {
 const COMPLIANCE_ROOT = join(process.cwd(), 'compliance', 'cmmc', 'level2')
 const EVIDENCE_ROOT = join(COMPLIANCE_ROOT, '05-evidence')
 const POLICIES_ROOT = join(COMPLIANCE_ROOT, '02-policies-and-procedures')
+const SYSTEM_SCOPE_ROOT = join(COMPLIANCE_ROOT, '01-system-scope')
 const CODE_ROOT = process.cwd()
 
 /**
@@ -142,7 +143,7 @@ async function verifyPolicy(policyRef: string): Promise<EvidenceItem> {
 }
 
 /**
- * Verify procedure file exists (checks both short and full naming patterns)
+ * Verify procedure file exists (checks multiple directories and handles various reference formats)
  */
 async function verifyProcedure(procedureRef: string): Promise<EvidenceItem> {
   if (procedureRef === '-' || !procedureRef) {
@@ -153,23 +154,112 @@ async function verifyProcedure(procedureRef: string): Promise<EvidenceItem> {
     }
   }
   
-  // Check short name first (e.g., MAC-SOP-221.md)
-  const procedurePath = join(POLICIES_ROOT, `${procedureRef}.md`)
-  let exists = await fileExists(procedurePath)
-  let foundPath = procedurePath
+  // Normalize the reference: remove double .md.md extensions, trim whitespace
+  let normalizedRef = procedureRef.trim()
+  if (normalizedRef.endsWith('.md.md')) {
+    normalizedRef = normalizedRef.replace(/\.md\.md$/, '.md')
+  } else if (!normalizedRef.endsWith('.md') && !normalizedRef.includes('/')) {
+    // Add .md extension if not present and not a path
+    normalizedRef = normalizedRef + '.md'
+  }
   
-  // If not found, check for files starting with the procedure ref (e.g., MAC-SOP-221_*.md)
-  if (!exists) {
+  // Handle relative paths (e.g., ../../01-system-scope/...)
+  let searchDirs: Array<{ dir: string; description: string }> = []
+  let resolvedPath: string | null = null
+  
+  if (normalizedRef.startsWith('../') || normalizedRef.startsWith('../../')) {
+    // Resolve relative path from COMPLIANCE_ROOT
+    try {
+      resolvedPath = join(COMPLIANCE_ROOT, normalizedRef.replace(/^\.\.\/\.\.\//, '').replace(/^\.\.\//, ''))
+      const dir = join(resolvedPath, '..')
+      searchDirs.push({ dir, description: 'resolved relative path' })
+    } catch {
+      // If resolution fails, try to extract directory from path
+      if (normalizedRef.includes('01-system-scope')) {
+        const fileName = normalizedRef.split('/').pop() || normalizedRef
+        searchDirs.push({ dir: SYSTEM_SCOPE_ROOT, description: 'system-scope (from relative path)' })
+        normalizedRef = fileName
+      } else if (normalizedRef.includes('02-policies-and-procedures')) {
+        const fileName = normalizedRef.split('/').pop() || normalizedRef
+        searchDirs.push({ dir: POLICIES_ROOT, description: 'policies (from relative path)' })
+        normalizedRef = fileName
+      }
+    }
+  } else {
+    // Determine which directory to search based on reference prefix
+    if (normalizedRef.startsWith('MAC-RPT-')) {
+      // Evidence files
+      searchDirs.push({ dir: EVIDENCE_ROOT, description: 'evidence' })
+    } else if (normalizedRef.startsWith('MAC-IT-')) {
+      // System scope documents
+      searchDirs.push({ dir: SYSTEM_SCOPE_ROOT, description: 'system-scope' })
+    } else if (normalizedRef.startsWith('MAC-SOP-') || normalizedRef.startsWith('MAC-CMP-') || normalizedRef.startsWith('MAC-IRP-')) {
+      // Standard procedures
+      searchDirs.push({ dir: POLICIES_ROOT, description: 'policies-and-procedures' })
+    } else {
+      // Default: check all directories in order
+      searchDirs.push(
+        { dir: POLICIES_ROOT, description: 'policies-and-procedures' },
+        { dir: EVIDENCE_ROOT, description: 'evidence' },
+        { dir: SYSTEM_SCOPE_ROOT, description: 'system-scope' }
+      )
+    }
+  }
+  
+  // Try to find the file in each directory
+  let exists = false
+  let foundPath: string | undefined = undefined
+  
+  for (const { dir, description } of searchDirs) {
+    // Remove .md extension for matching if it's already there
+    const baseName = normalizedRef.endsWith('.md') ? normalizedRef.slice(0, -3) : normalizedRef
+    
+    // Try exact match first
+    const exactPath = join(dir, normalizedRef)
+    if (await fileExists(exactPath)) {
+      foundPath = exactPath
+      exists = true
+      break
+    }
+    
+    // Try without .md extension (if we added it)
+    if (normalizedRef.endsWith('.md') && baseName !== normalizedRef) {
+      const pathWithoutExt = join(dir, baseName)
+      if (await fileExists(pathWithoutExt)) {
+        foundPath = pathWithoutExt
+        exists = true
+        break
+      }
+    }
+    
+    // Try prefix match (e.g., MAC-RPT-121_*.md)
     try {
       const files = await import('fs/promises')
-      const dirFiles = await files.readdir(POLICIES_ROOT)
-      const matchingFile = dirFiles.find(f => f.startsWith(`${procedureRef}_`) && f.endsWith('.md'))
+      const dirFiles = await files.readdir(dir)
+      
+      // Try matching with base name (without .md)
+      const matchingFile = dirFiles.find(f => {
+        if (!f.endsWith('.md')) return false
+        const fBase = f.replace(/\.md$/, '')
+        return fBase === baseName || fBase.startsWith(`${baseName}_`) || f.startsWith(`${baseName}_`)
+      })
+      
       if (matchingFile) {
-        foundPath = join(POLICIES_ROOT, matchingFile)
+        foundPath = join(dir, matchingFile)
         exists = true
+        break
       }
     } catch {
-      // If readdir fails, continue with original check
+      // If readdir fails, continue to next directory
+      continue
+    }
+  }
+  
+  // If we have a resolved path from relative reference, try that too
+  if (!exists && resolvedPath) {
+    if (await fileExists(resolvedPath)) {
+      foundPath = resolvedPath
+      exists = true
     }
   }
   
@@ -177,7 +267,7 @@ async function verifyProcedure(procedureRef: string): Promise<EvidenceItem> {
     reference: procedureRef,
     exists,
     path: exists ? foundPath : undefined,
-    issues: exists ? [] : [`Procedure file not found: ${procedurePath}`]
+    issues: exists ? [] : [`Procedure file not found: ${procedureRef} (checked: ${searchDirs.map(d => d.description).join(', ')})`]
   }
 }
 
