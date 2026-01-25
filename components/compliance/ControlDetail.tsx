@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import DocumentViewerModal from './DocumentViewerModal'
 
 interface EvidenceItem {
   reference: string
@@ -80,6 +80,7 @@ const FAMILY_NAMES: Record<string, string> = {
 
 export default function ControlDetail({ control, auditResult }: ControlDetailProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']))
+  const [documentModal, setDocumentModal] = useState<{ path: string; name: string } | null>(null)
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections)
@@ -93,7 +94,7 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
 
   const getEvidencePath = (item: EvidenceItem): string | null => {
     if (!item.path) return null
-    // Convert absolute path to relative path for linking
+    // Convert absolute path to relative path for modal
     let relativePath: string
     if (item.path.includes('compliance/cmmc')) {
       // Remove any absolute path prefix (works in both Node and browser)
@@ -105,8 +106,8 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
     } else {
       relativePath = item.path
     }
-    // Return the path formatted for the document viewer
-    return `/admin/compliance/document?path=${encodeURIComponent(relativePath)}`
+    // Return the relative path for the modal
+    return relativePath
   }
 
   const getCodePath = (file: string): string | null => {
@@ -227,13 +228,19 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                         <div className="flex-1">
                           <span className="font-medium text-sm">{policy.reference}</span>
                           {path && (
-                            <Link
-                              href={path}
-                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
-                              target="_blank"
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                // Extract the path from the URL
+                                const url = new URL(path, window.location.origin)
+                                const docPath = url.searchParams.get('path') || path
+                                setDocumentModal({ path: docPath, name: policy.reference })
+                              }}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2 underline"
                             >
                               View →
-                            </Link>
+                            </button>
                           )}
                         </div>
                         <span className={`text-xs px-2 py-1 rounded ${
@@ -280,13 +287,16 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                         <div className="flex-1">
                           <span className="font-medium text-sm">{procedure.reference}</span>
                           {path && (
-                            <Link
-                              href={path}
-                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
-                              target="_blank"
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setDocumentModal({ path: path, name: procedure.reference })
+                              }}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2 underline"
                             >
                               View →
-                            </Link>
+                            </button>
                           )}
                         </div>
                         <span className={`text-xs px-2 py-1 rounded ${
@@ -333,13 +343,16 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                         <div className="flex-1">
                           <span className="font-medium text-sm">{evidence.reference}</span>
                           {path && (
-                            <Link
-                              href={path}
-                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
-                              target="_blank"
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setDocumentModal({ path: path, name: evidence.reference })
+                              }}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2 underline"
                             >
                               View →
-                            </Link>
+                            </button>
                           )}
                         </div>
                         <span className={`text-xs px-2 py-1 rounded ${
@@ -390,13 +403,16 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
                         <div className="flex-1">
                           <span className="font-medium text-sm">{code.file}</span>
                           {codePath && (
-                            <Link
-                              href={`/${codePath}`}
-                              className="text-xs text-primary-600 hover:text-primary-700 ml-2"
-                              target="_blank"
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setDocumentModal({ path: codePath, name: code.file })
+                              }}
+                              className="text-xs text-primary-600 hover:text-primary-700 ml-2 underline"
                             >
                               View Code →
-                            </Link>
+                            </button>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
@@ -486,6 +502,16 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
           </div>
         )}
       </div>
+
+      {/* Document Viewer Modal */}
+      {documentModal && (
+        <DocumentViewerModal
+          isOpen={!!documentModal}
+          onClose={() => setDocumentModal(null)}
+          documentPath={documentModal.path}
+          documentName={documentModal.name}
+        />
+      )}
     </div>
   )
 }
