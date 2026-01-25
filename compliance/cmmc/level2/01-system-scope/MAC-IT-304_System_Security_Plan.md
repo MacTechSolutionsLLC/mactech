@@ -2879,11 +2879,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Final score: 110 - 9 = 101 out of 110 (91.8%)
 
 **Open POA&M Items Affecting Score:**
-1. **POAM-011:** 3.5.6 (Disable identifiers after a defined period of inactivity)
-   - Point deduction: -1 point
-   - Target completion: ≤ 180 days (by 2026-06-12)
-   - Status: Open
-2. **POAM-013:** 3.7.2 (Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance)
+1. **POAM-013:** 3.7.2 (Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance)
    - Point deduction: -5 points
    - Target completion: ≤ 180 days (by 2026-07-10)
    - Status: Open
