@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { useState, useRef, useEffect } from 'react'
 
 type BadgeSize = 'small' | 'medium' | 'large'
 
@@ -49,48 +52,148 @@ const sizeClasses = {
   large: 'h-20 md:h-24',
 }
 
+function Tooltip({ badge, isVisible, badgeRef }: { 
+  badge: typeof badgeConfig[0], 
+  isVisible: boolean,
+  badgeRef: React.RefObject<HTMLDivElement>
+}) {
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const [position, setPosition] = useState<'top' | 'bottom'>('top')
+
+  useEffect(() => {
+    if (!isVisible || !tooltipRef.current || !badgeRef.current) return
+
+    const updatePosition = () => {
+      const badgeRect = badgeRef.current?.getBoundingClientRect()
+      if (!badgeRect) return
+
+      const viewportHeight = window.innerHeight
+      const spaceAbove = badgeRect.top
+      const spaceBelow = viewportHeight - badgeRect.bottom
+      const tooltipHeight = 200 // Approximate tooltip height
+
+      // Position tooltip above if there's more space, otherwise below
+      setPosition(spaceAbove > spaceBelow + tooltipHeight ? 'top' : 'bottom')
+    }
+
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(updatePosition)
+  }, [isVisible, badgeRef])
+
+  return (
+    <div
+      ref={tooltipRef}
+      className={`
+        absolute left-1/2 -translate-x-1/2 z-[100] pointer-events-none
+        ${position === 'top' ? 'bottom-full mb-4' : 'top-full mt-4'}
+        transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+        ${isVisible 
+          ? 'opacity-100 translate-y-0 scale-100' 
+          : 'opacity-0 translate-y-1 scale-[0.96] pointer-events-none'
+        }
+      `}
+      style={{
+        transitionProperty: 'opacity, transform',
+        willChange: 'opacity, transform',
+      }}
+    >
+      <div className="
+        bg-white/98 backdrop-blur-2xl
+        text-neutral-900
+        rounded-2xl
+        shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)]
+        border border-neutral-200/60
+        p-6
+        max-w-[340px]
+        relative
+        overflow-hidden
+      ">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/40 to-neutral-50/20 rounded-2xl pointer-events-none" />
+        
+        {/* Content */}
+        <div className="relative z-10">
+          <div className="flex items-start gap-3 mb-3.5">
+            <span className="text-2xl flex-shrink-0 leading-none filter drop-shadow-sm">{badge.emoji}</span>
+            <h4 className="font-semibold text-neutral-900 text-sm leading-tight tracking-[-0.01em]">
+              {badge.title}
+            </h4>
+          </div>
+          <p className="text-neutral-600 text-xs leading-relaxed tracking-wide">
+            {badge.tooltip}
+          </p>
+        </div>
+
+        {/* Arrow */}
+        <div className={`
+          absolute left-1/2 -translate-x-1/2 z-10
+          ${position === 'top' ? 'top-full -mt-[6px]' : 'bottom-full -mb-[6px] rotate-180'}
+        `}>
+          <div className="
+            w-3.5 h-3.5
+            bg-white/98 backdrop-blur-2xl
+            border-r border-b border-neutral-200/60
+            transform rotate-45
+            shadow-[0_4px_12px_-2px_rgba(0,0,0,0.15)]
+          " />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ComplianceBadges({ 
   size = 'medium', 
   className = '',
   showLabels = false 
 }: ComplianceBadgesProps) {
   const heightClass = sizeClasses[size]
+  const [hoveredBadge, setHoveredBadge] = useState<string | null>(null)
+  const badgeRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
   return (
     <div className={`flex flex-wrap items-center justify-center gap-4 md:gap-6 ${className}`}>
       {badgeConfig.map((badge) => (
         <div 
           key={badge.src}
-          className="flex flex-col items-center gap-2 group relative"
+          ref={(el) => { badgeRefs.current[badge.src] = el }}
+          className="flex flex-col items-center gap-2 relative"
+          onMouseEnter={() => setHoveredBadge(badge.src)}
+          onMouseLeave={() => setHoveredBadge(null)}
         >
-          <div className="relative transition-opacity duration-200 group-hover:opacity-80 cursor-help">
-            <Image
-              src={badge.src}
-              alt={badge.alt}
-              width={200}
-              height={200}
-              className={`${heightClass} w-auto object-contain`}
-              unoptimized
-            />
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:block z-50 pointer-events-none">
-              <div className="bg-neutral-900 text-white text-sm rounded-lg shadow-xl p-4 max-w-xs">
-                <div className="flex items-start gap-2 mb-2">
-                  <span className="text-lg flex-shrink-0 mt-0.5">{badge.emoji}</span>
-                  <h4 className="font-semibold text-white leading-tight">{badge.title}</h4>
-                </div>
-                <p className="text-neutral-200 text-xs leading-relaxed">
-                  {badge.tooltip}
-                </p>
-                {/* Tooltip arrow */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
-                  <div className="border-4 border-transparent border-t-neutral-900"></div>
-                </div>
-              </div>
+          <div className="
+            relative
+            transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+            cursor-help
+            group
+          ">
+            <div className={`
+              transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+              ${hoveredBadge === badge.src 
+                ? 'scale-[1.08] opacity-95' 
+                : 'scale-100 opacity-100'
+              }
+            `}>
+              <Image
+                src={badge.src}
+                alt={badge.alt}
+                width={200}
+                height={200}
+                className={`${heightClass} w-auto object-contain transition-all duration-300`}
+                unoptimized
+              />
             </div>
+            
+            {/* Tooltip */}
+            <Tooltip 
+              badge={badge} 
+              isVisible={hoveredBadge === badge.src}
+              badgeRef={{ current: badgeRefs.current[badge.src] } as React.RefObject<HTMLDivElement>}
+            />
           </div>
+          
           {showLabels && (
-            <span className="text-body-xs text-neutral-600 text-center max-w-[120px]">
+            <span className="text-body-xs text-neutral-600 text-center max-w-[120px] transition-colors duration-200">
               {badge.label}
             </span>
           )}
