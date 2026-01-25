@@ -25,13 +25,14 @@ interface FeedbackItem {
 }
 
 interface FeedbackResponse {
-  feedback: FeedbackItem[]
-  pagination: {
+  feedback?: FeedbackItem[]
+  pagination?: {
     page: number
     limit: number
     total: number
     totalPages: number
   }
+  error?: string
 }
 
 export default function FeedbackForumPage() {
@@ -77,8 +78,12 @@ export default function FeedbackForumPage() {
           throw new Error(data.error || 'Failed to fetch feedback')
         }
 
-        setFeedback(data.feedback)
-        setPagination(data.pagination)
+        if (data.feedback && data.pagination) {
+          setFeedback(data.feedback)
+          setPagination(data.pagination)
+        } else {
+          throw new Error('Invalid response format')
+        }
       } catch (err: any) {
         console.error('Error fetching feedback:', err)
         setError(err.message || 'Failed to load feedback')

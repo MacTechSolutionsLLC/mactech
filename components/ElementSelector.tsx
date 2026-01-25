@@ -16,6 +16,84 @@ interface ElementSelectorProps {
   onCancel: () => void
 }
 
+// Generate full CSS path selector (moved outside component to avoid dependency issues)
+function generatePathSelector(element: HTMLElement): string {
+  const path: string[] = []
+
+  while (element && element.nodeType === Node.ELEMENT_NODE) {
+    let selector = element.nodeName.toLowerCase()
+
+    if (element.id) {
+      selector += `#${element.id}`
+      path.unshift(selector)
+      break
+    } else {
+      if (element.className && typeof element.className === 'string') {
+        const classes = element.className.trim().split(/\s+/).filter(Boolean)
+        if (classes.length > 0) {
+          selector += `.${classes[0].replace(/[.#:\[\]]/g, '\\$&')}`
+        }
+      }
+
+      // Add nth-child if needed for uniqueness
+      const parent = element.parentElement
+      if (parent) {
+        const siblings = Array.from(parent.children)
+        const index = siblings.indexOf(element) + 1
+        if (siblings.length > 1) {
+          selector += `:nth-child(${index})`
+        }
+      }
+
+      path.unshift(selector)
+      element = element.parentElement as HTMLElement
+    }
+  }
+
+  return path.join(' > ')
+}
+
+// Generate CSS selector for an element (moved outside component)
+function generateSelector(element: HTMLElement): string {
+  // Prefer ID
+  if (element.id) {
+    return `#${element.id}`
+  }
+
+  // Prefer class (first class)
+  if (element.className && typeof element.className === 'string') {
+    const classes = element.className.trim().split(/\s+/).filter(Boolean)
+    if (classes.length > 0) {
+      // Escape special characters in class name
+      const firstClass = classes[0].replace(/[.#:\[\]]/g, '\\$&')
+      return `.${firstClass}`
+    }
+  }
+
+  // Generate path as fallback
+  return generatePathSelector(element)
+}
+
+// Extract element data (moved outside component)
+function extractElementData(element: HTMLElement): ElementData {
+  const selector = generateSelector(element)
+  const elementId = element.id || null
+  const elementClass =
+    element.className && typeof element.className === 'string'
+      ? element.className.trim().split(/\s+/)[0] || null
+      : null
+  const elementText = element.textContent?.trim().substring(0, 100) || null
+  const elementType = element.tagName.toLowerCase()
+
+  return {
+    selector,
+    elementId,
+    elementClass,
+    elementText,
+    elementType,
+  }
+}
+
 export default function ElementSelector({
   isActive,
   onElementSelected,
@@ -24,84 +102,6 @@ export default function ElementSelector({
   const overlayRef = useRef<HTMLDivElement>(null)
   const highlightedElementRef = useRef<HTMLElement | null>(null)
   const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(null)
-
-  // Generate CSS selector for an element
-  const generateSelector = (element: HTMLElement): string => {
-    // Prefer ID
-    if (element.id) {
-      return `#${element.id}`
-    }
-
-    // Prefer class (first class)
-    if (element.className && typeof element.className === 'string') {
-      const classes = element.className.trim().split(/\s+/).filter(Boolean)
-      if (classes.length > 0) {
-        // Escape special characters in class name
-        const firstClass = classes[0].replace(/[.#:\[\]]/g, '\\$&')
-        return `.${firstClass}`
-      }
-    }
-
-    // Generate path as fallback
-    return generatePathSelector(element)
-  }
-
-  // Generate full CSS path selector
-  const generatePathSelector = (element: HTMLElement): string => {
-    const path: string[] = []
-
-    while (element && element.nodeType === Node.ELEMENT_NODE) {
-      let selector = element.nodeName.toLowerCase()
-
-      if (element.id) {
-        selector += `#${element.id}`
-        path.unshift(selector)
-        break
-      } else {
-        if (element.className && typeof element.className === 'string') {
-          const classes = element.className.trim().split(/\s+/).filter(Boolean)
-          if (classes.length > 0) {
-            selector += `.${classes[0].replace(/[.#:\[\]]/g, '\\$&')}`
-          }
-        }
-
-        // Add nth-child if needed for uniqueness
-        const parent = element.parentElement
-        if (parent) {
-          const siblings = Array.from(parent.children)
-          const index = siblings.indexOf(element) + 1
-          if (siblings.length > 1) {
-            selector += `:nth-child(${index})`
-          }
-        }
-
-        path.unshift(selector)
-        element = element.parentElement as HTMLElement
-      }
-    }
-
-    return path.join(' > ')
-  }
-
-  // Extract element data
-  const extractElementData = (element: HTMLElement): ElementData => {
-    const selector = generateSelector(element)
-    const elementId = element.id || null
-    const elementClass =
-      element.className && typeof element.className === 'string'
-        ? element.className.trim().split(/\s+/)[0] || null
-        : null
-    const elementText = element.textContent?.trim().substring(0, 100) || null
-    const elementType = element.tagName.toLowerCase()
-
-    return {
-      selector,
-      elementId,
-      elementClass,
-      elementText,
-      elementType,
-    }
-  }
 
   // Remove highlight from element
   const removeHighlight = (element: HTMLElement | null) => {
