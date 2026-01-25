@@ -57,6 +57,7 @@ export type ActionType =
   | "cui_file_access"
   | "cui_file_access_denied"
   | "cui_file_delete"
+  | "user_attestation"
 
 export type TargetType =
   | "user"

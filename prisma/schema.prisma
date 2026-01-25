@@ -43,6 +43,7 @@ model User {
   physicalAccessLogs PhysicalAccessLog[] // Physical access logs created by this user
   passwordHistory    PasswordHistory[] // Password history for reuse prevention
   feedback           Feedback[] // Feedback submitted by this user
+  attestations       UserAttestation[] // User security obligations attestations
 
   @@index([email])
   @@index([disabled])
@@ -1143,4 +1144,25 @@ model Feedback {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+}
+
+// User Security Obligations Attestations (CMMC 2.0 Level 2)
+model UserAttestation {
+  id               String    @id @default(cuid())
+  userId           String
+  attestationType  String    // Enum string: "security_training", "policy_acknowledgement", "cui_handling", "incident_reporting", "acceptable_use"
+  version          String    // Year string like "2026"
+  acknowledgedAt   DateTime  @default(now())
+  ipAddress        String?
+  userAgent        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, attestationType, version])
+  @@index([userId])
+  @@index([attestationType])
+  @@index([acknowledgedAt])
+  @@index([userId, attestationType])
 }

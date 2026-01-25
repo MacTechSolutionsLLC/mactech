@@ -39,6 +39,12 @@ const navItems: NavItem[] = [
     icon: '🏆',
   },
   {
+    href: '/user/security-obligations',
+    label: 'Security',
+    description: 'Security obligations and attestations',
+    icon: '🔒',
+  },
+  {
     href: '/feedback',
     label: 'Feedback',
     description: 'View and submit feedback',
