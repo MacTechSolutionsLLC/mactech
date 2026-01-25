@@ -2876,7 +2876,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
   - 3.5.6 (Disable identifiers after inactivity): ✅ Implemented (0 points deducted)
   - 3.7.2 (Controls on maintenance tools): -5 points
   - 3.13.11 (FIPS-validated cryptography): -3 points (encryption employed, FIPS validation assessment in progress)
-- Final score: 110 - 9 = 101 out of 110 (91.8%)
+- Final score: 110 - 8 = 102 out of 110 (92.7%)
 
 **Open POA&M Items Affecting Score:**
 1. **POAM-013:** 3.7.2 (Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance)
