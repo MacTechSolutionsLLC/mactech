@@ -22,6 +22,7 @@ export async function disableInactiveAccounts(): Promise<{
   const errors: string[] = []
   let disabled = 0
   let checked = 0
+  let neverLoggedInCount = 0
 
   try {
     const cutoffDate = new Date()
@@ -127,6 +128,8 @@ export async function disableInactiveAccounts(): Promise<{
       },
     })
 
+    neverLoggedInCount = neverLoggedInUsers.length
+
     for (const user of neverLoggedInUsers) {
       try {
         // Security: Don't disable the last active admin
@@ -189,7 +192,7 @@ export async function disableInactiveAccounts(): Promise<{
     errors.push(`Error checking inactive accounts: ${error.message}`)
   }
 
-  return { disabled, checked: checked + neverLoggedInUsers.length, errors }
+  return { disabled, checked: checked + neverLoggedInCount, errors }
 }
 
 /**
