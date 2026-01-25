@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ComplianceBadges from '@/components/ComplianceBadges'
 
 export default function HomePage() {
 
@@ -280,6 +281,18 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Compliance Frameworks & Alignments */}
+      <section className="section-container bg-white border-y border-neutral-200">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="heading-2 mb-4">Compliance Frameworks & Alignments</h2>
+          <p className="text-body text-neutral-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+            MacTech Solutions maintains CMMC 2.0 Level 2 compliance and aligns with NIST CSF 2.0, 
+            NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
+          </p>
+          <ComplianceBadges size="large" />
         </div>
       </section>
 

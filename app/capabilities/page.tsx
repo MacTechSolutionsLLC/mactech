@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import ComplianceBadges from '@/components/ComplianceBadges'
 
 export default function CapabilitiesPage() {
   useEffect(() => {
@@ -197,6 +198,9 @@ export default function CapabilitiesPage() {
             <h2 className="text-xl font-semibold text-neutral-900 mb-4 print:text-lg print:mb-3">
               Compliance Frameworks & Alignments
             </h2>
+            <div className="mb-6 print:hidden">
+              <ComplianceBadges size="large" />
+            </div>
             <div className="space-y-4 print:space-y-3">
               <div>
                 <h3 className="text-base font-semibold text-neutral-900 mb-2 print:text-sm">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import ComplianceBadges from '@/components/ComplianceBadges'
 
 type Pillar = 'Security' | 'Infrastructure' | 'Quality' | 'Governance'
 
@@ -157,11 +158,14 @@ export default function ServicesPage() {
               </div>
             </div>
             <h2 className="heading-2 mb-4">Cybersecurity & RMF Services</h2>
-            <p className="text-body-lg text-neutral-700 max-w-3xl leading-relaxed mb-2">
+            <p className="text-body-lg text-neutral-700 max-w-3xl leading-relaxed mb-4">
               Comprehensive Risk Management Framework implementation and authorization support 
               for DoD and federal information systems. MacTech Solutions maintains CMMC 2.0 Level 2 
               compliance and aligns with NIST CSF 2.0, NIST RMF, FedRAMP Moderate, and SOC 2 Type I readiness.
             </p>
+            <div className="mb-4">
+              <ComplianceBadges size="medium" />
+            </div>
             <p className="text-body-sm text-neutral-600 italic">
               Led by {pillarInfo.Security.leader} • {pillarInfo.Security.description}
             </p>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import ComplianceBadges from './ComplianceBadges'
 
 export default function Footer() {
   return (
@@ -100,8 +101,16 @@ export default function Footer() {
           </div>
         </div>
         
+        {/* Compliance Badges */}
+        <div className="mt-16 pt-8 border-t border-neutral-800">
+          <h4 className="text-white font-medium text-body-sm mb-6 text-center tracking-wide uppercase">
+            Compliance Frameworks & Alignments
+          </h4>
+          <ComplianceBadges size="small" />
+        </div>
+        
         {/* Copyright - minimal, restrained */}
-        <div className="border-t border-neutral-800 mt-16 pt-8">
+        <div className="border-t border-neutral-800 mt-8 pt-8">
           <p className="text-body-sm text-neutral-500 text-center">
             &copy; {new Date().getFullYear()} MacTech Solutions LLC. All rights reserved.
           </p>
