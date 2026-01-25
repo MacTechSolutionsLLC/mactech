@@ -489,15 +489,23 @@ if (!passwordValidation.valid) {
 **Requirement:** Disable identifiers after a defined period of inactivity.
 
 **Implementation:**
-- Account inactivity disable policy to be implemented
-- Inactive account identification and disablement procedure to be established
+- Account inactivity disable policy implemented
+- Inactive account identification and disablement procedure established
 - Account lifecycle management includes inactivity monitoring
-- Inactive accounts disabled per organizational policy
+- Inactive accounts automatically disabled after 180 days (6 months) of inactivity
+- System tracks `lastLoginAt` timestamp for all users
+- Automated process checks and disables inactive accounts
+- Last active admin account protected from automatic disablement
+- All disablement actions logged in audit trail
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 5)
+**Status:** ✅ Fully Implemented
 
 **Evidence:**
-- Account Lifecycle Enforcement Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md` (to be updated)
+- Inactivity disablement implementation: `lib/inactivity-disable.ts`
+- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts`
+- Account Lifecycle Enforcement Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+- Evidence document: `../05-evidence/MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
+- Database schema: `prisma/schema.prisma` (User model with `lastLoginAt` field)
 
 ---
 

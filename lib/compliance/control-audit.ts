@@ -451,16 +451,33 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
       
       // Check in evidence root directory
       if (!exists) {
-        const evidencePath = join(EVIDENCE_ROOT, `${ref}.md`)
+        // Handle case where ref already has .md extension
+        const refWithoutExt = ref.endsWith('.md') ? ref.slice(0, -3) : ref
+        const evidencePath = join(EVIDENCE_ROOT, `${refWithoutExt}.md`)
         if (await fileExists(evidencePath)) {
           foundPath = evidencePath
           exists = true
         } else {
+          // Also try with the ref as-is if it already has .md
+          if (ref.endsWith('.md')) {
+            const exactPath = join(EVIDENCE_ROOT, ref)
+            if (await fileExists(exactPath)) {
+              foundPath = exactPath
+              exists = true
+            }
+          }
+        }
+        
+        if (!exists) {
           // Check for files starting with the ref
           try {
             const files = await import('fs/promises')
             const dirFiles = await files.readdir(EVIDENCE_ROOT)
-            const matchingFile = dirFiles.find(f => f.startsWith(`${ref}_`) && f.endsWith('.md'))
+            const matchingFile = dirFiles.find(f => {
+              const fBase = f.replace(/\.md$/, '')
+              const refBase = ref.replace(/\.md$/, '')
+              return fBase === refBase || fBase.startsWith(`${refBase}_`) || f.startsWith(`${refBase}_`)
+            })
             if (matchingFile) {
               foundPath = join(EVIDENCE_ROOT, matchingFile)
               exists = true
@@ -468,6 +485,15 @@ async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> 
           } catch {
             // Continue with subdirectory check
           }
+        }
+      }
+      
+      // Final check: if ref already has .md, try exact match
+      if (!exists && ref.endsWith('.md')) {
+        const exactPath = join(EVIDENCE_ROOT, ref)
+        if (await fileExists(exactPath)) {
+          foundPath = exactPath
+          exists = true
         }
       }
       

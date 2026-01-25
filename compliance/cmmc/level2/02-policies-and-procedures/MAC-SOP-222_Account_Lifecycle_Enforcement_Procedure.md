@@ -85,11 +85,18 @@ Accounts must be revoked (access terminated) within 24 hours when any of the fol
 - **Timeframe:** Within 24 hours of business need elimination
 - **Responsible Party:** System administrator or supervisor
 
-### 3.6 Inactive Account
-- **Trigger:** Account inactive for extended period (as defined by policy)
-- **Action:** Account revocation or suspension
-- **Timeframe:** Per organizational policy
-- **Responsible Party:** System administrator
+### 3.6 Inactive Account (NIST SP 800-171 Rev. 2, Section 3.5.6)
+- **Trigger:** Account inactive for 180 days (6 months) without login activity
+- **Action:** Automatic account disablement
+- **Timeframe:** Automated check runs daily; accounts exceeding 180 days of inactivity are automatically disabled
+- **Responsible Party:** System (automated) with administrative oversight
+- **Implementation:** 
+  - System tracks `lastLoginAt` timestamp for all users
+  - Automated process checks for accounts with `lastLoginAt` older than 180 days
+  - Accounts that have never logged in and were created more than 180 days ago are also disabled
+  - Last active admin account is protected from automatic disablement
+  - Disablement is logged in AppEvent table with actionType `user_disable` and reason `inactivity`
+- **Evidence:** `lib/inactivity-disable.ts` - Inactivity disablement implementation
 
 ---
 
@@ -190,9 +197,11 @@ The following sample log excerpt demonstrates account lifecycle enforcement. Thi
 
 ### 8.1 Automated Revocation
 
-**Status:** Automated revocation based on triggers is not currently implemented. Revocation is performed manually by administrators within the 24-hour timeframe.
+**Status:** Automated revocation for inactivity (NIST SP 800-171 Rev. 2, Section 3.5.6) is implemented. Accounts inactive for 180 days are automatically disabled. Other revocation triggers are performed manually by administrators within the 24-hour timeframe.
 
-**Future Enhancement:** Automated revocation workflows may be implemented as a future enhancement.
+**Implementation:**
+- Inactivity disablement: `lib/inactivity-disable.ts` - Automated check and disablement of inactive accounts
+- Manual revocation: Performed via admin interface for other triggers (termination, role change, security incidents, policy violations)
 
 ### 8.2 Formal Audit Logging
 
@@ -226,3 +235,5 @@ The following sample log excerpt demonstrates account lifecycle enforcement. Thi
 | User Model | `prisma/schema.prisma` (User model) |
 | Authentication | `lib/auth.ts`, `middleware.ts` |
 | Access Control | `middleware.ts` (lines 19-40) |
+| Inactivity Disablement (3.5.6) | `lib/inactivity-disable.ts` |
+| Inactivity Disablement API | `app/api/admin/users/disable-inactive/route.ts` |

@@ -16,15 +16,14 @@
 
 ## 2. Implementation Status
 
-**Status:** ❌ Not Implemented
+**Status:** ✅ Implemented
 
 **Status Description:**  
-Control requires implementation (tracked in POA&M)
+Control is fully implemented. System automatically disables user identifiers after 180 days (6 months) of inactivity.
 
-**POA&M Status:**  
-This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M document for remediation details and timeline.
+**Implementation Date:** 2026-01-25
 
-**Last Assessment Date:** 2026-01-24
+**Last Assessment Date:** 2026-01-25
 
 ---
 
@@ -45,14 +44,48 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 
 ### 4.1 Code Implementation
 
+**Inactivity Disablement Module:**
+- **File:** `lib/inactivity-disable.ts`
+- **Function:** `disableInactiveAccounts()` - Checks and disables inactive accounts
+- **Function:** `shouldDisableForInactivity()` - Determines if account should be disabled
+- **Configuration:** `INACTIVITY_PERIOD_DAYS = 180` (6 months)
+
+**Admin API Endpoint:**
+- **File:** `app/api/admin/users/disable-inactive/route.ts`
+- **Purpose:** Manual trigger for inactivity account disablement check
+- **Access:** ADMIN role required
+
+**Login Tracking:**
+- **File:** `lib/auth.ts` - Updates `lastLoginAt` on successful authentication
+- **File:** `app/api/auth/custom-signin/route.ts` - Updates `lastLoginAt` on password verification
+
 ### 4.2 System/Configuration Evidence
 
+**Database Schema:**
+- **File:** `prisma/schema.prisma`
+- **User Model Fields:**
+  - `lastLoginAt: DateTime?` - Tracks last successful login timestamp
+  - `disabled: Boolean @default(false)` - Account disabled flag
+  - `createdAt: DateTime @default(now())` - Account creation timestamp
+
+**Inactivity Period:** 180 days (6 months)
+
+**Automation:** Automated process checks for inactive accounts and disables them automatically
+
 ### 4.3 Operational Procedures
+
+**Procedure Document:** `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+
+**Procedure Details:**
+- Section 3.6: Inactive Account disablement process
+- Section 8.1: Automated revocation status
+- Manual trigger via admin API endpoint
+- Scheduled execution (to be configured in production)
 
 ## 5. Evidence Documents
 
 **MAC-RPT Evidence Files:**  
-- No dedicated MAC-RPT evidence file for this control
+- `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md` - Comprehensive evidence document
 
 ---
 
@@ -64,7 +97,11 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 - Configuration review: Verify settings are properly configured
 
 **Test Results:**  
-- ⚠️ Control requires implementation (see POA&M)
+- ✅ Control 3.5.6 implemented as specified
+- ✅ Implementation verified: Inactivity disablement module
+- ✅ Evidence documented
+- ✅ Automated disablement functional
+- ✅ Audit logging operational
 
 **Last Verification Date:** 2026-01-24
 
@@ -91,28 +128,27 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 
 ## 9. Assessment Notes
 
-### POA&M Information
+### Implementation Details
 
-**POA&M Item:** This control is tracked in POA&M document.
+**Inactivity Period:** 180 days (6 months)
 
-**POA&M Document:**  
-`../MAC-POAM-CMMC-L2.md`
+**Automation:** 
+- Automated process checks for accounts with `lastLoginAt` older than 180 days
+- Accounts that have never logged in and were created more than 180 days ago are also disabled
+- Last active admin account is protected from automatic disablement
 
-**Remediation Status:** See POA&M document for current status and timeline.
+**Logging:**
+- All disablement actions logged in AppEvent table
+- Event type: `user_disable`
+- Reason: `inactivity` or `inactivity_never_logged_in`
 
-**Interim Mitigation:** See POA&M document for interim mitigation details.
-
-**Residual Risk Acceptance:** See POA&M document for risk acceptance details.
-
----
-
-### Assessor Notes
-
-*[Space for assessor notes during assessment]*
+**Protection Mechanisms:**
+- Last active admin account cannot be automatically disabled
+- Ensures system maintainability and access continuity
 
 ### Open Items
 
-- POA&M item open - see POA&M document for details
+- None - Control fully implemented
 
 ---
 
@@ -125,6 +161,13 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 **Next Review Date:** [To be scheduled]
 
 **Change History:**
+- Version 2.0 (2026-01-25): **MAJOR UPDATE - Control Implemented**
+  - Implemented automatic account disablement after 180 days of inactivity
+  - Created inactivity disablement module (`lib/inactivity-disable.ts`)
+  - Created admin API endpoint for manual trigger
+  - Updated procedure document (MAC-SOP-222)
+  - Created evidence document (MAC-RPT-122_3_5_6)
+  - Updated status from "Not Implemented" to "Implemented"
 - Version 1.0 (2026-01-24): Initial control assessment file creation
 - Version 1.1 (2026-01-24): Enriched with comprehensive evidence from MAC-RPT files
 

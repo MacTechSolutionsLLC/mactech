@@ -106,17 +106,17 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
+| 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221, MAC-SOP-222 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
 | 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js | 7.2, 3.5.2 |
 | 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
-| 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
+| 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
-| 3.5.6 | Disable identifiers after inactivity | ❌ Not Implemented | MAC-POL-211 | MAC-SOP-222 | - | Inactivity disable | 7.2, 3.5.6 |
-| 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | - | lib/password-policy.ts, MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
+| 3.5.6 | Disable identifiers after inactivity | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence | lib/inactivity-disable.ts, app/api/admin/users/disable-inactive/route.ts | 7.2, 3.5.6 |
+| 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
 | 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence, MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence | Password history (5 generations) | 7.2, 3.5.8 |
-| 3.5.9 | Temporary passwords | ✅ Implemented | MAC-POL-211 | - | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts, app/api/auth/custom-signin/route.ts, app/auth/signin/page.tsx, app/api/auth/mfa/enroll/route.ts, prisma/schema.prisma, MAC-RPT-122_3_5_9_temporary_passwords_Evidence.md | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts | 7.2, 3.5.9 |
-| 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence | bcrypt | 7.2, 3.5.10 |
-| 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence | Error handling | 7.2, 3.5.11 |
+| 3.5.9 | Temporary passwords | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts, app/api/auth/custom-signin/route.ts, app/auth/signin/page.tsx, app/api/auth/mfa/enroll/route.ts, prisma/schema.prisma, MAC-RPT-122_3_5_9_temporary_passwords_Evidence | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts | 7.2, 3.5.9 |
+| 3.5.10 | Cryptographically-protected passwords | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence | bcrypt | 7.2, 3.5.10 |
+| 3.5.11 | Obscure authentication feedback | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence | Error handling | 7.2, 3.5.11 |
 
 ---
 

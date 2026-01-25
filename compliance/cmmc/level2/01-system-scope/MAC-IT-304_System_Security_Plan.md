@@ -1011,13 +1011,23 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.5.6: Disable identifiers after a defined period of inactivity
 
 **Implementation:**
-- Account inactivity disable policy to be implemented
-- Inactive account identification and disablement procedure to be established
+- Account inactivity disable policy implemented
+- Inactive account identification and disablement procedure established
 - Account lifecycle management includes inactivity monitoring
-- Inactive accounts disabled per organizational policy
+- Inactive accounts automatically disabled after 180 days (6 months) of inactivity
+- System tracks `lastLoginAt` timestamp for all users
+- Automated process checks and disables inactive accounts
+- Last active admin account protected from automatic disablement
+- All disablement actions logged in audit trail
+
+**Status:** ✅ Fully Implemented
 
 **Evidence:**
-- Account Lifecycle Enforcement Procedure: `../02-policies-and-procedures/MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md` (to be updated)
+- Inactivity disablement implementation: `lib/inactivity-disable.ts`
+- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts`
+- Account Lifecycle Enforcement Procedure: `../02-policies-and-procedures/MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+- Evidence document: `../05-evidence/MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
+- Database schema: `prisma/schema.prisma` (User model with `lastLoginAt` field)
 
 **Status:** ❌ Not Implemented (POA&M item - Phase 5)
 
@@ -2863,7 +2873,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Assessment based on NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1
 - Starting score: 110 points (all requirements implemented)
 - Point deductions for unimplemented controls:
-  - 3.5.6 (Disable identifiers after inactivity): -1 point
+  - 3.5.6 (Disable identifiers after inactivity): ✅ Implemented (0 points deducted)
   - 3.7.2 (Controls on maintenance tools): -5 points
   - 3.13.11 (FIPS-validated cryptography): -3 points (encryption employed, FIPS validation assessment in progress)
 - Final score: 110 - 9 = 101 out of 110 (91.8%)
@@ -2889,9 +2899,9 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Detailed scoring methodology documented in: `../04-self-assessment/MAC-AUD-410_NIST_DoD_Assessment_Scoring_Report.md`
 
 **Projected Score After POA&M Completion:**
-- Upon closure of all 3 POA&M items: 110 out of 110 (100%)
+- Upon closure of all 2 remaining POA&M items: 110 out of 110 (100%)
 - Score improvement path:
-  - Complete 3.5.6: +1 point → 102/110 (92.7%)
+  - ✅ Complete 3.5.6: +1 point → 102/110 (92.7%) - **COMPLETED**
   - Complete 3.7.2: +5 points → 107/110 (97.3%)
   - Complete 3.13.11: +3 points → 110/110 (100%)
 
@@ -2911,7 +2921,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - **Implemented:** 81 controls (74%) - Controls fully implemented by the organization
 - **Inherited:** 12 controls (11%) - Controls provided by service providers (Railway, GitHub) and relied upon operationally
 - **Partially Satisfied:** 0 controls (0%) - All previously partially satisfied controls have been fully implemented
-- **Not Implemented:** 3 controls (3%) - Controls require implementation (tracked in POA&M: 3.5.6, 3.7.2, 3.13.11)
+- **Not Implemented:** 2 controls (2%) - Controls require implementation (tracked in POA&M: 3.7.2, 3.13.11)
 - **Not Applicable:** 14 controls (13%) - Controls not applicable to system architecture (justification provided)
 - **Overall Readiness:** 97% (Implemented + Inherited)
 
