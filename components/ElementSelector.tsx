@@ -138,12 +138,13 @@ export default function ElementSelector({
     const handleMouseMove = (e: MouseEvent) => {
       const target = e.target as HTMLElement
 
-      // Don't highlight the overlay itself or the feedback button
+      // Don't highlight the overlay itself, instruction banner, or the feedback button
       if (
         !target ||
         target === overlayRef.current ||
         target.closest('[data-feedback-button]') ||
-        target.closest('[data-feedback-modal]')
+        target.closest('[data-feedback-modal]') ||
+        target.closest('.fixed.top-4') // Instruction banner
       ) {
         if (highlightedElementRef.current) {
           removeHighlight(highlightedElementRef.current)
@@ -167,20 +168,21 @@ export default function ElementSelector({
     }
 
     const handleClick = (e: MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-
       const target = e.target as HTMLElement
 
-      // Don't capture clicks on overlay or feedback button
+      // Don't capture clicks on overlay, instruction banner, or feedback button
       if (
         !target ||
         target === overlayRef.current ||
         target.closest('[data-feedback-button]') ||
-        target.closest('[data-feedback-modal]')
+        target.closest('[data-feedback-modal]') ||
+        target.closest('.fixed.top-4') // Instruction banner
       ) {
         return
       }
+
+      e.preventDefault()
+      e.stopPropagation()
 
       // Add selected highlight
       if (highlightedElementRef.current) {
@@ -239,10 +241,10 @@ export default function ElementSelector({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9998] bg-black bg-opacity-20 pointer-events-auto"
+      className="fixed inset-0 z-[9998] bg-black bg-opacity-20 pointer-events-none"
       style={{ cursor: 'crosshair' }}
     >
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white rounded-lg shadow-lg px-4 py-2 border-2 border-blue-500">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white rounded-lg shadow-lg px-4 py-2 border-2 border-blue-500 pointer-events-auto">
         <p className="text-sm font-medium text-neutral-900">
           Click on an element to select it • Press ESC to cancel
         </p>
