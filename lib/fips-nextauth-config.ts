@@ -119,60 +119,52 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
       const isFIPSFormat = parts.length === 3
       const isJWEFormat = parts.length === 5
       
-      // Strategy: Try the appropriate decoder based on token format
-      // This prevents unnecessary decode attempts and errors
+      // Strategy: Always try NextAuth's default decoder first for existing sessions
+      // Only use FIPS decoder for new tokens (3 parts) if default fails
+      // This ensures backward compatibility with existing JWE sessions
       
-      if (isJWEFormat) {
-        // JWE format - use NextAuth's default decoder only
-        try {
-          return await decode({
-            token: params.token,
-            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
-            salt: params.salt,
-          }) as JWT | null
-        } catch (error) {
-          // Log JWE decode errors for debugging
-          console.error('JWE decode error:', error instanceof Error ? error.message : String(error))
-          // Return null - NextAuth will handle this appropriately
-          return null
-        }
-      } else if (isFIPSFormat) {
-        // FIPS format (3 parts) - try FIPS decoder first
-        try {
-          const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
-          const decoded = await decodeFIPSJWTForNextAuth(params.token, secretToUse)
-          
-          if (decoded) {
-            return decoded
-          }
-        } catch (error) {
-          // FIPS decode failed, log and try default decoder
-          console.warn('FIPS JWT decode failed, trying default decoder:', error instanceof Error ? error.message : String(error))
-        }
-        
-        // Fallback to default decoder if FIPS decode failed or returned null
-        // This handles edge cases where FIPS token might be decoded by default decoder
-        try {
-          return await decode({
-            token: params.token,
-            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
-            salt: params.salt,
-          }) as JWT | null
-        } catch (error) {
-          // Both decoders failed - log error for debugging
-          console.error('Both FIPS and default JWT decoders failed:', error instanceof Error ? error.message : String(error))
-          // Return null - NextAuth will handle this appropriately
-          return null
-        }
-      } else {
-        // Unknown format - try default decoder
-        // Don't catch errors - let NextAuth handle them
-        return await decode({
+      // Always try default decoder first (handles JWE and most cases)
+      try {
+        const decoded = await decode({
           token: params.token,
           secret: Array.isArray(params.secret) ? params.secret : [params.secret],
           salt: params.salt,
         }) as JWT | null
+        
+        if (decoded) {
+          return decoded
+        }
+      } catch (error) {
+        // Default decoder failed - only try FIPS if it's a 3-part token
+        if (isFIPSFormat) {
+          // Token is 3 parts - might be FIPS format, try FIPS decoder
+          try {
+            const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
+            const fipsDecoded = await decodeFIPSJWTForNextAuth(params.token, secretToUse)
+            
+            if (fipsDecoded) {
+              return fipsDecoded
+            }
+          } catch (fipsError) {
+            // Both decoders failed - log for debugging
+            console.warn('JWT decode failed (both default and FIPS):', {
+              tokenParts: parts.length,
+              defaultError: error instanceof Error ? error.message : String(error),
+              fipsError: fipsError instanceof Error ? fipsError.message : String(fipsError)
+            })
+          }
+        } else {
+          // Not FIPS format and default decoder failed - log error
+          console.warn('JWT decode failed (default decoder):', {
+            tokenParts: parts.length,
+            error: error instanceof Error ? error.message : String(error)
+          })
+        }
       }
+      
+      // All decode attempts failed - return null
+      // NextAuth will handle this by creating a new session
+      return null
     },
   }
 }
