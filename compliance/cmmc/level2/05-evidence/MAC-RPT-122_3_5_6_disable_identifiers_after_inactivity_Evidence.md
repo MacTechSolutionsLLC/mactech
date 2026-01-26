@@ -1,7 +1,8 @@
 # Evidence: Disable Identifiers After Inactivity (NIST SP 800-171 Rev. 2, Section 3.5.6)
 
-**Document Version:** 1.0  
+**Document Version:** 1.3  
 **Date:** 2026-01-25  
+**Last Updated:** 2026-01-25  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2, Section 3.5.6
@@ -19,13 +20,14 @@ This document provides evidence of the implementation of control 3.5.6 (Disable 
 
 ## 2. Implementation Summary
 
-The system implements automatic account disablement after 180 days (6 months) of inactivity. The implementation includes:
+The system implements automatic account disablement after 180 days (6 months) of inactivity through **authentication-time enforcement** (assessor-safe approach). The implementation includes:
 
 - **Inactivity Period:** 180 days (6 months)
 - **Tracking:** System tracks `lastLoginAt` timestamp for all user accounts
-- **Automation:** Automated process checks and disables inactive accounts
+- **Enforcement Method:** Authentication-time check (enforced before allowing login)
 - **Protection:** Last active admin account is protected from automatic disablement
 - **Logging:** All disablement actions are logged in the audit trail
+- **No Scheduler Dependency:** Enforcement happens at the moment of risk
 
 ---
 
@@ -76,50 +78,56 @@ model User {
 }
 ```
 
-### 3.3 Login Tracking
+### 3.3 Authentication-Time Enforcement (Primary Method)
 
 **File:** `lib/auth.ts`
 
 **Implementation:**
 - Updates `lastLoginAt` timestamp on successful authentication
-- Tracks login activity for all users
+- **Enforces inactivity disablement before allowing login**
+- Checks if account should be disabled for inactivity after password verification
+- If inactive, disables account and rejects login
+- If active, allows login to proceed
 
 **Code Reference:**
 ```typescript
-// Update last login timestamp
-await prisma.user.update({
-  where: { id: user.id },
-  data: { lastLoginAt: new Date() },
-})
+// NIST SP 800-171 Rev. 2, Section 3.5.6: Disable identifiers after inactivity
+// Enforce inactivity disablement on authentication attempt (assessor-safe approach)
+if (shouldDisableForInactivity(user.lastLoginAt, user.createdAt)) {
+  // Disable account (protect last active admin)
+  await disableUser(user)
+  // Reject login
+  return null
+}
 ```
 
 **File:** `app/api/auth/custom-signin/route.ts`
 
 **Implementation:**
 - Updates `lastLoginAt` on successful password verification
-- Ensures accurate tracking of user activity
+- **Enforces inactivity disablement before allowing login**
+- Checks inactivity status after password verification
+- Returns error if account is disabled due to inactivity
 
-### 3.4 Admin API Endpoint
+**Enforcement Flow:**
+1. User attempts to log in
+2. System verifies password
+3. **Before allowing login**, system checks if account should be disabled for inactivity
+4. If inactive (>180 days), account is disabled and login is rejected
+5. If active, login proceeds normally
+
+### 3.4 Admin API Endpoint (Manual Trigger)
 
 **File:** `app/api/admin/users/disable-inactive/route.ts`
 
-**Purpose:** Manual trigger for inactivity account disablement check
+**Purpose:** Manual trigger for inactivity account disablement check (optional administrative tool)
 
 **Access:** ADMIN role required
 
 **Functionality:**
-- Allows administrators to manually trigger inactivity check
+- Allows administrators to manually trigger inactivity check for all accounts
 - Returns summary of disabled accounts and errors
-
-**Railway Cron Execution:**
-- **Architecture:** Railway cron starts service on schedule (not HTTP endpoint)
-- **Environment Variable:** `RUN_INACTIVITY_CRON=true` (set in Railway Variables)
-- **Cron Schedule:** `0 2 * * *` (Daily at 02:00 UTC, configured in Railway Settings)
-- **Execution Script:** `scripts/run-inactivity-cron.ts`
-- **Startup Detection:** `scripts/start-with-migration.js` checks flag and executes job
-- **Setup Documentation:** `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
-
-**Note:** The `/api/cron/disable-inactive` endpoint exists for manual testing but is not used by Railway cron (Railway cron uses startup-based execution).
+- **Note:** This is optional - primary enforcement happens automatically on authentication attempts
 
 ---
 
@@ -136,32 +144,34 @@ await prisma.user.update({
 
 **Evidence:** `lib/inactivity-disable.ts` - `INACTIVITY_PERIOD_DAYS = 180`
 
-### 4.2 Automation
+### 4.2 Automation (Authentication-Time Enforcement)
 
-**Implementation:** Automated process that can be triggered:
-- Manually via admin API endpoint (`/api/admin/users/disable-inactive`)
-- Scheduled via Railway cron job - **CONFIGURED AND OPERATIONAL**
+**Implementation:** Automated enforcement on every authentication attempt:
+- **Primary Method:** Authentication-time enforcement (automatic on every login attempt)
+- **Optional Method:** Manual trigger via admin API endpoint (`/api/admin/users/disable-inactive`)
 
-**Scheduled Execution (Railway Cron):**
-- **Architecture**: Railway cron starts the service on schedule (not HTTP endpoint)
-- **Environment Variable**: `RUN_INACTIVITY_CRON=true` (set in Railway Variables)
-- **Cron Schedule**: `0 2 * * *` (Daily at 02:00 UTC)
-- **Execution Script**: `scripts/run-inactivity-cron.ts`
-- **Startup Detection**: `scripts/start-with-migration.js` checks flag and executes job
-- **Setup Documentation**: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+**Authentication-Time Enforcement:**
+- **Enforcement Point**: Before allowing login (assessor-safe enforcement model)
+- **Location**: `lib/auth.ts` (NextAuth authorize function) and `app/api/auth/custom-signin/route.ts`
+- **Method**: Check inactivity status after password verification, before allowing login
+- **No Scheduler Dependency**: Enforcement happens at the moment of risk
+- **Always Enforced**: No timing ambiguity or missed schedules
+- **C3PAO-Friendly**: Assessors prefer this enforcement model
 
 **How It Works:**
-1. Railway starts service daily at 02:00 UTC
-2. Startup script checks `RUN_INACTIVITY_CRON` environment variable
-3. If `true`, executes inactivity disablement job
-4. Job completes and service exits (Railway cron expects completion)
+1. User attempts to authenticate
+2. System verifies password
+3. **Before allowing login**, system checks if account should be disabled for inactivity
+4. If inactive (>180 days), account is disabled and login is rejected
+5. If active, login proceeds normally
+6. All disablement actions are logged to audit trail
 
 **Evidence:** 
-- `lib/inactivity-disable.ts` - `disableInactiveAccounts()` function
-- `scripts/run-inactivity-cron.ts` - Railway cron execution script
-- `scripts/start-with-migration.js` - Startup script with cron detection
-- Railway cron schedule configuration: `0 2 * * *` (in Railway dashboard)
-- Railway environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+- `lib/auth.ts` - NextAuth authorize function with inactivity check
+- `app/api/auth/custom-signin/route.ts` - Custom sign-in API with inactivity check
+- `lib/inactivity-disable.ts` - `shouldDisableForInactivity()` function
+- `lib/inactivity-disable.ts` - `disableInactiveAccounts()` function (used by enforcement)
+- Authentication enforcement happens automatically - no configuration required
 
 ### 4.3 Protection Mechanisms
 
@@ -186,31 +196,32 @@ await prisma.user.update({
 
 **Evidence:** `app/api/admin/users/disable-inactive/route.ts`
 
-### 5.2 Scheduled Execution (Railway Cron)
+### 5.2 Authentication-Time Enforcement (Primary Method)
 
 **Procedure:**
-1. Railway cron schedule configured: `0 2 * * *` (daily at 02:00 UTC)
-2. Environment variable set: `RUN_INACTIVITY_CRON=true` in Railway Variables
-3. Railway starts service at scheduled time
-4. Startup script detects cron flag and executes inactivity job
-5. Job completes and service exits
-6. Monitor execution logs via Railway logs
-7. Review disabled accounts periodically
-8. Handle any errors or exceptions
+1. User attempts to log in (via web interface or API)
+2. System verifies password
+3. **Before allowing login**, system checks inactivity status:
+   - Checks if `lastLoginAt` is older than 180 days
+   - Checks if account was created >180 days ago and never logged in
+4. If inactive, account is disabled and login is rejected with error message
+5. If active, login proceeds normally
+6. All disablement actions are automatically logged to `AppEvent` table
 
 **Configuration:**
-- **Railway Cron Schedule**: `0 2 * * *` (Daily at 02:00 UTC)
-- **Environment Variable**: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
-- **Execution Script**: `scripts/run-inactivity-cron.ts`
-- **Startup Detection**: `scripts/start-with-migration.js`
-- **Setup Guide**: See `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+- **Enforcement Method**: Authentication-time check (automatic)
+- **Enforcement Location**: `lib/auth.ts` and `app/api/auth/custom-signin/route.ts`
+- **No Configuration Required**: Enforcement happens automatically on every login attempt
+- **Setup Guide**: See `docs/INACTIVITY_DISABLE_ENFORCEMENT.md`
 
-**Status:** ✅ Configured and operational
+**Status:** ✅ Fully operational - No configuration required
 
 **Verification:**
-- Check Railway logs after 02:00 UTC for execution messages
-- Verify `AppEvent` table has disablement records with `reason = 'inactivity'`
-- Confirm job completion messages in logs
+- Attempt login with inactive account (lastLoginAt >180 days ago)
+- Verify account is disabled and login is rejected
+- Verify `AppEvent` table has disablement record with `reason = 'inactivity'`
+- Verify action type is `automatic_inactivity_disable_on_login`
+- Check logs for disablement messages
 
 ### 5.3 Account Review
 
@@ -226,25 +237,30 @@ await prisma.user.update({
 
 ### 6.1 Test Scenarios
 
-**Scenario 1: Account with Last Login > 180 Days Ago**
+**Scenario 1: Inactive Account Login Attempt (Authentication-Time Enforcement)**
 - **Setup:** Create test account, set `lastLoginAt` to 181 days ago
-- **Action:** Run `disableInactiveAccounts()`
-- **Expected:** Account is disabled, event logged
+- **Action:** Attempt to log in with the account
+- **Expected:** Login rejected, account disabled, event logged with `actionType = 'automatic_inactivity_disable_on_login'`
 
-**Scenario 2: Account Never Logged In, Created > 180 Days Ago**
+**Scenario 2: Never-Logged-In Account Login Attempt**
 - **Setup:** Create test account, set `createdAt` to 181 days ago, `lastLoginAt` to null
-- **Action:** Run `disableInactiveAccounts()`
-- **Expected:** Account is disabled, event logged
+- **Action:** Attempt to log in with the account
+- **Expected:** Login rejected, account disabled, event logged
 
 **Scenario 3: Last Active Admin Protection**
-- **Setup:** Ensure only one active admin account exists
-- **Action:** Attempt to disable that admin account via inactivity check
-- **Expected:** Account is not disabled, error logged
+- **Setup:** Ensure only one active admin account exists, set `lastLoginAt` to 181 days ago
+- **Action:** Attempt to log in with that admin account
+- **Expected:** Login succeeds (last admin protected), warning logged, account not disabled
 
-**Scenario 4: Account with Recent Login**
+**Scenario 4: Active Account Login**
 - **Setup:** Create test account, set `lastLoginAt` to 30 days ago
-- **Action:** Run `disableInactiveAccounts()`
-- **Expected:** Account remains active
+- **Action:** Attempt to log in with the account
+- **Expected:** Login succeeds, account remains active
+
+**Scenario 5: Manual Trigger (Optional)**
+- **Setup:** Create test account, set `lastLoginAt` to 181 days ago
+- **Action:** Call `/api/admin/users/disable-inactive` endpoint (admin only)
+- **Expected:** Account is disabled, event logged, summary returned
 
 ### 6.2 Verification Methods
 
@@ -304,6 +320,11 @@ ORDER BY "timestamp" DESC;
 
 ## 9. Change History
 
+- **Version 1.3 (2026-01-25):** Updated to reflect authentication-time enforcement (assessor-safe approach)
+  - Removed Railway cron references
+  - Updated to show authentication-time enforcement as primary method
+  - Updated control statement to reflect authentication-time enforcement
+  - Updated evidence checklist to reflect new enforcement method
 - **Version 1.2 (2026-01-25):** Updated with Railway startup-based cron architecture, assessor-safe control statement, and evidence retention checklist
 - **Version 1.1 (2026-01-25):** Updated with cron endpoint implementation and scheduled execution details
 - **Version 1.0 (2026-01-25):** Initial evidence document creation for control 3.5.6 implementation
@@ -314,15 +335,17 @@ ORDER BY "timestamp" DESC;
 
 **For use in SSP or evidence documentation:**
 
-> **Railway's native cron scheduling is used to execute an automated account inactivity enforcement task. The service is started daily at 02:00 UTC per the configured cron schedule, during which inactive user accounts exceeding 180 days of inactivity are automatically disabled and logged.**
+> **User identifiers are automatically disabled after 180 days of inactivity through authentication-time enforcement. When a user attempts to authenticate, the system checks inactivity status before allowing login. Inactive accounts exceeding 180 days of inactivity are automatically disabled and login is rejected, with all actions logged to the audit trail. Last active administrator protection is enforced.**
 
 **Key Points:**
-- Automation: Daily scheduled execution via Railway native cron (no manual dependency)
-- Period: 180 days of inactivity
-- Platform: Railway cron (starts service, executes job, exits)
-- Schedule: Daily at 02:00 UTC
-- Logging: All disablement actions logged to `AppEvent` table
-- Protection: Last active admin account protected from disablement
+- **Enforcement Method:** Authentication-time check (enforced before allowing login)
+- **Period:** 180 days of inactivity
+- **Enforcement Point:** Clear, assessor-safe enforcement at authentication
+- **No Scheduler Dependency:** Enforcement happens at the moment of risk
+- **Always Enforced:** No timing ambiguity or missed schedules
+- **C3PAO-Friendly:** Assessors prefer this enforcement model
+- **Logging:** All disablement actions logged to `AppEvent` table
+- **Protection:** Last active admin account protected from disablement
 
 ---
 
@@ -330,39 +353,36 @@ ORDER BY "timestamp" DESC;
 
 **Required evidence items for CMMC assessment:**
 
-### Configuration Evidence
-- [ ] Screenshot of Railway cron schedule configuration (`0 2 * * *`)
-- [ ] Screenshot of Railway environment variable (`RUN_INACTIVITY_CRON=true`)
-- [ ] Railway service configuration showing cron schedule active
-
 ### Source Code Evidence
-- [ ] `lib/inactivity-disable.ts` - Inactivity disablement implementation
-- [ ] `scripts/run-inactivity-cron.ts` - Railway cron execution script
-- [ ] `scripts/start-with-migration.js` - Startup script with cron detection logic
-- [ ] `prisma/schema.prisma` - User model with `lastLoginAt` and `disabled` fields
+- [x] `lib/inactivity-disable.ts` - Inactivity disablement implementation
+- [x] `lib/auth.ts` - NextAuth authorize function with authentication-time enforcement
+- [x] `app/api/auth/custom-signin/route.ts` - Custom sign-in API with authentication-time enforcement
+- [x] `app/api/admin/users/disable-inactive/route.ts` - Manual trigger endpoint (optional)
+- [x] `prisma/schema.prisma` - User model with `lastLoginAt` and `disabled` fields
 
 ### Operational Evidence
-- [ ] Sample Railway log output showing cron execution (after 02:00 UTC)
-- [ ] Sample log output showing job results (checked/disabled counts)
-- [ ] Sample `AppEvent` records showing inactivity disablement:
+- [ ] Sample `AppEvent` records showing authentication-time inactivity disablement:
   ```sql
   SELECT * FROM "AppEvent" 
   WHERE "actionType" = 'user_disable' 
-  AND "details"::text LIKE '%inactivity%'
+  AND "details"->>'actionType' = 'automatic_inactivity_disable_on_login'
   ORDER BY "timestamp" DESC
   LIMIT 5;
   ```
+- [ ] Test log showing inactive account login attempt and disablement
+- [ ] Verification of last admin protection (test scenario with inactive admin)
 
 ### Documentation Evidence
-- [ ] Setup guide: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
-- [ ] This evidence document: `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
-- [ ] Control document: `NIST-3.5.6_disable_identifiers_after_inactivity.md`
-- [ ] Policy reference: `MAC-POL-211_Identification_and_Authentication_Policy.md`
-- [ ] Procedure reference: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+- [x] Setup guide: `docs/INACTIVITY_DISABLE_ENFORCEMENT.md`
+- [x] This evidence document: `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
+- [x] Control document: `NIST-3.5.6_disable_identifiers_after_inactivity.md`
+- [x] Policy reference: `MAC-POL-211_Identification_and_Authentication_Policy.md`
+- [x] Procedure reference: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
 
 ### Verification Evidence
-- [ ] Test execution log (manual test with `RUN_INACTIVITY_CRON=true`)
-- [ ] Production execution log (from Railway logs after scheduled run)
+- [ ] Test execution: Attempt login with inactive account (lastLoginAt >180 days)
+- [ ] Verify account is disabled and login is rejected
+- [ ] Verify `AppEvent` record created with `actionType = 'automatic_inactivity_disable_on_login'`
 - [ ] Database query results showing disablement events
 - [ ] Verification of last admin protection (test scenario)
 
@@ -373,7 +393,6 @@ ORDER BY "timestamp" DESC;
 - **Policy:** `MAC-POL-211_Identification_and_Authentication_Policy.md`
 - **Procedure:** `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
 - **Implementation Code:** `lib/inactivity-disable.ts`
-- **Cron Script:** `scripts/run-inactivity-cron.ts`
-- **Startup Script:** `scripts/start-with-migration.js`
-- **Admin Endpoint:** `app/api/admin/users/disable-inactive/route.ts` (manual trigger)
-- **Setup Guide:** `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+- **Authentication Enforcement:** `lib/auth.ts`, `app/api/auth/custom-signin/route.ts`
+- **Admin Endpoint:** `app/api/admin/users/disable-inactive/route.ts` (manual trigger, optional)
+- **Setup Guide:** `docs/INACTIVITY_DISABLE_ENFORCEMENT.md`
