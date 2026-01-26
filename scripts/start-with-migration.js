@@ -149,7 +149,9 @@ try {
 // Check if this is a Railway cron run for inactivity disablement
 // IMPORTANT: Only run cron job if explicitly set to 'true'
 // For normal web server operation, this variable should NOT be set or should be 'false'
-if (process.env.RUN_INACTIVITY_CRON === 'true') {
+const isCronRun = process.env.RUN_INACTIVITY_CRON === 'true';
+
+if (isCronRun) {
   console.log('🕐 Railway cron detected - running inactivity disable job...');
   console.log('📅 Schedule: Daily at 02:00 UTC (0 2 * * *)');
   console.log('⚠️  NOTE: Service will exit after job completion (this is expected for Railway cron)');
@@ -169,16 +171,19 @@ if (process.env.RUN_INACTIVITY_CRON === 'true') {
     setTimeout(() => {
       process.exit(0);
     }, 500);
+    return; // Prevent server from starting
   } catch (error) {
     console.error('❌ Inactivity cron job failed:', error.message);
     // Force immediate exit with error code
     setTimeout(() => {
       process.exit(1);
     }, 500);
+    return; // Prevent server from starting
   }
 } else {
   // Normal startup - continue to start Next.js server
   console.log('ℹ️  Normal startup mode (RUN_INACTIVITY_CRON not set or not "true")');
+  console.log(`   RUN_INACTIVITY_CRON value: ${process.env.RUN_INACTIVITY_CRON || '(not set)'}`);
 }
 
 // Start the Next.js server
