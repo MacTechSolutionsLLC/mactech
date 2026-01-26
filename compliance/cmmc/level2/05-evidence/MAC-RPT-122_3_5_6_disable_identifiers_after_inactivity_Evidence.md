@@ -111,12 +111,15 @@ await prisma.user.update({
 - Allows administrators to manually trigger inactivity check
 - Returns summary of disabled accounts and errors
 
-**Cron Endpoint:**
-- **File:** `app/api/cron/disable-inactive/route.ts`
-- **Purpose:** Scheduled execution endpoint for Railway cron jobs
-- **Authentication:** CRON_SECRET environment variable (Bearer token or X-Cron-Secret header)
-- **Schedule:** Daily at 2:00 AM UTC (configurable via Railway cron settings)
+**Railway Cron Execution:**
+- **Architecture:** Railway cron starts service on schedule (not HTTP endpoint)
+- **Environment Variable:** `RUN_INACTIVITY_CRON=true` (set in Railway Variables)
+- **Cron Schedule:** `0 2 * * *` (Daily at 02:00 UTC, configured in Railway Settings)
+- **Execution Script:** `scripts/run-inactivity-cron.ts`
+- **Startup Detection:** `scripts/start-with-migration.js` checks flag and executes job
 - **Setup Documentation:** `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+
+**Note:** The `/api/cron/disable-inactive` endpoint exists for manual testing but is not used by Railway cron (Railway cron uses startup-based execution).
 
 ---
 
@@ -137,18 +140,28 @@ await prisma.user.update({
 
 **Implementation:** Automated process that can be triggered:
 - Manually via admin API endpoint (`/api/admin/users/disable-inactive`)
-- Scheduled via Railway cron job (`/api/cron/disable-inactive`) - **CONFIGURED**
+- Scheduled via Railway cron job - **CONFIGURED AND OPERATIONAL**
 
-**Scheduled Execution:**
-- **Cron Endpoint**: `app/api/cron/disable-inactive/route.ts`
-- **Schedule**: Daily at 2:00 AM UTC (configurable via Railway cron settings)
-- **Authentication**: CRON_SECRET environment variable (Bearer token or X-Cron-Secret header)
+**Scheduled Execution (Railway Cron):**
+- **Architecture**: Railway cron starts the service on schedule (not HTTP endpoint)
+- **Environment Variable**: `RUN_INACTIVITY_CRON=true` (set in Railway Variables)
+- **Cron Schedule**: `0 2 * * *` (Daily at 02:00 UTC)
+- **Execution Script**: `scripts/run-inactivity-cron.ts`
+- **Startup Detection**: `scripts/start-with-migration.js` checks flag and executes job
 - **Setup Documentation**: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+
+**How It Works:**
+1. Railway starts service daily at 02:00 UTC
+2. Startup script checks `RUN_INACTIVITY_CRON` environment variable
+3. If `true`, executes inactivity disablement job
+4. Job completes and service exits (Railway cron expects completion)
 
 **Evidence:** 
 - `lib/inactivity-disable.ts` - `disableInactiveAccounts()` function
-- `app/api/cron/disable-inactive/route.ts` - Cron endpoint implementation
-- Railway cron job configuration (in Railway dashboard)
+- `scripts/run-inactivity-cron.ts` - Railway cron execution script
+- `scripts/start-with-migration.js` - Startup script with cron detection
+- Railway cron schedule configuration: `0 2 * * *` (in Railway dashboard)
+- Railway environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
 
 ### 4.3 Protection Mechanisms
 
@@ -173,22 +186,31 @@ await prisma.user.update({
 
 **Evidence:** `app/api/admin/users/disable-inactive/route.ts`
 
-### 5.2 Scheduled Execution
+### 5.2 Scheduled Execution (Railway Cron)
 
 **Procedure:**
-1. Cron job configured in Railway platform to call `/api/cron/disable-inactive` daily
-2. Default schedule: Daily at 2:00 AM UTC (configurable in Railway settings)
-3. Monitor execution logs for errors via Railway logs
-4. Review disabled accounts periodically
-5. Handle any errors or exceptions
+1. Railway cron schedule configured: `0 2 * * *` (daily at 02:00 UTC)
+2. Environment variable set: `RUN_INACTIVITY_CRON=true` in Railway Variables
+3. Railway starts service at scheduled time
+4. Startup script detects cron flag and executes inactivity job
+5. Job completes and service exits
+6. Monitor execution logs via Railway logs
+7. Review disabled accounts periodically
+8. Handle any errors or exceptions
 
 **Configuration:**
-- **Cron Endpoint**: `/api/cron/disable-inactive`
-- **Authentication**: CRON_SECRET environment variable
-- **Schedule**: Configured via Railway cron settings (crontab expression: `0 2 * * *`)
+- **Railway Cron Schedule**: `0 2 * * *` (Daily at 02:00 UTC)
+- **Environment Variable**: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+- **Execution Script**: `scripts/run-inactivity-cron.ts`
+- **Startup Detection**: `scripts/start-with-migration.js`
 - **Setup Guide**: See `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
 **Status:** ✅ Configured and operational
+
+**Verification:**
+- Check Railway logs after 02:00 UTC for execution messages
+- Verify `AppEvent` table has disablement records with `reason = 'inactivity'`
+- Confirm job completion messages in logs
 
 ### 5.3 Account Review
 
@@ -282,14 +304,75 @@ ORDER BY "timestamp" DESC;
 
 ## 9. Change History
 
+- **Version 1.2 (2026-01-25):** Updated with Railway startup-based cron architecture, assessor-safe control statement, and evidence retention checklist
 - **Version 1.1 (2026-01-25):** Updated with cron endpoint implementation and scheduled execution details
 - **Version 1.0 (2026-01-25):** Initial evidence document creation for control 3.5.6 implementation
 
 ---
 
-## 10. Related Documents
+## 10. Control Statement (Assessor-Safe Language)
+
+**For use in SSP or evidence documentation:**
+
+> **User identifiers are automatically disabled after 180 days of inactivity via a daily Railway-scheduled cron job that starts the service on schedule, executes the inactivity disablement job on startup when the `RUN_INACTIVITY_CRON` environment flag is present, with all actions logged to the audit trail and last active administrator protection enforced.**
+
+**Key Points:**
+- Automation: Daily scheduled execution (no manual dependency)
+- Period: 180 days of inactivity
+- Platform: Railway cron (starts service, executes job, exits)
+- Logging: All disablement actions logged to `AppEvent` table
+- Protection: Last active admin account protected from disablement
+
+---
+
+## 11. Evidence Retention Checklist
+
+**Required evidence items for CMMC assessment:**
+
+### Configuration Evidence
+- [ ] Screenshot of Railway cron schedule configuration (`0 2 * * *`)
+- [ ] Screenshot of Railway environment variable (`RUN_INACTIVITY_CRON=true`)
+- [ ] Railway service configuration showing cron schedule active
+
+### Source Code Evidence
+- [ ] `lib/inactivity-disable.ts` - Inactivity disablement implementation
+- [ ] `scripts/run-inactivity-cron.ts` - Railway cron execution script
+- [ ] `scripts/start-with-migration.js` - Startup script with cron detection logic
+- [ ] `prisma/schema.prisma` - User model with `lastLoginAt` and `disabled` fields
+
+### Operational Evidence
+- [ ] Sample Railway log output showing cron execution (after 02:00 UTC)
+- [ ] Sample log output showing job results (checked/disabled counts)
+- [ ] Sample `AppEvent` records showing inactivity disablement:
+  ```sql
+  SELECT * FROM "AppEvent" 
+  WHERE "actionType" = 'user_disable' 
+  AND "details"::text LIKE '%inactivity%'
+  ORDER BY "timestamp" DESC
+  LIMIT 5;
+  ```
+
+### Documentation Evidence
+- [ ] Setup guide: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+- [ ] This evidence document: `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
+- [ ] Control document: `NIST-3.5.6_disable_identifiers_after_inactivity.md`
+- [ ] Policy reference: `MAC-POL-211_Identification_and_Authentication_Policy.md`
+- [ ] Procedure reference: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
+
+### Verification Evidence
+- [ ] Test execution log (manual test with `RUN_INACTIVITY_CRON=true`)
+- [ ] Production execution log (from Railway logs after scheduled run)
+- [ ] Database query results showing disablement events
+- [ ] Verification of last admin protection (test scenario)
+
+---
+
+## 12. Related Documents
 
 - **Policy:** `MAC-POL-211_Identification_and_Authentication_Policy.md`
 - **Procedure:** `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
 - **Implementation Code:** `lib/inactivity-disable.ts`
-- **API Endpoint:** `app/api/admin/users/disable-inactive/route.ts`
+- **Cron Script:** `scripts/run-inactivity-cron.ts`
+- **Startup Script:** `scripts/start-with-migration.js`
+- **Admin Endpoint:** `app/api/admin/users/disable-inactive/route.ts` (manual trigger)
+- **Setup Guide:** `docs/INACTIVITY_DISABLE_CRON_SETUP.md`

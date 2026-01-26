@@ -1034,13 +1034,17 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 **Evidence:**
 - Inactivity disablement implementation: `lib/inactivity-disable.ts`
-- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts`
-- Cron endpoint for scheduled execution: `app/api/cron/disable-inactive/route.ts`
+- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts` (manual trigger)
+- Railway cron execution: `scripts/run-inactivity-cron.ts` (scheduled execution)
+- Startup detection: `scripts/start-with-migration.js` (cron flag detection)
 - Account Lifecycle Enforcement Procedure: `../02-policies-and-procedures/MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md`
 - Evidence document: `../05-evidence/MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
 - Setup guide: `../../docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 - Database schema: `prisma/schema.prisma` (User model with `lastLoginAt` field)
-- Scheduled execution: Railway cron configuration pending (operational step)
+- Scheduled execution: Railway cron configured and operational
+  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+  - Architecture: Railway starts service on schedule, job executes on startup, service exits
 
 #### 3.5.7: Enforce a minimum password complexity and change of characters when new passwords are created
 

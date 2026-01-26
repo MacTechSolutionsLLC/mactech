@@ -2585,12 +2585,18 @@ The organization implements control of user-installed software through explicit 
 
 - Inactivity period: 180 days (6 months)
 - Database schema: User model with `lastLoginAt` field
-- Scheduled execution: Railway cron configuration pending
+- Scheduled execution: Railway cron configured and operational
+  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true`
+  - Execution script: `scripts/run-inactivity-cron.ts`
 
 ### 4.3 Operational Procedures
 
-- Manual trigger via admin API endpoint
-- Scheduled execution via Railway cron (configuration pending)
+- Manual trigger via admin API endpoint (`/api/admin/users/disable-inactive`)
+- Scheduled execution via Railway cron (configured and operational)
+  - Railway starts service daily at 02:00 UTC
+  - Startup script detects `RUN_INACTIVITY_CRON=true` flag
+  - Executes inactivity disablement job and exits
 - Setup guide: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
 #### Testing and Verification

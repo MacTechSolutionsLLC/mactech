@@ -72,9 +72,13 @@ Control is fully implemented. System automatically disables user identifiers aft
 
 **Automation:** 
 - Automated process checks for inactive accounts and disables them automatically
-- Scheduled execution via Railway cron job (daily at 2:00 AM UTC)
-- Cron endpoint: `app/api/cron/disable-inactive/route.ts`
-- Manual trigger also available via admin API endpoint
+- Scheduled execution via Railway cron job (configured and operational)
+  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+  - Execution script: `scripts/run-inactivity-cron.ts`
+  - Startup detection: `scripts/start-with-migration.js` checks flag and executes job
+  - Architecture: Railway starts service on schedule, job executes on startup, service exits
+- Manual trigger also available via admin API endpoint (`/api/admin/users/disable-inactive`)
 
 ### 4.3 Operational Procedures
 
@@ -84,7 +88,10 @@ Control is fully implemented. System automatically disables user identifiers aft
 - Section 3.6: Inactive Account disablement process
 - Section 8.1: Automated revocation status
 - Manual trigger via admin API endpoint (`/api/admin/users/disable-inactive`)
-- Scheduled execution via Railway cron job (`/api/cron/disable-inactive`) - **CONFIGURED**
+- Scheduled execution via Railway cron job - **CONFIGURED AND OPERATIONAL**
+  - Railway cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+  - Execution: Service starts on schedule, detects cron flag, executes job, exits
 - Setup documentation: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
 ## 5. Evidence Documents
@@ -166,6 +173,13 @@ Control is fully implemented. System automatically disables user identifiers aft
 **Next Review Date:** [To be scheduled]
 
 **Change History:**
+- Version 2.1 (2026-01-25): **Railway Cron Configuration Complete**
+  - Railway cron configured and operational
+  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true` configured
+  - Execution script: `scripts/run-inactivity-cron.ts` created
+  - Startup script updated to detect and execute cron job
+  - Updated documentation to reflect Railway startup-based cron architecture
 - Version 2.0 (2026-01-25): **MAJOR UPDATE - Control Implemented**
   - Implemented automatic account disablement after 180 days of inactivity
   - Created inactivity disablement module (`lib/inactivity-disable.ts`)

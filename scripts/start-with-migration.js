@@ -146,6 +146,29 @@ try {
   console.log('ℹ️  POA&M status migration:', error.message.includes('Error') ? error.message : 'completed or skipped');
 }
 
+// Check if this is a Railway cron run for inactivity disablement
+if (process.env.RUN_INACTIVITY_CRON === 'true') {
+  console.log('🕐 Railway cron detected - running inactivity disable job...');
+  console.log('📅 Schedule: Daily at 02:00 UTC (0 2 * * *)');
+  console.log('');
+  
+  try {
+    // Execute inactivity disablement job via dedicated script
+    execSync('npx tsx scripts/run-inactivity-cron.ts', {
+      stdio: 'inherit',
+      env: { ...process.env }
+    });
+    
+    // Script handles its own exit, but if we get here, it succeeded
+    // Exit process - Railway cron expects service to complete
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Inactivity cron job failed:', error.message);
+    // Exit with error code so Railway knows the job failed
+    process.exit(1);
+  }
+}
+
 // Start the Next.js server
 console.log('🌐 Starting Next.js server...');
 const port = process.env.PORT || 3000;

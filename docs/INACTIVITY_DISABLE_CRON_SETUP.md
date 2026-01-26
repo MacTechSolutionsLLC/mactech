@@ -1,142 +1,218 @@
-# Inactivity Disable Cron Job Setup
+# Railway Cron Setup — Disable Identifiers After Inactivity (3.5.6)
 
-This document describes how to configure scheduled execution for the inactivity account disablement feature (NIST SP 800-171 Rev. 2, Section 3.5.6).
+## Objective
 
-## Overview
+Automatically disable user accounts after **180 days of inactivity** using a scheduled Railway cron job.
 
-The inactivity disable feature automatically disables user accounts after 180 days of inactivity. This document covers setting up automated scheduled execution using Railway cron jobs.
+---
 
-## Prerequisites
+## Important: How Railway Cron Works
 
-- Railway platform account with deployed application
-- `CRON_SECRET` environment variable configured
-- Admin access to Railway dashboard
+**Railway cron does NOT call a URL.** It simply starts your service on a schedule. Your application must detect the cron run and execute the job on startup.
 
-## Setup Instructions
+---
 
-### Step 1: Configure Environment Variable
+## Step 1 — Configure Environment Variable
 
-1. In Railway dashboard, navigate to your service
-2. Go to **Variables** tab
-3. Add new variable:
-   - **Name**: `CRON_SECRET`
-   - **Value**: Generate a secure random string (e.g., `openssl rand -base64 32`)
-   - **Description**: Secret token for authenticating cron job requests
+In **Railway → Service → Variables**, add:
 
-### Step 2: Configure Railway Cron Job
+```
+RUN_INACTIVITY_CRON=true
+```
 
-1. In Railway dashboard, navigate to your service
-2. Go to **Settings** tab
+**Purpose:** This flag tells the application to run the inactivity disablement job on startup instead of starting the web server.
+
+---
+
+## Step 2 — Configure Railway Cron Schedule
+
+In **Railway Dashboard**:
+
+1. Open your service
+2. Navigate to **Settings** tab
 3. Scroll to **Cron Schedule** section
-4. Enter crontab expression: `0 2 * * *` (runs daily at 2:00 AM UTC)
-5. Configure the cron command:
+4. Enter crontab expression:
 
-**Option A: Using Railway Cron Service (Recommended)**
-
-Railway's native cron service will call the endpoint automatically. Configure the cron schedule in Railway settings.
-
-**Option B: Using External Cron Service**
-
-If Railway cron is not available, use an external service like:
-- cron-job.org
-- EasyCron
-- GitHub Actions (scheduled workflows)
-
-Configure the external service to make a POST request to:
-```
-POST https://your-domain.railway.app/api/cron/disable-inactive
-Authorization: Bearer YOUR_CRON_SECRET
-```
-
-Or use the header:
-```
-X-Cron-Secret: YOUR_CRON_SECRET
-```
-
-### Step 3: Verify Configuration
-
-1. Test the endpoint manually:
-   ```bash
-   curl -X POST https://your-domain.railway.app/api/cron/disable-inactive \
-     -H "Authorization: Bearer YOUR_CRON_SECRET"
+   ```
+   0 2 * * *
    ```
 
-2. Check Railway logs after cron execution to verify:
-   - Endpoint was called successfully
-   - Accounts were checked and disabled as appropriate
-   - No errors occurred
+   (Daily at 02:00 UTC)
 
-## Crontab Expression Examples
+5. Save the cron schedule
 
-- **Daily at 2:00 AM UTC**: `0 2 * * *`
-- **Daily at midnight UTC**: `0 0 * * *`
-- **Every 12 hours**: `0 */12 * * *`
-- **Weekly on Monday at 3:00 AM UTC**: `0 3 * * 1`
+**What this does:** Railway will start your service daily at 02:00 UTC. When the service starts with `RUN_INACTIVITY_CRON=true`, it will:
+- Run database migrations
+- Execute the inactivity disablement job
+- Exit after completion (Railway cron expects the service to complete)
 
-**Note**: Railway cron schedules use UTC timezone.
+---
 
-## Security Considerations
+## Step 3 — Verify Execution
 
-1. **CRON_SECRET**: Keep this secret secure and never commit it to version control
-2. **Endpoint Access**: The cron endpoint should only be accessible via the secret token
-3. **Monitoring**: Monitor cron job execution logs for unauthorized access attempts
-4. **Rotation**: Consider rotating the CRON_SECRET periodically
+After deployment:
+
+1. **Check Railway Logs** after the scheduled time (02:00 UTC)
+2. Look for log messages:
+   - `🕐 Railway cron detected - running inactivity disable job...`
+   - `📅 Schedule: Daily at 02:00 UTC (0 2 * * *)`
+   - `📊 Job Results:` with checked/disabled counts
+   - `✅ Inactivity cron job completed successfully`
+
+3. **Verify AppEvent records:**
+   - Query `AppEvent` table for `actionType = 'user_disable'`
+   - Filter by `details->>'reason' = 'inactivity'`
+   - Verify timestamps match cron execution times
+
+---
+
+## How It Works
+
+### Architecture
+
+```
+Railway Cron Schedule (0 2 * * *)
+    ↓
+Starts service at 02:00 UTC
+    ↓
+scripts/start-with-migration.js checks RUN_INACTIVITY_CRON
+    ↓
+If true: Execute scripts/run-inactivity-cron.ts
+    ↓
+Calls lib/inactivity-disable.ts → disableInactiveAccounts()
+    ↓
+Logs results and exits (process.exit)
+```
+
+### Code Flow
+
+1. **Startup Script** (`scripts/start-with-migration.js`):
+   - Checks `process.env.RUN_INACTIVITY_CRON === 'true'`
+   - If true, executes `scripts/run-inactivity-cron.ts`
+   - Exits after job completion
+
+2. **Cron Script** (`scripts/run-inactivity-cron.ts`):
+   - Imports and calls `disableInactiveAccounts()`
+   - Logs results
+   - Exits with appropriate exit code
+
+3. **Disablement Function** (`lib/inactivity-disable.ts`):
+   - Finds users inactive > 180 days
+   - Disables accounts (protects last admin)
+   - Logs all actions to `AppEvent` table
+   - Returns results
+
+---
+
+## Manual Testing
+
+To test the cron job manually:
+
+1. **Set environment variable** in Railway:
+   ```
+   RUN_INACTIVITY_CRON=true
+   ```
+
+2. **Restart the service** (or wait for next cron run)
+
+3. **Check logs** for execution output
+
+4. **Reset environment variable** after testing:
+   ```
+   RUN_INACTIVITY_CRON=false
+   ```
+   (or remove it to allow normal server startup)
+
+---
 
 ## Monitoring
 
-### Check Cron Job Execution
+### Railway Logs
 
-1. **Railway Logs**: Check service logs after scheduled execution time
-2. **Response Format**: Successful execution returns:
-   ```json
-   {
-     "success": true,
-     "message": "Inactivity check completed. X account(s) disabled, Y account(s) checked.",
-     "timestamp": "2026-01-25T02:00:00.000Z",
-     "disabled": 0,
-     "checked": 5,
-     "errors": []
-   }
-   ```
+Check logs after 02:00 UTC for:
+- Job start message
+- Accounts checked/disabled counts
+- Any errors
+- Job completion message
 
-### Health Check
+### Database Verification
 
-The endpoint also supports GET requests for health checks:
-```bash
-curl https://your-domain.railway.app/api/cron/disable-inactive
+Query `AppEvent` table:
+```sql
+SELECT * FROM "AppEvent" 
+WHERE "actionType" = 'user_disable' 
+AND "details"::text LIKE '%inactivity%'
+ORDER BY "timestamp" DESC
+LIMIT 10;
 ```
+
+### Expected Log Output
+
+```
+🕐 Railway cron detected - running inactivity disable job...
+📅 Schedule: Daily at 02:00 UTC (0 2 * * *)
+
+🕐 Railway Cron: Inactivity Account Disablement Job
+📅 Schedule: Daily at 02:00 UTC (0 2 * * *)
+⏰ Started at: 2026-01-26T02:00:00.000Z
+
+📊 Job Results:
+   - Accounts checked: 5
+   - Accounts disabled: 2
+   - Errors: 0
+
+✅ Inactivity cron job completed successfully
+⏰ Completed at: 2026-01-26T02:00:01.234Z
+```
+
+---
 
 ## Troubleshooting
 
 ### Cron Job Not Executing
 
-1. Verify crontab expression is correct
-2. Check Railway service is running
-3. Verify CRON_SECRET is set correctly
-4. Check Railway logs for errors
+1. Verify `RUN_INACTIVITY_CRON=true` is set in Railway Variables
+2. Verify cron schedule is `0 2 * * *` in Railway Settings
+3. Check Railway logs at 02:00 UTC
+4. Verify service has permission to access database
 
-### Authentication Failures
-
-1. Verify CRON_SECRET matches in both Railway and cron service
-2. Check Authorization header format (should be `Bearer TOKEN`)
-3. Verify endpoint is accessible (not blocked by firewall)
-
-### No Accounts Disabled
+### Job Runs But No Accounts Disabled
 
 This is normal if:
 - No accounts meet the 180-day inactivity threshold
 - All inactive accounts are already disabled
 - Last active admin protection prevented disablement
 
+### Service Doesn't Exit
+
+- Verify `process.exit()` is called after job completion
+- Check for unhandled promises or hanging connections
+- Review logs for errors preventing exit
+
+---
+
+## Security Considerations
+
+1. **Environment Variable:** `RUN_INACTIVITY_CRON` should only be `true` when Railway cron is active
+2. **Database Access:** Service must have database credentials configured
+3. **Logging:** All disablement actions are logged to `AppEvent` table
+4. **Protection:** Last active admin account is protected from disablement
+
+---
+
 ## Related Documentation
 
 - **Implementation Code**: `lib/inactivity-disable.ts`
-- **Admin Endpoint**: `app/api/admin/users/disable-inactive/route.ts`
+- **Cron Script**: `scripts/run-inactivity-cron.ts`
+- **Startup Script**: `scripts/start-with-migration.js`
+- **Admin Endpoint** (for manual triggers): `app/api/admin/users/disable-inactive/route.ts`
 - **Evidence Document**: `compliance/cmmc/level2/05-evidence/MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
 - **Control Document**: `compliance/cmmc/level2/07-nist-controls/NIST-3.5.6_disable_identifiers_after_inactivity.md`
 
+---
+
 ## Railway Cron Documentation
 
-For more information on Railway cron jobs, see:
+For more information on Railway cron jobs:
 - [Railway Cron Jobs Documentation](https://docs.railway.com/reference/cron-jobs)
 - [Running Scheduled Jobs on Railway](https://docs.railway.com/guides/cron-jobs)

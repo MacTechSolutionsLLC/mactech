@@ -433,21 +433,26 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 **Remediation Summary:**
 - Inactivity disablement module implemented (`lib/inactivity-disable.ts`)
-- Admin API endpoint created (`app/api/admin/users/disable-inactive/route.ts`)
-- Cron endpoint created for scheduled execution (`app/api/cron/disable-inactive/route.ts`)
+- Admin API endpoint created (`app/api/admin/users/disable-inactive/route.ts`) - for manual triggers
+- Railway cron execution script created (`scripts/run-inactivity-cron.ts`)
+- Startup script updated (`scripts/start-with-migration.js`) - detects Railway cron and executes job
 - Inactivity period: 180 days (6 months)
 - Last active admin protection implemented
 - Audit logging for all disablement actions
-- Scheduled execution: Railway cron configuration pending (operational step)
+- Scheduled execution: Railway cron configured and operational
+  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
+  - Environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
+  - Architecture: Railway starts service on schedule, job executes on startup, service exits
 - Evidence document created: `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
 - Setup guide created: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
 **Evidence:**
-- Implementation: `lib/inactivity-disable.ts`, `app/api/admin/users/disable-inactive/route.ts`, `app/api/cron/disable-inactive/route.ts`
+- Implementation: `lib/inactivity-disable.ts`, `scripts/run-inactivity-cron.ts`, `scripts/start-with-migration.js`
+- Admin endpoint: `app/api/admin/users/disable-inactive/route.ts` (manual trigger)
 - Evidence document: `../05-evidence/MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
 - Setup guide: `../../docs/INACTIVITY_DISABLE_CRON_SETUP.md`
 
-**Notes:** Control fully implemented. Code implementation complete. Railway cron configuration pending for scheduled execution.
+**Notes:** Control fully implemented and operational. Railway cron configured with schedule `0 2 * * *` (daily at 02:00 UTC). Service executes inactivity disablement job on startup when `RUN_INACTIVITY_CRON=true` is set, then exits. All disablement actions logged to audit trail.
 
 ---
 
