@@ -314,12 +314,13 @@ ORDER BY "timestamp" DESC;
 
 **For use in SSP or evidence documentation:**
 
-> **User identifiers are automatically disabled after 180 days of inactivity via a daily Railway-scheduled cron job that starts the service on schedule, executes the inactivity disablement job on startup when the `RUN_INACTIVITY_CRON` environment flag is present, with all actions logged to the audit trail and last active administrator protection enforced.**
+> **Railway's native cron scheduling is used to execute an automated account inactivity enforcement task. The service is started daily at 02:00 UTC per the configured cron schedule, during which inactive user accounts exceeding 180 days of inactivity are automatically disabled and logged.**
 
 **Key Points:**
-- Automation: Daily scheduled execution (no manual dependency)
+- Automation: Daily scheduled execution via Railway native cron (no manual dependency)
 - Period: 180 days of inactivity
 - Platform: Railway cron (starts service, executes job, exits)
+- Schedule: Daily at 02:00 UTC
 - Logging: All disablement actions logged to `AppEvent` table
 - Protection: Last active admin account protected from disablement
 
