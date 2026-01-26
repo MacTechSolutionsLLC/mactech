@@ -262,7 +262,16 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 **Target Completion Timeframe:** ≤ 180 days (by 2026-07-22)
 
-**Status:** In Progress (Code Implementation Complete - FIPS Mode Activation Pending)
+**Status:** ⚠️ Partially Satisfied (Code Implementation Complete - FIPS Mode Activation Pending)
+
+**Control Implementation Status:** ⚠️ Partially Satisfied
+- ✅ Assessment: Complete
+- ✅ Documentation: Complete  
+- ✅ Code Implementation: Complete
+- ⚠️ FIPS Mode Activation: Pending (external dependency - OpenSSL 3.0.8 FIPS Provider required)
+- ⚠️ Verification: Pending (cannot verify until FIPS mode is active)
+
+**CMMC Assessment Status:** Acceptable - Partially Satisfied status is acceptable for CMMC Level 2 assessment when tracked in POA&M with remediation plan.
 
 **Priority:** Medium
 
@@ -300,7 +309,27 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 **Remediation Date:** 2026-01-25 (Code Implementation)
 
-**Remediation Status:** ✅ Code Implementation Complete - FIPS Mode Activation Pending
+**Remediation Status:** ⚠️ Partially Satisfied - Code Implementation Complete, FIPS Mode Activation Pending
+
+**Partial Implementation Details:**
+- **Implemented Components:**
+  - ✅ FIPS assessment and verification complete
+  - ✅ FIPS-validated JWT code implementation complete
+  - ✅ NextAuth.js integration complete
+  - ✅ FIPS verification tools operational
+  - ✅ Documentation and evidence complete
+  - ✅ Test suite created and operational
+  
+- **Pending Components:**
+  - ⚠️ FIPS mode activation (requires OpenSSL 3.0.8 FIPS Provider)
+  - ⚠️ Runtime FIPS verification (cannot verify until FIPS mode is active)
+  - ⚠️ Control status update to "Implemented" (pending FIPS activation)
+
+**Assessment Acceptability:**
+- Partially Satisfied status is acceptable for CMMC Level 2 assessment
+- POA&M item tracks remediation with clear milestones
+- Target completion within 180 days (by 2026-07-22)
+- Code ready for immediate activation when FIPS runtime is available
 
 **Milestones:**
 - [x] **Milestone 1: FIPS Assessment** (Completed 2026-01-25)
@@ -355,16 +384,19 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 ## Summary
 
-**Total Open POA&M Items:** 1 (3.13.11 - FIPS mode activation pending)
+**Total Open POA&M Items:** 1 (3.13.11 - Partially Satisfied, FIPS mode activation pending)
 
 **Total Remediated POA&M Items:** 2
 - POAM-011: 3.5.6 - Disable identifiers after inactivity (✅ Remediated)
 - POAM-013: 3.7.2 - Controls on maintenance tools (✅ Remediated)
 
+**Total Partially Satisfied POA&M Items:** 1
+- POAM-008: 3.13.11 - FIPS-validated cryptography (⚠️ Partially Satisfied - Code complete, FIPS mode activation pending)
+
 **Controls Affected:**
 - 3.5.6 - Disable identifiers after a defined period of inactivity (✅ Remediated)
 - 3.7.2 - Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance (✅ Remediated)
-- 3.13.11 - Employ FIPS-validated cryptography when used to protect the confidentiality of CUI (⚠️ In Progress - Code complete, FIPS mode activation pending)
+- 3.13.11 - Employ FIPS-validated cryptography when used to protect the confidentiality of CUI (⚠️ Partially Satisfied - Code implementation complete, FIPS mode activation pending)
 
 **All POA&M items are tracked with:**
 - Clear deficiency descriptions
