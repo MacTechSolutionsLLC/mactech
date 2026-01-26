@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       // Log logout event with comprehensive details using logLogout
       await logLogout(
         session.user.id,
-        session.user.email || null,
+        session.user.email || "unknown",
         session.user.name || null,
         session.user.role,
         ip,
