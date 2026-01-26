@@ -60,6 +60,7 @@ export type ActionType =
   | "user_attestation"
   | "maintenance_tool_access"
   | "maintenance_tool_operation"
+  | "system_cron_job"
 
 export type TargetType =
   | "user"

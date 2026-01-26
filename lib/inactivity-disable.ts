@@ -192,7 +192,43 @@ export async function disableInactiveAccounts(): Promise<{
     errors.push(`Error checking inactive accounts: ${error.message}`)
   }
 
-  return { disabled, checked: checked + neverLoggedInCount, errors }
+  // Log the overall cron job execution summary
+  const totalChecked = checked + neverLoggedInCount
+  try {
+    await logEvent(
+      'system_cron_job',
+      null, // System action
+      null,
+      errors.length === 0, // Success if no errors
+      'system',
+      undefined, // No specific target
+      {
+        cronJobType: 'inactivity_disablement',
+        schedule: '0 2 * * *', // Daily at 02:00 UTC
+        executionTime: new Date().toISOString(),
+        accountsChecked: totalChecked,
+        accountsDisabled: disabled,
+        errors: errors.length,
+        errorDetails: errors.length > 0 ? errors : undefined,
+        who: {
+          systemAction: true,
+          actionType: 'inactivity_cron_job_execution',
+        },
+        what: `Inactivity disablement cron job executed: ${totalChecked} accounts checked, ${disabled} accounts disabled, ${errors.length} errors`,
+        impact: {
+          type: 'cron_job_execution',
+          accountsChecked: totalChecked,
+          accountsDisabled: disabled,
+          errors: errors.length,
+        },
+      }
+    )
+  } catch (logError: any) {
+    // Don't fail the job if logging fails, but add to errors
+    errors.push(`Failed to log cron job execution: ${logError.message}`)
+  }
+
+  return { disabled, checked: totalChecked, errors }
 }
 
 /**

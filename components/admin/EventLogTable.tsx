@@ -123,6 +123,35 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                               )
                             }
                             
+                            // System cron job execution details
+                            if (event.actionType === "system_cron_job" && details.cronJobType) {
+                              return (
+                                <div className="space-y-1 bg-blue-50 p-2 rounded border border-blue-200">
+                                  <div><strong>Job Type:</strong> {details.cronJobType.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</div>
+                                  <div><strong>Schedule:</strong> {details.schedule || 'N/A'}</div>
+                                  <div><strong>Execution Time:</strong> {details.executionTime ? new Date(details.executionTime).toLocaleString() : formatDate(event.timestamp)}</div>
+                                  <div><strong>Accounts Checked:</strong> {details.accountsChecked || 0}</div>
+                                  <div><strong>Accounts Disabled:</strong> {details.accountsDisabled || 0}</div>
+                                  {details.errors !== undefined && (
+                                    <div><strong>Errors:</strong> {details.errors}</div>
+                                  )}
+                                  {details.errorDetails && details.errorDetails.length > 0 && (
+                                    <div className="mt-2">
+                                      <strong className="text-red-600">Error Details:</strong>
+                                      <ul className="list-disc list-inside text-sm text-red-600 mt-1">
+                                        {details.errorDetails.map((error: string, idx: number) => (
+                                          <li key={idx}>{error}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {details.what && (
+                                    <div className="mt-2 text-sm text-neutral-600"><strong>Summary:</strong> {details.what}</div>
+                                  )}
+                                </div>
+                              )
+                            }
+                            
                             // Admin action details
                             if (event.actionType === "admin_action" && details.action) {
                               return (

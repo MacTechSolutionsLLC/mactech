@@ -156,16 +156,22 @@ if (process.env.RUN_INACTIVITY_CRON === 'true') {
     // Execute inactivity disablement job via dedicated script
     execSync('npx tsx scripts/run-inactivity-cron.ts', {
       stdio: 'inherit',
-      env: { ...process.env }
+      env: { ...process.env },
+      timeout: 30000 // 30 second timeout
     });
     
-    // Script handles its own exit, but if we get here, it succeeded
-    // Exit process - Railway cron expects service to complete
-    process.exit(0);
+    // Script should exit on its own, but ensure we exit too
+    console.log('✅ Cron job completed, exiting...');
+    // Force immediate exit - Railway cron expects service to complete
+    setTimeout(() => {
+      process.exit(0);
+    }, 500);
   } catch (error) {
     console.error('❌ Inactivity cron job failed:', error.message);
-    // Exit with error code so Railway knows the job failed
-    process.exit(1);
+    // Force immediate exit with error code
+    setTimeout(() => {
+      process.exit(1);
+    }, 500);
   }
 }
 

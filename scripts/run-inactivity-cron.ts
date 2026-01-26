@@ -38,14 +38,32 @@ async function main() {
     console.log('✅ Inactivity cron job completed successfully')
     console.log('⏰ Completed at:', new Date().toISOString())
 
-    // Exit with error code if there were errors
-    process.exit(result.errors.length > 0 ? 1 : 0)
+    // Close database connections before exiting
+    const { prisma } = await import('../lib/prisma')
+    await prisma.$disconnect()
+    
+    // Force exit after a brief delay to ensure cleanup
+    setTimeout(() => {
+      process.exit(result.errors.length > 0 ? 1 : 0)
+    }, 100)
   } catch (error: any) {
     console.error('')
     console.error('❌ Inactivity cron job failed:', error.message)
     console.error('⏰ Failed at:', new Date().toISOString())
     console.error('')
-    process.exit(1)
+    
+    // Close database connections before exiting
+    try {
+      const { prisma } = await import('../lib/prisma')
+      await prisma.$disconnect()
+    } catch (disconnectError) {
+      // Ignore disconnect errors
+    }
+    
+    // Force exit
+    setTimeout(() => {
+      process.exit(1)
+    }, 100)
   }
 }
 
