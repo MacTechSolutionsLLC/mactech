@@ -19,7 +19,8 @@
     "enrich:contracts": "tsx scripts/enrich-contracts.ts",
     "seed:poam": "tsx scripts/seed-poam-items.ts",
     "verify:fips": "tsx scripts/verify-fips-status.ts",
-    "test:fips-jwt": "tsx scripts/test-fips-jwt.ts"
+    "test:fips-jwt": "tsx scripts/test-fips-jwt.ts",
+    "update:poam-024": "tsx scripts/update-poam-024-fips.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
