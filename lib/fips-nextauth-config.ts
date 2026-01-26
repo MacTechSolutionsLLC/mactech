@@ -111,11 +111,15 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
         throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
       }
       
-      // Check if token is our custom FIPS JWT format (3 parts: header.payload.signature)
-      const isFIPSFormat = params.token.split('.').length === 3
+      // Check token format:
+      // - FIPS JWT (JWS): 3 parts (header.payload.signature)
+      // - NextAuth JWE: 5 parts (header.encrypted_key.iv.ciphertext.tag)
+      const parts = params.token.split('.')
+      const isFIPSFormat = parts.length === 3
+      const isJWEFormat = parts.length === 5
       
+      // Try FIPS decoder first if it looks like FIPS format
       if (isFIPSFormat) {
-        // Try to decode as FIPS JWT (JWS format)
         try {
           const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
           const decoded = await decodeFIPSJWTForNextAuth(params.token, secretToUse)
@@ -124,24 +128,30 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
             return decoded
           }
         } catch (error) {
-          // FIPS decode failed, fall through to default decoder
-          console.warn('FIPS JWT decode failed, falling back to default:', error instanceof Error ? error.message : String(error))
+          // FIPS decode failed, fall through to default decoder silently
+          // Don't log here to avoid noise - this is expected for non-FIPS tokens
         }
       }
       
       // Fallback to NextAuth's default decoder (for JWE format or if FIPS decode fails)
       // This ensures backward compatibility with existing encrypted JWTs
-      try {
-        return await decode({
-          token: params.token,
-          secret: Array.isArray(params.secret) ? params.secret : [params.secret],
-          salt: params.salt,
-        }) as JWT | null
-      } catch (error) {
-        // If default decode also fails, return null
-        console.warn('Default JWT decode also failed:', error instanceof Error ? error.message : String(error))
-        return null
+      if (isJWEFormat || !isFIPSFormat) {
+        try {
+          return await decode({
+            token: params.token,
+            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+            salt: params.salt,
+          }) as JWT | null
+        } catch (error) {
+          // If default decode fails, return null silently
+          // This might happen with malformed tokens, expired sessions, or invalid tokens
+          // NextAuth will handle the null return appropriately
+          return null
+        }
       }
+      
+      // Unknown format - return null silently
+      return null
     },
   }
 }
