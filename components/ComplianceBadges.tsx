@@ -9,6 +9,7 @@ interface ComplianceBadgesProps {
   size?: BadgeSize
   className?: string
   showLabels?: boolean
+  darkMode?: boolean
 }
 
 const badgeConfig = [
@@ -52,10 +53,11 @@ const sizeClasses = {
   large: 'h-20 md:h-24',
 }
 
-function Tooltip({ badge, isVisible, badgeRef }: { 
+function Tooltip({ badge, isVisible, badgeRef, darkMode }: { 
   badge: typeof badgeConfig[0], 
   isVisible: boolean,
   badgeRef: React.RefObject<HTMLDivElement>
+  darkMode?: boolean
 }) {
   const tooltipRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState<'top' | 'bottom'>('bottom')
@@ -97,30 +99,30 @@ function Tooltip({ badge, isVisible, badgeRef }: {
         willChange: 'opacity, transform',
       }}
     >
-      <div className="
-        bg-white/98 backdrop-blur-2xl
-        text-neutral-900
+      <div className={`
+        ${darkMode ? 'bg-neutral-800/98' : 'bg-white/98'} backdrop-blur-2xl
+        ${darkMode ? 'text-neutral-100' : 'text-neutral-900'}
         rounded-2xl
         shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)]
-        border border-neutral-200/60
+        ${darkMode ? 'border border-neutral-700/60' : 'border border-neutral-200/60'}
         p-6
         w-[calc(100vw-2rem)] max-w-[480px]
         sm:w-[420px]
         relative
         overflow-hidden
-      ">
+      `}>
         {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/40 to-neutral-50/20 rounded-2xl pointer-events-none" />
+        <div className={`absolute inset-0 ${darkMode ? 'bg-gradient-to-br from-neutral-800/60 via-neutral-800/40 to-neutral-900/20' : 'bg-gradient-to-br from-white/60 via-white/40 to-neutral-50/20'} rounded-2xl pointer-events-none`} />
         
         {/* Content */}
         <div className="relative z-10">
           <div className="flex items-start gap-3 mb-3.5">
             <span className="text-2xl flex-shrink-0 leading-none filter drop-shadow-sm">{badge.emoji}</span>
-            <h4 className="font-semibold text-neutral-900 text-sm leading-tight tracking-[-0.01em]">
+            <h4 className={`font-semibold ${darkMode ? 'text-neutral-100' : 'text-neutral-900'} text-sm leading-tight tracking-[-0.01em]`}>
               {badge.title}
             </h4>
           </div>
-          <p className="text-neutral-600 text-xs leading-relaxed tracking-wide">
+          <p className={`${darkMode ? 'text-neutral-300' : 'text-neutral-600'} text-xs leading-relaxed tracking-wide`}>
             {badge.tooltip}
           </p>
         </div>
@@ -130,13 +132,13 @@ function Tooltip({ badge, isVisible, badgeRef }: {
           absolute left-1/2 -translate-x-1/2 z-10
           ${position === 'top' ? 'top-full -mt-[6px]' : 'bottom-full -mb-[6px] rotate-180'}
         `}>
-          <div className="
+          <div className={`
             w-3.5 h-3.5
-            bg-white/98 backdrop-blur-2xl
-            border-r border-b border-neutral-200/60
+            ${darkMode ? 'bg-neutral-800/98' : 'bg-white/98'} backdrop-blur-2xl
+            ${darkMode ? 'border-r border-b border-neutral-700/60' : 'border-r border-b border-neutral-200/60'}
             transform rotate-45
             shadow-[0_4px_12px_-2px_rgba(0,0,0,0.15)]
-          " />
+          `} />
         </div>
       </div>
     </div>
@@ -146,7 +148,8 @@ function Tooltip({ badge, isVisible, badgeRef }: {
 export default function ComplianceBadges({ 
   size = 'medium', 
   className = '',
-  showLabels = false 
+  showLabels = false,
+  darkMode = false
 }: ComplianceBadgesProps) {
   const heightClass = sizeClasses[size]
   const [hoveredBadge, setHoveredBadge] = useState<string | null>(null)
@@ -190,6 +193,7 @@ export default function ComplianceBadges({
               badge={badge} 
               isVisible={hoveredBadge === badge.src}
               badgeRef={{ current: badgeRefs.current[badge.src] } as React.RefObject<HTMLDivElement>}
+              darkMode={darkMode}
             />
           </div>
           

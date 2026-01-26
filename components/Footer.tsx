@@ -106,7 +106,7 @@ export default function Footer() {
           <h4 className="text-white font-medium text-body-sm mb-6 text-center tracking-wide uppercase">
             Compliance Frameworks & Alignments
           </h4>
-          <ComplianceBadges size="small" />
+          <ComplianceBadges size="small" darkMode={true} />
         </div>
         
         {/* Copyright - minimal, restrained */}

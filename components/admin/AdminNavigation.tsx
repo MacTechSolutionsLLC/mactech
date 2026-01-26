@@ -44,6 +44,12 @@ const navItems: NavItem[] = [
     description: 'Search SAM.gov opportunities',
     icon: '🔍',
   },
+  {
+    href: '/admin/files',
+    label: 'Files',
+    description: 'Manage uploaded files',
+    icon: '📁',
+  },
 ]
 
 export default function AdminNavigation() {

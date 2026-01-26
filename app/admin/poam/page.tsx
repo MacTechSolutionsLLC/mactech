@@ -99,6 +99,7 @@ function POAMContent() {
   const getStatusBadgeColor = (status: string) => {
     const colors: Record<string, string> = {
       open: 'bg-gray-100 text-gray-800',
+      in_progress: 'bg-blue-100 text-blue-800',
       closed: 'bg-neutral-100 text-neutral-800',
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
@@ -304,6 +305,7 @@ function POAMContent() {
                   <>
                     <option value="all">All Statuses</option>
                     <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
                   </>
                 )}
               </select>
@@ -421,6 +423,7 @@ function POAMContent() {
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
                                 <option value="closed">Closed</option>
                               </select>
                             )}

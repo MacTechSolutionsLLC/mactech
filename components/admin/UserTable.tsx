@@ -314,7 +314,7 @@ export default function UserTable({ users }: UserTableProps) {
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider">
-                    Security
+                    MFA
                   </th>
                   <th 
                     className="px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors"

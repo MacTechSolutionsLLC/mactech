@@ -8,6 +8,7 @@ import { isTemporaryPasswordExpired } from "./temporary-password"
 import { getFIPSJWTConfig } from "./fips-nextauth-config"
 import { shouldDisableForInactivity } from "./inactivity-disable"
 import { logEvent } from "./audit"
+import { isMFARequired } from "./mfa"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -264,7 +265,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         })
 
         // Check if MFA is required and enrolled
-        const mfaRequired = user.role === "ADMIN"
+        // Use isMFARequired() to ensure consistency with custom signin route
+        // CMMC Level 2: MFA required for all users accessing CUI systems
+        const mfaRequired = await isMFARequired(user.id)
         const mfaEnrolled = user.mfaEnabled && !!user.mfaSecret
 
         return {
