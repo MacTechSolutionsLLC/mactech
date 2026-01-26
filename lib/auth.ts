@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs"
 import { logLogin } from "./audit"
 import { isTemporaryPasswordExpired } from "./temporary-password"
 import { getFIPSJWTConfig } from "./fips-nextauth-config"
+import { shouldDisableForInactivity } from "./inactivity-disable"
+import { logEvent } from "./audit"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -115,6 +117,127 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }).catch(() => {
             // Don't fail if update fails
           })
+        }
+
+        // NIST SP 800-171 Rev. 2, Section 3.5.6: Disable identifiers after inactivity
+        // Enforce inactivity disablement on authentication attempt (assessor-safe approach)
+        if (shouldDisableForInactivity(user.lastLoginAt, user.createdAt)) {
+          // Check if this is the last active admin (protect from disablement)
+          if (user.role === 'ADMIN') {
+            const activeAdminCount = await prisma.user.count({
+              where: {
+                role: 'ADMIN',
+                disabled: false,
+              },
+            })
+
+            // Only disable if not the last active admin
+            if (activeAdminCount > 1) {
+              // Disable the account
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { disabled: true },
+              }).catch(() => {
+                // Don't fail if update fails
+              })
+
+              // Log the disablement action
+              await logEvent(
+                'user_disable',
+                null, // System action
+                null,
+                true,
+                'user',
+                user.id,
+                {
+                  reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+                  inactivityPeriodDays: 180,
+                  lastLoginAt: user.lastLoginAt?.toISOString() || null,
+                  who: {
+                    systemAction: true,
+                    actionType: 'automatic_inactivity_disable_on_login',
+                  },
+                  what: `Account disabled due to inactivity (${user.lastLoginAt ? '180+ days inactive' : 'never logged in, 180+ days old'})`,
+                  targetUser: {
+                    userId: user.id,
+                    userEmail: user.email,
+                    userName: user.name,
+                  },
+                  impact: {
+                    type: 'account_disablement',
+                    affectedUserEmail: user.email,
+                    reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+                  },
+                }
+              ).catch(() => {
+                // Don't fail if logging fails
+              })
+
+              // Log failed login attempt (account disabled)
+              await logLogin(user.id, user.email, false).catch(() => {
+                // Don't fail auth if logging fails
+              })
+              
+              return null // Reject login - account disabled due to inactivity
+            }
+            // If last active admin, allow login but log warning
+            console.warn(`Warning: Last active admin ${user.email} attempted login after inactivity period, but account was not disabled to maintain system access`)
+          } else {
+            // Non-admin user - disable immediately
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { disabled: true },
+            }).catch(() => {
+              // Don't fail if update fails
+            })
+
+            // Log the disablement action
+            await logEvent(
+              'user_disable',
+              null, // System action
+              null,
+              true,
+              'user',
+              user.id,
+              {
+                reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+                inactivityPeriodDays: 180,
+                lastLoginAt: user.lastLoginAt?.toISOString() || null,
+                who: {
+                  systemAction: true,
+                  actionType: 'automatic_inactivity_disable_on_login',
+                },
+                what: `Account disabled due to inactivity (${user.lastLoginAt ? '180+ days inactive' : 'never logged in, 180+ days old'})`,
+                targetUser: {
+                  userId: user.id,
+                  userEmail: user.email,
+                  userName: user.name,
+                },
+                impact: {
+                  type: 'account_disablement',
+                  affectedUserEmail: user.email,
+                  reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+                },
+              }
+            ).catch(() => {
+              // Don't fail if logging fails
+            })
+
+            // Log failed login attempt (account disabled)
+            await logLogin(user.id, user.email, false).catch(() => {
+              // Don't fail auth if logging fails
+            })
+            
+            return null // Reject login - account disabled due to inactivity
+          }
+        }
+
+        // Check if account is already disabled
+        if (user.disabled) {
+          await logLogin(user.id, user.email, false).catch(() => {
+            // Don't fail auth if logging fails
+          })
+          return null // Reject login - account is disabled
         }
 
         // Update last login timestamp

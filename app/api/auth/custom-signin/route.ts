@@ -6,8 +6,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-import { logLogin } from "@/lib/audit"
+import { logLogin, logEvent } from "@/lib/audit"
 import { isMFARequired, isMFAEnrolled } from "@/lib/mfa"
+import { shouldDisableForInactivity } from "@/lib/inactivity-disable"
 
 export const dynamic = 'force-dynamic'
 
@@ -94,6 +95,118 @@ export async function POST(request: NextRequest) {
           lockedUntil: null,
         },
       }).catch(() => {})
+    }
+
+    // NIST SP 800-171 Rev. 2, Section 3.5.6: Disable identifiers after inactivity
+    // Enforce inactivity disablement on authentication attempt (assessor-safe approach)
+    if (shouldDisableForInactivity(user.lastLoginAt, user.createdAt)) {
+      // Check if this is the last active admin (protect from disablement)
+      if (user.role === 'ADMIN') {
+        const activeAdminCount = await prisma.user.count({
+          where: {
+            role: 'ADMIN',
+            disabled: false,
+          },
+        })
+
+        // Only disable if not the last active admin
+        if (activeAdminCount > 1) {
+          // Disable the account
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { disabled: true },
+          }).catch(() => {})
+
+          // Log the disablement action
+          await logEvent(
+            'user_disable',
+            null, // System action
+            null,
+            true,
+            'user',
+            user.id,
+            {
+              reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+              inactivityPeriodDays: 180,
+              lastLoginAt: user.lastLoginAt?.toISOString() || null,
+              who: {
+                systemAction: true,
+                actionType: 'automatic_inactivity_disable_on_login',
+              },
+              what: `Account disabled due to inactivity (${user.lastLoginAt ? '180+ days inactive' : 'never logged in, 180+ days old'})`,
+              targetUser: {
+                userId: user.id,
+                userEmail: user.email,
+                userName: user.name,
+              },
+              impact: {
+                type: 'account_disablement',
+                affectedUserEmail: user.email,
+                reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+              },
+            }
+          ).catch(() => {})
+
+          await logLogin(user.id, user.email, false).catch(() => {})
+          return NextResponse.json(
+            { error: "Account disabled due to inactivity" },
+            { status: 403 }
+          )
+        }
+        // If last active admin, allow login but log warning
+        console.warn(`Warning: Last active admin ${user.email} attempted login after inactivity period, but account was not disabled to maintain system access`)
+      } else {
+        // Non-admin user - disable immediately
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { disabled: true },
+        }).catch(() => {})
+
+        // Log the disablement action
+        await logEvent(
+          'user_disable',
+          null, // System action
+          null,
+          true,
+          'user',
+          user.id,
+          {
+            reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+            inactivityPeriodDays: 180,
+            lastLoginAt: user.lastLoginAt?.toISOString() || null,
+            who: {
+              systemAction: true,
+              actionType: 'automatic_inactivity_disable_on_login',
+            },
+            what: `Account disabled due to inactivity (${user.lastLoginAt ? '180+ days inactive' : 'never logged in, 180+ days old'})`,
+            targetUser: {
+              userId: user.id,
+              userEmail: user.email,
+              userName: user.name,
+            },
+            impact: {
+              type: 'account_disablement',
+              affectedUserEmail: user.email,
+              reason: user.lastLoginAt ? 'inactivity' : 'inactivity_never_logged_in',
+            },
+          }
+        ).catch(() => {})
+
+        await logLogin(user.id, user.email, false).catch(() => {})
+        return NextResponse.json(
+          { error: "Account disabled due to inactivity" },
+          { status: 403 }
+        )
+      }
+    }
+
+    // Check if account is already disabled
+    if (user.disabled) {
+      await logLogin(user.id, user.email, false).catch(() => {})
+      return NextResponse.json(
+        { error: "Account is disabled" },
+        { status: 403 }
+      )
     }
 
     // Check if password change is required (NIST SP 800-171 Rev. 2, Section 3.5.9)
