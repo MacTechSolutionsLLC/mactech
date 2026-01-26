@@ -15,7 +15,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true, // Trust Railway's proxy
   // FIPS-validated JWT configuration (uses FIPS crypto when available)
   // Can be disabled by setting DISABLE_FIPS_JWT=true environment variable
-  jwt: process.env.DISABLE_FIPS_JWT === 'true' ? undefined : getFIPSJWTConfig(),
+  jwt: (() => {
+    const disableFIPS = process.env.DISABLE_FIPS_JWT === 'true'
+    if (disableFIPS) {
+      console.log('ℹ️  FIPS JWT disabled via DISABLE_FIPS_JWT environment variable')
+      return undefined // Use NextAuth default JWT
+    }
+    console.log('ℹ️  FIPS JWT enabled (DISABLE_FIPS_JWT not set or not "true")')
+    return getFIPSJWTConfig()
+  })(),
   providers: [
     CredentialsProvider({
       name: "Credentials",
