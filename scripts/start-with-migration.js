@@ -183,20 +183,39 @@ if (process.env.RUN_INACTIVITY_CRON === 'true') {
 
 // Start the Next.js server
 console.log('🌐 Starting Next.js server...');
+console.log(`📡 Port: ${process.env.PORT || 3000}`);
+console.log(`🔧 Node version: ${process.version}`);
+console.log(`📁 Working directory: ${process.cwd()}`);
+
 const port = process.env.PORT || 3000;
 const nextPath = require.resolve('next/dist/bin/next');
+console.log(`📦 Next.js path: ${nextPath}`);
+
 const server = spawn('node', [nextPath, 'start', '-p', port.toString()], {
   stdio: 'inherit',
-  env: { ...process.env }
+  env: { ...process.env },
+  cwd: process.cwd()
 });
 
 server.on('error', (error) => {
   console.error('❌ Failed to start server:', error);
+  console.error('Error details:', error.message, error.stack);
   process.exit(1);
 });
 
-server.on('exit', (code) => {
+server.on('exit', (code, signal) => {
+  if (code !== null && code !== 0) {
+    console.error(`❌ Server exited with code ${code}${signal ? ` and signal ${signal}` : ''}`);
+  } else {
+    console.log(`✅ Server exited normally${signal ? ` with signal ${signal}` : ''}`);
+  }
   process.exit(code || 0);
+});
+
+// Log when server starts
+server.on('spawn', () => {
+  console.log('✅ Next.js server process spawned successfully');
+  console.log(`🌐 Server should be available on port ${port}`);
 });
 
 // Handle termination signals
