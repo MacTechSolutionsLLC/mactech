@@ -18,7 +18,8 @@
     "db:verify": "node scripts/verify-db.js",
     "enrich:contracts": "tsx scripts/enrich-contracts.ts",
     "seed:poam": "tsx scripts/seed-poam-items.ts",
-    "verify:fips": "tsx scripts/verify-fips-status.ts"
+    "verify:fips": "tsx scripts/verify-fips-status.ts",
+    "test:fips-jwt": "tsx scripts/test-fips-jwt.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

@@ -31,10 +31,11 @@ export function encodeFIPSJWT(
   
   // Add standard JWT claims
   const now = Math.floor(Date.now() / 1000)
+  // Don't override exp if it's already set in payload
   const jwtPayload = {
     ...payload,
-    iat: now,
-    exp: now + expiresIn,
+    iat: payload.iat || now,
+    exp: payload.exp !== undefined ? payload.exp : now + expiresIn,
   }
   
   // JWT Header
