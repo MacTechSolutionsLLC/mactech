@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { logEvent } from "@/lib/audit"
+import { logLogout } from "@/lib/audit"
 import { headers } from "next/headers"
 
 /**
@@ -19,29 +19,15 @@ export async function POST(req: NextRequest) {
                  "unknown"
       const userAgent = headersList.get("user-agent") || "unknown"
       
-      // Log logout event with comprehensive details
-      await logEvent(
-        "logout",
+      // Log logout event with comprehensive details using logLogout
+      await logLogout(
         session.user.id,
         session.user.email || null,
-        true,
-        "user",
-        session.user.id,
-        {
-          userId: session.user.id,
-          userEmail: session.user.email,
-          userName: session.user.name,
-          userRole: session.user.role,
-          timestamp: new Date().toISOString(),
-          ipAddress: ip,
-          userAgent: userAgent,
-          action: "user_logout",
-          impact: {
-            type: "session_termination",
-            affectedUser: session.user.id,
-            affectedUserEmail: session.user.email,
-          },
-        }
+        session.user.name || null,
+        session.user.role,
+        ip,
+        userAgent
+        // Note: Session ID not available at logout time as session is being terminated
       )
     }
 

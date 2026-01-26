@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       ? await storeCUIFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined)
       : await storeFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined, isFCI)
 
-    // Log file upload with detailed file information
+    // Log file upload with detailed file information including CUI/FCI status
     await logFileUpload(
       session.user.id,
       session.user.email || "unknown",
@@ -61,7 +61,9 @@ export async function POST(req: NextRequest) {
       file.size,
       true,
       undefined, // error
-      file.type // mimeType
+      file.type, // mimeType
+      shouldStoreAsCUI, // isCUI
+      !shouldStoreAsCUI && isFCI // isFCI
     )
 
     return NextResponse.json({
@@ -89,7 +91,9 @@ export async function POST(req: NextRequest) {
           file.size,
           false,
           error.message,
-          file.type // mimeType
+          file.type, // mimeType
+          undefined, // isCUI (unknown on failure)
+          undefined // isFCI (unknown on failure)
         )
       }
     } catch (logError) {

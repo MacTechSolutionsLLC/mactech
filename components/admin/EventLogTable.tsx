@@ -90,105 +90,171 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                       {event.actionType}
                     </code>
                     {event.details && (
-                      <div className="text-xs text-neutral-600 mt-1 space-y-1">
+                      <div className="text-xs text-neutral-600 mt-1">
                         {(() => {
                           try {
                             const details = JSON.parse(event.details)
                             
-                            // Logout event details
-                            if (event.actionType === "logout") {
-                              return (
-                                <div className="space-y-1 bg-blue-50 p-2 rounded border border-blue-200">
-                                  <div><strong>Who:</strong> {event.actor?.name || details.userName || event.actor?.email || details.userEmail || "Unknown"} ({event.actor?.role || details.userRole})</div>
-                                  <div><strong>What:</strong> User logout - Session terminated</div>
-                                  <div><strong>Impact:</strong> {details.impact?.type || "session_termination"} - User {details.impact?.affectedUserEmail || details.userEmail} logged out</div>
-                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
-                                  {details.ipAddress && <div><strong>IP:</strong> {details.ipAddress}</div>}
-                                </div>
-                              )
-                            }
-                            
-                            // Role change details
-                            if (event.actionType === "role_change") {
-                              return (
-                                <div className="space-y-1 bg-purple-50 p-2 rounded border border-purple-200">
-                                  <div><strong>Who:</strong> {event.actor?.name || details.who?.adminName || event.actor?.email || details.who?.adminEmail || "Unknown"} ({event.actor?.role || details.who?.adminRole || "ADMIN"})</div>
-                                  <div><strong>What:</strong> Role change</div>
-                                  <div><strong>Target User:</strong> {details.targetUser?.userName || details.targetUser?.userEmail || "Unknown"} ({details.targetUser?.userEmail})</div>
-                                  <div><strong>Change:</strong> {details.change?.from || details.previousRole} → {details.change?.to || details.newRole}</div>
-                                  <div><strong>Impact:</strong> {details.impact?.type || "role_modification"} - User {details.impact?.affectedUserEmail || details.targetUser?.userEmail} role changed from {details.impact?.previousRole || details.change?.from} to {details.impact?.newRole || details.change?.to}</div>
-                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
-                                  {event.ip && <div><strong>IP:</strong> {event.ip}</div>}
-                                </div>
-                              )
-                            }
-                            
-                            // System cron job execution details
-                            if (event.actionType === "system_cron_job" && details.cronJobType) {
-                              return (
-                                <div className="space-y-1 bg-blue-50 p-2 rounded border border-blue-200">
-                                  <div><strong>Job Type:</strong> {details.cronJobType.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</div>
-                                  <div><strong>Schedule:</strong> {details.schedule || 'N/A'}</div>
-                                  <div><strong>Execution Time:</strong> {details.executionTime ? new Date(details.executionTime).toLocaleString() : formatDate(event.timestamp)}</div>
-                                  <div><strong>Accounts Checked:</strong> {details.accountsChecked || 0}</div>
-                                  <div><strong>Accounts Disabled:</strong> {details.accountsDisabled || 0}</div>
-                                  {details.errors !== undefined && (
-                                    <div><strong>Errors:</strong> {details.errors}</div>
-                                  )}
-                                  {details.errorDetails && details.errorDetails.length > 0 && (
-                                    <div className="mt-2">
-                                      <strong className="text-red-600">Error Details:</strong>
-                                      <ul className="list-disc list-inside text-sm text-red-600 mt-1">
-                                        {details.errorDetails.map((error: string, idx: number) => (
-                                          <li key={idx}>{error}</li>
-                                        ))}
-                                      </ul>
+                            // Render standardized details structure
+                            return (
+                              <details className="group">
+                                <summary className="cursor-pointer text-primary-600 hover:text-primary-700 font-medium">
+                                  View Details
+                                </summary>
+                                <div className="mt-2 space-y-2 bg-neutral-50 p-3 rounded border border-neutral-200">
+                                  {/* Who Section */}
+                                  {details.who && (
+                                    <div className="border-b border-neutral-200 pb-2">
+                                      <div className="font-semibold text-neutral-700 mb-1">Who:</div>
+                                      <div className="space-y-1 pl-2">
+                                        <div><strong>Name:</strong> {details.who.userName || details.who.adminName || event.actor?.name || "Unknown"}</div>
+                                        <div><strong>Email:</strong> {details.who.userEmail || details.who.adminEmail || event.actor?.email || event.actorEmail || "Unknown"}</div>
+                                        <div><strong>Role:</strong> {details.who.userRole || details.who.adminRole || event.actor?.role || "Unknown"}</div>
+                                        {details.who.sessionId && <div><strong>Session ID:</strong> <code className="text-xs">{details.who.sessionId}</code></div>}
+                                        {details.who.mfaVerified !== null && details.who.mfaVerified !== undefined && (
+                                          <div><strong>MFA Verified:</strong> {details.who.mfaVerified ? "Yes" : "No"}</div>
+                                        )}
+                                      </div>
                                     </div>
                                   )}
+                                  
+                                  {/* What Section */}
                                   {details.what && (
-                                    <div className="mt-2 text-sm text-neutral-600"><strong>Summary:</strong> {details.what}</div>
-                                  )}
-                                </div>
-                              )
-                            }
-                            
-                            // Admin action details
-                            if (event.actionType === "admin_action" && details.action) {
-                              return (
-                                <div className="space-y-1 bg-indigo-50 p-2 rounded border border-indigo-200">
-                                  <div><strong>Who:</strong> {event.actor?.name || details.who?.adminName || event.actor?.email || details.who?.adminEmail || "Unknown"} ({event.actor?.role || details.who?.adminRole || "ADMIN"})</div>
-                                  <div><strong>What:</strong> {details.what || details.action.replace('_', ' ')}</div>
-                                  {details.targetUser && (
-                                    <div><strong>Target User:</strong> {details.targetUser.userName || details.targetUser.userEmail || "Unknown"} ({details.targetUser.userEmail})</div>
-                                  )}
-                                  {details.changes && Object.keys(details.changes).length > 0 && (
-                                    <div><strong>Changes:</strong> {JSON.stringify(details.changes, null, 2)}</div>
-                                  )}
-                                  {details.previousState && (
-                                    <div><strong>Previous State:</strong> Role: {details.previousState.role}, Disabled: {details.previousState.disabled ? "Yes" : "No"}</div>
-                                  )}
-                                  {details.impact && (
-                                    <div><strong>Impact:</strong> {details.impact.type} - {details.impact.affectedUserEmail || details.targetUser?.userEmail}</div>
-                                  )}
-                                  <div><strong>Time:</strong> {details.timestamp ? new Date(details.timestamp).toLocaleString() : formatDate(event.timestamp)}</div>
-                                  {event.ip && <div><strong>IP:</strong> {event.ip}</div>}
-                                  {details.attemptedAction && (
-                                    <div className="text-orange-600">
-                                      <strong>Attempted:</strong> {details.attemptedAction}
+                                    <div className="border-b border-neutral-200 pb-2">
+                                      <div className="font-semibold text-neutral-700 mb-1">What:</div>
+                                      <div className="pl-2">{details.what}</div>
                                     </div>
                                   )}
-                                  {details.reason && (
-                                    <div className="text-red-600">
-                                      <strong>Reason:</strong> {details.reason}
+                                  
+                                  {/* ToWhom Section */}
+                                  {details.toWhom && (
+                                    <div className="border-b border-neutral-200 pb-2">
+                                      <div className="font-semibold text-neutral-700 mb-1">Target:</div>
+                                      <div className="space-y-1 pl-2">
+                                        <div><strong>Type:</strong> {details.toWhom.targetType}</div>
+                                        {details.toWhom.targetName && <div><strong>Name:</strong> {details.toWhom.targetName}</div>}
+                                        {details.toWhom.targetEmail && <div><strong>Email:</strong> {details.toWhom.targetEmail}</div>}
+                                        {details.toWhom.filename && <div><strong>Filename:</strong> {details.toWhom.filename}</div>}
+                                        {details.toWhom.fileSize && <div><strong>File Size:</strong> {details.toWhom.fileSize} bytes</div>}
+                                        {details.toWhom.mimeType && <div><strong>MIME Type:</strong> {details.toWhom.mimeType}</div>}
+                                        {details.toWhom.isCUI !== undefined && <div><strong>CUI File:</strong> {details.toWhom.isCUI ? "Yes" : "No"}</div>}
+                                        {details.toWhom.isFCI !== undefined && <div><strong>FCI File:</strong> {details.toWhom.isFCI ? "Yes" : "No"}</div>}
+                                        {details.toWhom.contractTitle && <div><strong>Contract:</strong> {details.toWhom.contractTitle}</div>}
+                                        {details.toWhom.poamId && <div><strong>POAM ID:</strong> <code className="text-xs">{details.toWhom.poamId}</code></div>}
+                                        {details.toWhom.poamTitle && <div><strong>POAM Title:</strong> {details.toWhom.poamTitle}</div>}
+                                        <div><strong>ID:</strong> <code className="text-xs">{details.toWhom.targetId}</code></div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Security Section */}
+                                  {details.security && (
+                                    <div className="border-b border-neutral-200 pb-2">
+                                      <div className="font-semibold text-neutral-700 mb-1">Security Context:</div>
+                                      <div className="space-y-1 pl-2">
+                                        {details.security.ipAddress && <div><strong>IP Address:</strong> {details.security.ipAddress}</div>}
+                                        {details.security.requestId && <div><strong>Request ID:</strong> <code className="text-xs">{details.security.requestId}</code></div>}
+                                        {details.security.privilegedAction !== undefined && (
+                                          <div><strong>Privileged Action:</strong> {details.security.privilegedAction ? "Yes" : "No"}</div>
+                                        )}
+                                        {details.security.mfaRequired !== undefined && (
+                                          <div><strong>MFA Required:</strong> {details.security.mfaRequired ? "Yes" : "No"}</div>
+                                        )}
+                                        {details.security.mfaVerified !== null && details.security.mfaVerified !== undefined && (
+                                          <div><strong>MFA Verified:</strong> {details.security.mfaVerified ? "Yes" : "No"}</div>
+                                        )}
+                                        {details.security.deviceInfo && Object.keys(details.security.deviceInfo).length > 0 && (
+                                          <div>
+                                            <strong>Device:</strong> {[
+                                              details.security.deviceInfo.device,
+                                              details.security.deviceInfo.os,
+                                              details.security.deviceInfo.browser
+                                            ].filter(Boolean).join(" / ") || "Unknown"}
+                                          </div>
+                                        )}
+                                        {details.security.userAgent && (
+                                          <div className="text-xs text-neutral-500"><strong>User Agent:</strong> {details.security.userAgent}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Context Section */}
+                                  {details.context && Object.keys(details.context).length > 0 && (
+                                    <div>
+                                      <div className="font-semibold text-neutral-700 mb-1">Context:</div>
+                                      <div className="space-y-1 pl-2">
+                                        {details.context.previousState && (
+                                          <div>
+                                            <strong>Previous State:</strong>
+                                            <pre className="text-xs bg-neutral-100 p-1 rounded mt-1 overflow-auto">
+                                              {JSON.stringify(details.context.previousState, null, 2)}
+                                            </pre>
+                                          </div>
+                                        )}
+                                        {details.context.changes && (
+                                          <div>
+                                            <strong>Changes:</strong>
+                                            <pre className="text-xs bg-neutral-100 p-1 rounded mt-1 overflow-auto">
+                                              {JSON.stringify(details.context.changes, null, 2)}
+                                            </pre>
+                                          </div>
+                                        )}
+                                        {details.context.impact && (
+                                          <div>
+                                            <strong>Impact:</strong>
+                                            <pre className="text-xs bg-neutral-100 p-1 rounded mt-1 overflow-auto">
+                                              {JSON.stringify(details.context.impact, null, 2)}
+                                            </pre>
+                                          </div>
+                                        )}
+                                        {details.context.message && <div>{details.context.message}</div>}
+                                        {details.context.error && <div className="text-red-600"><strong>Error:</strong> {details.context.error}</div>}
+                                        {details.context.reason && <div className="text-orange-600"><strong>Reason:</strong> {details.context.reason}</div>}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Legacy support for system_cron_job */}
+                                  {event.actionType === "system_cron_job" && details.cronJobType && (
+                                    <div className="border-t border-neutral-200 pt-2">
+                                      <div className="font-semibold text-neutral-700 mb-1">Cron Job Details:</div>
+                                      <div className="space-y-1 pl-2">
+                                        <div><strong>Job Type:</strong> {details.cronJobType.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</div>
+                                        {details.schedule && <div><strong>Schedule:</strong> {details.schedule}</div>}
+                                        {details.executionTime && <div><strong>Execution Time:</strong> {new Date(details.executionTime).toLocaleString()}</div>}
+                                        {details.accountsChecked !== undefined && <div><strong>Accounts Checked:</strong> {details.accountsChecked}</div>}
+                                        {details.accountsDisabled !== undefined && <div><strong>Accounts Disabled:</strong> {details.accountsDisabled}</div>}
+                                        {details.errors !== undefined && <div><strong>Errors:</strong> {details.errors}</div>}
+                                        {details.errorDetails && Array.isArray(details.errorDetails) && details.errorDetails.length > 0 && (
+                                          <div>
+                                            <strong className="text-red-600">Error Details:</strong>
+                                            <ul className="list-disc list-inside text-sm text-red-600 mt-1">
+                                              {details.errorDetails.map((error: string, idx: number) => (
+                                                <li key={idx}>{error}</li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Timestamp */}
+                                  {details.timestamp && (
+                                    <div className="text-xs text-neutral-500 pt-2 border-t border-neutral-200">
+                                      <strong>Event Time:</strong> {new Date(details.timestamp).toLocaleString()}
                                     </div>
                                   )}
                                 </div>
-                              )
-                            }
-                            
-                            return null
+                              </details>
+                            )
                           } catch {
-                            return null
+                            return (
+                              <div className="text-xs text-red-600">
+                                Failed to parse event details
+                              </div>
+                            )
                           }
                         })()}
                       </div>
@@ -206,20 +272,42 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                  {event.targetType && event.targetId ? (
-                    <div className="flex flex-col">
-                      <span className="font-medium text-neutral-700">{event.targetType}</span>
-                      {event.targetType === "poam" && event.poamId ? (
-                        <code className="text-xs font-semibold text-accent-700">{event.poamId}</code>
+                  {(() => {
+                    if (!event.targetType || !event.targetId) {
+                      return event.actionType === "logout" ? (
+                        <span className="text-neutral-400 italic">Session termination</span>
                       ) : (
-                        <code className="text-xs text-neutral-500">{event.targetId.substring(0, 12)}...</code>
-                      )}
-                    </div>
-                  ) : event.actionType === "logout" ? (
-                    <span className="text-neutral-400 italic">Session termination</span>
-                  ) : (
-                    "-"
-                  )}
+                        "-"
+                      )
+                    }
+                    
+                    // Try to extract target name from details
+                    let targetName: string | null = null
+                    try {
+                      if (event.details) {
+                        const details = JSON.parse(event.details)
+                        targetName = details.toWhom?.targetName || 
+                                    details.toWhom?.filename || 
+                                    details.toWhom?.contractTitle ||
+                                    details.toWhom?.poamId ||
+                                    details.toWhom?.targetEmail ||
+                                    null
+                      }
+                    } catch {}
+                    
+                    return (
+                      <div className="flex flex-col">
+                        <span className="font-medium text-neutral-700">{event.targetType}</span>
+                        {targetName ? (
+                          <span className="text-xs text-neutral-600">{targetName}</span>
+                        ) : event.targetType === "poam" && event.poamId ? (
+                          <code className="text-xs font-semibold text-accent-700">{event.poamId}</code>
+                        ) : (
+                          <code className="text-xs text-neutral-500">{event.targetId.substring(0, 12)}...</code>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                   {event.ip || "-"}

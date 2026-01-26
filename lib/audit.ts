@@ -96,14 +96,223 @@ async function getRequestMetadata() {
                headersList.get("x-real-ip") || 
                "unknown"
     const userAgent = headersList.get("user-agent") || "unknown"
-    return { ip, userAgent }
+    const requestId = headersList.get("x-request-id") || 
+                     headersList.get("x-correlation-id") ||
+                     `req-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    return { ip, userAgent, requestId }
   } catch {
-    return { ip: "unknown", userAgent: "unknown" }
+    return { ip: "unknown", userAgent: "unknown", requestId: `req-${Date.now()}-${Math.random().toString(36).substring(7)}` }
   }
 }
 
 /**
+ * Generate a request correlation ID
+ */
+function generateRequestId(): string {
+  return `req-${Date.now()}-${Math.random().toString(36).substring(7)}`
+}
+
+/**
+ * Extract device/browser information from user agent
+ */
+function parseUserAgent(userAgent: string): { device?: string; browser?: string; os?: string } {
+  if (!userAgent || userAgent === "unknown") return {}
+  
+  const info: { device?: string; browser?: string; os?: string } = {}
+  
+  // Extract OS
+  if (userAgent.includes("Windows")) info.os = "Windows"
+  else if (userAgent.includes("Mac OS")) info.os = "macOS"
+  else if (userAgent.includes("Linux")) info.os = "Linux"
+  else if (userAgent.includes("Android")) info.os = "Android"
+  else if (userAgent.includes("iOS")) info.os = "iOS"
+  
+  // Extract Browser
+  if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) info.browser = "Chrome"
+  else if (userAgent.includes("Firefox")) info.browser = "Firefox"
+  else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) info.browser = "Safari"
+  else if (userAgent.includes("Edg")) info.browser = "Edge"
+  
+  // Extract Device type
+  if (userAgent.includes("Mobile")) info.device = "Mobile"
+  else if (userAgent.includes("Tablet")) info.device = "Tablet"
+  else info.device = "Desktop"
+  
+  return info
+}
+
+/**
+ * Enrich target information based on target type
+ */
+async function enrichTarget(targetType: TargetType | undefined, targetId: string | undefined): Promise<Record<string, any> | null> {
+  if (!targetType || !targetId) return null
+  
+  try {
+    switch (targetType) {
+      case "user": {
+        const user = await prisma.user.findUnique({
+          where: { id: targetId },
+          select: { name: true, email: true, role: true },
+        })
+        if (user) {
+          return {
+            targetType,
+            targetId,
+            targetName: user.name,
+            targetEmail: user.email,
+            targetRole: user.role,
+            normalizedTargetName: normalizeUsername(user.name),
+          }
+        }
+        break
+      }
+      case "file": {
+        const file = await prisma.storedFile.findUnique({
+          where: { id: targetId },
+          include: {
+            uploader: {
+              select: { name: true, email: true },
+            },
+          },
+        })
+        if (file) {
+          return {
+            targetType,
+            targetId,
+            filename: file.filename,
+            fileSize: file.size,
+            mimeType: file.mimeType,
+            isFCI: file.isFCI,
+            uploadedAt: file.uploadedAt.toISOString(),
+            uploadedBy: {
+              userId: file.userId,
+              userEmail: file.uploader.email,
+              userName: file.uploader.name,
+            },
+          }
+        }
+        break
+      }
+      case "cui_file": {
+        const cuiFile = await prisma.storedCUIFile.findUnique({
+          where: { id: targetId },
+          include: {
+            uploader: {
+              select: { name: true, email: true },
+            },
+          },
+        })
+        if (cuiFile) {
+          return {
+            targetType,
+            targetId,
+            filename: cuiFile.filename,
+            fileSize: cuiFile.size,
+            mimeType: cuiFile.mimeType,
+            isCUI: true,
+            uploadedAt: cuiFile.uploadedAt.toISOString(),
+            uploadedBy: {
+              userId: cuiFile.userId,
+              userEmail: cuiFile.uploader.email,
+              userName: cuiFile.uploader.name,
+            },
+          }
+        }
+        break
+      }
+      case "contract": {
+        const contract = await prisma.contract.findUnique({
+          where: { id: targetId },
+          select: { title: true, type: true, status: true },
+        })
+        if (contract) {
+          return {
+            targetType,
+            targetId,
+            contractTitle: contract.title,
+            contractType: contract.type,
+            contractStatus: contract.status,
+          }
+        }
+        break
+      }
+      case "poam": {
+        const poam = await prisma.pOAMItem.findUnique({
+          where: { id: targetId },
+          select: { poamId: true, title: true, status: true, controlId: true },
+        })
+        if (poam) {
+          return {
+            targetType,
+            targetId,
+            poamId: poam.poamId,
+            poamTitle: poam.title,
+            poamStatus: poam.status,
+            controlId: poam.controlId,
+          }
+        }
+        break
+      }
+      default:
+        return {
+          targetType,
+          targetId,
+        }
+    }
+  } catch (error) {
+    console.error(`Failed to enrich target ${targetType}:${targetId}:`, error)
+    return {
+      targetType,
+      targetId,
+      enrichmentError: "Failed to fetch target details",
+    }
+  }
+  
+  return null
+}
+
+/**
+ * Determine if an action requires privileged access
+ */
+function isPrivilegedAction(actionType: ActionType): boolean {
+  const privilegedActions: ActionType[] = [
+    "admin_action",
+    "user_create",
+    "user_update",
+    "user_disable",
+    "user_enable",
+    "role_change",
+    "export_physical_access_logs",
+    "export_endpoint_inventory",
+    "config_changed",
+    "maintenance_tool_access",
+    "maintenance_tool_operation",
+  ]
+  return privilegedActions.includes(actionType)
+}
+
+/**
+ * Determine if an action requires MFA
+ */
+function requiresMFA(actionType: ActionType): boolean {
+  const mfaRequiredActions: ActionType[] = [
+    "admin_action",
+    "user_create",
+    "user_update",
+    "user_disable",
+    "user_enable",
+    "role_change",
+    "password_change",
+    "export_physical_access_logs",
+    "export_endpoint_inventory",
+    "config_changed",
+  ]
+  return mfaRequiredActions.includes(actionType)
+}
+
+/**
  * Log a generic application event with detailed "who did what to whom" information
+ * Enhanced with security context, target enrichment, and standardized structure
  */
 export async function logEvent(
   actionType: ActionType,
@@ -115,11 +324,15 @@ export async function logEvent(
   details?: Record<string, any>
 ) {
   try {
-    const { ip, userAgent } = await getRequestMetadata()
+    const { ip, userAgent, requestId } = await getRequestMetadata()
+    const deviceInfo = parseUserAgent(userAgent)
+    const privilegedAction = isPrivilegedAction(actionType)
+    const mfaRequired = requiresMFA(actionType)
     
     // Fetch actor information if userId is provided
     let actorName: string | null = null
     let actorNormalizedName: string | null = null
+    let actorRole: string | null = null
     if (actorUserId) {
       try {
         const actor = await prisma.user.findUnique({
@@ -129,6 +342,7 @@ export async function logEvent(
         if (actor) {
           actorName = actor.name || null
           actorNormalizedName = normalizeUsername(actor.name)
+          actorRole = actor.role || null
         }
       } catch (error) {
         // If user lookup fails, continue without name
@@ -136,49 +350,64 @@ export async function logEvent(
       }
     }
     
-    // Fetch target information if targetId and targetType are provided
-    let targetName: string | null = null
-    let targetNormalizedName: string | null = null
-    if (targetId && targetType === "user") {
-      try {
-        const target = await prisma.user.findUnique({
-          where: { id: targetId },
-          select: { name: true, email: true, role: true },
-        })
-        if (target) {
-          targetName = target.name || null
-          targetNormalizedName = normalizeUsername(target.name)
-        }
-      } catch (error) {
-        // If target lookup fails, continue without name
-        console.error("Failed to fetch target name for logging:", error)
-      }
-    }
+    // Enrich target information for all target types
+    const enrichedTarget = await enrichTarget(targetType, targetId)
     
-    // Build comprehensive details object with "who did what to whom"
+    // Extract session ID and MFA status from provided details if available
+    const sessionId = details?.sessionId || details?.who?.sessionId || null
+    const mfaVerified = details?.mfaVerified !== undefined ? details.mfaVerified : 
+                       (details?.security?.mfaVerified !== undefined ? details.security.mfaVerified : null)
+    
+    // Build standardized details object with "who did what to whom"
     const enhancedDetails: Record<string, any> = {
-      ...(details || {}),
+      // Preserve any existing context from details parameter
+      ...(details?.context || {}),
+      // Who: Actor information
       who: {
         userId: actorUserId,
         userEmail: actorEmail,
         userName: actorName,
-        normalizedUserName: actorNormalizedName, // First name if that's the username
+        normalizedUserName: actorNormalizedName,
+        userRole: actorRole || details?.who?.userRole || details?.who?.adminRole || null, // Always include role
+        sessionId: sessionId,
+        mfaVerified: mfaVerified,
         ...(details?.who || {}),
       },
-      what: actionType.replace(/_/g, " "),
-      ...(targetId && targetType ? {
+      // What: Explicit action description
+      what: details?.what || actionType.replace(/_/g, " "),
+      // ToWhom: Target information (enriched)
+      ...(enrichedTarget ? {
+        toWhom: {
+          ...enrichedTarget,
+          ...(details?.toWhom || {}),
+        },
+      } : targetId && targetType ? {
         toWhom: {
           targetType,
           targetId,
-          targetName,
-          normalizedTargetName: targetNormalizedName,
           ...(details?.toWhom || {}),
         },
       } : {}),
+      // Security: Security-relevant metadata
+      security: {
+        ipAddress: ip,
+        userAgent: userAgent,
+        requestId: details?.requestId || requestId,
+        privilegedAction: privilegedAction,
+        mfaRequired: mfaRequired,
+        mfaVerified: mfaVerified,
+        deviceInfo: deviceInfo,
+        ...(details?.security || {}),
+      },
+      // Context: Additional context (changes, impact, etc.)
+      context: {
+        ...(details?.context || {}),
+        ...(details?.previousState ? { previousState: details.previousState } : {}),
+        ...(details?.changes ? { changes: details.changes } : {}),
+        ...(details?.impact ? { impact: details.impact } : {}),
+      },
       timestamp: new Date().toISOString(),
-      ipAddress: ip,
-      userAgent,
-      success,
+      success: success,
     }
     
     await prisma.appEvent.create({
@@ -202,18 +431,23 @@ export async function logEvent(
 
 /**
  * Log login attempt (success or failure) with detailed user information
+ * Enhanced with session ID tracking and device fingerprinting
  */
 export async function logLogin(
   userId: string | null,
   email: string,
   success: boolean,
   ip?: string,
-  userAgent?: string
+  userAgent?: string,
+  sessionId?: string,
+  mfaVerified?: boolean
 ) {
   try {
     const metadata = ip && userAgent 
-      ? { ip, userAgent }
+      ? { ip, userAgent, requestId: generateRequestId() }
       : await getRequestMetadata()
+    
+    const deviceInfo = parseUserAgent(metadata.userAgent)
     
     // Fetch user information if userId is provided
     let userName: string | null = null
@@ -240,15 +474,26 @@ export async function logLogin(
         userId: userId,
         userEmail: email,
         userName: userName,
-        normalizedUserName: normalizedUserName, // First name if that's the username
+        normalizedUserName: normalizedUserName,
         userRole: userRole,
+        sessionId: sessionId || null,
+        mfaVerified: mfaVerified !== undefined ? mfaVerified : null,
       },
       what: success ? "login" : "login_failed",
+      security: {
+        ipAddress: metadata.ip,
+        userAgent: metadata.userAgent,
+        requestId: metadata.requestId,
+        privilegedAction: false,
+        mfaRequired: false,
+        mfaVerified: mfaVerified !== undefined ? mfaVerified : null,
+        deviceInfo: deviceInfo,
+      },
+      context: {
+        ...(success ? {} : { reason: "Invalid credentials" }),
+      },
       timestamp: new Date().toISOString(),
-      ipAddress: metadata.ip,
-      userAgent: metadata.userAgent,
       success,
-      ...(success ? {} : { reason: "Invalid credentials" }),
     }
     
     await prisma.appEvent.create({
@@ -269,6 +514,7 @@ export async function logLogin(
 
 /**
  * Log logout event with comprehensive details and normalized username
+ * Enhanced with session ID tracking and device fingerprinting
  */
 export async function logLogout(
   userId: string,
@@ -276,14 +522,16 @@ export async function logLogout(
   name: string | null,
   role: string,
   ip?: string,
-  userAgent?: string
+  userAgent?: string,
+  sessionId?: string
 ) {
   try {
     const metadata = ip && userAgent 
-      ? { ip, userAgent }
+      ? { ip, userAgent, requestId: generateRequestId() }
       : await getRequestMetadata()
     
     const normalizedUserName = normalizeUsername(name)
+    const deviceInfo = parseUserAgent(metadata.userAgent)
     
     await prisma.appEvent.create({
       data: {
@@ -300,18 +548,36 @@ export async function logLogout(
             userId,
             userEmail: email,
             userName: name,
-            normalizedUserName: normalizedUserName, // First name if that's the username
+            normalizedUserName: normalizedUserName,
             userRole: role,
+            sessionId: sessionId || null,
           },
           what: "User logout",
-          timestamp: new Date().toISOString(),
-          ipAddress: metadata.ip,
-          userAgent: metadata.userAgent,
-          impact: {
-            type: "session_termination",
-            affectedUser: userId,
-            affectedUserEmail: email,
+          toWhom: {
+            targetType: "user",
+            targetId: userId,
+            targetName: name,
+            targetEmail: email,
+            targetRole: role,
+            normalizedTargetName: normalizedUserName,
           },
+          security: {
+            ipAddress: metadata.ip,
+            userAgent: metadata.userAgent,
+            requestId: metadata.requestId,
+            privilegedAction: false,
+            mfaRequired: false,
+            deviceInfo: deviceInfo,
+          },
+          context: {
+            impact: {
+              type: "session_termination",
+              affectedUser: userId,
+              affectedUserEmail: email,
+            },
+          },
+          timestamp: new Date().toISOString(),
+          success: true,
         }),
       },
     })
@@ -322,6 +588,7 @@ export async function logLogout(
 
 /**
  * Log admin action with detailed "who did what to whom" information
+ * Enhanced with privilege level and MFA verification status
  */
 export async function logAdminAction(
   userId: string,
@@ -348,44 +615,46 @@ export async function logAdminAction(
     console.error("Failed to fetch admin name for logging:", error)
   }
   
-  // Fetch target information if provided
-  let targetName: string | null = null
-  let targetNormalizedName: string | null = null
-  if (target?.id && target?.type === "user") {
-    try {
-      const targetUser = await prisma.user.findUnique({
-        where: { id: target.id },
-        select: { name: true, email: true, role: true },
-      })
-      if (targetUser) {
-        targetName = targetUser.name || null
-        targetNormalizedName = normalizeUsername(targetUser.name)
-      }
-    } catch (error) {
-      console.error("Failed to fetch target name for logging:", error)
-    }
-  }
+  // Extract MFA and session info from details if provided
+  const sessionId = details?.sessionId || details?.who?.sessionId || null
+  const mfaVerified = details?.mfaVerified !== undefined ? details.mfaVerified :
+                     (details?.security?.mfaVerified !== undefined ? details.security.mfaVerified : null)
   
   const enhancedDetails: Record<string, any> = {
     action,
     who: {
-      adminId: userId,
-      adminEmail: email,
-      adminName: adminName,
-      normalizedAdminName: adminNormalizedName, // First name if that's the username
-      adminRole: adminRole || "ADMIN",
+      userId: userId,
+      adminId: userId, // Keep for backward compatibility
+      userEmail: email,
+      adminEmail: email, // Keep for backward compatibility
+      userName: adminName,
+      adminName: adminName, // Keep for backward compatibility
+      normalizedUserName: adminNormalizedName,
+      normalizedAdminName: adminNormalizedName, // Keep for backward compatibility
+      userRole: adminRole || "ADMIN",
+      adminRole: adminRole || "ADMIN", // Keep for backward compatibility
+      sessionId: sessionId,
+      mfaVerified: mfaVerified,
       ...(details?.who || {}),
     },
-    what: `Admin ${action.replace(/_/g, " ")}`,
+    what: details?.what || `Admin ${action.replace(/_/g, " ")}`,
     ...(target ? {
       toWhom: {
-        targetType: target.type,
-        targetId: target.id,
-        targetName: targetName,
-        normalizedTargetName: targetNormalizedName,
         ...(details?.toWhom || details?.targetUser || {}),
       },
     } : {}),
+    security: {
+      privilegedAction: true, // Admin actions are always privileged
+      mfaRequired: requiresMFA("admin_action"),
+      mfaVerified: mfaVerified,
+      ...(details?.security || {}),
+    },
+    context: {
+      ...(details?.context || {}),
+      ...(details?.previousState ? { previousState: details.previousState } : {}),
+      ...(details?.changes ? { changes: details.changes } : {}),
+      ...(details?.impact ? { impact: details.impact } : {}),
+    },
     ...(details || {}),
   }
   
@@ -402,6 +671,7 @@ export async function logAdminAction(
 
 /**
  * Log file upload with detailed file information
+ * Enhanced with CUI/FCI status and security context
  */
 export async function logFileUpload(
   userId: string,
@@ -411,77 +681,17 @@ export async function logFileUpload(
   size: number,
   success: boolean,
   error?: string,
-  mimeType?: string
+  mimeType?: string,
+  isCUI?: boolean,
+  isFCI?: boolean,
+  sessionId?: string
 ) {
-  // Fetch file information from database if available
+  // Check both StoredFile and StoredCUIFile tables
   let fileInfo: any = {}
-  try {
-    const file = await prisma.storedFile.findUnique({
-      where: { id: fileId },
-      include: {
-        uploader: {
-          select: { name: true, email: true },
-        },
-      },
-    })
-    if (file) {
-      fileInfo = {
-        fileId: file.id,
-        filename: file.filename,
-        mimeType: file.mimeType,
-        size: file.size,
-        uploadedAt: file.uploadedAt.toISOString(),
-        uploadedBy: {
-          userId: file.userId,
-          userEmail: file.uploader.email,
-          userName: file.uploader.name,
-          normalizedUserName: normalizeUsername(file.uploader.name),
-        },
-      }
-    }
-  } catch (error) {
-    // If file lookup fails, use provided information
-    console.error("Failed to fetch file info for upload log:", error)
-    fileInfo = {
-      fileId,
-      filename,
-      size,
-      mimeType: mimeType || "unknown",
-    }
-  }
-  
-  await logEvent(
-    "file_upload",
-    userId,
-    email,
-    success,
-    "file",
-    fileId,
-    {
-      what: "File upload",
-      file: fileInfo,
-      error: error || undefined,
-    }
-  )
-}
-
-/**
- * Log file download with detailed file information
- * This ensures the specific file downloaded is clearly mentioned in the audit log
- */
-export async function logFileDownload(
-  userId: string,
-  email: string,
-  fileId: string,
-  filename: string
-) {
-  // Fetch detailed file information from database
-  let fileInfo: any = {
-    fileId,
-    filename,
-  }
+  let cuiFileInfo: any = null
   
   try {
+    // First check regular files
     const file = await prisma.storedFile.findUnique({
       where: { id: fileId },
       include: {
@@ -497,6 +707,7 @@ export async function logFileDownload(
         filename: file.filename,
         mimeType: file.mimeType,
         size: file.size,
+        isFCI: file.isFCI,
         uploadedAt: file.uploadedAt.toISOString(),
         uploadedBy: {
           userId: file.userId,
@@ -505,6 +716,151 @@ export async function logFileDownload(
           normalizedUserName: normalizeUsername(file.uploader.name),
         },
       }
+    } else {
+      // Check CUI files
+      const cuiFile = await prisma.storedCUIFile.findUnique({
+        where: { id: fileId },
+        include: {
+          uploader: {
+            select: { name: true, email: true },
+          },
+        },
+      })
+      
+      if (cuiFile) {
+        cuiFileInfo = {
+          fileId: cuiFile.id,
+          filename: cuiFile.filename,
+          mimeType: cuiFile.mimeType,
+          size: cuiFile.size,
+          isCUI: true,
+          uploadedAt: cuiFile.uploadedAt.toISOString(),
+          uploadedBy: {
+            userId: cuiFile.userId,
+            userEmail: cuiFile.uploader.email,
+            userName: cuiFile.uploader.name,
+            normalizedUserName: normalizeUsername(cuiFile.uploader.name),
+          },
+        }
+      }
+    }
+  } catch (error) {
+    // If file lookup fails, use provided information
+    console.error("Failed to fetch file info for upload log:", error)
+  }
+  
+  // Use enriched file info or fallback to provided data
+  const finalFileInfo = cuiFileInfo || fileInfo || {
+    fileId,
+    filename,
+    size,
+    mimeType: mimeType || "unknown",
+    isCUI: isCUI !== undefined ? isCUI : null,
+    isFCI: isFCI !== undefined ? isFCI : null,
+  }
+  
+  await logEvent(
+    "file_upload",
+    userId,
+    email,
+    success,
+    cuiFileInfo ? "cui_file" : "file",
+    fileId,
+    {
+      what: "File upload",
+      toWhom: {
+        targetType: cuiFileInfo ? "cui_file" : "file",
+        targetId: fileId,
+        filename: finalFileInfo.filename,
+        fileSize: finalFileInfo.size,
+        mimeType: finalFileInfo.mimeType,
+        isCUI: finalFileInfo.isCUI !== undefined ? finalFileInfo.isCUI : (isCUI || false),
+        isFCI: finalFileInfo.isFCI !== undefined ? finalFileInfo.isFCI : (isFCI || false),
+        ...(finalFileInfo.uploadedBy ? { uploadedBy: finalFileInfo.uploadedBy } : {}),
+      },
+      security: {
+        sessionId: sessionId,
+      },
+      context: {
+        ...(error ? { error: error } : {}),
+      },
+    }
+  )
+}
+
+/**
+ * Log file download with detailed file information
+ * Enhanced with CUI/FCI status and security context
+ * This ensures the specific file downloaded is clearly mentioned in the audit log
+ */
+export async function logFileDownload(
+  userId: string,
+  email: string,
+  fileId: string,
+  filename: string,
+  sessionId?: string
+) {
+  // Check both StoredFile and StoredCUIFile tables
+  let fileInfo: any = {
+    fileId,
+    filename,
+  }
+  let isCUI = false
+  
+  try {
+    // First check regular files
+    const file = await prisma.storedFile.findUnique({
+      where: { id: fileId },
+      include: {
+        uploader: {
+          select: { name: true, email: true },
+        },
+      },
+    })
+    
+    if (file) {
+      fileInfo = {
+        fileId: file.id,
+        filename: file.filename,
+        mimeType: file.mimeType,
+        size: file.size,
+        isFCI: file.isFCI,
+        uploadedAt: file.uploadedAt.toISOString(),
+        uploadedBy: {
+          userId: file.userId,
+          userEmail: file.uploader.email,
+          userName: file.uploader.name,
+          normalizedUserName: normalizeUsername(file.uploader.name),
+        },
+      }
+    } else {
+      // Check CUI files
+      const cuiFile = await prisma.storedCUIFile.findUnique({
+        where: { id: fileId },
+        include: {
+          uploader: {
+            select: { name: true, email: true },
+          },
+        },
+      })
+      
+      if (cuiFile) {
+        isCUI = true
+        fileInfo = {
+          fileId: cuiFile.id,
+          filename: cuiFile.filename,
+          mimeType: cuiFile.mimeType,
+          size: cuiFile.size,
+          isCUI: true,
+          uploadedAt: cuiFile.uploadedAt.toISOString(),
+          uploadedBy: {
+            userId: cuiFile.userId,
+            userEmail: cuiFile.uploader.email,
+            userName: cuiFile.uploader.name,
+            normalizedUserName: normalizeUsername(cuiFile.uploader.name),
+          },
+        }
+      }
     }
   } catch (error) {
     // If file lookup fails, use provided information
@@ -512,17 +868,30 @@ export async function logFileDownload(
   }
   
   await logEvent(
-    "file_download",
+    isCUI ? "cui_file_access" : "file_download",
     userId,
     email,
     true,
-    "file",
+    isCUI ? "cui_file" : "file",
     fileId,
     {
-      what: "File download",
-      file: fileInfo,
-      // Clear message: "User [name] downloaded file [filename]"
-      message: `Downloaded file: ${fileInfo.filename} (ID: ${fileInfo.fileId}, Size: ${fileInfo.size || 'unknown'} bytes, Type: ${fileInfo.mimeType || 'unknown'})`,
+      what: isCUI ? "CUI file download" : "File download",
+      toWhom: {
+        targetType: isCUI ? "cui_file" : "file",
+        targetId: fileId,
+        filename: fileInfo.filename,
+        fileSize: fileInfo.size,
+        mimeType: fileInfo.mimeType,
+        isCUI: isCUI,
+        isFCI: fileInfo.isFCI || false,
+        ...(fileInfo.uploadedBy ? { uploadedBy: fileInfo.uploadedBy } : {}),
+      },
+      security: {
+        sessionId: sessionId,
+      },
+      context: {
+        message: `Downloaded file: ${fileInfo.filename} (ID: ${fileInfo.fileId}, Size: ${fileInfo.size || 'unknown'} bytes, Type: ${fileInfo.mimeType || 'unknown'})`,
+      },
     }
   )
 }
