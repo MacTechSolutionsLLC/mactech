@@ -247,19 +247,22 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 **Description:** FIPS-validated cryptography assessment is not conducted as required by NIST SP 800-171 Rev. 2, Section 3.13.11.
 
 **Planned Remediation:**
-- Assess FIPS validation status of cryptography used
-- Document cryptography implementation
-- Identify FIPS-validated vs non-FIPS-validated cryptography
-- Create FIPS assessment evidence
-- Document POA&M items for non-FIPS-validated cryptography (if applicable)
-- Plan migration to FIPS-validated cryptography (if needed)
-- Implement FIPS-validated cryptographic library (Option 2)
+- ✅ Assess FIPS validation status of cryptography used
+- ✅ Document cryptography implementation
+- ✅ Identify FIPS-validated vs non-FIPS-validated cryptography
+- ✅ Create FIPS assessment evidence
+- ✅ Document POA&M items for non-FIPS-validated cryptography
+- ✅ Plan migration to FIPS-validated cryptography
+- ✅ Implement FIPS-validated cryptographic library (Option 2)
+- ⚠️ Activate FIPS mode (requires OpenSSL 3.0.8 FIPS Provider)
+- ⚠️ Verify FIPS mode is active and operational
+- ⚠️ Update control status to "Implemented" after verification
 
 **Responsible Role:** System Administrator
 
 **Target Completion Timeframe:** ≤ 180 days (by 2026-07-22)
 
-**Status:** In Progress (Code Implementation Complete)
+**Status:** In Progress (Code Implementation Complete - FIPS Mode Activation Pending)
 
 **Priority:** Medium
 
@@ -276,26 +279,77 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 - Acceptance Date: 2026-01-24
 
 **Remediation Summary:**
-- FIPS verification complete: OpenSSL 3.6.0 identified (NOT FIPS-validated)
-- CMVP Certificate #4282: OpenSSL FIPS Provider 3.0.8 is validated
-- FIPS-validated JWT implementation complete (Option 2):
+- ✅ FIPS verification complete: OpenSSL 3.3.2/3.6.0 identified (NOT FIPS-validated)
+- ✅ CMVP Certificate #4282: OpenSSL FIPS Provider 3.0.8 is validated (confirmed)
+- ✅ FIPS-validated JWT implementation complete (Option 2):
   - FIPS crypto wrapper (`lib/fips-crypto.ts`)
   - FIPS JWT encoder/decoder (`lib/fips-jwt.ts`)
   - NextAuth.js integration (`lib/fips-nextauth-config.ts`)
-  - NextAuth configuration updated to use FIPS JWT
-- FIPS verification tools created:
+  - NextAuth configuration updated to use FIPS JWT (with optional disable flag)
+- ✅ FIPS verification tools created:
   - FIPS verification module (`lib/fips-verification.ts`)
   - FIPS verification script (`scripts/verify-fips-status.ts`)
   - FIPS status API (`app/api/admin/fips-status/route.ts`)
-- Migration plan created (`MAC-RPT-124_FIPS_Migration_Plan.md`)
-- Implementation guide created (`docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md`)
-- Verification process documented (`docs/FIPS_VERIFICATION_PROCESS.md`, `docs/FIPS_VERIFICATION_CHECKLIST.md`)
-- Code implementation: ✅ Complete
-- FIPS mode activation: ⚠️ Pending (requires OpenSSL 3.0.8 FIPS Provider)
+- ✅ Migration plan created (`MAC-RPT-124_FIPS_Migration_Plan.md`)
+- ✅ Implementation guide created (`docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md`)
+- ✅ Verification process documented (`docs/FIPS_VERIFICATION_PROCESS.md`, `docs/FIPS_VERIFICATION_CHECKLIST.md`)
+- ✅ Code implementation: Complete
+- ✅ Testing: FIPS JWT test suite created (`scripts/test-fips-jwt.ts`)
+- ⚠️ FIPS mode activation: Pending (requires OpenSSL 3.0.8 FIPS Provider)
+- ⚠️ FIPS verification: Pending (cannot verify until FIPS mode is active)
 
 **Remediation Date:** 2026-01-25 (Code Implementation)
 
 **Remediation Status:** ✅ Code Implementation Complete - FIPS Mode Activation Pending
+
+**Milestones:**
+- [x] **Milestone 1: FIPS Assessment** (Completed 2026-01-25)
+  - [x] Assess FIPS validation status of all cryptography components
+  - [x] Verify OpenSSL version in runtime (OpenSSL 3.3.2/3.6.0 identified)
+  - [x] Search CMVP database for validated versions (OpenSSL 3.0.8 FIPS Provider #4282 found)
+  - [x] Document assessment findings
+  
+- [x] **Milestone 2: Documentation** (Completed 2026-01-25)
+  - [x] Create FIPS assessment evidence document (MAC-RPT-110)
+  - [x] Create FIPS migration plan (MAC-RPT-124)
+  - [x] Document verification process and checklist
+  - [x] Create implementation guide
+  
+- [x] **Milestone 3: Code Implementation** (Completed 2026-01-25)
+  - [x] Implement FIPS crypto wrapper (`lib/fips-crypto.ts`)
+  - [x] Implement FIPS JWT encoder/decoder (`lib/fips-jwt.ts`)
+  - [x] Integrate with NextAuth.js (`lib/fips-nextauth-config.ts`)
+  - [x] Update NextAuth configuration (`lib/auth.ts`)
+  - [x] Create FIPS verification tools
+  - [x] Create test suite (`scripts/test-fips-jwt.ts`)
+  - [x] Add optional disable flag for troubleshooting (`DISABLE_FIPS_JWT`)
+  
+- [ ] **Milestone 4: FIPS Mode Activation** (In Progress - External Dependency)
+  - [ ] Contact Railway support about OpenSSL 3.0.8 FIPS Provider availability
+  - [ ] OR: Implement custom Docker image with OpenSSL 3.0.8 FIPS Provider
+  - [ ] Configure runtime to use OpenSSL 3.0.8 FIPS Provider
+  - [ ] Verify FIPS provider is loaded and active
+  - [ ] Remove `DISABLE_FIPS_JWT` environment variable (if set)
+  
+- [ ] **Milestone 5: Verification and Testing** (Pending FIPS Mode Activation)
+  - [ ] Run FIPS verification script (`scripts/verify-fips-status.ts`)
+  - [ ] Verify FIPS status API shows active FIPS mode
+  - [ ] Test FIPS JWT encoding/decoding with active FIPS mode
+  - [ ] Verify NextAuth.js sessions use FIPS-validated JWT
+  - [ ] Document FIPS activation evidence
+  
+- [ ] **Milestone 6: Control Closure** (Pending Verification)
+  - [ ] Update control status to "Implemented" in SCTM
+  - [ ] Update SSP with FIPS activation details
+  - [ ] Close POA&M item
+  - [ ] Update SPRS score (109 → 110)
+  - [ ] Document completion in evidence files
+
+**Next Steps:**
+1. **Immediate:** Contact Railway support to inquire about OpenSSL 3.0.8 FIPS Provider availability
+2. **Alternative:** Research and implement custom Docker image with FIPS-validated OpenSSL
+3. **After FIPS Activation:** Run verification tests and update documentation
+4. **Final:** Close POA&M item and update compliance status
 
 ---
 

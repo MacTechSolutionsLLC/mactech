@@ -321,12 +321,44 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 - FIPS mode activation: ⚠️ Pending (requires OpenSSL 3.0.8 FIPS Provider)
 
 **Milestones:**
-- [x] FIPS assessment conducted (Week 29) - Completed 2026-01-25
-- [x] Assessment documented (Week 30) - Completed 2026-01-25
-- [x] Evidence created (Week 30) - Completed 2026-01-25
-- [x] Migration plan created - Completed 2026-01-25
-- [x] Code implementation complete - Completed 2026-01-25
-- [ ] FIPS mode activation - Pending (external dependency)
+- [x] **Milestone 1: FIPS Assessment** - Completed 2026-01-25
+  - [x] Assess FIPS validation status of all cryptography components
+  - [x] Verify OpenSSL version in runtime (OpenSSL 3.3.2/3.6.0 identified)
+  - [x] Search CMVP database (OpenSSL 3.0.8 FIPS Provider #4282 found)
+  - [x] Document assessment findings
+  
+- [x] **Milestone 2: Documentation** - Completed 2026-01-25
+  - [x] Create FIPS assessment evidence (MAC-RPT-110)
+  - [x] Create FIPS migration plan (MAC-RPT-124)
+  - [x] Document verification process
+  - [x] Create implementation guide
+  
+- [x] **Milestone 3: Code Implementation** - Completed 2026-01-25
+  - [x] Implement FIPS crypto wrapper (`lib/fips-crypto.ts`)
+  - [x] Implement FIPS JWT encoder/decoder (`lib/fips-jwt.ts`)
+  - [x] Integrate with NextAuth.js (`lib/fips-nextauth-config.ts`)
+  - [x] Update NextAuth configuration
+  - [x] Create FIPS verification tools
+  - [x] Create test suite (`scripts/test-fips-jwt.ts`)
+  - [x] Add optional disable flag for troubleshooting
+  
+- [ ] **Milestone 4: FIPS Mode Activation** - In Progress (External Dependency)
+  - [ ] Contact Railway support about OpenSSL 3.0.8 FIPS Provider
+  - [ ] OR: Implement custom Docker image with FIPS-validated OpenSSL
+  - [ ] Configure runtime to use OpenSSL 3.0.8 FIPS Provider
+  - [ ] Verify FIPS provider is loaded and active
+  
+- [ ] **Milestone 5: Verification and Testing** - Pending FIPS Mode Activation
+  - [ ] Run FIPS verification script
+  - [ ] Verify FIPS status API shows active FIPS mode
+  - [ ] Test FIPS JWT with active FIPS mode
+  - [ ] Document FIPS activation evidence
+  
+- [ ] **Milestone 6: Control Closure** - Pending Verification
+  - [ ] Update control status to "Implemented" in SCTM
+  - [ ] Update SSP with FIPS activation details
+  - [ ] Close POA&M item
+  - [ ] Update SPRS score (109 → 110)
 
 **Evidence:**
 - FIPS assessment: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
