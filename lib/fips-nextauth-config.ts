@@ -119,26 +119,19 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
       const isFIPSFormat = parts.length === 3
       const isJWEFormat = parts.length === 5
       
-      // Try NextAuth's default decoder first (for backward compatibility with existing JWE sessions)
-      if (isJWEFormat || !isFIPSFormat) {
-        try {
-          return await decode({
-            token: params.token,
-            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
-            salt: params.salt,
-          }) as JWT | null
-        } catch (error) {
-          // Default decoder failed - might be a FIPS token or invalid token
-          // Continue to try FIPS decoder if it looks like FIPS format
-          if (!isFIPSFormat) {
-            // Not FIPS format and default failed - return null
-            return null
-          }
-        }
-      }
+      // Strategy: Try the appropriate decoder based on token format
+      // This prevents unnecessary decode attempts and errors
       
-      // Try FIPS decoder for FIPS-format tokens
-      if (isFIPSFormat) {
+      if (isJWEFormat) {
+        // JWE format - use NextAuth's default decoder only
+        // Don't catch errors - let NextAuth handle them
+        return await decode({
+          token: params.token,
+          secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+          salt: params.salt,
+        }) as JWT | null
+      } else if (isFIPSFormat) {
+        // FIPS format (3 parts) - try FIPS decoder first
         try {
           const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
           const decoded = await decodeFIPSJWTForNextAuth(params.token, secretToUse)
@@ -147,12 +140,31 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
             return decoded
           }
         } catch (error) {
-          // FIPS decode failed
+          // FIPS decode failed, will try default decoder as fallback
         }
+        
+        // Fallback to default decoder if FIPS decode failed or returned null
+        // This handles edge cases where FIPS token might be decoded by default decoder
+        try {
+          return await decode({
+            token: params.token,
+            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+            salt: params.salt,
+          }) as JWT | null
+        } catch (error) {
+          // Both decoders failed - return null
+          // NextAuth will handle this appropriately
+          return null
+        }
+      } else {
+        // Unknown format - try default decoder
+        // Don't catch errors - let NextAuth handle them
+        return await decode({
+          token: params.token,
+          secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+          salt: params.salt,
+        }) as JWT | null
       }
-      
-      // Both decoders failed - return null
-      return null
     },
   }
 }
