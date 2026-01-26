@@ -14,7 +14,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true, // Trust Railway's proxy
   // FIPS-validated JWT configuration (uses FIPS crypto when available)
-  jwt: getFIPSJWTConfig(),
+  // Can be disabled by setting DISABLE_FIPS_JWT=true environment variable
+  jwt: process.env.DISABLE_FIPS_JWT === 'true' ? undefined : getFIPSJWTConfig(),
   providers: [
     CredentialsProvider({
       name: "Credentials",

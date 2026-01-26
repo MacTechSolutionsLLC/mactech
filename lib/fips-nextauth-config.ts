@@ -124,12 +124,18 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
       
       if (isJWEFormat) {
         // JWE format - use NextAuth's default decoder only
-        // Don't catch errors - let NextAuth handle them
-        return await decode({
-          token: params.token,
-          secret: Array.isArray(params.secret) ? params.secret : [params.secret],
-          salt: params.salt,
-        }) as JWT | null
+        try {
+          return await decode({
+            token: params.token,
+            secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+            salt: params.salt,
+          }) as JWT | null
+        } catch (error) {
+          // Log JWE decode errors for debugging
+          console.error('JWE decode error:', error instanceof Error ? error.message : String(error))
+          // Return null - NextAuth will handle this appropriately
+          return null
+        }
       } else if (isFIPSFormat) {
         // FIPS format (3 parts) - try FIPS decoder first
         try {
@@ -140,7 +146,8 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
             return decoded
           }
         } catch (error) {
-          // FIPS decode failed, will try default decoder as fallback
+          // FIPS decode failed, log and try default decoder
+          console.warn('FIPS JWT decode failed, trying default decoder:', error instanceof Error ? error.message : String(error))
         }
         
         // Fallback to default decoder if FIPS decode failed or returned null
@@ -152,8 +159,9 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
             salt: params.salt,
           }) as JWT | null
         } catch (error) {
-          // Both decoders failed - return null
-          // NextAuth will handle this appropriately
+          // Both decoders failed - log error for debugging
+          console.error('Both FIPS and default JWT decoders failed:', error instanceof Error ? error.message : String(error))
+          // Return null - NextAuth will handle this appropriately
           return null
         }
       } else {
