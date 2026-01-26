@@ -22,14 +22,19 @@ export interface FIPSStatus {
 /**
  * Check if FIPS mode is available and active
  * Note: This requires OpenSSL 3.0.8 FIPS Provider (CMVP Certificate #4282)
+ * 
+ * Safe for Edge Runtime - handles cases where process.versions is undefined
  */
 export function checkFIPSStatus(): FIPSStatus {
-  const opensslVersion = process.versions.openssl || 'unknown'
+  // Safely access process.versions (may be undefined in Edge Runtime)
+  const opensslVersion = (typeof process !== 'undefined' && process.versions?.openssl) 
+    ? process.versions.openssl 
+    : 'unknown'
   const validatedVersion = '3.0.8'
   const cmvpCertificate = '4282'
   
   // Check if version matches validated version
-  const versionMatch = opensslVersion.startsWith(validatedVersion)
+  const versionMatch = opensslVersion !== 'unknown' && opensslVersion.startsWith(validatedVersion)
   
   // Try to verify FIPS mode (OpenSSL 3 FIPS provider)
   // Note: Actual FIPS mode verification requires checking OpenSSL configuration

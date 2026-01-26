@@ -112,19 +112,29 @@ function base64UrlDecode(str: string): string {
 
 /**
  * Verify FIPS status before JWT operations
+ * Safe for Edge Runtime - gracefully handles missing process.versions
  */
 export function verifyFIPSBeforeJWT(): { valid: boolean; message: string } {
-  const status = checkFIPSStatus()
-  
-  if (!status.active) {
+  try {
+    const status = checkFIPSStatus()
+    
+    if (!status.active) {
+      return {
+        valid: false,
+        message: `FIPS mode not active. OpenSSL version: ${status.version}. Migration to OpenSSL 3.0.8 FIPS Provider (CMVP #4282) required.`,
+      }
+    }
+    
+    return {
+      valid: true,
+      message: `FIPS mode active. Using OpenSSL ${status.version} FIPS Provider (CMVP #${status.cmvpCertificate}).`,
+    }
+  } catch (error) {
+    // Edge Runtime or other environment where FIPS check fails
+    // Return non-valid status but don't throw
     return {
       valid: false,
-      message: `FIPS mode not active. OpenSSL version: ${status.version}. Migration to OpenSSL 3.0.8 FIPS Provider (CMVP #4282) required.`,
+      message: `FIPS status check unavailable (Edge Runtime or unsupported environment). Using standard crypto operations.`,
     }
-  }
-  
-  return {
-    valid: true,
-    message: `FIPS mode active. Using OpenSSL ${status.version} FIPS Provider (CMVP #${status.cmvpCertificate}).`,
   }
 }

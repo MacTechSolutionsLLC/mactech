@@ -20,8 +20,10 @@ export interface FIPSVerificationResult {
  * Returns verification results for compliance documentation
  */
 export function verifyFIPSStatus(): FIPSVerificationResult {
-  const nodeVersion = process.version
-  const opensslVersion = process.versions.openssl || 'unknown'
+  const nodeVersion = typeof process !== 'undefined' ? process.version : 'unknown'
+  const opensslVersion = (typeof process !== 'undefined' && process.versions?.openssl) 
+    ? process.versions.openssl 
+    : 'unknown'
   
   // CMVP Certificate #4282: OpenSSL FIPS Provider 3.0.8 is validated
   // Runtime version: OpenSSL 3.6.0 is NOT validated

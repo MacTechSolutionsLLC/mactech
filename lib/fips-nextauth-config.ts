@@ -110,8 +110,23 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
         throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
       }
       
-      const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
-      return decodeFIPSJWTForNextAuth(params.token, secretToUse)
+      try {
+        const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
+        const decoded = decodeFIPSJWTForNextAuth(params.token, secretToUse)
+        
+        // If decode fails, return null (NextAuth will handle it)
+        if (!decoded) {
+          return null
+        }
+        
+        return decoded
+      } catch (error) {
+        // If FIPS JWT decode fails (e.g., invalid format, Edge Runtime issues),
+        // return null to let NextAuth handle it gracefully
+        // This allows backward compatibility with existing sessions
+        console.warn('FIPS JWT decode failed, falling back:', error instanceof Error ? error.message : String(error))
+        return null
+      }
     },
   }
 }
