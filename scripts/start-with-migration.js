@@ -198,10 +198,20 @@ const port = process.env.PORT || 3000;
 const nextPath = require.resolve('next/dist/bin/next');
 console.log(`📦 Next.js path: ${nextPath}`);
 
+// Ensure HOSTNAME is set to 0.0.0.0 for Railway (required for external access)
+const serverEnv = {
+  ...process.env,
+  HOSTNAME: process.env.HOSTNAME || '0.0.0.0',
+  PORT: port.toString(),
+  NODE_ENV: process.env.NODE_ENV || 'production'
+};
+
+console.log(`🌐 Server will bind to: ${serverEnv.HOSTNAME}:${port}`);
 console.log('🚀 Spawning Next.js server process...');
-const server = spawn('node', [nextPath, 'start', '-p', port.toString()], {
+
+const server = spawn('node', [nextPath, 'start', '-p', port.toString(), '-H', serverEnv.HOSTNAME], {
   stdio: 'inherit',
-  env: { ...process.env },
+  env: serverEnv,
   cwd: process.cwd(),
   detached: false
 });
