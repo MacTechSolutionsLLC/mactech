@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         session.user.id,
         session.user.email || "unknown",
         session.user.name || null,
-        session.user.role,
+        session.user.role || "USER",
         ip,
         userAgent
         // Note: Session ID not available at logout time as session is being terminated
