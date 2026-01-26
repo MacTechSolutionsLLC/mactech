@@ -8,6 +8,7 @@
 
 import { encodeFIPSJWT, decodeFIPSJWT, verifyFIPSBeforeJWT } from './fips-jwt'
 import type { JWT, JWTOptions, JWTEncodeParams, JWTDecodeParams } from 'next-auth/jwt'
+import { decode } from 'next-auth/jwt'
 
 /**
  * Custom JWT encode function using FIPS-validated cryptography
@@ -110,21 +111,35 @@ export function getFIPSJWTConfig(): Partial<JWTOptions> {
         throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
       }
       
-      try {
-        const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
-        const decoded = decodeFIPSJWTForNextAuth(params.token, secretToUse)
-        
-        // If decode fails, return null (NextAuth will handle it)
-        if (!decoded) {
-          return null
+      // Check if token is our custom FIPS JWT format (3 parts: header.payload.signature)
+      const isFIPSFormat = params.token.split('.').length === 3
+      
+      if (isFIPSFormat) {
+        // Try to decode as FIPS JWT (JWS format)
+        try {
+          const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
+          const decoded = await decodeFIPSJWTForNextAuth(params.token, secretToUse)
+          
+          if (decoded) {
+            return decoded
+          }
+        } catch (error) {
+          // FIPS decode failed, fall through to default decoder
+          console.warn('FIPS JWT decode failed, falling back to default:', error instanceof Error ? error.message : String(error))
         }
-        
-        return decoded
+      }
+      
+      // Fallback to NextAuth's default decoder (for JWE format or if FIPS decode fails)
+      // This ensures backward compatibility with existing encrypted JWTs
+      try {
+        return await decode({
+          token: params.token,
+          secret: Array.isArray(params.secret) ? params.secret : [params.secret],
+          salt: params.salt,
+        }) as JWT | null
       } catch (error) {
-        // If FIPS JWT decode fails (e.g., invalid format, Edge Runtime issues),
-        // return null to let NextAuth handle it gracefully
-        // This allows backward compatibility with existing sessions
-        console.warn('FIPS JWT decode failed, falling back:', error instanceof Error ? error.message : String(error))
+        // If default decode also fails, return null
+        console.warn('Default JWT decode also failed:', error instanceof Error ? error.message : String(error))
         return null
       }
     },
