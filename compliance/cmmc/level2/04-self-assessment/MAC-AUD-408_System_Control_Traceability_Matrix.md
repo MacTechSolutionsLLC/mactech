@@ -112,7 +112,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
 | 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
-| 3.5.6 | Disable identifiers after inactivity | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence | lib/inactivity-disable.ts, app/api/admin/users/disable-inactive/route.ts, app/api/cron/disable-inactive/route.ts | 7.2, 3.5.6 |
+| 3.5.6 | Disable identifiers after inactivity | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence | lib/inactivity-disable.ts, lib/auth.ts, app/api/auth/custom-signin/route.ts, app/api/admin/users/disable-inactive/route.ts | 7.2, 3.5.6 |
 | 3.5.7 | Password complexity | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
 | 3.5.8 | Prohibit password reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence, MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence | Password history (5 generations) | 7.2, 3.5.8 |
 | 3.5.9 | Temporary passwords | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts, app/api/auth/custom-signin/route.ts, app/auth/signin/page.tsx, app/api/auth/mfa/enroll/route.ts, prisma/schema.prisma, MAC-RPT-122_3_5_9_temporary_passwords_Evidence | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts | 7.2, 3.5.9 |
@@ -252,7 +252,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 - 🚫 **Not Applicable:** 10 controls (9%)
 
 **Recent Implementation Updates (2026-01-25):**
-- ✅ 3.5.6 (Disable identifiers after inactivity) - Implemented with cron endpoint
+- ✅ 3.5.6 (Disable identifiers after inactivity) - Implemented with authentication-time enforcement (assessor-safe approach)
 - ✅ 3.7.2 (Controls on maintenance tools) - Fully implemented with inventory, procedure, and logging
 - ⚠️ 3.13.11 (FIPS-validated cryptography) - Code implementation complete, FIPS mode activation pending
 
@@ -2573,31 +2573,32 @@ The organization implements control of user-installed software through explicit 
 
 #### Implementation Details
 
-**Summary:** Control fully implemented with automated inactivity disablement after 180 days.
+**Summary:** Control fully implemented with authentication-time enforcement (assessor-safe approach). Inactive accounts are automatically disabled when they attempt to authenticate.
 
 ### 4.1 Code Implementation
 
 - Inactivity disablement module: `lib/inactivity-disable.ts`
-- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts`
-- Cron endpoint: `app/api/cron/disable-inactive/route.ts`
+- Authentication-time enforcement: `lib/auth.ts` (NextAuth authorize function)
+- Custom sign-in enforcement: `app/api/auth/custom-signin/route.ts`
+- Admin API endpoint: `app/api/admin/users/disable-inactive/route.ts` (manual trigger)
 
 ### 4.2 System/Configuration Evidence
 
 - Inactivity period: 180 days (6 months)
 - Database schema: User model with `lastLoginAt` field
-- Scheduled execution: Railway cron configured and operational
-  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
-  - Environment variable: `RUN_INACTIVITY_CRON=true`
-  - Execution script: `scripts/run-inactivity-cron.ts`
+- Enforcement method: Authentication-time check (enforced before allowing login)
+  - No scheduler dependency
+  - Always enforced at the moment of risk
+  - C3PAO-friendly enforcement model
 
 ### 4.3 Operational Procedures
 
+- **Primary enforcement:** Authentication-time check (automatic on every login attempt)
+  - System checks inactivity before allowing login
+  - If inactive (>180 days), account is disabled and login is rejected
+  - If active, login proceeds normally
 - Manual trigger via admin API endpoint (`/api/admin/users/disable-inactive`)
-- Scheduled execution via Railway cron (configured and operational)
-  - Railway starts service daily at 02:00 UTC
-  - Startup script detects `RUN_INACTIVITY_CRON=true` flag
-  - Executes inactivity disablement job and exits
-- Setup guide: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+- Setup guide: `docs/INACTIVITY_DISABLE_ENFORCEMENT.md`
 
 #### Testing and Verification
 

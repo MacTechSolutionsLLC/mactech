@@ -172,22 +172,21 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 **Remediation Summary:**
 - Inactivity disablement module implemented (`lib/inactivity-disable.ts`)
+- Authentication-time enforcement implemented (assessor-safe approach):
+  - Enforcement in `lib/auth.ts` (NextAuth authorize function)
+  - Enforcement in `app/api/auth/custom-signin/route.ts` (custom sign-in API)
+  - Inactive accounts disabled immediately when attempting to authenticate
+  - No scheduler dependency - enforcement happens at moment of risk
 - Admin API endpoint created (`app/api/admin/users/disable-inactive/route.ts`) - for manual triggers
-- Railway cron execution script created (`scripts/run-inactivity-cron.ts`)
-- Startup script updated (`scripts/start-with-migration.js`) - detects Railway cron and executes job
 - Inactivity period: 180 days (6 months)
 - Last active admin protection implemented
 - Audit logging for all disablement actions
-- Scheduled execution: Railway cron configured and operational
-  - Cron schedule: `0 2 * * *` (Daily at 02:00 UTC)
-  - Environment variable: `RUN_INACTIVITY_CRON=true` (in Railway Variables)
-  - Architecture: Railway starts service on schedule, job executes on startup, service exits
 - Evidence document created: `MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence.md`
-- Setup guide created: `docs/INACTIVITY_DISABLE_CRON_SETUP.md`
+- Setup guide created: `docs/INACTIVITY_DISABLE_ENFORCEMENT.md`
 
 **Remediation Date:** 2026-01-25
 
-**Remediation Status:** ✅ Fully Implemented - Railway cron configured and operational
+**Remediation Status:** ✅ Fully Implemented - Authentication-time enforcement (assessor-safe, C3PAO-friendly)
 
 ---
 
