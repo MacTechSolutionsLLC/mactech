@@ -6,22 +6,31 @@
  */
 
 // Immediate logging to ensure we can see the script started
-// Use process.stdout.write to ensure immediate output
-process.stdout.write('='.repeat(60) + '\n');
-process.stdout.write('🚀 STARTUP SCRIPT STARTED\n');
-process.stdout.write(`⏰ Timestamp: ${new Date().toISOString()}\n`);
-process.stdout.write(`📦 Node version: ${process.version}\n`);
-process.stdout.write(`📁 Working directory: ${process.cwd()}\n`);
-process.stdout.write(`🔧 Process ID: ${process.pid}\n`);
-process.stdout.write(`🌍 Environment: ${process.env.NODE_ENV || 'not set'}\n`);
-process.stdout.write(`🔑 PORT: ${process.env.PORT || 'not set'}\n`);
-process.stdout.write('='.repeat(60) + '\n');
-process.stdout.write('\n');
-
-// Ensure output is flushed
-if (process.stdout.isTTY) {
-  process.stdout.cork();
-  process.stdout.uncork();
+// Use both console.log and process.stdout.write for maximum compatibility
+try {
+  console.error('STDERR: Startup script beginning execution');
+  console.log('='.repeat(60));
+  console.log('🚀 STARTUP SCRIPT STARTED');
+  console.log(`⏰ Timestamp: ${new Date().toISOString()}`);
+  console.log(`📦 Node version: ${process.version}`);
+  console.log(`📁 Working directory: ${process.cwd()}`);
+  console.log(`🔧 Process ID: ${process.pid}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'not set'}`);
+  console.log(`🔑 PORT: ${process.env.PORT || 'not set'}`);
+  console.log(`🔄 RUN_INACTIVITY_CRON: ${process.env.RUN_INACTIVITY_CRON || '(not set)'}`);
+  console.log('='.repeat(60));
+  console.log('');
+  
+  // Force flush
+  if (process.stdout.write) {
+    process.stdout.write('');
+  }
+  if (process.stderr.write) {
+    process.stderr.write('');
+  }
+} catch (e) {
+  // If even logging fails, write to stderr directly
+  process.stderr.write(`CRITICAL: Failed to log startup: ${e.message}\n`);
 }
 
 const { execSync } = require('child_process');
@@ -47,6 +56,7 @@ function logToolOperation(toolName, version, operation, result, success, details
 }
 
 console.log('🚀 Starting application...');
+console.log('📝 This message confirms the script is executing');
 
 // Run database migrations
 try {
