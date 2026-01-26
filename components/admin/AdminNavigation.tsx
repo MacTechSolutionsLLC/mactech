@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
     icon: '📝',
   },
   {
-    href: '/user/contract-discovery',
+    href: '/user/capture',
     label: 'Capture',
     description: 'Search SAM.gov opportunities',
     icon: '🔍',
