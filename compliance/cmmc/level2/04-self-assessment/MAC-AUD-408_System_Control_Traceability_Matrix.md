@@ -245,11 +245,16 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 84 controls (76%)
+- ✅ **Implemented:** 86 controls (78%)
 - 🔄 **Inherited:** 20 controls (18%)
-- ⚠️ **Partially Satisfied:** 0 controls (0%)
-- ❌ **Not Implemented:** 3 controls (3%)
+- ⚠️ **Partially Satisfied:** 1 control (1%) - 3.13.11 (FIPS-validated cryptography - code complete, FIPS mode activation pending)
+- ❌ **Not Implemented:** 0 controls (0%)
 - 🚫 **Not Applicable:** 10 controls (9%)
+
+**Recent Implementation Updates (2026-01-25):**
+- ✅ 3.5.6 (Disable identifiers after inactivity) - Implemented with cron endpoint
+- ✅ 3.7.2 (Controls on maintenance tools) - Fully implemented with inventory, procedure, and logging
+- ⚠️ 3.13.11 (FIPS-validated cryptography) - Code implementation complete, FIPS mode activation pending
 
 **Control Families:**
 - AC (Access Control): 22 controls
@@ -4995,7 +5000,7 @@ This control is provided by the Railway Platform and relied upon operationally. 
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.3 (2026-01-25): Updated controls 3.5.6, 3.7.2, and 3.13.11 to reflect completed implementations. 3.5.6 and 3.7.2 marked as Implemented. 3.13.11 marked as Partially Satisfied (code complete, FIPS mode activation pending).
+- Version 1.3 (2026-01-25): Updated controls 3.5.6, 3.7.2, and 3.13.11 to reflect completed implementations. 3.5.6 and 3.7.2 marked as Implemented. 3.13.11 marked as Partially Satisfied (code complete, FIPS mode activation pending). Updated summary statistics: 86 Implemented (78%), 1 Partially Satisfied (1%), 0 Not Implemented (0%).
 - Version 1.2 (2026-01-24): Converted 3 N/A controls (3.4.9, 3.8.7, 3.8.8) to Implemented with policy prohibition and endpoint compliance requirements
 - Version 1.1 (2026-01-24): Updated to reflect current implementation state (97% readiness, 81 implemented, 12 inherited, 3 in POA&M)
 - Version 1.0 (2026-01-23): Initial SCTM creation for CMMC Level 2 migration

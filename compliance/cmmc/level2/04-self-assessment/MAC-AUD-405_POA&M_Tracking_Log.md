@@ -573,9 +573,10 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 | Review Date | Reviewed By | Notes |
 |-------------|-------------|-------|
-| 2026-01-23 | Compliance Team | Initial POA&M items identified during Level 2 migration planning |
-| 2026-01-23 | Compliance Team | Updated POA&M items to reflect current implementation status. Added POAM-011 (3.5.6), POAM-012 (3.5.8), and POAM-013 (3.7.2) for remaining not-implemented controls |
+| 2026-01-25 | Compliance Team | Remediated POAM-011 (3.5.6) and POAM-013 (3.7.2). Updated POAM-008 (3.13.11) status to In Progress (code implementation complete, FIPS mode activation pending). All implementation work completed and documented. |
 | 2026-01-24 | Compliance Team | Closed POAM-012 (3.5.8 - Prohibit Password Reuse). Password history implementation completed and verified. |
+| 2026-01-23 | Compliance Team | Updated POA&M items to reflect current implementation status. Added POAM-011 (3.5.6), POAM-012 (3.5.8), and POAM-013 (3.7.2) for remaining not-implemented controls |
+| 2026-01-23 | Compliance Team | Initial POA&M items identified during Level 2 migration planning |
 
 ---
 

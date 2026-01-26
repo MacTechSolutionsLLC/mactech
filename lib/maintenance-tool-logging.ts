@@ -30,7 +30,7 @@ export async function logMaintenanceToolAccess(
     userEmail,
     success,
     'system',
-    null,
+    undefined,
     {
       toolName,
       toolVersion,
@@ -67,7 +67,7 @@ export async function logMaintenanceToolOperation(
     userEmail,
     success,
     'system',
-    null,
+    undefined,
     {
       toolName,
       toolVersion,

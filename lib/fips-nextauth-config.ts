@@ -7,7 +7,7 @@
  */
 
 import { encodeFIPSJWT, decodeFIPSJWT, verifyFIPSBeforeJWT } from './fips-jwt'
-import type { JWT, JWTOptions } from 'next-auth/jwt'
+import type { JWT, JWTOptions, JWTEncodeParams, JWTDecodeParams } from 'next-auth/jwt'
 
 /**
  * Custom JWT encode function using FIPS-validated cryptography
@@ -75,22 +75,43 @@ export async function decodeFIPSJWTForNextAuth(
  * })
  * ```
  */
-export function getFIPSJWTConfig() {
-  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
-  
-  if (!secret) {
-    throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
+export function getFIPSJWTConfig(): Partial<JWTOptions> {
+  // Get secret at runtime (not at module load time)
+  // This allows the build to succeed even if AUTH_SECRET is not set during build
+  const getSecret = () => {
+    return process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
   }
   
   // NextAuth.js v5 JWT configuration format
+  // Note: NextAuth.js v5 uses JWTEncodeParams and JWTDecodeParams
   return {
-    encode: async ({ token, secret: jwtSecret, maxAge }: { token: JWT; secret?: string; maxAge?: number }) => {
-      const secretToUse = jwtSecret || secret
+    encode: async (params: JWTEncodeParams<JWT>): Promise<string> => {
+      // Get secret at runtime
+      const secret = getSecret()
+      if (!secret) {
+        throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
+      }
+      
+      // Handle optional token (default to empty object if not provided)
+      const token = params.token || ({} as JWT)
+      const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
+      const maxAge = params.maxAge
+      
       return encodeFIPSJWTForNextAuth(token, secretToUse, maxAge)
     },
-    decode: async ({ token, secret: jwtSecret }: { token: string; secret?: string }) => {
-      const secretToUse = jwtSecret || secret
-      return decodeFIPSJWTForNextAuth(token, secretToUse)
+    decode: async (params: JWTDecodeParams): Promise<JWT | null> => {
+      if (!params.token) {
+        return null
+      }
+      
+      // Get secret at runtime
+      const secret = getSecret()
+      if (!secret) {
+        throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set')
+      }
+      
+      const secretToUse = Array.isArray(params.secret) ? params.secret[0] : params.secret
+      return decodeFIPSJWTForNextAuth(params.token, secretToUse)
     },
   }
 }
