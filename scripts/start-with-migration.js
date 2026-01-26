@@ -138,12 +138,14 @@ try {
   console.log('📋 Running POA&M status migration...');
   execSync('npx tsx scripts/migrate-poam-statuses.ts', {
     stdio: 'inherit',
-    env: { ...process.env }
+    env: { ...process.env },
+    timeout: 60000 // 60 second timeout
   });
   console.log('✅ POA&M status migration completed successfully');
 } catch (error) {
   // Migration is idempotent, so errors are non-fatal
   console.log('ℹ️  POA&M status migration:', error.message.includes('Error') ? error.message : 'completed or skipped');
+  console.log('⚠️  Continuing with server start despite migration warning...');
 }
 
 // Check if this is a Railway cron run for inactivity disablement
@@ -196,31 +198,55 @@ const port = process.env.PORT || 3000;
 const nextPath = require.resolve('next/dist/bin/next');
 console.log(`📦 Next.js path: ${nextPath}`);
 
+console.log('🚀 Spawning Next.js server process...');
 const server = spawn('node', [nextPath, 'start', '-p', port.toString()], {
   stdio: 'inherit',
   env: { ...process.env },
-  cwd: process.cwd()
-});
-
-server.on('error', (error) => {
-  console.error('❌ Failed to start server:', error);
-  console.error('Error details:', error.message, error.stack);
-  process.exit(1);
-});
-
-server.on('exit', (code, signal) => {
-  if (code !== null && code !== 0) {
-    console.error(`❌ Server exited with code ${code}${signal ? ` and signal ${signal}` : ''}`);
-  } else {
-    console.log(`✅ Server exited normally${signal ? ` with signal ${signal}` : ''}`);
-  }
-  process.exit(code || 0);
+  cwd: process.cwd(),
+  detached: false
 });
 
 // Log when server starts
 server.on('spawn', () => {
   console.log('✅ Next.js server process spawned successfully');
   console.log(`🌐 Server should be available on port ${port}`);
+  console.log(`📝 Server PID: ${server.pid}`);
+});
+
+server.on('error', (error) => {
+  console.error('❌ Failed to start server:', error);
+  console.error('Error details:', error.message);
+  if (error.stack) {
+    console.error('Stack trace:', error.stack);
+  }
+  console.error('⚠️  This is a fatal error - service cannot start');
+  process.exit(1);
+});
+
+server.on('exit', (code, signal) => {
+  if (code !== null && code !== 0) {
+    console.error(`❌ Server exited unexpectedly with code ${code}${signal ? ` and signal ${signal}` : ''}`);
+    console.error('⚠️  This will cause 502 errors - server is not running');
+    process.exit(code);
+  } else if (signal) {
+    console.log(`📴 Server terminated by signal: ${signal}`);
+    // Don't exit on SIGTERM/SIGINT - let Railway handle it
+    if (signal === 'SIGTERM' || signal === 'SIGINT') {
+      console.log('ℹ️  Graceful shutdown requested - exiting');
+      process.exit(0);
+    }
+  } else {
+    console.log(`✅ Server exited normally with code ${code || 0}`);
+    process.exit(code || 0);
+  }
+});
+
+// Keep process alive - don't exit when server exits unless it's an error
+process.on('beforeExit', (code) => {
+  console.log(`⚠️  Process about to exit with code ${code}`);
+  if (code !== 0) {
+    console.error('❌ Non-zero exit code indicates an error occurred');
+  }
 });
 
 // Handle termination signals
