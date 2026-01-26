@@ -5,6 +5,25 @@
  * rather than during build time when services might not be connected.
  */
 
+// Immediate logging to ensure we can see the script started
+// Use process.stdout.write to ensure immediate output
+process.stdout.write('='.repeat(60) + '\n');
+process.stdout.write('🚀 STARTUP SCRIPT STARTED\n');
+process.stdout.write(`⏰ Timestamp: ${new Date().toISOString()}\n`);
+process.stdout.write(`📦 Node version: ${process.version}\n`);
+process.stdout.write(`📁 Working directory: ${process.cwd()}\n`);
+process.stdout.write(`🔧 Process ID: ${process.pid}\n`);
+process.stdout.write(`🌍 Environment: ${process.env.NODE_ENV || 'not set'}\n`);
+process.stdout.write(`🔑 PORT: ${process.env.PORT || 'not set'}\n`);
+process.stdout.write('='.repeat(60) + '\n');
+process.stdout.write('\n');
+
+// Ensure output is flushed
+if (process.stdout.isTTY) {
+  process.stdout.cork();
+  process.stdout.uncork();
+}
+
 const { execSync } = require('child_process');
 const { spawn } = require('child_process');
 
