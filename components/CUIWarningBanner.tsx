@@ -1,6 +1,6 @@
 /**
  * CUI Warning Banner Component
- * Displays warning about CUI prohibition on forms where users enter data
+ * Displays warning about prohibited information types on forms where users enter data
  */
 
 export default function CUIWarningBanner() {
@@ -23,7 +23,7 @@ export default function CUIWarningBanner() {
         </div>
         <div className="ml-3">
           <p className="text-sm text-yellow-700">
-            <strong className="font-medium">WARNING:</strong> Do not enter CUI, ITAR, or classified information. This system handles FCI only.
+            <strong className="font-medium">WARNING:</strong> Do not enter ITAR or classified information. This system handles FCI and CUI only.
           </p>
         </div>
       </div>
