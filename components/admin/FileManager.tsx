@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import CUIWarningBanner from '@/components/CUIWarningBanner'
 import ComplianceFileBrowser from './ComplianceFileBrowser'
-import CUIPasswordPrompt from '@/components/CUIPasswordPrompt'
+import CUIFileViewerModal from '@/components/CUIFileViewerModal'
 
 interface File {
   id: string
@@ -63,8 +63,12 @@ export default function FileManager({ files }: FileManagerProps) {
   const [isFCI, setIsFCI] = useState(false)
   const [cuiFiles, setCuiFiles] = useState<CUIFile[]>([])
   const [fciFiles, setFciFiles] = useState<FCIFile[]>([])
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const [selectedCUIFile, setSelectedCUIFile] = useState<{ id: string; filename: string } | null>(null)
+  const [showViewerModal, setShowViewerModal] = useState(false)
+  const [viewerFileData, setViewerFileData] = useState<string | null>(null)
+  const [viewerMimeType, setViewerMimeType] = useState<string>('')
+  const [viewerFileSize, setViewerFileSize] = useState<number>(0)
+  const [loadingView, setLoadingView] = useState(false)
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
   const systemFiles = files
@@ -199,9 +203,36 @@ export default function FileManager({ files }: FileManagerProps) {
     }
   }
 
-  const handleCUIDownload = (fileId: string, filename: string) => {
+  const handleCUIView = async (fileId: string, filename: string) => {
     setSelectedCUIFile({ id: fileId, filename })
-    setShowPasswordPrompt(true)
+    setLoadingView(true)
+    
+    try {
+      // Fetch CUI file directly (no password required)
+      const response = await fetch(`/api/files/cui/${fileId}`)
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to load CUI file')
+      }
+
+      const data = await response.json()
+      
+      if (!data.data || !data.mimeType) {
+        throw new Error('Invalid response from server')
+      }
+
+      // Show viewer modal with file data
+      setViewerFileData(data.data)
+      setViewerMimeType(data.mimeType)
+      setViewerFileSize(data.size || 0)
+      setShowViewerModal(true)
+    } catch (err: any) {
+      console.error('Error loading CUI file:', err)
+      alert(err.message || 'Failed to load CUI file')
+    } finally {
+      setLoadingView(false)
+    }
   }
 
   const handleDeleteCUIFile = async (fileId: string, filename: string) => {
@@ -599,10 +630,11 @@ export default function FileManager({ files }: FileManagerProps) {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleCUIDownload(file.id, file.filename)}
-                            className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200"
+                            onClick={() => handleCUIView(file.id, file.filename)}
+                            disabled={loadingView}
+                            className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50"
                           >
-                            Download
+                            {loadingView ? 'Loading...' : 'View'}
                           </button>
                           <button
                             onClick={() => handleDeleteCUIFile(file.id, file.filename)}
@@ -636,17 +668,20 @@ export default function FileManager({ files }: FileManagerProps) {
         </Suspense>
       )}
 
-      {/* CUI Password Prompt Modal */}
-      {showPasswordPrompt && selectedCUIFile && (
-        <CUIPasswordPrompt
+      {/* CUI File Viewer Modal */}
+      {showViewerModal && selectedCUIFile && viewerFileData && (
+        <CUIFileViewerModal
           fileId={selectedCUIFile.id}
           filename={selectedCUIFile.filename}
-          onSuccess={() => {
-            setShowPasswordPrompt(false)
-            setSelectedCUIFile(null)
-          }}
-          onCancel={() => {
-            setShowPasswordPrompt(false)
+          fileData={viewerFileData}
+          mimeType={viewerMimeType}
+          size={viewerFileSize}
+          isOpen={showViewerModal}
+          onClose={() => {
+            setShowViewerModal(false)
+            setViewerFileData(null)
+            setViewerMimeType('')
+            setViewerFileSize(0)
             setSelectedCUIFile(null)
           }}
         />

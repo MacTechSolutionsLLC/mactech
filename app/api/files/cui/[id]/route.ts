@@ -6,8 +6,9 @@ import { prisma } from "@/lib/prisma"
 
 /**
  * GET /api/files/cui/[id]
- * Download CUI file with password protection
- * Requires authentication and password verification
+ * View CUI file (view-only, no download)
+ * Requires authentication (password prompt removed per security requirements)
+ * Returns JSON with base64-encoded file data for modal viewing
  */
 export async function GET(
   req: NextRequest,
@@ -16,27 +17,16 @@ export async function GET(
   try {
     const session = await requireAuth()
     const { id } = await context.params
-    
-    // Get password from query parameter or request body
-    const searchParams = req.nextUrl.searchParams
-    const password = searchParams.get("password")
-    
-    if (!password) {
-      return NextResponse.json(
-        { error: "Password required for CUI file access" },
-        { status: 400 }
-      )
-    }
 
-    // Get CUI file with password verification
+    // Get CUI file (password verification removed - access control via authentication)
     const file = await getCUIFile(
       id,
-      password,
+      undefined, // No password required
       session.user.id,
       session.user.role
     )
 
-    // Log CUI file download
+    // Log CUI file view (not download)
     await logFileDownload(
       session.user.id,
       session.user.email || "unknown",
@@ -55,26 +45,30 @@ export async function GET(
       {
         filename: file.filename,
         fileId: file.id,
-        message: `CUI file accessed: ${file.filename}`,
+        message: `CUI file viewed: ${file.filename}`,
+        accessType: "view_only",
       }
     )
 
-    // Return file with appropriate headers
-    const buffer = Buffer.from(file.data)
-    const arrayBuffer = buffer.buffer.slice(
-      buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength
-    ) as ArrayBuffer
+    // Convert file data to base64 for JSON response
+    const base64Data = Buffer.from(file.data).toString('base64')
     
-    return new NextResponse(arrayBuffer, {
+    // Return JSON with cache control headers to prevent browser caching
+    return NextResponse.json({
+      data: base64Data,
+      filename: file.filename,
+      mimeType: file.mimeType,
+      size: file.size
+    }, {
       headers: {
-        "Content-Type": file.mimeType,
-        "Content-Disposition": `attachment; filename="${file.filename}"`,
-        "Content-Length": file.size.toString(),
-      },
+        'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Content-Type-Options': 'nosniff',
+      }
     })
   } catch (error: any) {
-    console.error("CUI file download error:", error)
+    console.error("CUI file view error:", error)
     
     // Log failed access attempt
     try {
@@ -97,7 +91,7 @@ export async function GET(
     }
     
     return NextResponse.json(
-      { error: error.message || "CUI file download failed" },
+      { error: error.message || "CUI file view failed" },
       { status: error.message?.includes("not found") ? 404 : 
                error.message?.includes("password") ? 403 : 403 }
     )

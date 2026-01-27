@@ -377,14 +377,12 @@ export async function storeCUIFile(
  */
 export async function getCUIFile(
   fileId: string,
-  password: string,
+  password?: string,
   userId?: string,
   userRole?: string
 ) {
-  // Verify password first
-  if (!verifyCUIPassword(password)) {
-    throw new Error("Invalid CUI password")
-  }
+  // Password verification is optional (removed per security requirements)
+  // Access control is handled via authentication and role-based access
 
   // Get file metadata from local database
   const file = await prisma.storedCUIFile.findUnique({

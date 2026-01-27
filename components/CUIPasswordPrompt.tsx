@@ -5,14 +5,14 @@ import { useState } from 'react'
 interface CUIPasswordPromptProps {
   fileId: string
   filename: string
-  onSuccess: () => void
+  onView: (fileData: string, mimeType: string, size: number) => void
   onCancel: () => void
 }
 
 export default function CUIPasswordPrompt({
   fileId,
   filename,
-  onSuccess,
+  onView,
   onCancel,
 }: CUIPasswordPromptProps) {
   const [password, setPassword] = useState('')
@@ -25,7 +25,7 @@ export default function CUIPasswordPrompt({
     setLoading(true)
 
     try {
-      // Call CUI download API with password
+      // Call CUI view API with password (returns JSON, not download)
       const response = await fetch(`/api/files/cui/${fileId}?password=${encodeURIComponent(password)}`)
       
       if (!response.ok) {
@@ -33,22 +33,17 @@ export default function CUIPasswordPrompt({
         throw new Error(data.error || 'Invalid password')
       }
 
-      // Get the file blob
-      const blob = await response.blob()
+      // Get JSON response with file data
+      const data = await response.json()
       
-      // Create download link
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      if (!data.data || !data.mimeType) {
+        throw new Error('Invalid response from server')
+      }
 
-      onSuccess()
+      // Call onView callback with file data
+      onView(data.data, data.mimeType, data.size || 0)
     } catch (err: any) {
-      setError(err.message || 'Failed to download CUI file')
+      setError(err.message || 'Failed to view CUI file')
       setPassword('') // Clear password on error
     } finally {
       setLoading(false)
@@ -102,7 +97,7 @@ export default function CUIPasswordPrompt({
               disabled={loading || !password}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Verifying...' : 'Access File'}
+              {loading ? 'Verifying...' : 'View File'}
             </button>
           </div>
         </form>
