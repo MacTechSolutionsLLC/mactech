@@ -215,10 +215,10 @@ This document provides a summary of security control implementation at the desig
 - **3.13.1 (Monitor/control/protect communications):** Inherited from Railway platform (network security)
 - **3.13.5 (Implement subnetworks):** Inherited from Railway platform (network segmentation)
 - **3.13.6 (Deny-by-default network communications):** Inherited from Railway platform (network controls)
-- **3.13.8 (Cryptographic mechanisms for CUI in transit):** Inherited from Railway platform (TLS/HTTPS)
+- **3.13.8 (Cryptographic mechanisms for CUI in transit):** Implemented via CUI vault TLS 1.3 (FIPS-validated)
 - **3.13.9 (Terminate network connections):** Inherited from Railway platform (connection management)
 - **3.13.15 (Protect authenticity of communications):** Inherited from Railway platform (TLS authentication)
-- **3.13.16 (Protect CUI at rest):** Inherited from Railway platform (database encryption)
+- **3.13.16 (Protect CUI at rest):** Implemented via CUI vault database encryption (FIPS-validated)
 
 **Not Applicable Controls:**
 - **3.13.7 (Prevent remote device dual connections):** Not applicable (all access remote, no non-remote connections)

@@ -144,7 +144,7 @@ Controls were flagged for review if they met any of these criteria:
 **Controls:**
 1. **3.1.19** - Encrypt CUI on mobile devices
    - **Score:** 90%
-   - **Implementation:** Cloud-based (CUI encrypted at rest via Railway, password-protected access, no local CUI storage)
+   - **Implementation:** Cloud-based (CUI encrypted at rest via CUI vault FIPS-validated, password-protected access, no local CUI storage)
    - **Status:** ✅ Valid - Implementation is appropriate for cloud-only architecture
    - **Issue:** Generic references in implementation column need better documentation
 

@@ -191,7 +191,7 @@ Incident response design aligns with FedRAMP Moderate IR family expectations thr
 | CP-2 (Contingency Plan) | 3.6.1 (recovery procedures) | CMMC Level 2 | ✅ Implemented | MAC-POL-215, IRP includes recovery, MAC-IT-304 Section 7.9 |
 | CP-3 (Contingency Training) | 3.6.1 | CMMC Level 2 | ✅ Implemented | MAC-POL-215, IR training, MAC-IT-304 Section 7.9 |
 | CP-4 (Contingency Plan Testing) | 3.6.3 | CMMC Level 2 | ✅ Implemented | MAC-POL-215, MAC-SOP-232, IR testing, MAC-IT-304 Section 7.9 |
-| CP-6 (Alternate Storage Site) | 3.8.9 (backup CUI) | CMMC Level 2 | 🔄 Inherited | MAC-POL-213, Railway platform backups, MAC-IT-304 Section 7.6 |
+| CP-6 (Alternate Storage Site) | 3.8.9 (backup CUI) | CMMC Level 2 | ✅ Implemented | MAC-POL-213, CUI vault backups (FIPS-validated), MAC-IT-304 Section 7.6 |
 | CP-7 (Alternate Processing Site) | N/A | CMMC Level 2 | Design consideration | Railway platform redundancy |
 | CP-9 (System Backup) | 3.8.9 | CMMC Level 2 | 🔄 Inherited | MAC-POL-213, Railway platform, MAC-IT-304 Section 7.6 |
 | CP-10 (System Recovery and Reconstitution) | 3.6.1 (recovery procedures) | CMMC Level 2 | ✅ Implemented | MAC-POL-215, IRP recovery procedures, MAC-IT-304 Section 7.9 |

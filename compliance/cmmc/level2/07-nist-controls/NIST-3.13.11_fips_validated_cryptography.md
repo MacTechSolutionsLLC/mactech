@@ -224,7 +224,12 @@ dpkg -l | grep openssl-fips
 
 ### POA&M Information
 
-**POA&M Item:** POAM-008 - FIPS-validated cryptography (3.13.11)
+**POA&M Status:** ✅ **REMEDIATED** - POAM-008 has been fully remediated (2026-01-26)
+
+**Remediation Summary:**
+- CUI protection is fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
+- CUI vault TLS 1.3 and database encryption both use FIPS-validated cryptography
+- All CUI in transit and at rest is protected with FIPS-validated cryptography
 
 **POA&M Document:**  
 `../04-self-assessment/MAC-AUD-405_POA&M_Tracking_Log.md`

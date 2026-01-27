@@ -59,14 +59,12 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 │  │ Control: 3.13.16 (Protect CUI at rest)                                │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
-│  │ Secondary: PostgreSQL Database (Railway)                            │  │
-│  │ - Table: StoredCUIFile                                               │  │
-│  │ - Encryption at rest (Railway platform)                              │  │
-│  │ - Separate from FCI files (StoredFile table)                         │  │
-│  │ - Password protection mechanism                                       │  │
+│  │ Secondary: PostgreSQL Database (Railway) - METADATA ONLY            │  │
+│  │ - Table: StoredCUIFile (metadata only, not CUI content)              │  │
+│  │ - Stores: filename, size, mimeType, uploader info, access control    │  │
+│  │ - Legacy files: Backward compatibility only                          │  │
+│  │ - Note: Railway infrastructure is PROHIBITED from CUI storage       │  │
 │  │ - Access control: Admin role or file owner only                      │  │
-│  │ Control: 3.8.2 (Limit access to CUI on system media)                 │  │
-│  │ Control: 3.13.11 (FIPS-validated cryptography for CUI)              │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
        │
@@ -159,12 +157,13 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 - TLS 1.3 encryption for data in transit (AES-256-GCM-SHA384)
 - Google Cloud Platform disk encryption at rest
 
-**Metadata Storage (Railway Platform):**
+**Metadata Storage (Railway Platform - Metadata Only):**
 - Database table: `prisma/schema.prisma` (StoredCUIFile model)
 - Storage function: `lib/file-storage.ts` (`storeCUIFile`)
 - Purpose: Stores file metadata, access control data, and provides backward compatibility for legacy files
 - New CUI files are stored in CUI vault; this table stores metadata and legacy files only
-- Encryption: Railway PostgreSQL encryption at rest (inherited control)
+- Encryption: Railway PostgreSQL encryption at rest (for metadata only, not CUI content)
+- Note: Railway infrastructure is PROHIBITED from CUI storage per system boundary
 
 **Security Controls:**
 - **3.8.2 (Limit access to CUI on system media):** CUI stored separately from FCI, access-controlled (both CUI vault and application database)
@@ -242,7 +241,7 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 |------------|--------------|---------------|----------------|
 | 3.1.3 | Control CUI flow | Ingress, Processing, Egress | CUI routing, access control, password protection |
 | 3.8.2 | Limit access to CUI on system media | Storage, Processing, Egress, Destruction | Separate table, role-based access, secure deletion |
-| 3.13.11 | FIPS-validated cryptography | Storage, Egress | Database encryption at rest, HTTPS/TLS in transit |
+| 3.13.11 | FIPS-validated cryptography | Storage, Egress | CUI vault database encryption (FIPS-validated), CUI vault TLS 1.3 (FIPS-validated) |
 | 3.5.3 | Multifactor authentication | Ingress, Processing, Egress | MFA required for all users |
 | 3.5.1 | Identify users | All points | NextAuth.js authentication |
 | 3.3.1 | Audit logging | All points | Comprehensive audit logging |

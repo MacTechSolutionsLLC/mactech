@@ -130,7 +130,7 @@ Sensitive data (FCI and CUI) may be accessed, disclosed, or exfiltrated by unaut
 
 **Mitigating Controls:**
 - **Access Control (3.1.1, 3.1.2, 3.1.3):** Access to data restricted to authorized users; CUI flow controlled
-- **Data Encryption (3.13.8, 3.13.16):** Data encrypted in transit (TLS/HTTPS) and at rest (database encryption)
+- **Data Encryption (3.13.8, 3.13.16):** CUI encrypted in transit (CUI vault TLS 1.3, FIPS-validated) and at rest (CUI vault database encryption, FIPS-validated)
 - **CUI Protection (3.1.19, 3.1.21, 3.1.22):** CUI files stored separately with password protection; portable storage limited
 - **Audit Logging (3.3.1, 3.3.2):** All data access logged and monitored
 - **Media Protection (3.8.1, 3.8.2, 3.8.7):** System media protected; removable media controlled

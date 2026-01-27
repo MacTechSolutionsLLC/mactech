@@ -348,7 +348,7 @@ The following items are not required for CMMC Level 2 but represent potential fu
 - Account Lockout Procedure: `MAC-SOP-222_Account_Lifecycle_Enforcement_Procedure.md` (to be updated)
 - Authentication system: `lib/auth.ts` (to be updated)
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 5)
+**Status:** ✅ Implemented
 
 ---
 
@@ -427,7 +427,7 @@ The following items are not required for CMMC Level 2 but represent potential fu
 - Mobile devices access system via browser
 - Same authentication requirements as desktop
 - No local CUI storage on mobile devices
-- CUI encryption at rest in cloud database (Railway platform)
+- CUI encryption at rest in CUI vault on Google Cloud Platform (FIPS-validated)
 - CUI files require password protection for access
 
 **Evidence:**

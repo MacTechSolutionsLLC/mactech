@@ -22,9 +22,9 @@ This document describes physical environment and remote work controls for access
 
 ### 2.1 Cloud-Based System
 
-**Architecture:** The MacTech Solutions system is a cloud-based application hosted on Railway platform. All FCI and CUI is stored in a PostgreSQL database hosted on Railway cloud infrastructure.
+**Architecture:** The MacTech Solutions system is a cloud-based application hosted on Railway platform. All FCI is stored in a PostgreSQL database hosted on Railway cloud infrastructure. All CUI is stored exclusively in the CUI vault on Google Cloud Platform (FIPS-validated). Railway infrastructure is prohibited from CUI processing.
 
-**FCI/CUI Storage Location:** All FCI and CUI is stored in the cloud database. **No FCI or CUI is stored on local devices.**
+**FCI/CUI Storage Location:** All FCI is stored in the Railway cloud database. All CUI is stored exclusively in the CUI vault on Google Cloud Platform. **No FCI or CUI is stored on local devices.**
 
 **Access Method:** Users access the system via web browser over HTTPS/TLS. Access is logical (network-based) only. No local FCI storage occurs.
 

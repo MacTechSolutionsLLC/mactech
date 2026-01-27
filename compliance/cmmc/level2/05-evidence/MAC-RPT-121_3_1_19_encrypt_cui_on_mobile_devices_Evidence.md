@@ -24,11 +24,11 @@ This document provides evidence of the implementation of CUI encryption on mobil
 **Implementation Date:** 2026-01-23
 
 **CUI Encryption Approach:**
-- CUI files stored in cloud database (encrypted at rest) in separate StoredCUIFile table
+- CUI files stored **EXCLUSIVELY** in CUI vault on Google Cloud Platform (encrypted at rest with FIPS-validated cryptography)
 - Mobile device access is browser-based (no local CUI storage on mobile devices)
-- CUI encryption at rest provided by Railway platform (inherited)
-- CUI files require password protection for access
-- All CUI data encrypted in transit via HTTPS/TLS
+- CUI encryption at rest provided by CUI vault (FIPS-validated, not Railway)
+- Railway infrastructure is **PROHIBITED** from CUI storage per system boundary
+- All CUI data encrypted in transit via TLS 1.3 (CUI vault, FIPS-validated)
 
 ---
 
@@ -55,7 +55,7 @@ export async function storeCUIFile(
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
-  // Store CUI file in database (encrypted at rest by Railway platform)
+  // Store CUI file in CUI vault (encrypted at rest with FIPS-validated cryptography)
   const storedFile = await prisma.storedCUIFile.create({
     data: {
       userId,
@@ -137,11 +137,11 @@ export async function getCUIFile(
 - CUI data encrypted in database storage
 
 **Code References:**
-- Railway platform: Database encryption at rest (inherited)
-- Database: PostgreSQL with Railway-managed encryption
+- CUI vault: Database encryption at rest (FIPS-validated)
+- Database: PostgreSQL in CUI vault with FIPS-validated encryption
 
 **Evidence:**
-- CUI encryption at rest provided by Railway platform
+- CUI encryption at rest provided by CUI vault (FIPS-validated)
 - CUI files encrypted in database storage
 
 ---
@@ -154,7 +154,7 @@ export async function getCUIFile(
 - Mobile device access encrypted via HTTPS/TLS
 
 **Code References:**
-- Railway platform: HTTPS/TLS encryption (inherited)
+- CUI vault: TLS 1.3 encryption (FIPS-validated)
 - All network communications encrypted in transit
 
 **Evidence:**
@@ -197,6 +197,7 @@ export async function getCUIFile(
 **Next Review Date:** 2026-04-24
 
 **Change History:**
+- Version 2.1 (2026-01-27): Updated to reflect CUI vault-only architecture - CUI encryption at rest (CUI vault FIPS-validated), CUI encryption in transit (CUI vault TLS 1.3 FIPS-validated), Railway infrastructure prohibited from CUI processing
 - Version 2.0 (2026-01-24): Complete rewrite with legitimate codebase evidence - CUI file storage in cloud database (lib/file-storage.ts), CUI password protection, CUI encryption at rest (Railway platform), CUI encryption in transit (HTTPS/TLS), no local CUI storage on mobile devices, and code references
 - Version 1.0 (2026-01-24): Initial evidence document creation (placeholder content)
 

@@ -37,7 +37,8 @@ This document provides evidence of the implementation of controls to limit the u
 ### 3.1 Cloud-Based Storage
 
 **Database Storage:**
-- All FCI and CUI stored in PostgreSQL database (Railway platform)
+- All FCI stored in PostgreSQL database (Railway platform)
+- All CUI stored exclusively in CUI vault on Google Cloud Platform (FIPS-validated)
 - Database location: Railway cloud platform
 - No local file storage of FCI or CUI
 - No portable storage device access to FCI or CUI

@@ -138,7 +138,8 @@ The following components are explicitly out of scope:
   - API key authentication
   - TLS 1.3 encryption (AES-256-GCM-SHA384)
   - Google Cloud Platform disk encryption at rest
-- Secondary: PostgreSQL `StoredCUIFile` table (Railway managed service)
+- Primary: CUI vault PostgreSQL database on Google Cloud Platform (FIPS-validated encryption)
+- Secondary: Railway PostgreSQL `StoredCUIFile` table (metadata only, not CUI content)
   - Encryption: Database encryption at rest (inherited from Railway)
   - Access: Password-protected access in addition to authentication
 - No CUI stored on removable media

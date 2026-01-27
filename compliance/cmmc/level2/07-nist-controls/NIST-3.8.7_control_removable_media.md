@@ -63,7 +63,8 @@ The organization implements control of removable media through explicit policy p
    - Application does not provide direct file system access to CUI data
 
 3. **Database Storage Architecture:**
-   - All FCI and CUI is stored in cloud-based PostgreSQL database (Railway platform)
+   - All FCI is stored in cloud-based PostgreSQL database (Railway platform)
+   - All CUI is stored exclusively in CUI vault on Google Cloud Platform (FIPS-validated)
    - No local file storage of FCI/CUI
    - No removable media storage of FCI/CUI
    - Database access restricted to application layer

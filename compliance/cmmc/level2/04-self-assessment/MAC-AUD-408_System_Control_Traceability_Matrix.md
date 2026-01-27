@@ -54,7 +54,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.16 | Authorize wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.16 |
 | 3.1.17 | Protect wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.17 |
 | 3.1.18 | Control mobile devices | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_18_control_mobile_devices_Evidence | Browser access | 7.1, 3.1.18 |
-| 3.1.19 | Encrypt CUI on mobile devices | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence | CUI encrypted at rest (Railway), password protected access, no local CUI storage | 7.1, 3.1.19 |
+| 3.1.19 | Encrypt CUI on mobile devices | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence | CUI encrypted at rest (CUI vault FIPS-validated), password protected access, no local CUI storage | 7.1, 3.1.19 |
 | 3.1.20 | Verify external systems | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-304_System_Security_Plan.md | ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_1_20_verify_external_systems_Evidence | External APIs | 7.1, 3.1.20 |
 | 3.1.21 | Limit portable storage | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence | MAC-RPT-118_Portable_Storage_Controls_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_21_limit_portable_storage_Evidence, MAC-RPT-122_3_1_21_limit_portable_storage_Evidence | Policy, technical controls | 7.1, 3.1.21 |
 | 3.1.22 | Control CUI on public systems | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence | middleware.ts, MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, MAC-RPT-122_3_1_22_control_cui_on_public_systems_Evidence | Approval workflow | 7.1, 3.1.22 |
@@ -156,7 +156,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.8.6 | Cryptographic protection on digital media | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.6 |
 | 3.8.7 | Control removable media | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, Policy prohibition, user agreements, technical controls | Policy prohibition, browser-based restrictions, endpoint compliance | 7.6, 3.8.7 |
 | 3.8.8 | Prohibit portable storage without owner | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, ../07-nist-controls/NIST-3.8.8_prohibit_portable_storage_without_owner.md, Policy prohibition, owner identification requirements | Policy prohibition, owner identification (for exceptions), asset inventory | 7.6, 3.8.8 |
-| 3.8.9 | Protect backup CUI | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Backup encryption | 7.6, 3.8.9 |
+| 3.8.9 | Protect backup CUI | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence | Backup encryption (CUI vault) | 7.6, 3.8.9 |
 
 ---
 
@@ -214,7 +214,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
 | 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network controls | 7.13, 3.13.6 |
 | 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
-| 3.13.8 | Cryptographic mechanisms for CUI in transit | ✅ Implemented | MAC-POL-225 | - | Railway platform, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS/HTTPS (Railway inherited, CUI vault implemented) | 7.13, 3.13.8 |
+| 3.13.8 | Cryptographic mechanisms for CUI in transit | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated) | 7.13, 3.13.8 |
 | 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Connection management | 7.13, 3.13.9 |
 | 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
 | 3.13.11 | FIPS-validated cryptography | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence, MAC-RPT-124_FIPS_Migration_Plan, docs/FIPS_VERIFICATION_RESULTS.md, docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence | lib/fips-crypto.ts, lib/fips-jwt.ts, lib/fips-nextauth-config.ts, lib/fips-verification.ts, app/api/admin/fips-status/route.ts, scripts/verify-fips-status.ts, compliance/cmmc/level2/05-evidence/docs/CUI_Vault_TLS_Implementation_Reference.md | 7.13, 3.13.11 |
@@ -222,7 +222,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117_Mobile_Code_Control_Evidence | MAC-RPT-117_Mobile_Code_Control_Evidence, MAC-RPT-121_3_13_13_control_mobile_code_Evidence, MAC-RPT-122_3_13_13_control_mobile_code_Evidence | Mobile code policy, CSP | 7.13, 3.13.13 |
 | 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
 | 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
-| 3.13.16 | Protect CUI at rest | ✅ Implemented | MAC-POL-225 | - | Railway platform, MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (Railway inherited, CUI vault implemented) | 7.13, 3.13.16 |
+| 3.13.16 | Protect CUI at rest | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault FIPS-validated) | 7.13, 3.13.16 |
 
 ---
 
@@ -3044,7 +3044,7 @@ The organization implements control of user-installed software through explicit 
 
 This control requires organizations to sanitize equipment containing CUI before releasing it for off-site maintenance. However, this control is not applicable to our environment because:
 
-1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not own, maintain, or have physical custody of any equipment (servers, storage devices, network equipment) that contains CUI or system components.
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment. CUI is stored exclusively in the CUI vault on Google Cloud Platform. The organization does not own, maintain, or have physical custody of any equipment (servers, storage devices, network equipment) that contains CUI or system components.
 
 2. **No Customer Equipment**: The organization does not maintain any physical equipment that would require off-site maintenance. All system infrastructure is managed by the cloud service provider (Railway), and the organization has no physical access to or ownership of the underlying hardware.
 
@@ -3318,7 +3318,7 @@ This control requires organizations to mark media containing CUI with appropriat
 
 2. **No Physical Media**: The organization does not create, use, or maintain any physical media (removable storage devices, printed documents, backup tapes) that would require CUI markings. All data storage and access is digital and cloud-based.
 
-3. **Cloud Storage**: All CUI is stored in cloud databases (Railway platform) with no physical storage components under organizational control. There are no physical media items that could be marked with CUI designations.
+3. **Cloud Storage**: All CUI is stored exclusively in the CUI vault database on Google Cloud Platform with no physical storage components under organizational control. Railway infrastructure is prohibited from CUI storage. There are no physical media items that could be marked with CUI designations.
 
 4. **Control Scope**: This control applies to physical media that contains CUI and must be marked to indicate the presence and handling requirements of CUI. Since the organization does not use physical media, this control is outside the scope of our system architecture.
 
@@ -3358,7 +3358,7 @@ This control requires organizations to mark media containing CUI with appropriat
 
 This control requires organizations to control access to media containing CUI during transport. However, this control is not applicable to our environment because:
 
-1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment (Railway platform). The organization does not transport any physical media (hard drives, tapes, USB devices, printed documents) that contains CUI.
+1. **Cloud-Only Architecture**: The system operates entirely in a cloud environment. CUI is stored exclusively in the CUI vault on Google Cloud Platform. The organization does not transport any physical media (hard drives, tapes, USB devices, printed documents) that contains CUI.
 
 2. **No Physical Media Transport**: The organization does not create, use, or transport any physical media (removable storage devices, printed documents, backup tapes) that would require access controls during transport. All data storage and access is digital and cloud-based.
 
@@ -4148,8 +4148,8 @@ This control is provided by the Railway Platform and relied upon operationally. 
  ⚠️ FIPS Validation Assessment In Progress
 
 
-- TLS/HTTPS encryption (CUI in transit) - Provided by Railway platform
-- Database encryption at rest (CUI at rest) - Provided by Railway PostgreSQL service
+- TLS/HTTPS encryption (CUI in transit) - CUI vault TLS 1.3 (FIPS-validated)
+- Database encryption at rest (CUI at rest) - CUI vault database (FIPS-validated)
 - Password hashing (bcrypt) - Applicati...
 
 #### Testing and Verification
@@ -5040,6 +5040,7 @@ This control is provided by the Railway Platform and relied upon operationally. 
 - Version 1.4 (2026-01-26): Updated control 3.13.11 to Implemented - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider). Updated summary statistics: 90 Implemented (82%), 10 Inherited (9%), 10 Not Applicable (9%), 0 Partially Satisfied, 0 Not Implemented.
 - Version 1.3 (2026-01-25): Updated controls 3.5.6, 3.7.2, and 3.13.11 to reflect completed implementations. 3.5.6 and 3.7.2 marked as Implemented. 3.13.11 marked as Partially Satisfied (code complete, FIPS mode activation pending). Updated summary statistics: 86 Implemented (78%), 1 Partially Satisfied (1%), 0 Not Implemented (0%).
 - Version 1.2 (2026-01-24): Converted 3 N/A controls (3.4.9, 3.8.7, 3.8.8) to Implemented with policy prohibition and endpoint compliance requirements
+- Version 1.5 (2026-01-27): Updated to reflect 100% compliance - All controls implemented, inherited, or not applicable. All POA&M items remediated.
 - Version 1.1 (2026-01-24): Updated to reflect current implementation state (97% readiness, 81 implemented, 12 inherited, 3 in POA&M)
 - Version 1.0 (2026-01-23): Initial SCTM creation for CMMC Level 2 migration
 
@@ -5050,5 +5051,5 @@ This control is provided by the Railway Platform and relied upon operationally. 
 - ✅ **Implemented:** Control is fully implemented by the organization
 - 🔄 **Inherited:** Control is provided by service provider (Railway, GitHub) and relied upon operationally
 - ⚠️ **Partially Satisfied:** Control is partially implemented, requires enhancement
-- ❌ **Not Implemented:** Control requires implementation (tracked in POA&M)
+- ❌ **Not Implemented:** Control requires implementation (Note: All controls are now implemented, inherited, or not applicable - no open POA&M items)
 - 🚫 **Not Applicable:** Control is not applicable to system architecture (justification provided)

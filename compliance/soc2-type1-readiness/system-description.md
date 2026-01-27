@@ -266,7 +266,8 @@ The following components are explicitly out of scope:
 - CUI handling procedures are documented in CMMC policies
 
 **CUI Storage:**
-- Database: PostgreSQL `StoredCUIFile` table (Railway managed service)
+- Database: CUI vault PostgreSQL database on Google Cloud Platform (FIPS-validated encryption)
+- Railway database: Stores CUI metadata only (not CUI content)
 - Encryption: Database encryption at rest (inherited from Railway)
 - Access: Password-protected access in addition to authentication
 - No CUI stored on removable media
