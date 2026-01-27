@@ -568,9 +568,6 @@ export default function FileManager({ files }: FileManagerProps) {
         <>
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <h2 className="text-lg font-semibold text-amber-900 mb-2">CUI Files</h2>
-            <p className="text-sm text-amber-800">
-              Files containing Controlled Unclassified Information (CUI) require password protection for access.
-            </p>
           </div>
 
           <div className="overflow-x-auto">
