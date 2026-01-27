@@ -592,10 +592,50 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 
 ---
 
+### POAM-014: CUI Vault Firewall Configuration
+
+**Deficiency Description:** UFW (Uncomplicated Firewall) is inactive on the CUI vault infrastructure (Google Compute Engine VM), leaving the system without host-based firewall protection as required by NIST SP 800-171 Rev. 2, Section 3.4.2 (Security configuration settings).
+
+**Affected Control:** 3.4.2 - Establish and maintain secure configuration settings for system components
+
+**Planned Remediation:**
+- Configure UFW firewall rules
+- Allow HTTPS (port 443) inbound
+- Allow SSH (port 22) inbound for management
+- Deny all other inbound connections
+- Enable UFW firewall
+- Verify firewall rules are active
+- Document firewall configuration
+
+**Responsible Party:** System Administrator
+
+**Target Completion Date:** 2026-02-03
+
+**Status:** ⚠️ Open
+
+**Priority:** High
+
+**Milestones:**
+- [ ] Configure UFW firewall rules (Week 1)
+- [ ] Allow HTTPS (port 443) inbound (Week 1)
+- [ ] Allow SSH (port 22) inbound (Week 1)
+- [ ] Deny all other inbound connections (Week 1)
+- [ ] Enable UFW firewall (Week 1)
+- [ ] Verify firewall is active (Week 1)
+- [ ] Document firewall configuration (Week 1)
+
+**Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault network security: `../05-evidence/MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md`
+
+**Notes:** UFW firewall is currently inactive on the CUI vault VM. Firewall configuration is required to provide host-based network protection. Google Cloud Platform VPC firewall rules provide network-level protection, but host-based firewall (UFW) should also be enabled for defense-in-depth.
+
+---
+
 ## 4. POA&M Summary
 
-**Total POA&M Items:** 13  
-**Open:** 0  
+**Total POA&M Items:** 14  
+**Open:** 1 (POAM-014 - CUI Vault Firewall Configuration)  
 **In Progress:** 1 (POAM-008 - Code complete, FIPS mode activation pending)  
 **Remediated:** 2 (POAM-011, POAM-013)  
 **Verified:** 0  
@@ -607,8 +647,8 @@ This document tracks all Plans of Action and Milestones (POA&M) items identified
 - POAM-008: FIPS Cryptography Assessment (3.13.11) - ⚠️ In Progress (Code complete, FIPS mode activation pending)
 
 **Priority Breakdown:**
-- High Priority: 1
-- Medium Priority: 12
+- High Priority: 2 (POAM-008, POAM-014)
+- Medium Priority: 11
 - Low Priority: 0
 
 ---

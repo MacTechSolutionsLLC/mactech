@@ -48,13 +48,25 @@
 │     INTERNAL NETWORK SEGMENT (Railway Platform)              │
 │         PostgreSQL Database (Internal Tier)                  │
 │  - FCI storage (GovernmentContractDiscovery, etc.)          │
-│  - CUI storage (contract proposals, SOWs, CUI documents)    │
+│  - CUI storage (StoredCUIFile table - application level)     │
 │  - User accounts & authentication                            │
 │  - Event logs (AppEvent table)                               │
 │  - File storage (StoredFile table - BYTEA)                  │
 │  - Database security capabilities (Railway managed)          │
 │  - Not directly accessible from internet                      │
 └──────────────────────┬──────────────────────────────────────┘
+                       │
+                       │ HTTPS/TLS 1.3 (API Key Auth)
+                       ↓
+┌─────────────────────────────────────────────────────────────┐
+│     CUI VAULT (Google Cloud Platform)                        │
+│         vault.mactechsolutionsllc.com                        │
+│  - Dedicated CUI storage infrastructure                     │
+│  - PostgreSQL database (localhost only)                     │
+│  - AES-256-GCM encrypted CUI records                         │
+│  - API key authentication                                    │
+│  - TLS 1.3 encryption (AES-256-GCM-SHA384)                   │
+└─────────────────────────────────────────────────────────────┘
                        │
                        ↓
 ┌─────────────────────────────────────────────────────────────┐

@@ -9,11 +9,17 @@
 
 ## Current Status
 
-**Verification Results:**
+**Main Application Verification Results:**
 - Runtime: Node.js 24.6.0, OpenSSL 3.6.0
 - CMVP Certificate #4282: OpenSSL FIPS Provider 3.0.8 (Validated)
 - **Status:** OpenSSL 3.6.0 is NOT FIPS-validated
 - **Action Required:** Migration to FIPS-validated version
+
+**CUI Vault Verification Results:**
+- Runtime: OpenSSL 3.0.2 (built Mar 2022)
+- TLS Configuration: TLS 1.3 with TLS_AES_256_GCM_SHA384 (FIPS-compliant cipher suite)
+- **Status:** Cipher suite components are FIPS-approved algorithms (AES-256, GCM, SHA-384)
+- **Action Required:** Verify OpenSSL 3.0.2 FIPS validation status against CMVP database
 
 ---
 

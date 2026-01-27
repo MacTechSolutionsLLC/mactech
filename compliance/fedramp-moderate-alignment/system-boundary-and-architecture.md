@@ -63,12 +63,26 @@ The system boundary encompasses the following components:
 - Audit logs and system events
 - Location: Railway cloud platform (internal network segment)
 
+**CUI Vault Infrastructure:**
+- Dedicated CUI storage infrastructure on Google Compute Engine (GCE)
+- Domain: vault.mactechsolutionsllc.com
+- PostgreSQL database on localhost only (127.0.0.1:5432)
+- AES-256-GCM encrypted CUI records
+- API key authentication
+- TLS 1.3 encryption (AES-256-GCM-SHA384)
+- Location: Google Cloud Platform
+
 **Infrastructure Layer:**
 - Railway cloud platform (hosting infrastructure)
 - Network infrastructure and segmentation
 - TLS/HTTPS termination
 - Database encryption at rest
 - Physical security (inherited from Railway)
+- Google Cloud Platform (CUI vault infrastructure)
+- CUI vault network infrastructure and segmentation
+- CUI vault TLS/HTTPS termination
+- CUI vault database encryption at rest
+- Physical security (inherited from Google Cloud Platform)
 
 **Source Control:**
 - GitHub repository (source code and documentation)
@@ -117,9 +131,15 @@ The following components are explicitly out of scope:
 - CUI handling procedures are documented in CMMC policies
 
 **CUI Storage:**
-- Database: PostgreSQL `StoredCUIFile` table (Railway managed service)
-- Encryption: Database encryption at rest (inherited from Railway)
-- Access: Password-protected access in addition to authentication
+- Primary: CUI vault infrastructure on Google Compute Engine (vault.mactechsolutionsllc.com)
+  - PostgreSQL database on localhost only (127.0.0.1:5432)
+  - AES-256-GCM encrypted CUI records (ciphertext, nonce, tag fields)
+  - API key authentication
+  - TLS 1.3 encryption (AES-256-GCM-SHA384)
+  - Google Cloud Platform disk encryption at rest
+- Secondary: PostgreSQL `StoredCUIFile` table (Railway managed service)
+  - Encryption: Database encryption at rest (inherited from Railway)
+  - Access: Password-protected access in addition to authentication
 - No CUI stored on removable media
 
 **Reference:** See `../cmmc/level2/01-system-scope/MAC-IT-301_System_Description_and_Architecture.md` Section 2 for detailed CUI handling procedures.
@@ -149,36 +169,45 @@ The following components are explicitly out of scope:
 ### 5.2 Data Architecture
 
 **Database:**
-- **Type:** PostgreSQL
-- **Location:** Railway cloud platform (internal network segment)
-- **ORM:** Prisma
-- **Schema:** `prisma/schema.prisma`
+- **Main Application Database:** PostgreSQL (Railway cloud platform, internal network segment)
+- **CUI Vault Database:** PostgreSQL (Google Compute Engine, localhost only)
+- **ORM:** Prisma (main application)
+- **Schema:** `prisma/schema.prisma` (main application)
 
 **Data Models:**
 - User accounts and authentication data
 - FCI data models (GovernmentContractDiscovery, UsaSpendingAward, etc.)
-- CUI data model (StoredCUIFile)
+- CUI data model (StoredCUIFile - main application)
+- CUI vault data model (cui_records table with encrypted fields)
 - Audit logs and system events
 - Configuration and system data
 
 **Data Protection:**
-- Encryption at rest: Inherited from Railway platform
-- Encryption in transit: TLS/HTTPS (inherited from Railway platform)
+- Main application: Encryption at rest inherited from Railway platform
+- Main application: Encryption in transit via TLS/HTTPS (inherited from Railway platform)
+- CUI vault: Multi-layer encryption (AES-256-GCM application-level + Google Cloud disk encryption)
+- CUI vault: Encryption in transit via TLS 1.3 (AES-256-GCM-SHA384)
 - Access controls: Application-layer RBAC and database access controls
 
 ### 5.3 Network Architecture
 
 **Network Segmentation:**
-- **Public Network Segment:** Application tier (Next.js) - publicly accessible via HTTPS
-- **Internal Network Segment:** Database tier (PostgreSQL) - internal access only
-- **Network Boundary:** Managed by Railway platform
+- **Main Application:**
+  - **Public Network Segment:** Application tier (Next.js) - publicly accessible via HTTPS
+  - **Internal Network Segment:** Database tier (PostgreSQL) - internal access only
+  - **Network Boundary:** Managed by Railway platform
+- **CUI Vault:**
+  - **Public Network Segment:** API tier - publicly accessible via HTTPS (vault.mactechsolutionsllc.com)
+  - **Internal Network Segment:** Database tier (PostgreSQL) - localhost only (127.0.0.1:5432)
+  - **Network Boundary:** Managed by Google Cloud Platform VPC
 - **Encryption:** TLS/HTTPS for all external communications
 
 **Network Security:**
-- TLS/HTTPS termination: Inherited from Railway platform
-- DDoS protection: Inherited from Railway platform
-- Firewall rules: Inherited from Railway platform
-- Network segmentation: Logical separation between application and database tiers
+- Main application: TLS/HTTPS termination inherited from Railway platform
+- CUI vault: TLS 1.3 termination (AES-256-GCM-SHA384)
+- DDoS protection: Inherited from Railway platform and Google Cloud Platform
+- Firewall rules: Inherited from Railway platform and Google Cloud Platform (VPC firewall rules)
+- Network segmentation: Logical separation between application and database tiers (both main application and CUI vault)
 
 **Reference:** See `../cmmc/level2/01-system-scope/MAC-IT-301_System_Description_and_Architecture.md` Section 4.5 for network architecture details.
 
@@ -398,6 +427,19 @@ The following components are explicitly out of scope:
 - Connection: Railway platform services
 - Services: Logging, monitoring, deployment
 - Security: Platform-managed access controls
+
+**Application to CUI Vault:**
+- Connection: Public internet (HTTPS/TLS 1.3)
+- Type: REST API calls for CUI storage
+- Data: CUI records (encrypted)
+- Security: TLS 1.3 encryption (AES-256-GCM-SHA384), API key authentication
+- Endpoint: vault.mactechsolutionsllc.com
+
+**CUI Vault Internal:**
+- Connection: Localhost only (127.0.0.1:5432)
+- Protocol: PostgreSQL connection
+- Access: Local process only (no external network access)
+- Security: Database bound to localhost, encrypted CUI records
 
 ### 10.2 External Interconnections
 

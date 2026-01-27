@@ -70,6 +70,56 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 
 ---
 
+### 3.1.1 CUI Vault TLS/HTTPS Encryption (CUI in Transit)
+
+**Implementation:**
+- CUI vault: Dedicated infrastructure on Google Compute Engine (vault.mactechsolutionsllc.com)
+- TLS protocol: TLS 1.3
+- Cipher suite: TLS_AES_256_GCM_SHA384
+- Certificate: Let's Encrypt (CN = vault.mactechsolutionsllc.com)
+- Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+
+**FIPS Validation Evidence - CUI Vault TLS Implementation:**
+
+| Field | Value | Status |
+|-------|-------|--------|
+| **Provider** | CUI Vault (Google Compute Engine) | ✅ Confirmed |
+| **Protocol** | TLS 1.3 | ✅ Confirmed |
+| **Cipher Suite** | TLS_AES_256_GCM_SHA384 | ✅ FIPS-Compliant |
+| **Encryption Algorithm** | AES-256 (FIPS-approved) | ✅ FIPS-Approved |
+| **Mode of Operation** | GCM (FIPS-approved) | ✅ FIPS-Approved |
+| **Hash Algorithm** | SHA-384 (FIPS-approved) | ✅ FIPS-Approved |
+| **OpenSSL Version** | OpenSSL 3.0.2 | ⚠️ FIPS Validation Status Pending |
+| **CMVP Certificate Number** | [To be verified for OpenSSL 3.0.2] | ⚠️ Pending |
+| **FIPS 140-2/140-3 Level** | [To be verified] | ⚠️ Pending |
+| **Validation Date** | [To be verified] | ⚠️ Pending |
+| **NIST CMVP Database Entry** | [To be verified at https://csrc.nist.gov/projects/cryptographic-module-validation-program] | ⚠️ Pending |
+
+**Evidence Collection Status:**
+- **Evidence Required:** OpenSSL 3.0.2 FIPS validation documentation
+- **Documentation Source:** NIST CMVP database
+- **Verification Method:** Cross-reference OpenSSL 3.0.2 with NIST CMVP database
+- **Status:** ⚠️ Pending - OpenSSL 3.0.2 FIPS validation status requires verification
+
+**Current Implementation:**
+- TLS 1.3 protocol in use for all CUI transmission
+- FIPS-compliant cipher suite (TLS_AES_256_GCM_SHA384) - all components are FIPS-approved algorithms
+- Valid SSL certificate with proper certificate chain (Let's Encrypt)
+- Security headers configured (HSTS, X-Frame-Options, etc.)
+
+**Assessment:**
+- TLS 1.3 with FIPS-compliant cipher suite implemented and operational
+- All cipher suite components (AES-256, GCM, SHA-384) are FIPS-approved algorithms
+- OpenSSL 3.0.2 FIPS validation status requires verification against CMVP database
+- CUI vault provides dedicated, isolated infrastructure with strong encryption
+
+**Evidence:**
+- CUI vault deployment: `MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault TLS configuration: `MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
+- CUI vault network security: `MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md`
+
+---
+
 ### 3.2 Database Encryption at Rest (CUI at Rest)
 
 **Implementation:**
@@ -104,6 +154,52 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 - Database encryption at rest implemented and operational
 - FIPS validation evidence collection in progress
 - POA&M item (POAM-008) tracks FIPS validation verification
+
+---
+
+### 3.2.1 CUI Vault Database Encryption at Rest
+
+**Implementation:**
+- CUI vault: Dedicated infrastructure on Google Compute Engine
+- Database encryption: PostgreSQL on localhost with AES-256-GCM encryption
+- Application-level encryption: AES-256-GCM for CUI records (ciphertext, nonce, tag fields)
+- Infrastructure-level encryption: Google Cloud Platform disk encryption at rest
+
+**FIPS Validation Evidence - CUI Vault Database Encryption:**
+
+| Field | Value | Status |
+|-------|-------|--------|
+| **Provider** | Google Cloud Platform + Application-Level | ✅ Confirmed |
+| **Encryption Algorithm** | AES-256-GCM | ✅ FIPS-Approved |
+| **Application-Level** | AES-256-GCM (Python cryptography library) | ✅ FIPS-Approved Algorithm |
+| **Infrastructure-Level** | Google Cloud Platform disk encryption | ⚠️ Pending Verification |
+| **OpenSSL Version** | OpenSSL 3.0.2 | ⚠️ FIPS Validation Status Pending |
+| **CMVP Certificate Number** | [To be verified for OpenSSL 3.0.2] | ⚠️ Pending |
+| **FIPS 140-2/140-3 Level** | [To be verified] | ⚠️ Pending |
+| **Validation Date** | [To be verified] | ⚠️ Pending |
+| **NIST CMVP Database Entry** | [To be verified at https://csrc.nist.gov/projects/cryptographic-module-validation-program] | ⚠️ Pending |
+
+**Evidence Collection Status:**
+- **Evidence Required:** OpenSSL 3.0.2 FIPS validation documentation
+- **Documentation Source:** NIST CMVP database
+- **Verification Method:** Cross-reference OpenSSL 3.0.2 with NIST CMVP database
+- **Status:** ⚠️ Pending - OpenSSL 3.0.2 FIPS validation status requires verification
+
+**Current Implementation:**
+- Application-level AES-256-GCM encryption in use for CUI records (FIPS-approved algorithm)
+- Google Cloud Platform disk encryption at rest for infrastructure-level protection
+- Database bound to localhost only (127.0.0.1:5432) for network isolation
+- Encryption keys managed securely (not stored in database)
+
+**Assessment:**
+- Application-level encryption uses FIPS-approved algorithm (AES-256-GCM)
+- Infrastructure-level encryption provided by Google Cloud Platform
+- OpenSSL 3.0.2 FIPS validation status requires verification against CMVP database
+- CUI vault provides dedicated, isolated storage with multi-layer encryption
+
+**Evidence:**
+- CUI vault deployment: `MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault database encryption: `MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
 
 ---
 

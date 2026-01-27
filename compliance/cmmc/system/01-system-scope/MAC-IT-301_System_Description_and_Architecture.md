@@ -78,6 +78,13 @@ The system boundary encompasses the following components:
    - Purpose: Application and database hosting
    - Security: Inherited controls (see Section 4)
 
+6. **CUI Vault Infrastructure**
+   - Location: Google Compute Engine (GCE)
+   - Purpose: Dedicated CUI storage infrastructure
+   - Domain: vault.mactechsolutionsllc.com
+   - Database: PostgreSQL on localhost with encrypted CUI records
+   - Security: TLS 1.3 encryption, API key authentication, database encryption at rest
+
 ### Out-of-Scope Components
 
 - Developer workstations and local development environments
@@ -135,10 +142,12 @@ The following security controls are inherited from the Railway cloud platform:
 - **Evidence:** `lib/auth.ts`, `middleware.ts`
 
 ### 5.2 Data Layer
-- **Database:** PostgreSQL
+- **Main Application Database:** PostgreSQL (Railway)
 - **ORM:** Prisma
 - **Schema Location:** `prisma/schema.prisma`
 - **FCI Models:** `GovernmentContractDiscovery`, `UsaSpendingAward`, `OpportunityAwardLink`
+- **CUI Vault Database:** PostgreSQL (Google Compute Engine, localhost only)
+- **CUI Vault Schema:** `cui_records` table with encrypted fields (ciphertext, nonce, tag)
 
 ### 5.3 Access Control
 - **Role-Based Access Control (RBAC):** USER and ADMIN roles
@@ -152,7 +161,7 @@ The following security controls are inherited from the Railway cloud platform:
 - **Environment:** Production environment on Railway infrastructure
 
 ### 5.5 Network Architecture
-- **Network Segmentation:** Railway platform provides logical network separation
+- **Main Application Network Segmentation:** Railway platform provides logical network separation
 - **Public Tier:** Next.js application operates in publicly accessible network segment
   - Accepts HTTPS connections from internet
   - Handles user authentication and application logic
@@ -162,7 +171,13 @@ The following security controls are inherited from the Railway cloud platform:
   - Not directly accessible from internet
   - Encrypted connections between application and database
 - **Network Boundaries:** Railway manages network boundaries and access controls
-- **Evidence:** Railway platform architecture, logical separation of services
+- **CUI Vault Network Architecture:**
+  - **Public Access:** HTTPS/TLS 1.3 (vault.mactechsolutionsllc.com, port 443)
+  - **API Layer:** REST API with API key authentication
+  - **Database Layer:** PostgreSQL bound to localhost only (127.0.0.1:5432)
+  - **Network Isolation:** Database not accessible from external network
+  - **Infrastructure:** Google Cloud Platform VPC network
+- **Evidence:** Railway platform architecture, logical separation of services; CUI vault evidence documents
 
 ---
 

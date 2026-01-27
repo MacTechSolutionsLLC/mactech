@@ -29,7 +29,8 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 **System Type:** Web Application  
 **Hosting:** Railway Cloud Platform  
 **Database:** PostgreSQL (Railway)  
-**Source Control:** GitHub
+**Source Control:** GitHub  
+**CUI Vault:** Google Compute Engine (GCE) - Dedicated CUI storage infrastructure at vault.mactechsolutionsllc.com
 
 ### 1.2 System Purpose
 
@@ -62,6 +63,7 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 - Railway cloud platform (hosting)
 - Railway PostgreSQL (database)
 - GitHub (source code repository)
+- Google Compute Engine (CUI vault - dedicated CUI storage infrastructure)
 
 ### 2.2 Out-of-Scope Components
 
@@ -99,6 +101,22 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 │  │    Users     │                                     │
 │  │  (Browser)   │                                     │
 │  └──────────────┘                                     │
+│                                                         │
+│  ┌──────────────────────────────────────────────┐   │
+│  │     CUI VAULT (Google Cloud Platform)         │   │
+│  │  ┌──────────────┐                              │   │
+│  │  │  CUI Vault   │                              │   │
+│  │  │   Service    │                              │   │
+│  │  │  (GCE VM)    │                              │   │
+│  │  └──────┬───────┘                              │   │
+│  │         │ HTTPS/TLS 1.3                         │   │
+│  │         │ (vault.mactechsolutionsllc.com)       │   │
+│  │  ┌──────▼───────┐                              │   │
+│  │  │  PostgreSQL  │                              │   │
+│  │  │   Database    │                              │   │
+│  │  │  (localhost)  │                              │   │
+│  │  └──────────────┘                              │   │
+│  └─────────────────────────────────────────────────┘   │
 │                                                         │
 │  External (Read-Only):                                 │
 │  - SAM.gov API                                         │
@@ -157,7 +175,10 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 - Reports and dashboards containing CUI
 
 **Storage:**
-- All CUI stored in PostgreSQL database (encrypted at rest) in separate StoredCUIFile table
+- Primary CUI storage: Dedicated CUI vault infrastructure on Google Compute Engine (vault.mactechsolutionsllc.com)
+- CUI vault provides isolated, encrypted storage for CUI records
+- CUI vault database: PostgreSQL on localhost with AES-256-GCM encryption
+- Application-level CUI storage: PostgreSQL database (Railway) in separate StoredCUIFile table
 - CUI files stored separately from FCI files for enhanced access control
 - CUI files require password protection for access (password: "cui" - temporary, to be made configurable)
 - No CUI stored on local devices (browser-based access only)
@@ -189,6 +210,7 @@ The system connects to the following external systems:
 | **USAspending.gov API** | HTTPS/TLS (read-only) | Retrieve public award history data | Outbound only | TLS encryption (inherited from Railway), read-only access | REST API calls |
 | **Railway Platform** | HTTPS/TLS, Encrypted database connection | Application hosting, database hosting, CI/CD | Bidirectional | TLS encryption, database encryption at rest (inherited controls) | Platform service integration |
 | **GitHub.com** | HTTPS/TLS | Source code repository, dependency scanning | Bidirectional | TLS encryption, repository access controls (inherited controls) | Git operations, API calls |
+| **CUI Vault (GCE)** | HTTPS/TLS 1.3 | Dedicated CUI storage infrastructure | Bidirectional | TLS 1.3 encryption (AES-256-GCM-SHA384), API key authentication, database encryption at rest | REST API calls |
 
 ### 4.2 Connection Security Controls
 
@@ -447,11 +469,15 @@ This section provides detailed implementation information for all 110 NIST SP 80
 **Implementation:**
 - Information flow controls implemented via access control mechanisms
 - CUI access restricted to authorized users based on role and need-to-know
-- Network boundaries enforced by Railway platform (inherited)
+- CUI vault: Dedicated infrastructure with API key authentication for CUI storage
+- CUI vault: Database bound to localhost only, preventing unauthorized network access
+- Network boundaries enforced by Railway platform (inherited) and Google Cloud Platform (CUI vault)
 - Application-level access controls prevent unauthorized CUI access
 - CUI data flow documented in data flow diagrams
 
 **Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault network security: `../05-evidence/MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md`
 - Access control policies: `../02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
 - Network architecture: Section 2.3 (System Boundary Diagram)
 - Application access controls: `middleware.ts`, `lib/authz.ts`
@@ -684,13 +710,18 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.1.19: Encrypt CUI on mobile devices and mobile computing platforms
 
 **Implementation:**
-- CUI files stored in cloud database (encrypted at rest) in separate StoredCUIFile table
+- Primary CUI storage: Dedicated CUI vault infrastructure on Google Compute Engine (vault.mactechsolutionsllc.com) with AES-256-GCM encryption
+- CUI vault provides isolated, encrypted storage for CUI records with database encryption at rest
+- Application-level CUI storage: CUI files stored in cloud database (encrypted at rest) in separate StoredCUIFile table
 - Mobile device access is browser-based (no local CUI storage on mobile devices)
-- CUI encryption at rest provided by Railway platform (inherited)
+- CUI encryption at rest provided by Railway platform (inherited) and Google Cloud Platform (CUI vault)
 - CUI files require password protection for access
-- All CUI data encrypted in transit via HTTPS/TLS
+- All CUI data encrypted in transit via HTTPS/TLS (TLS 1.3 with AES-256-GCM-SHA384 for CUI vault)
 
 **Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault database encryption: `../05-evidence/MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
+- CUI vault TLS configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
 - Database encryption: Railway platform (inherited)
 - CUI file storage: `lib/file-storage.ts` (storeCUIFile function)
 - Password protection: `lib/file-storage.ts` (verifyCUIPassword function)
@@ -1323,12 +1354,17 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.8.2: Limit access to CUI on system media to authorized users
 
 **Implementation:**
-- CUI access restricted to authorized users via authentication and authorization
+- CUI vault: API key authentication required for all CUI storage operations
+- CUI vault: Database bound to localhost only, preventing external network access
+- CUI vault: Encrypted CUI records with separate ciphertext, nonce, and tag fields
+- Main application: CUI access restricted to authorized users via authentication and authorization
 - Database access controlled via application layer (no direct database access)
 - CUI access logged in audit system
 - Access controls enforce CUI access restrictions
 
 **Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault database encryption: `../05-evidence/MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
 - Access Control Policy: `../02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`
 - Authentication and authorization: `lib/auth.ts`, `lib/authz.ts`
 - Audit logs: CUI access events
@@ -1696,18 +1732,22 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 **Implementation:**
 - All CUI transmission encrypted via HTTPS/TLS
-- TLS encryption provided by Railway platform (inherited)
+- Main application: TLS encryption provided by Railway platform (inherited)
+- CUI vault: TLS 1.3 with AES-256-GCM-SHA384 cipher suite (vault.mactechsolutionsllc.com)
 - All communications encrypted in transit
 - CUI transmitted over encrypted connections only
 - Client to application: HTTPS/TLS
+- Application to CUI vault: HTTPS/TLS 1.3
 - Application to database: Encrypted connection
 
 **Evidence:**
 - Railway platform TLS/HTTPS (inherited)
+- CUI vault TLS configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
+- CUI vault network security: `../05-evidence/MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md`
 - Network encryption: Railway platform configuration
 - Browser HTTPS indicators
 
-**Status:** 🔄 Inherited
+**Status:** ✅ Implemented (Railway inherited, CUI vault implemented)
 
 #### 3.13.9: Terminate network connections associated with communications sessions at the end of the sessions or after a defined period of inactivity
 
@@ -1741,17 +1781,21 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.13.11: Employ FIPS-validated cryptography when used to protect the confidentiality of CUI
 
 **Implementation:**
-- FIPS cryptography assessment to be conducted
+- CUI vault: TLS 1.3 with FIPS-compliant cipher suite (TLS_AES_256_GCM_SHA384)
+- CUI vault: AES-256-GCM encryption for CUI at rest
+- Main application: FIPS cryptography assessment in progress
 - FIPS validation status to be documented
 - Cryptography used assessed for FIPS compliance
 - FIPS-validated cryptography prioritized where applicable
 - POA&M item if not fully FIPS-validated
 
 **Evidence:**
-- FIPS Cryptography Assessment: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md` (to be created)
-- FIPS assessment: To be conducted
+- CUI vault TLS configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
+- CUI vault database encryption: `../05-evidence/MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
+- FIPS Cryptography Assessment: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
+- FIPS assessment: In progress
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 8)
+**Status:** ⚠️ Partially Satisfied (CUI vault uses FIPS-compliant cipher suite, FIPS validation verification pending - POA&M item - Phase 8)
 
 #### 3.13.12: Prohibit remote activation of collaborative computing devices and provide indication of devices in use to users present at the device
 
@@ -1817,17 +1861,21 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.13.16: Protect the confidentiality of CUI at rest
 
 **Implementation:**
-- Database encryption at rest provided by Railway PostgreSQL service
-- CUI stored in encrypted database
+- CUI vault: Dedicated infrastructure with multi-layer encryption (AES-256-GCM application-level + Google Cloud disk encryption)
+- CUI vault: PostgreSQL database on localhost with encrypted CUI records (ciphertext, nonce, tag fields)
+- Main application: Database encryption at rest provided by Railway PostgreSQL service
+- CUI stored in encrypted databases
 - Passwords encrypted using bcrypt hashing (12 rounds)
-- CUI at rest protected via database encryption
+- CUI at rest protected via database encryption (both CUI vault and main application)
 
 **Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault database encryption: `../05-evidence/MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
 - Railway platform database encryption at rest (inherited)
 - Password Hashing: `lib/auth.ts` (bcrypt), `app/api/auth/change-password/route.ts`
-- Database encryption: Railway platform (inherited)
+- Database encryption: Railway platform (inherited), Google Cloud Platform (CUI vault)
 
-**Status:** 🔄 Inherited
+**Status:** ✅ Implemented (CUI vault implemented, Railway inherited)
 
 ### 7.14 System and Information Integrity (SI) - 7 Requirements
 

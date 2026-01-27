@@ -47,14 +47,26 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        STORAGE POINT                                        │
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
-│  │ PostgreSQL Database (Railway)                                       │  │
-│  │ - Table: StoredCUIFile                                              │  │
+│  │ Primary: CUI Vault (Google Compute Engine)                          │  │
+│  │ - Domain: vault.mactechsolutionsllc.com                              │  │
+│  │ - PostgreSQL database (localhost only)                                │  │
+│  │ - AES-256-GCM encrypted CUI records (ciphertext, nonce, tag)         │  │
+│  │ - API key authentication                                              │  │
+│  │ - TLS 1.3 encryption (AES-256-GCM-SHA384)                            │  │
+│  │ - Google Cloud disk encryption at rest                                │  │
+│  │ Control: 3.8.2 (Limit access to CUI on system media)                  │  │
+│  │ Control: 3.13.11 (FIPS-validated cryptography for CUI)               │  │
+│  │ Control: 3.13.16 (Protect CUI at rest)                                │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │ Secondary: PostgreSQL Database (Railway)                            │  │
+│  │ - Table: StoredCUIFile                                               │  │
 │  │ - Encryption at rest (Railway platform)                              │  │
-│  │ - Separate from FCI files (StoredFile table)                        │  │
-│  │ - Password protection mechanism                                      │  │
-│  │ - Access control: Admin role or file owner only                     │  │
-│  │ Control: 3.8.2 (Limit access to CUI on system media)              │  │
-│  │ Control: 3.13.11 (FIPS-validated cryptography for CUI)             │  │
+│  │ - Separate from FCI files (StoredFile table)                         │  │
+│  │ - Password protection mechanism                                       │  │
+│  │ - Access control: Admin role or file owner only                      │  │
+│  │ Control: 3.8.2 (Limit access to CUI on system media)                 │  │
+│  │ Control: 3.13.11 (FIPS-validated cryptography for CUI)              │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
        │
@@ -135,19 +147,34 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 
 ### 2. Storage Point
 
-**Location:** PostgreSQL `StoredCUIFile` table (Railway platform)  
+**Primary Location:** CUI Vault (Google Compute Engine) - vault.mactechsolutionsllc.com  
+**Secondary Location:** PostgreSQL `StoredCUIFile` table (Railway platform)  
 **Function:** CUI file storage with encryption at rest
 
-**Security Controls:**
-- **3.8.2 (Limit access to CUI on system media):** CUI stored separately from FCI, access-controlled
-- **3.13.11 (FIPS-validated cryptography):** Database encryption at rest (Railway platform)
-- **3.5.1 (Identify users):** Access requires authenticated user
-- **3.1.3 (Control CUI flow):** CUI segregated in dedicated table
+**CUI Vault Storage:**
+- Dedicated CUI storage infrastructure on Google Compute Engine
+- PostgreSQL database on localhost only (127.0.0.1:5432)
+- AES-256-GCM encryption for CUI records (ciphertext, nonce, tag fields)
+- API key authentication for access
+- TLS 1.3 encryption for data in transit (AES-256-GCM-SHA384)
+- Google Cloud Platform disk encryption at rest
 
-**Implementation:**
+**Application-Level Storage:**
 - Database table: `prisma/schema.prisma` (StoredCUIFile model)
 - Storage function: `lib/file-storage.ts` (`storeCUIFile`)
 - Encryption: Railway PostgreSQL encryption at rest (inherited control)
+
+**Security Controls:**
+- **3.8.2 (Limit access to CUI on system media):** CUI stored separately from FCI, access-controlled (both CUI vault and application database)
+- **3.13.11 (FIPS-validated cryptography):** Database encryption at rest (Railway platform and Google Cloud Platform), TLS 1.3 with FIPS-compliant cipher suite
+- **3.13.16 (Protect CUI at rest):** Multi-layer encryption (application-level AES-256-GCM + infrastructure-level disk encryption)
+- **3.5.1 (Identify users):** Access requires authenticated user and API key (CUI vault)
+- **3.1.3 (Control CUI flow):** CUI segregated in dedicated infrastructure and dedicated table
+
+**Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault database encryption: `../05-evidence/MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence.md`
+- CUI vault TLS configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
 
 ---
 
