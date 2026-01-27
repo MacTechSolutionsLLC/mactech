@@ -131,9 +131,10 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
    - CUI access control middleware and authorization checks
 
 2. **PostgreSQL Database - StoredCUIFile Table (Railway Platform)**
-   - Database table specifically designated for CUI file storage (`StoredCUIFile`)
-   - CUI data stored in encrypted database (encryption at rest provided by Railway)
-   - CUI file metadata and access control data
+   - Database table for CUI file metadata, access control, and backward compatibility with legacy files
+   - Primary CUI content storage is in dedicated CUI vault on Google Cloud Platform (vault.mactechsolutionsllc.com)
+   - Metadata stored in encrypted database (encryption at rest provided by Railway)
+   - Legacy CUI files may remain in this table for backward compatibility
 
 3. **Authentication System (NextAuth.js)**
    - User authentication required for all CUI access
@@ -211,13 +212,15 @@ CUI is **PROHIBITED** from being stored, processed, or transmitted in any compon
 The following technical controls enforce CUI boundary restrictions and prevent CUI from being stored, processed, or transmitted outside designated components:
 
 1. **Database-Level Enforcement:**
-   - CUI can only be stored in `StoredCUIFile` table (separate from `StoredFile` table for FCI)
+   - Primary CUI storage: Dedicated CUI vault on Google Cloud Platform (vault.mactechsolutionsllc.com)
+   - CUI metadata stored in `StoredCUIFile` table (separate from `StoredFile` table for FCI)
    - Database schema enforces separation: `StoredCUIFile` model is distinct from `StoredFile` model
    - Code cannot store CUI in FCI table - separate storage functions enforce routing
-   - Evidence: `prisma/schema.prisma` (StoredCUIFile model separate from StoredFile model)
+   - New CUI files are routed to CUI vault; Railway table stores metadata and legacy files
+   - Evidence: `prisma/schema.prisma` (StoredCUIFile model separate from StoredFile model), `lib/cui-vault-client.ts` (CUI vault integration)
 
 2. **Application-Level Enforcement:**
-   - CUI routing enforced via `storeCUIFile()` function - all CUI files routed to `StoredCUIFile` table
+   - CUI routing enforced via `storeCUIFile()` function - new CUI files routed to CUI vault on GCP, metadata stored in `StoredCUIFile` table
    - CUI detection and classification logic (`lib/cui-blocker.ts`) identifies CUI for proper routing
    - File upload API (`app/api/files/upload/route.ts`) routes CUI files to `storeCUIFile()` function
    - Code-level enforcement prevents CUI from being stored in FCI table

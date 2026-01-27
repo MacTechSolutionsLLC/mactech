@@ -165,7 +165,8 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 - CUI received from external sources per contract requirements
 
 **Processing:**
-- CUI data stored in PostgreSQL database
+- New CUI files stored in dedicated CUI vault on Google Cloud Platform (vault.mactechsolutionsllc.com)
+- CUI metadata stored in Railway PostgreSQL database (StoredCUIFile table)
 - Application logic processes and displays CUI
 - CUI handled according to CUI handling procedures
 - CUI marking and distribution controls applied as required
@@ -176,10 +177,11 @@ This System Security Plan (SSP) has been upgraded from CMMC Level 1 to CMMC Leve
 - Reports and dashboards containing CUI
 
 **Storage:**
-- Primary CUI storage: Dedicated CUI vault infrastructure on Google Compute Engine (vault.mactechsolutionsllc.com)
-- CUI vault provides isolated, encrypted storage for CUI records
-- CUI vault database: PostgreSQL on localhost with AES-256-GCM encryption
-- Application-level CUI storage: PostgreSQL database (Railway) in separate StoredCUIFile table
+- Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
+- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography
+- CUI vault database: PostgreSQL on localhost (127.0.0.1:5432) with AES-256-GCM encryption
+- Metadata and legacy files: Railway PostgreSQL database (StoredCUIFile table) - stores file metadata, access control data, and backward compatibility with legacy files
+- New CUI files are stored in CUI vault; Railway table is for metadata and legacy files only
 - CUI files stored separately from FCI files for enhanced access control
 - CUI files require password protection for access (password: "cui" - temporary, to be made configurable)
 - No CUI stored on local devices (browser-based access only)

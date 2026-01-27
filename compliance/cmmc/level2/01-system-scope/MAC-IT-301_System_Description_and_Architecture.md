@@ -1,7 +1,7 @@
 # System Description and Architecture - CMMC Level 2
 
-**Document Version:** 2.0  
-**Date:** 2026-01-24  
+**Document Version:** 2.1  
+**Date:** 2026-01-27  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2
@@ -51,7 +51,9 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 - CUI access attempts logged to audit log
 
 **CUI Storage:**
-- All CUI is stored in PostgreSQL database `StoredCUIFile` table
+- Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
+- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption
+- Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
 - CUI files stored with password protection
 - No CUI stored on removable media
 - CUI access controlled via authentication and password verification
@@ -70,7 +72,9 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 - Source code and system documentation are stored in GitHub repositories
 
 **CUI Storage:**
-- All CUI is stored in PostgreSQL database `StoredCUIFile` table
+- Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
+- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography
+- Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
 - CUI files require password for access
 - No CUI stored on removable media
 
@@ -260,6 +264,7 @@ The following items are not required for CMMC Level 1 but represent potential fu
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 2.1 (2026-01-27): Updated CUI storage descriptions to clarify primary storage is CUI vault on GCP, Railway table is for metadata/backward compatibility only
 - Version 2.0 (2026-01-24): Updated from CMMC Level 1 to Level 2, updated scope to FCI and CUI, updated references to NIST SP 800-171 Rev. 2, added CUI handling sections
 - Version 1.0 (2026-01-21): Initial document creation for CMMC Level 1
 

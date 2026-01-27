@@ -147,8 +147,8 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 
 ### 2. Storage Point
 
-**Primary Location:** CUI Vault (Google Compute Engine) - vault.mactechsolutionsllc.com  
-**Secondary Location:** PostgreSQL `StoredCUIFile` table (Railway platform)  
+**Primary Location:** CUI Vault (Google Cloud Platform) - vault.mactechsolutionsllc.com  
+**Metadata Location:** PostgreSQL `StoredCUIFile` table (Railway platform) - for file metadata, access control, and backward compatibility with legacy files  
 **Function:** CUI file storage with encryption at rest
 
 **CUI Vault Storage:**
@@ -159,9 +159,11 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 - TLS 1.3 encryption for data in transit (AES-256-GCM-SHA384)
 - Google Cloud Platform disk encryption at rest
 
-**Application-Level Storage:**
+**Metadata Storage (Railway Platform):**
 - Database table: `prisma/schema.prisma` (StoredCUIFile model)
 - Storage function: `lib/file-storage.ts` (`storeCUIFile`)
+- Purpose: Stores file metadata, access control data, and provides backward compatibility for legacy files
+- New CUI files are stored in CUI vault; this table stores metadata and legacy files only
 - Encryption: Railway PostgreSQL encryption at rest (inherited control)
 
 **Security Controls:**

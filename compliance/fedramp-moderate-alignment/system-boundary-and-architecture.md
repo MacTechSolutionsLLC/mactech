@@ -59,9 +59,10 @@ The system boundary encompasses the following components:
 - PostgreSQL database (Railway managed service)
 - User accounts and authentication data
 - FCI data (non-public contract information)
-- CUI data (contract proposals, SOWs, contract documentation)
+- CUI metadata (file metadata, access control data, and backward compatibility for legacy files)
 - Audit logs and system events
 - Location: Railway cloud platform (internal network segment)
+- Note: Primary CUI content storage is in dedicated CUI vault on Google Cloud Platform (see CUI Vault Infrastructure below)
 
 **CUI Vault Infrastructure:**
 - Dedicated CUI storage infrastructure on Google Compute Engine (GCE)
