@@ -239,22 +239,32 @@ sudo ufw status verbose
 
 ---
 
-### 5.2 OpenSSL FIPS Validation
+### 5.2 Ubuntu OpenSSL Cryptographic Module (FIPS Provider)
 
-**OpenSSL Version:** 3.0.2 (built Mar 2022)
+**Module Name:** Ubuntu 22.04 OpenSSL Cryptographic Module  
+**Module Version:** 3.0.5-0ubuntu0.1+Fips2.1  
+**Base OpenSSL Library:** 3.0.2 (not the validated component)  
+**FIPS Provider Status:** ✅ Active  
+**Kernel FIPS Mode:** ✅ Enabled (`/proc/sys/crypto/fips_enabled = 1`)
 
-**Verification:**
+**FIPS Validation:**
+- **Validation Type:** Inherited from Canonical's CMVP FIPS 140-3 certification
+- **Module Provider:** Canonical Ltd.
+- **Validation Status:** ✅ FIPS-validated
+
+**Implementation:**
+Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module.
+
+**Verification Evidence:**
+- FIPS kernel enabled: `/proc/sys/crypto/fips_enabled = 1`
+- FIPS provider active: `openssl list -providers` shows Ubuntu 22.04 OpenSSL Cryptographic Module (status: active)
+- Ubuntu FIPS packages installed: `openssl-fips-module-3:amd64 3.0.5-0ubuntu0.1+Fips2.1`
+
+**Base OpenSSL Library Information:**
 ```bash
 openssl version -a
 # OpenSSL 3.0.2 15 Mar 2022 (Library: OpenSSL 3.0.2 15 Mar 2022)
 ```
-
-**FIPS Validation Status:** ⚠️ Requires verification against CMVP database
-
-**Action Required:**
-- Verify OpenSSL 3.0.2 FIPS validation status
-- Check CMVP database for validated modules
-- Document FIPS validation evidence
 
 **Reference:** See `MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
 

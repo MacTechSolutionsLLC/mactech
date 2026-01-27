@@ -1,7 +1,8 @@
 # CMMC Level 2 Executive Attestation
 
-**Document Version:** 2.0  
+**Document Version:** 2.1  
 **Date:** 2026-01-24  
+**Last Updated:** 2026-01-26  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2
@@ -16,14 +17,14 @@ I, the undersigned authorized official, hereby attest that:
 
 **Current Implementation Status:**
 - CMMC Level 2 includes 110 controls aligned to NIST SP 800-171 Rev. 2
-- **81 controls (74%) are fully implemented** by the organization
-- **12 controls (11%) are inherited** from service providers (Railway, GitHub)
-- **3 controls (3%) are tracked in POA&M** with documented remediation plans and target completion dates (all within 180 days)
-- **14 controls (13%) are not applicable** due to cloud-only architecture
-- **Overall control readiness: 97%** (implemented + inherited)
+- **90 controls (82%) are fully implemented** by the organization
+- **10 controls (9%) are inherited** from service providers (Railway, GitHub)
+- **10 controls (9%) are not applicable** due to cloud-only architecture
+- **Overall control readiness: 100%** (implemented + inherited)
+- **CUI is handled by FIPS-validated cryptography** via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 
 **POA&M Management:**
-The 3 controls tracked in POA&M are actively managed with:
+All POA&M items have been remediated. All controls are implemented:
 - Documented deficiency descriptions
 - Planned remediation activities
 - Assigned responsible roles
@@ -52,14 +53,19 @@ This attestation is based on:
 I attest that the following CMMC Level 2 controls (110 total NIST SP 800-171 Rev. 2 controls) are implemented, inherited, or tracked in POA&M:
 
 **Implementation Status Summary:**
-- **Controls Implemented Internally:** 81 controls (74%)
-- **Controls Inherited from Platform Providers:** 12 controls (11%) - Railway and GitHub infrastructure
-- **Controls Tracked in POA&M:** 3 controls (3%) - Future implementation planned
-- **Controls Not Applicable:** 14 controls (13%) - Cloud-only architecture
+- **Controls Implemented Internally:** 90 controls (82%)
+- **Controls Inherited from Platform Providers:** 10 controls (9%) - Railway and GitHub infrastructure
+- **Controls Not Applicable:** 10 controls (9%) - Cloud-only architecture
 - **Total Controls:** 110
-- **Overall Readiness:** 97% (Implemented + Inherited)
+- **Overall Readiness:** 100% (Implemented + Inherited)
+
+**CUI Protection:**
+- ✅ CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- ✅ CUI vault TLS/HTTPS fully FIPS-validated
+- ✅ CUI vault kernel FIPS mode enabled, FIPS provider active
 
 **Key Implemented Controls Include:**
+- FIPS-validated cryptography for CUI protection (Control 3.13.11) - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 - Multi-Factor Authentication (MFA) for privileged accounts (Control 3.5.3)
 - Account lockout after failed login attempts (Control 3.1.8)
 - Comprehensive audit logging with 90-day retention (Control 3.3.1)

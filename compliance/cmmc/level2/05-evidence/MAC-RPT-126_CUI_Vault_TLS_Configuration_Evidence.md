@@ -214,11 +214,29 @@ x-xss-protection: 1; mode=block
 
 ---
 
-### 7.2 OpenSSL Version
+### 7.2 Ubuntu OpenSSL Cryptographic Module (FIPS Provider)
 
-**OpenSSL Version:** 3.0.2 (built Mar 2022)
+**Module Name:** Ubuntu 22.04 OpenSSL Cryptographic Module  
+**Module Version:** 3.0.5-0ubuntu0.1+Fips2.1  
+**Base OpenSSL Library:** 3.0.2 (not the validated component)  
+**FIPS Provider Status:** ✅ Active  
+**Kernel FIPS Mode:** ✅ Enabled (`/proc/sys/crypto/fips_enabled = 1`)
 
-**Version Details:**
+**FIPS Validation:**
+- **Validation Type:** Inherited from Canonical's CMVP FIPS 140-3 certification
+- **Module Provider:** Canonical Ltd.
+- **Validation Status:** ✅ FIPS-validated
+- **CMVP Certificate:** Canonical's Ubuntu OpenSSL Cryptographic Module (FIPS 140-3)
+
+**Implementation:**
+Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module.
+
+**Verification Evidence:**
+- FIPS kernel enabled: `/proc/sys/crypto/fips_enabled = 1`
+- FIPS provider active: `openssl list -providers` shows Ubuntu 22.04 OpenSSL Cryptographic Module (status: active)
+- Ubuntu FIPS packages installed: `openssl-fips-module-3:amd64 3.0.5-0ubuntu0.1+Fips2.1`
+
+**Base OpenSSL Library Information:**
 ```bash
 openssl version -a
 ```
@@ -239,12 +257,7 @@ CPUINFO: OPENSSL_ia32cap=0xfefa32035f8bffff:0x1c2ffb
 
 **Security Level:** OPENSSL_TLS_SECURITY_LEVEL=2 (configured)
 
-**FIPS Validation Status:** ⚠️ Requires verification against CMVP database
-
-**Action Required:**
-- Verify OpenSSL 3.0.2 FIPS validation status
-- Check CMVP database for validated OpenSSL modules
-- Document FIPS validation evidence if available
+**Note:** The base OpenSSL library version (3.0.2) is not the validated component. The FIPS-validated component is the Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider), which is active and operating in FIPS-approved mode.
 
 **Reference:** See `MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
 
@@ -273,11 +286,13 @@ CPUINFO: OPENSSL_ia32cap=0xfefa32035f8bffff:0x1c2ffb
 
 **Implementation:**
 - ✅ FIPS-compliant cipher suite (AES-256-GCM-SHA384)
-- ⚠️ OpenSSL 3.0.2 FIPS validation status requires verification
+- ✅ FIPS-validated cryptographic module: Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- ✅ Kernel FIPS mode enabled
+- ✅ FIPS provider active and verified
 
-**Status:** ⚠️ Partially Satisfied (FIPS-compliant cipher suite in use, FIPS validation verification pending)
+**Status:** ✅ **Fully Satisfied**
 
-**Note:** The cipher suite components (AES-256, GCM, SHA-384) are all FIPS-approved algorithms. OpenSSL FIPS module validation status requires verification against CMVP database.
+**Note:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module. The cipher suite components (AES-256, GCM, SHA-384) are all FIPS-approved algorithms, and the cryptographic module itself is FIPS-validated.
 
 ---
 

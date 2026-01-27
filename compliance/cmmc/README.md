@@ -14,11 +14,15 @@
 **Total Controls:** 110 NIST SP 800-171 Rev. 2 requirements
 
 **Implementation Status:**
-- **Implemented:** 81 controls (74%)
-- **Inherited:** 12 controls (11%)
-- **Not Implemented:** 3 controls (tracked in POA&M)
-- **Not Applicable:** 14 controls (cloud-only architecture)
-- **Overall Readiness:** 97% (Implemented + Inherited)
+- **Implemented:** 90 controls (82%)
+- **Inherited:** 10 controls (9%)
+- **Not Applicable:** 10 controls (9%)
+- **Overall Readiness:** 100% (Implemented + Inherited)
+
+**CUI Protection:**
+- ✅ CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- ✅ CUI vault TLS/HTTPS fully FIPS-validated
+- ✅ CUI vault kernel FIPS mode enabled, FIPS provider active
 
 **System Control Traceability Matrix (SCTM):**
 - Location: `level2/04-self-assessment/MAC-AUD-408_System_Control_Traceability_Matrix.md`

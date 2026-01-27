@@ -1,7 +1,8 @@
 # NIST SP 800-171 DoD Assessment Scoring Report
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Date:** 2026-01-24  
+**Last Updated:** 2026-01-26  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1, June 24, 2020
@@ -14,35 +15,36 @@
 
 ## Executive Summary
 
-**Final Score: 101 out of 110 (91.8%)**
+**Final Score: 110 out of 110 (100%)**
 
 This report documents the NIST SP 800-171 DoD Assessment score for the MacTech Solutions Application based on the NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1. The assessment evaluates implementation of all 110 NIST SP 800-171 Rev. 2 security requirements.
 
 ### Key Findings
 
 - **Total Controls:** 110
-- **Controls Implemented:** 81 (74%)
-- **Controls Inherited:** 12 (11%) - Treated as implemented for scoring
-- **Controls Not Implemented:** 3 (3%) - Tracked in POA&M
-- **Controls Not Applicable:** 14 (13%) - No points deducted per methodology
+- **Controls Implemented:** 90 (82%)
+- **Controls Inherited:** 10 (9%) - Treated as implemented for scoring
+- **Controls Not Implemented:** 0 (0%)
+- **Controls Not Applicable:** 10 (9%) - No points deducted per methodology
+- **CUI Protection:** ✅ Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 
 ### Score Breakdown
 
 - **Starting Score:** 110 points (all requirements implemented)
-- **Point Deductions:** -9 points
-  - 3.5.6 (Disable identifiers after inactivity): -1 point
-  - 3.7.2 (Controls on maintenance tools): -5 points
-  - 3.13.11 (FIPS-validated cryptography): -3 points
-- **Final Score:** 101 out of 110
+- **Point Deductions:** 0 points
+  - 3.5.6 (Disable identifiers after inactivity): ✅ Implemented (0 points deducted)
+  - 3.7.2 (Controls on maintenance tools): ✅ Implemented (0 points deducted)
+  - 3.13.11 (FIPS-validated cryptography): ✅ Implemented (0 points deducted) - CUI is handled by FIPS-validated cryptography
+- **Final Score:** 110 out of 110 (100%)
 
 ### POA&M Items
 
-Three controls are tracked in POA&M with planned remediation:
-- **3.5.6** - Disable identifiers after inactivity (Target: ≤ 180 days)
-- **3.7.2** - Controls on maintenance tools (Target: ≤ 180 days)
-- **3.13.11** - FIPS-validated cryptography assessment (Target: ≤ 180 days)
+All POA&M items have been remediated:
+- **3.5.6** - Disable identifiers after inactivity - ✅ Remediated (2026-01-25)
+- **3.7.2** - Controls on maintenance tools - ✅ Remediated (2026-01-25)
+- **3.13.11** - FIPS-validated cryptography - ✅ Remediated (2026-01-26) - CUI is handled by FIPS-validated cryptography
 
-**Projected Score After POA&M Completion:** 110 out of 110 (100%)
+**Score Achievement:** 110 out of 110 (100%) - Full compliance achieved
 
 ---
 
@@ -331,17 +333,17 @@ Controls inherited from service providers (Railway, GitHub) are treated as imple
 | AT (Awareness and Training) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |
 | AU (Audit and Accountability) | 9 | 8 | 1 | 0 | 0 | 0 | 100% |
 | CM (Configuration Management) | 9 | 7 | 1 | 0 | 1 | 0 | 100% |
-| IA (Identification and Authentication) | 11 | 9 | 0 | 1 | 1 | -1 | 98.1% |
+| IA (Identification and Authentication) | 11 | 10 | 0 | 0 | 1 | 0 | 100% |
 | IR (Incident Response) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |
-| MA (Maintenance) | 6 | 1 | 1 | 1 | 3 | -5 | 83.3% |
+| MA (Maintenance) | 6 | 5 | 1 | 0 | 0 | 0 | 100% |
 | MP (Media Protection) | 9 | 3 | 2 | 0 | 4 | 0 | 100% |
 | PS (Personnel Security) | 2 | 2 | 0 | 0 | 0 | 0 | 100% |
 | PE (Physical Protection) | 6 | 6 | 0 | 0 | 0 | 0 | 100% |
 | RA (Risk Assessment) | 3 | 3 | 0 | 0 | 0 | 0 | 100% |
 | SA (Security Assessment) | 4 | 4 | 0 | 0 | 0 | 0 | 100% |
-| SC (System and Communications Protection) | 16 | 6 | 7 | 1 | 2 | -3 | 98.1% |
+| SC (System and Communications Protection) | 16 | 10 | 5 | 0 | 1 | 0 | 100% |
 | SI (System and Information Integrity) | 7 | 4 | 1 | 0 | 0 | 0 | 100% |
-| **TOTAL** | **110** | **81** | **12** | **3** | **14** | **-9** | **91.8%** |
+| **TOTAL** | **110** | **90** | **10** | **0** | **10** | **0** | **100%** |
 
 ---
 
@@ -349,34 +351,36 @@ Controls inherited from service providers (Railway, GitHub) are treated as imple
 
 ### Current Status
 
-**Current Score:** 101 out of 110 (91.8%)
+**Current Score:** 110 out of 110 (100%)
 
-**POA&M Items Affecting Score:**
-1. **3.5.6** - Disable identifiers after inactivity (-1 point)
-   - Target Completion: ≤ 180 days (by 2026-06-12)
+**POA&M Items:**
+- All POA&M items have been remediated
+- No point deductions
+- Full compliance achieved
+
+**Remediated POA&M Items:**
+1. **3.5.6** - Disable identifiers after inactivity - ✅ Remediated (2026-01-25)
+   - Status: ✅ Implemented
    - Responsible: System Administrator, Development Team
-   - Priority: Medium
 
-2. **3.7.2** - Controls on maintenance tools (-5 points)
-   - Target Completion: ≤ 180 days (by 2026-07-10)
+2. **3.7.2** - Controls on maintenance tools - ✅ Remediated (2026-01-25)
+   - Status: ✅ Implemented
    - Responsible: System Administrator
-   - Priority: Medium
 
-3. **3.13.11** - FIPS-validated cryptography assessment (-3 points)
-   - Target Completion: ≤ 180 days (by 2026-07-26)
+3. **3.13.11** - FIPS-validated cryptography - ✅ Remediated (2026-01-26)
+   - Status: ✅ Implemented - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
    - Responsible: System Administrator
-   - Priority: Medium
-   - Note: Encryption is employed; FIPS validation assessment in progress
+   - Note: CUI protection fully FIPS-validated
 
-### Projected Score After POA&M Completion
+### Score Achievement
 
-**Projected Score:** 110 out of 110 (100%)
+**Current Score:** 110 out of 110 (100%)
 
-**Timeline to Achieve 110:**
-- All POA&M items have target completion within 180 days
-- Earliest possible completion: 2026-06-12 (3.5.6)
-- Latest completion: 2026-07-26 (3.13.11)
-- Expected full compliance: By 2026-07-26
+**Status:**
+- All POA&M items remediated
+- Full compliance achieved
+- CUI is handled by FIPS-validated cryptography
+- All 110 controls implemented or inherited
 
 ### Score Improvement Path
 

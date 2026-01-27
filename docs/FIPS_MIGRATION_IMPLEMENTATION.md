@@ -16,10 +16,14 @@
 - **Action Required:** Migration to FIPS-validated version
 
 **CUI Vault Verification Results:**
-- Runtime: OpenSSL 3.0.2 (built Mar 2022)
+- FIPS Cryptographic Module: Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
+- Module Version: 3.0.5-0ubuntu0.1+Fips2.1
+- Base OpenSSL Library: 3.0.2 (not the validated component)
 - TLS Configuration: TLS 1.3 with TLS_AES_256_GCM_SHA384 (FIPS-compliant cipher suite)
-- **Status:** Cipher suite components are FIPS-approved algorithms (AES-256, GCM, SHA-384)
-- **Action Required:** Verify OpenSSL 3.0.2 FIPS validation status against CMVP database
+- Kernel FIPS Mode: ✅ Enabled (`/proc/sys/crypto/fips_enabled = 1`)
+- FIPS Provider Status: ✅ Active
+- **Status:** ✅ Fully FIPS-validated via Ubuntu OpenSSL Cryptographic Module operating in FIPS-approved mode
+- **Validation:** Inherited from Canonical's CMVP FIPS 140-3 certification
 
 ---
 

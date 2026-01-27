@@ -308,7 +308,8 @@ This document provides the architecture diagram and detailed description of the 
 **3.13.11 - FIPS-validated cryptography:**
 - TLS 1.3 with FIPS-compliant cipher suite
 - All cipher suite components are FIPS-approved algorithms
-- OpenSSL 3.0.2 FIPS validation status requires verification
+- ✅ FIPS-validated: Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- Validation inherited from Canonical's CMVP FIPS 140-3 certification
 
 **Evidence:** `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
 

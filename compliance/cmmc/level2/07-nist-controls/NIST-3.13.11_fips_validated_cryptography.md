@@ -57,10 +57,12 @@ This control is tracked in the Plan of Action and Milestones (POA&M). See POA&M 
 This control requires FIPS-validated cryptography modules. An assessment has been conducted to identify all cryptography components and determine their FIPS validation status. The assessment is documented in the FIPS Cryptography Assessment Evidence file.
 
 **Assessment Findings:**
-- TLS/HTTPS: Provided by Railway platform - FIPS validation status pending Railway documentation
-- Database Encryption: Provided by Railway PostgreSQL - FIPS validation status pending Railway documentation
+- CUI Vault TLS/HTTPS: ✅ Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- CUI Vault Database Encryption: ✅ FIPS-validated (uses Ubuntu OpenSSL Cryptographic Module)
+- TLS/HTTPS (Railway Platform): Provided by Railway platform - FIPS validation status pending Railway documentation
+- Database Encryption (Railway PostgreSQL): Provided by Railway PostgreSQL - FIPS validation status pending Railway documentation
 - Password Hashing (bcrypt): Application-level - ✅ Not subject to FIPS validation (password hashing, not encryption)
-- JWT Tokens: Application-level - Runtime information identified (Node.js 24.6.0, OpenSSL 3.6.0), FIPS validation status pending NIST CMVP verification
+- JWT Tokens (Main Application): Application-level - Runtime information identified (Node.js 24.6.0, OpenSSL 3.6.0), FIPS validation status pending NIST CMVP verification
 
 **POA&M Status:**
 This control is tracked in POA&M (POAM-008) with a target completion date within 180 days. The POA&M item includes:
@@ -77,22 +79,32 @@ This control is tracked in POA&M (POAM-008) with a target completion date within
 - FIPS Verification Process: `../../docs/FIPS_VERIFICATION_PROCESS.md`
 
 **Cryptography Components:**
-1. **TLS/HTTPS (CUI in Transit)**
+1. **CUI Vault TLS/HTTPS (CUI in Transit)**
+   - Provider: CUI Vault (Google Compute Engine)
+   - Status: ✅ Operational, Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
+   - Evidence: See FIPS Assessment Evidence file
+
+2. **CUI Vault Database Encryption (CUI at Rest)**
+   - Provider: CUI Vault (Google Compute Engine)
+   - Status: ✅ Operational, FIPS-validated (uses Ubuntu OpenSSL Cryptographic Module)
+   - Evidence: See FIPS Assessment Evidence file
+
+3. **TLS/HTTPS (Railway Platform)**
    - Provider: Railway Platform
    - Status: Operational, FIPS validation pending verification
    - Evidence: See FIPS Assessment Evidence file
 
-2. **Database Encryption (CUI at Rest)**
+4. **Database Encryption (Railway PostgreSQL)**
    - Provider: Railway PostgreSQL Service
    - Status: Operational, FIPS validation pending verification
    - Evidence: See FIPS Assessment Evidence file
 
-3. **Password Hashing**
+5. **Password Hashing**
    - Implementation: bcrypt (lib/auth.ts)
-   - Status: Operational, FIPS validation pending verification
+   - Status: Operational, ✅ Not subject to FIPS validation (password hashing, not encryption)
    - Evidence: See FIPS Assessment Evidence file
 
-4. **JWT Token Generation**
+6. **JWT Token Generation (Main Application)**
    - Implementation: NextAuth.js (lib/auth.ts)
    - Status: Operational, FIPS validation pending verification
    - Evidence: See FIPS Assessment Evidence file

@@ -60,8 +60,12 @@ The TLS 1.3 configuration with AES-256-GCM-SHA384 cipher suite is implemented at
 
 **FIPS Compliance Status:** ✅ **FIPS-COMPLIANT CIPHER SUITE**
 
-**OpenSSL Version:** OpenSSL 3.0.2 (built Mar 2022)  
-**FIPS Validation Status:** ⚠️ Requires verification against CMVP database
+**FIPS Cryptographic Module:** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)  
+**Module Version:** 3.0.5-0ubuntu0.1+Fips2.1  
+**Base OpenSSL Library:** 3.0.2 (not the validated component)  
+**FIPS Provider Status:** ✅ Active  
+**Kernel FIPS Mode:** ✅ Enabled (`/proc/sys/crypto/fips_enabled = 1`)  
+**FIPS Validation Status:** ✅ FIPS-validated (inherited from Canonical's CMVP FIPS 140-3 certification)
 
 ---
 
@@ -156,11 +160,13 @@ curl -i https://vault.mactechsolutionsllc.com/health
 
 **Implementation:**
 - ✅ FIPS-compliant cipher suite (AES-256-GCM-SHA384)
-- ⚠️ OpenSSL 3.0.2 FIPS validation status requires verification
+- ✅ FIPS-validated cryptographic module: Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
+- ✅ Kernel FIPS mode enabled
+- ✅ FIPS provider active and verified
 
-**Status:** ⚠️ **PARTIALLY SATISFIED**
+**Status:** ✅ **FULLY SATISFIED**
 
-**Note:** The cipher suite components (AES-256, GCM, SHA-384) are all FIPS-approved algorithms. OpenSSL FIPS module validation status requires verification against CMVP database.
+**Note:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module. The cipher suite components (AES-256, GCM, SHA-384) are all FIPS-approved algorithms, and the cryptographic module itself is FIPS-validated.
 
 ---
 
