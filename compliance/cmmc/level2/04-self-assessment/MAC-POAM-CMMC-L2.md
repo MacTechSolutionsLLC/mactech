@@ -15,7 +15,7 @@
 
 **All POA&M items have been fully remediated. This document is maintained for historical tracking and compliance documentation purposes.**
 
-This document previously identified and tracked Plans of Action and Milestones (POA&M) for security controls that were not yet fully implemented in the MacTech Solutions Application CMMC 2.0 Level 2 system. All previously tracked POA&M items have been fully remediated and implemented. This document is maintained as part of the CMMC Level 2 assessment package and is referenced in the System Security Plan (Section 14).
+This document previously identified and tracked Plans of Action and Milestones (POA&M) for security controls that were not yet fully implemented in the MacTech Solutions Application CMMC 2.0 Level 2 system. All previously tracked POA&M items have been fully remediated and implemented, or closed as not applicable. This document is maintained as part of the CMMC Level 2 assessment package and is referenced in the System Security Plan (Section 14).
 
 ---
 
@@ -384,6 +384,37 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 
 ---
 
+### POAM-014: CUI Vault Firewall Configuration
+
+**Control ID:** NIST SP 800-171 Rev. 2, Section 3.4.2
+
+**Description:** UFW (Uncomplicated Firewall) is inactive on the CUI vault infrastructure (Google Compute Engine VM). Initial assessment considered host-based firewall requirement.
+
+**Resolution:** Google Cloud Platform (GCP) VPC firewall rules provide network-level firewall protection for the CUI vault infrastructure. GCP firewall is the primary and sufficient firewall mechanism for this cloud infrastructure. Host-based firewall (UFW) is not required as GCP firewall provides the required security configuration settings.
+
+**Responsible Role:** System Administrator
+
+**Status:** ✅ Closed (Not Applicable)
+
+**Priority:** N/A
+
+**Completion Date:** 2026-01-27
+
+**Resolution Summary:**
+- GCP VPC firewall rules provide network-level protection
+- GCP firewall restricts inbound traffic to HTTPS (443) and SSH (22) only
+- GCP firewall is the primary firewall mechanism for Google Compute Engine infrastructure
+- Host-based firewall (UFW) is not required as GCP firewall satisfies control 3.4.2 requirements
+- Control 3.4.2 is fully implemented via GCP firewall configuration
+
+**Evidence:**
+- CUI vault deployment: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- CUI vault network security: `../05-evidence/MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md`
+
+**Notes:** POAM-014 closed as not applicable. GCP VPC firewall provides sufficient firewall protection for the CUI vault infrastructure. Control 3.4.2 is fully implemented via GCP firewall rules.
+
+---
+
 ## Summary
 
 **Total Open POA&M Items:** 0
@@ -393,12 +424,17 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 - POAM-013: 3.7.2 - Controls on maintenance tools (✅ Remediated)
 - POAM-008: 3.13.11 - FIPS-validated cryptography (✅ Remediated - CUI is handled by FIPS-validated cryptography)
 
+**Total Closed POA&M Items:** 11
+- 10 historical deficiencies that have been remediated
+- POAM-014: 3.4.2 - CUI Vault Firewall Configuration (✅ Closed - Not Applicable - GCP firewall provides sufficient protection)
+
 **Total Partially Satisfied POA&M Items:** 0
 
 **Controls Affected:**
 - 3.5.6 - Disable identifiers after a defined period of inactivity (✅ Remediated)
 - 3.7.2 - Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance (✅ Remediated)
 - 3.13.11 - Employ FIPS-validated cryptography when used to protect the confidentiality of CUI (✅ Remediated - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module)
+- 3.4.2 - Establish and maintain secure configuration settings for system components (✅ Implemented via GCP firewall - POAM-014 closed as not applicable)
 
 **All POA&M items are tracked with:**
 - Clear deficiency descriptions
@@ -422,6 +458,8 @@ A POA&M item may be closed only when **all** of the following criteria are met:
 **Next Review Date:** 2026-02-24
 
 **Change History:**
-- Version 1.2 (2026-01-26): Updated POAM-008 to Remediated - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider). All POA&M items now remediated. Updated summary counts: 0 open items, 3 remediated items.
+- Version 1.4 (2026-01-27): Closed POAM-014 as not applicable - GCP VPC firewall provides sufficient firewall protection for CUI vault infrastructure. Control 3.4.2 is fully implemented via GCP firewall. Updated summary: 0 open items, 3 remediated items, 11 closed items.
+- Version 1.3 (2026-01-27): Added POAM-014 (3.4.2 - CUI Vault Firewall Configuration) as open item. Updated summary: 1 open item, 13 remediated items.
+- Version 1.2 (2026-01-26): Updated POAM-008 to Remediated - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider). Updated summary counts: 0 open items, 3 remediated items.
 - Version 1.1 (2026-01-25): Updated POAM-011, POAM-013, and POAM-008 with remediation summaries. POAM-011 and POAM-013 marked as Remediated. POAM-008 marked as In Progress (code complete). Updated summary counts.
 - Version 1.0 (2026-01-24): Initial standalone POA&M document for CMMC Level 2 assessment package

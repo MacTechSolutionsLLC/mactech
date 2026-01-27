@@ -38,7 +38,7 @@ The system handles:
 
 **Important:** Publicly available data from SAM.gov and USAspending.gov APIs is not FCI by itself. FCI exists only when such data is combined with internal, non-public information or when the system receives, generates, or stores non-public contract-related information.
 
-**FCI Boundary:** See `MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md` for explicit FCI definition, prohibited data types, and data boundary enforcement.
+**FCI and CUI Boundary:** See `MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md` for explicit FCI and CUI definition, prohibited data types, and data boundary enforcement.
 
 ### 2.2 Controlled Unclassified Information (CUI)
 

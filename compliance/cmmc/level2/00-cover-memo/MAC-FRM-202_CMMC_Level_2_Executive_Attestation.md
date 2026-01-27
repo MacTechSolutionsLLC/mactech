@@ -137,7 +137,7 @@ I understand that:
 This attestation is supported by the following documentation:
 
 1. **System Description** (`01-system-scope/MAC-IT-301_System_Description_and_Architecture.md`)
-2. **FCI Scope and Data Boundary Statement** (`01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`)
+2. **FCI Scope and Data Boundary Statement** (`01-system-scope/MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`)
 3. **Policies and Procedures** (`02-policies-and-procedures/`)
    - Access Control Policy (MAC-POL-210)
    - Identification & Authentication Policy (MAC-POL-211)

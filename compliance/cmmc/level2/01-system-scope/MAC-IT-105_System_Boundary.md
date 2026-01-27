@@ -273,4 +273,4 @@
 - Evidence Index (`../05-evidence/MAC-RPT-100_Evidence_Index.md`)
 - Inherited Controls Matrix (`../03-control-responsibility/MAC-RPT-102_Inherited_Controls_Matrix.md`)
 - Internal Audit Checklist (`../04-self-assessment/MAC-AUD-103_Internal_Audit_Checklist.md`)
-- FCI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`)
+- FCI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`)

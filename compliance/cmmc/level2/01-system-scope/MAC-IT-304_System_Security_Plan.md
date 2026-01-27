@@ -133,7 +133,7 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
 2. **PostgreSQL Database - StoredCUIFile Table (Railway Platform)**
    - Database table for CUI file metadata, access control, and backward compatibility with legacy files
    - Primary CUI content storage is in dedicated CUI vault on Google Cloud Platform (vault.mactechsolutionsllc.com)
-   - Metadata stored in encrypted database (encryption at rest provided by Railway)
+   - Metadata stored in encrypted database (encryption at rest provided by Railway for metadata only, not CUI content)
    - Legacy CUI files may remain in this table for backward compatibility
 
 3. **Authentication System (NextAuth.js)**
@@ -363,7 +363,7 @@ The system connects to the following external systems:
 |----------------|-----------------|---------|-----------|-------------------|-------------------|
 | **SAM.gov API** | HTTPS/TLS (read-only) | Retrieve public contract opportunity data | Outbound only | TLS encryption (inherited from Railway), read-only access | REST API calls |
 | **USAspending.gov API** | HTTPS/TLS (read-only) | Retrieve public award history data | Outbound only | TLS encryption (inherited from Railway), read-only access | REST API calls |
-| **Railway Platform** | HTTPS/TLS, Encrypted database connection | Application hosting, database hosting, CI/CD | Bidirectional | TLS encryption, database encryption at rest (inherited controls) | Platform service integration |
+| **Railway Platform** | HTTPS/TLS, Encrypted database connection | Application hosting, database hosting, CI/CD | Bidirectional | TLS encryption, database encryption at rest for metadata only (inherited controls - CUI content stored in separate CUI vault) | Platform service integration |
 | **GitHub.com** | HTTPS/TLS | Source code repository, dependency scanning | Bidirectional | TLS encryption, repository access controls (inherited controls) | Git operations, API calls |
 
 ### 4.2 Connection Security Controls
@@ -467,7 +467,7 @@ The system connects to the following external systems:
 - Inherited security controls documented in inherited controls documentation
 
 **Related Documents:**
-- FCI Data Handling: `MAC-SEC-303_FCI_Data_Handling_and_Flow_Summary.md`
+- FCI and CUI Data Handling: `MAC-SEC-303_FCI_and_CUI_Data_Handling_and_Flow_Summary.md`
 - Inherited Controls: `../03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
 
 ---
@@ -549,8 +549,11 @@ The system connects to the following external systems:
 
 **Database Security:**
 - Database security capabilities (relied upon operationally, not independently assessed)
+- Database encryption at rest for metadata storage (CUI content is stored in separate CUI vault on Google Cloud Platform)
 - Automated backups
 - Access controls
+
+**Note:** Railway database encryption applies to metadata storage only. CUI content is stored exclusively in the dedicated CUI vault on Google Cloud Platform with FIPS-validated encryption.
 
 **Evidence:** See `03-control-responsibility/MAC-RPT-312_Inherited_Controls_Appendix.md`
 
@@ -1549,8 +1552,9 @@ This section provides detailed implementation information for all 110 NIST SP 80
 #### 3.8.1: Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital
 
 **Implementation:**
-- All CUI stored in cloud database (digital media)
-- Digital media protected via database encryption at rest (Railway platform - inherited)
+- All CUI content stored in dedicated CUI vault on Google Cloud Platform (digital media)
+- CUI metadata stored in Railway database (digital media)
+- Digital media protected via database encryption at rest (Railway platform - inherited, for metadata only; CUI content protected by CUI vault FIPS-validated encryption)
 - No paper media containing CUI used
 - Media protection policy established for digital CUI storage
 
@@ -1633,7 +1637,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Encryption mechanisms protect CUI confidentiality
 
 **Evidence:**
-- Database encryption at rest: Railway platform (inherited)
+- Database encryption at rest: Railway platform (inherited, for metadata only)
+- CUI content encryption: CUI vault on Google Cloud Platform (FIPS-validated)
 - Media Protection Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md`
 
 **Status:** 🔄 Inherited
@@ -1684,7 +1689,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Backup CUI confidentiality protected
 
 **Evidence:**
-- Railway platform backup encryption (inherited)
+- Railway platform backup encryption (inherited, for metadata backups only)
+- CUI vault backup encryption: Google Cloud Platform (FIPS-validated, for CUI content backups)
 - Backup Protection Procedure: To be created
 - Media Protection Policy: `../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md` (to be updated)
 
@@ -2547,7 +2553,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 **Data Protection:**
 - All FCI stored in Railway PostgreSQL database
-- Database encryption at rest (inherited from Railway)
+- Database encryption at rest (inherited from Railway, for FCI and metadata)
+- CUI content stored in separate CUI vault on Google Cloud Platform (FIPS-validated encryption)
 - No local data storage requiring backup procedures
 
 **Business Continuity:**
@@ -2909,7 +2916,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 ### 15.1 SPRS Score Declaration
 
-**Current SPRS Score:** 110  
+**SPRS Score:** 110  
 **Score Date:** 2026-01-26  
 **Score Basis:** NIST SP 800-171 DoD Assessment Methodology scoring (110 base points - all controls implemented)
 
@@ -2943,7 +2950,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 **SPRS Submission:**
 - SPRS score is required for CMMC Level 2 assessment submission
-- Score will be submitted to SPRS (Supplier Performance Risk System) per DoD requirements
+- Score calculated per NIST SP 800-171 DoD Assessment Methodology (110/110)
+- Score to be submitted to SPRS (Supplier Performance Risk System) per DoD requirements when required for contract submission
 - Score submission coordinated with CMMC assessment process
 - Score based on NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1
 
@@ -3009,8 +3017,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 |----------|------|-------------|
 | System Boundary | `MAC-IT-105_System_Boundary.md` | System boundary definition and components |
 | System Description | `MAC-IT-301_System_Description_and_Architecture.md` | Detailed system architecture and description |
-| FCI Scope Statement | `MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md` | FCI scope and data boundary definition |
-| FCI Data Handling | `MAC-SEC-303_FCI_Data_Handling_and_Flow_Summary.md` | FCI data flow and handling procedures |
+| FCI and CUI Scope Statement | `MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md` | FCI and CUI scope and data boundary definition |
+| FCI and CUI Data Handling | `MAC-SEC-303_FCI_and_CUI_Data_Handling_and_Flow_Summary.md` | FCI and CUI data flow and handling procedures |
 
 ### A.2 Policies and Procedures
 

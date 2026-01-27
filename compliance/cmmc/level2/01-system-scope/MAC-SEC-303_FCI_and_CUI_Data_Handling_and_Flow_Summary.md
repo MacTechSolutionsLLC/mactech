@@ -12,7 +12,7 @@
 
 ## 1. Purpose
 
-This document summarizes how Federal Contract Information (FCI) is handled, processed, stored, and transmitted within the MacTech Solutions system. This summary supports the FCI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`) and provides a high-level overview of FCI data flows.
+This document summarizes how Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) are handled, processed, stored, and transmitted within the MacTech Solutions system. This summary supports the FCI and CUI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`) and provides a high-level overview of FCI and CUI data flows.
 
 ---
 
@@ -240,7 +240,7 @@ This document summarizes how Federal Contract Information (FCI) is handled, proc
 
 ## 9. Related Documents
 
-- FCI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`)
+- FCI and CUI Scope and Data Boundary Statement (`MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`)
 - System Description (`MAC-IT-301_System_Description_and_Architecture.md`)
 - System Boundary (`MAC-IT-105_System_Boundary.md`)
 - Access Control Policy (`../02-policies-and-procedures/MAC-POL-210_Access_Control_Policy.md`)

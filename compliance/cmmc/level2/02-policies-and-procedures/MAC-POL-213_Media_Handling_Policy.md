@@ -86,7 +86,7 @@ This policy applies to:
 
 **Related Documents:**
 - User Access and FCI Handling Acknowledgement (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`) - Required user acknowledgment
-- FCI Scope and Data Boundary Statement (`../01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`) - Prohibited data types and boundary enforcement
+- FCI Scope and Data Boundary Statement (`../01-system-scope/MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`) - Prohibited data types and boundary enforcement
 - Portable Storage Controls Evidence: `../05-evidence/MAC-RPT-118_Portable_Storage_Controls_Evidence.md`
 
 ---

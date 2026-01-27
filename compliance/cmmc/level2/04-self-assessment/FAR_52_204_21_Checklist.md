@@ -95,7 +95,7 @@ This document maps all 15 basic safeguarding requirements in FAR 52.204-21 to CM
 - `middleware.ts` (lines 19-40)
 - PublicContent model
 - Database schema
-- FCI Scope Statement: `01-system-scope/MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`
+- FCI Scope Statement: `01-system-scope/MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`
 
 ---
 

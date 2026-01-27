@@ -47,7 +47,7 @@ The following documents are authoritative for this CMMC 2.0 Level 2 assessment:
 
 The following controls are **relied upon as inherited** from service providers:
 
-- **Railway Platform:** Hosting infrastructure, TLS encryption, physical security, database encryption at rest, platform patching and maintenance
+- **Railway Platform:** Hosting infrastructure, TLS encryption, physical security, database encryption at rest (for metadata only - CUI content stored in separate CUI vault), platform patching and maintenance
 - **GitHub:** Source code repository access controls, audit history, dependency scanning
 
 All inherited controls are documented in the System Security Plan (Section 3) and the Inherited Controls Responsibility Matrix (`03-control-responsibility/MAC-RPT-311_Inherited_Controls_Responsibility_Matrix.md`).
@@ -65,8 +65,10 @@ Level 1 artifacts are located in `/compliance/cmmc/fci/` and are maintained for 
 ## System Information
 
 **System Name:** MacTech Solutions Application  
-**System Boundary:** Railway cloud platform (hosting and database)  
+**System Boundary:** Railway cloud platform (main application) and CUI Vault on Google Cloud Platform (CUI content storage)  
 **Enclave Definition:** CMMC 2.0 Level 2 CUI enclave processing Controlled Unclassified Information as defined by 32 CFR Part 2002 and the CUI Registry
+
+**CUI Storage Architecture:** CUI content is stored exclusively in dedicated CUI vault on Google Cloud Platform (vault.mactechsolutionsllc.com). Railway database stores CUI metadata only (not CUI content).
 
 **Control Implementation Status:**
 - **Implemented:** 96 controls (87%)
@@ -99,7 +101,7 @@ This documentation package reflects actual operational practices and is prepared
 
 **Current Compliance Status:**
 - **100% Control Readiness** (96 implemented + 14 inherited = 110 of 110 controls)
-- **0 open POA&M items** - All previously tracked POA&M items have been fully remediated
+- **0 open POA&M items** - All previously tracked POA&M items have been fully remediated or closed as not applicable
 - **14 controls not applicable** due to cloud-only architecture
 
 **POA&M Status:**
@@ -107,6 +109,7 @@ All previously tracked POA&M items have been fully remediated and implemented:
 - 3.5.6 - Disable identifiers after inactivity - ✅ Remediated (2026-01-25)
 - 3.7.2 - Controls on maintenance tools - ✅ Remediated (2026-01-25)
 - 3.13.11 - FIPS-validated cryptography - ✅ Remediated (2026-01-26)
+- 3.4.2 - CUI Vault Firewall Configuration - ✅ Closed (2026-01-27) - Not applicable (GCP VPC firewall provides sufficient protection)
 
 This package demonstrates full compliance with all 110 NIST SP 800-171 Rev. 2 controls implemented, inherited, or determined to be not applicable.
 
@@ -122,6 +125,8 @@ All control statements in the SSP are written as current-state implementations o
 **Date:** 2026-01-24
 
 **Change History:**
+- Version 2.2 (2026-01-27): Closed POAM-014 as not applicable - GCP VPC firewall provides sufficient firewall protection. Updated POA&M status to reflect 0 open items. All POA&M items remediated or closed.
+- Version 2.1 (2026-01-27): Updated system boundary to reflect dual-boundary architecture (Railway + CUI Vault). Updated POA&M status to acknowledge 1 open item (POAM-014). Clarified encryption provider language (Railway for metadata, GCP for CUI content).
 - Version 2.0 (2026-01-27): Updated to reflect 100% compliance - All POA&M items remediated, all controls implemented/inherited/NA
 - Version 1.0 (2026-01-24): Initial cover memorandum for CMMC 2.0 Level 2 assessment package
 

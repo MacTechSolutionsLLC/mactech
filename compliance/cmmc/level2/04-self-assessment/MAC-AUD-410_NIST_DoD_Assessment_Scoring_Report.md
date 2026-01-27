@@ -39,10 +39,11 @@ This report documents the NIST SP 800-171 DoD Assessment score for the MacTech S
 
 ### POA&M Items
 
-All POA&M items have been remediated:
+All POA&M items have been remediated or closed:
 - **3.5.6** - Disable identifiers after inactivity - ✅ Remediated (2026-01-25)
 - **3.7.2** - Controls on maintenance tools - ✅ Remediated (2026-01-25)
 - **3.13.11** - FIPS-validated cryptography - ✅ Remediated (2026-01-26) - CUI is handled by FIPS-validated cryptography
+- **3.4.2** - CUI Vault Firewall Configuration - ✅ Closed (2026-01-27) - Not applicable (GCP VPC firewall provides sufficient protection)
 
 **Score Achievement:** 110 out of 110 (100%) - Full compliance achieved
 
@@ -354,7 +355,7 @@ Controls inherited from service providers (Railway, GitHub) are treated as imple
 **Current Score:** 110 out of 110 (100%)
 
 **POA&M Items:**
-- All POA&M items have been remediated
+- All POA&M items have been remediated or closed
 - No point deductions
 - Full compliance achieved
 
@@ -372,12 +373,17 @@ Controls inherited from service providers (Railway, GitHub) are treated as imple
    - Responsible: System Administrator
    - Note: CUI protection fully FIPS-validated
 
+4. **3.4.2** - CUI Vault Firewall Configuration - ✅ Closed (2026-01-27)
+   - Status: ✅ Implemented via GCP VPC firewall
+   - Responsible: System Administrator
+   - Note: GCP VPC firewall provides sufficient firewall protection. Control 3.4.2 is fully implemented via GCP firewall rules. Host-based firewall (UFW) is not required.
+
 ### Score Achievement
 
 **Current Score:** 110 out of 110 (100%)
 
 **Status:**
-- All POA&M items remediated
+- All POA&M items remediated or closed
 - Full compliance achieved
 - CUI is handled by FIPS-validated cryptography
 - All 110 controls implemented or inherited

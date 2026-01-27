@@ -154,7 +154,7 @@ SELECT * FROM "EndpointInventory" ORDER BY "lastVerifiedDate" DESC;
 **Evidence Types:**
 - System Security Plan: `MAC-IT-304_System_Security_Plan.md`
 - System Boundary: `MAC-IT-105_System_Boundary.md`
-- FCI Scope: `MAC-SEC-302_FCI_Scope_and_Data_Boundary_Statement.md`
+- FCI Scope: `MAC-SEC-302_FCI_and_CUI_Scope_and_Data_Boundary_Statement.md`
 - System Description: `MAC-IT-301_System_Description_and_Architecture.md`
 
 **How to Access:**
