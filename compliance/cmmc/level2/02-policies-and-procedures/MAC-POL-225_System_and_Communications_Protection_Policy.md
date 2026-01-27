@@ -1,7 +1,7 @@
 # System and Communications Protection Policy - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-23  
+**Document Version:** 1.1  
+**Date:** 2026-01-27  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2, Section 3.13
@@ -157,14 +157,16 @@ This policy applies to:
 **Requirement:** Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission.
 
 **Implementation:**
-- All CUI transmission encrypted via HTTPS/TLS
-- TLS encryption provided by Railway platform (inherited)
+- All CUI transmission encrypted via HTTPS/TLS 1.3 (AES-256-GCM-SHA384)
+- CUI vault TLS encryption: Google Cloud Platform (GCP) with nginx TLS termination
+- Main application TLS encryption: Railway platform (inherited)
 - All communications encrypted in transit
 
 **Evidence:**
+- CUI Vault TLS Configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
 - Railway platform TLS/HTTPS (inherited)
 
-**Status:** 🔄 Inherited
+**Status:** ✅ Implemented (CUI vault), 🔄 Inherited (main application)
 
 ---
 
@@ -206,15 +208,19 @@ This policy applies to:
 **Requirement:** Employ FIPS-validated cryptography when used to protect the confidentiality of CUI.
 
 **Implementation:**
-- FIPS cryptography assessment conducted
-- FIPS validation status documented
-- Cryptography used assessed for FIPS compliance
-- POA&M item if not fully FIPS-validated
+- CUI is protected by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
+- CUI vault TLS: TLS 1.3 (AES-256-GCM-SHA384) using FIPS-validated cryptographic module
+- CUI vault database encryption: AES-256-GCM using FIPS-validated cryptographic module
+- Kernel FIPS mode: Enabled on CUI vault infrastructure
+- FIPS provider: Active and verified on CUI vault
+- FIPS cryptography assessment conducted and documented
 
 **Evidence:**
 - FIPS Cryptography Assessment: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
+- CUI Vault TLS Configuration: `../05-evidence/MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence.md`
+- CUI Vault Deployment Evidence: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
 
-**Status:** ❌ Not Implemented (POA&M item - Phase 8)
+**Status:** ✅ Implemented (CUI fully FIPS-validated)
 
 ---
 
@@ -286,14 +292,19 @@ This policy applies to:
 **Requirement:** Protect the confidentiality of CUI at rest.
 
 **Implementation:**
-- Database encryption at rest provided by Railway PostgreSQL service
-- CUI stored in encrypted database
+- CUI stored in dedicated CUI vault on Google Cloud Platform (GCP)
+- CUI vault database: PostgreSQL on GCP with AES-256-GCM encryption using FIPS-validated cryptographic module
+- CUI records encrypted at field level (ciphertext, nonce, tag) using AES-256-GCM
+- Database encryption at rest: GCP infrastructure (inherited)
+- Main application database: Railway PostgreSQL service (for non-CUI data)
 - Passwords encrypted using bcrypt hashing
 
 **Evidence:**
-- Railway platform database encryption at rest (inherited)
+- CUI Vault Deployment Evidence: `../05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
+- FIPS Cryptography Assessment: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md`
+- Railway platform database encryption at rest (inherited for main application)
 
-**Status:** 🔄 Inherited
+**Status:** ✅ Implemented (CUI vault), 🔄 Inherited (main application database)
 
 ---
 
@@ -301,10 +312,16 @@ This policy applies to:
 
 ### 4.1 Network Segmentation
 
-**Architecture:**
+**Main Application Architecture (Railway):**
 - Public network segment: Next.js application
-- Internal network segment: PostgreSQL database
+- Internal network segment: PostgreSQL database (non-CUI data)
 - Network boundaries: Railway platform managed
+
+**CUI Vault Architecture (Google Cloud Platform):**
+- Public network segment: nginx web server (TLS termination)
+- Internal network segment: PostgreSQL database (localhost only, 127.0.0.1:5432)
+- Network boundaries: Google Cloud Platform managed
+- Domain: vault.mactechsolutionsllc.com
 
 ---
 
@@ -312,9 +329,11 @@ This policy applies to:
 
 **Encryption:**
 - All communications encrypted via TLS/HTTPS
+- Main application: TLS encryption via Railway platform (inherited)
+- CUI vault: TLS 1.3 (AES-256-GCM-SHA384) via GCP with nginx
 - Database connections encrypted
-- CUI in transit protected
-- CUI at rest protected
+- CUI in transit protected via FIPS-validated cryptography
+- CUI at rest protected via FIPS-validated cryptography (AES-256-GCM)
 
 ---
 
@@ -328,13 +347,22 @@ This policy applies to:
 - Document network architecture
 - Verify communication protection
 
-### 5.2 Railway Platform (Inherited)
+### 5.2 Railway Platform (Inherited - Main Application)
 
 **Responsibilities:**
-- Provide network security
-- Manage TLS/HTTPS
-- Provide database encryption
-- Manage network boundaries
+- Provide network security for main application
+- Manage TLS/HTTPS for main application
+- Provide database encryption for non-CUI data
+- Manage network boundaries for main application
+
+### 5.3 Google Cloud Platform (CUI Vault Infrastructure)
+
+**Responsibilities:**
+- Provide network security for CUI vault
+- Manage TLS/HTTPS for CUI vault (nginx TLS termination)
+- Provide infrastructure for FIPS-validated cryptography
+- Manage network boundaries for CUI vault
+- Ensure FIPS mode is enabled and active
 
 ---
 
@@ -354,6 +382,7 @@ This policy applies to:
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 1.1 (2026-01-27): Updated to reflect CUI vault architecture on Google Cloud Platform (GCP), corrected FIPS validation status to Implemented, and clarified separation between main application (Railway) and CUI vault (GCP)
 - Version 1.0 (2026-01-23): Initial document creation for CMMC Level 2
 
 ---
