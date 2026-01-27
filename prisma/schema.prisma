@@ -1024,11 +1024,13 @@ model StoredCUIFile {
   filename           String // Original filename
   mimeType           String // MIME type
   size               Int // File size in bytes
-  data               Bytes // File content (BYTEA in PostgreSQL)
+  data               Bytes // File content (BYTEA in PostgreSQL) - only used for local storage
   uploadedAt         DateTime  @default(now())
   deletedAt          DateTime? // Logical deletion timestamp
   signedUrlExpiresAt DateTime? // Expiration for signed URL
   metadata           String?   @db.Text // JSON metadata (non-sensitive)
+  storedInVault      Boolean   @default(false) // Whether file is stored in CUI vault
+  vaultId            String? // CUI vault record ID (if stored in vault)
 
   // Relations
   uploader User @relation("CUIFiles", fields: [userId], references: [id], onDelete: Cascade)
@@ -1036,6 +1038,8 @@ model StoredCUIFile {
   @@index([userId])
   @@index([uploadedAt])
   @@index([deletedAt])
+  @@index([storedInVault])
+  @@index([vaultId])
 }
 
 // Public content approval (for public release control)
