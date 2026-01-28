@@ -133,6 +133,8 @@ async function enrichSCTMTable() {
   const updatedLines: string[] = []
   let inTable = false
   let headerUpdated = false
+  let processedControls = 0
+  let totalControlRowsFound = 0
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -174,8 +176,13 @@ async function enrichSCTMTable() {
     }
 
     // Check for table separator row (---)
+    // Only match if it's ACTUALLY a separator (all cells are dashes/spaces, not a control row)
     if (trimmed.startsWith('|') && trimmed.match(/\|[\s-]+\|/)) {
-      if (headerUpdated && !trimmed.includes('NIST')) {
+      // Make sure it's not a control row (control rows start with digits)
+      const firstCell = trimmed.replace(/^\|/, '').split('|')[0]?.trim()
+      const isControlRow = firstCell?.match(/^\d+\.\d+\.\d+/)
+      
+      if (!isControlRow && headerUpdated && !trimmed.includes('NIST')) {
         // Update separator row to match new column count
         const separatorCells = trimmed
           .replace(/^\|/, '')
@@ -197,7 +204,7 @@ async function enrichSCTMTable() {
       }
     }
 
-    // Check for control table rows
+    // Check for control table rows (process all table rows, not just when inTable flag is set)
     if (trimmed.startsWith('|') && trimmed.includes('|')) {
       const cells = trimmed
         .replace(/^\|/, '')
@@ -206,9 +213,14 @@ async function enrichSCTMTable() {
         .map(cell => cell.trim())
       
       // Check if this is a control row (starts with control ID pattern)
-      if (cells.length >= 8 && cells[0].match(/^\d+\.\d+\.\d+$/)) {
-        const controlId = cells[0]
+      const controlIdMatch = cells[0]?.match(/^(\d+\.\d+\.\d+)/)
+      
+      if (cells.length >= 8 && controlIdMatch) {
+        totalControlRowsFound++
+        const controlId = controlIdMatch[1] // Use the matched part
+        processedControls++
         const enriched = enrichedControls.get(controlId)
+        
         
         if (enriched) {
           // Check if already has NIST columns
@@ -223,21 +235,6 @@ async function enrichSCTMTable() {
                                    (currentNISTDisc === '---' || currentNISTDisc === '')
             
             if (needsEnrichment && enriched.nistData && enriched.nistData.requirement) {
-              // Find the status column dynamically
-              let statusIndex = -1
-              for (let i = 0; i < cells.length; i++) {
-                const cell = cells[i].trim()
-                if (cell.match(/^[✅🔄⚠️❌🚫]/) || 
-                    cell.toLowerCase().includes('implemented') ||
-                    cell.toLowerCase().includes('inherited') ||
-                    cell.toLowerCase().includes('partially') ||
-                    cell.toLowerCase().includes('not implemented') ||
-                    cell.toLowerCase().includes('not applicable')) {
-                  statusIndex = i
-                  break
-                }
-              }
-              
               // Update NIST columns (indices 2 and 3) regardless of status position
               const nistRequirement = enriched.nistData.requirement
                 ? formatNISTRequirement(enriched.nistData.requirement)
@@ -252,7 +249,9 @@ async function enrichSCTMTable() {
               updatedCells[3] = nistDiscussion || '---'
               
               // Reconstruct the row with updated NIST columns
-              updatedLines.push(`| ${updatedCells.join(' | ')} |`)
+              // Ensure all cells are included, even if empty
+              const reconstructedRow = `| ${updatedCells.map(c => c || '').join(' | ')} |`
+              updatedLines.push(reconstructedRow)
               continue
             }
             
@@ -294,6 +293,8 @@ async function enrichSCTMTable() {
 
   updatedContent = updatedLines.join('\n')
   console.log(`✓ Updated SCTM table with NIST columns`)
+  console.log(`  Total control rows found: ${totalControlRowsFound}`)
+  console.log(`  Controls processed: ${processedControls}`)
   console.log()
 
   // Step 5: Add section 17.2 with full DISCUSSION text
