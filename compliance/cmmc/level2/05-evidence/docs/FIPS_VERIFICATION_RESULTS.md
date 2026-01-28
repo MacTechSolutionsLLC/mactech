@@ -1,13 +1,17 @@
 # FIPS Verification Results - CMMC Level 2
 
-**Document Version:** 1.0  
-**Date:** 2026-01-26  
+**Document Version:** 2.0  
+**Date:** 2026-01-27  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2, Section 3.13.11
 
 **Control ID:** 3.13.11  
 **Applies to:** CMMC 2.0 Level 2 (CUI system)
+
+**CUI protection (vault) — official certificate:**  
+**NIST CMVP Certificate #4794** — Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS 140-3 Level 1, Active until 9/10/2026).  
+Certificate URL: https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
 
 ---
 
@@ -32,7 +36,9 @@ This document provides evidence of FIPS validation verification results for cryp
 
 ---
 
-## 3. Main Application - Node.js/OpenSSL JWT Signing
+## 3. Main Application - Node.js/OpenSSL JWT Signing (Non-CUI Only)
+
+**Note:** This section applies to the main application (Railway), which is outside the CUI security boundary. **CUI protection uses NIST CMVP Certificate #4794** (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module); see Sections 4 and 5.
 
 ### 3.1 Runtime Information
 
@@ -40,7 +46,7 @@ This document provides evidence of FIPS validation verification results for cryp
 **Runtime:** Node.js 24.6.0, OpenSSL 3.6.0  
 **Verification Date:** 2026-01-25
 
-### 3.2 CMVP Database Search Results
+### 3.2 CMVP Database Search Results (Main Application / Non-CUI)
 
 **Search Performed:**
 - **Database:** NIST CMVP Validated Modules
@@ -48,9 +54,9 @@ This document provides evidence of FIPS validation verification results for cryp
 - **Search Term:** "OpenSSL FIPS Provider"
 - **Filter:** Active certificates
 
-**Validated Module Found:**
+**Validated Module Found (for main-app reference only; not used for CUI):**
 
-**CMVP Certificate #4282**
+**CMVP Certificate #4282** (OpenSSL FIPS Provider 3.0.8 — not used for CUI)
 - **Module Name:** OpenSSL FIPS Provider
 - **Software Version:** 3.0.8
 - **Certificate Status:** Active
@@ -63,8 +69,9 @@ This document provides evidence of FIPS validation verification results for cryp
   - macOS
   - Ubuntu Linux
 
-**Certificate Reference:**
-- CMVP Certificate: https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4282
+**Certificate Reference:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4282  
+
+**CUI-relevant certificate:** CUI vault uses **CMVP Certificate #4794** (Ubuntu 22.04 OpenSSL Cryptographic Module); see document header and Sections 4–5.
 
 ### 3.3 Version Comparison
 
@@ -79,7 +86,7 @@ This document provides evidence of FIPS validation verification results for cryp
 #### ✅ Step 1: CMVP Database Search
 - [x] Navigated to CMVP search
 - [x] Searched for "OpenSSL FIPS Provider"
-- [x] Found Certificate #4282 (OpenSSL 3.0.8)
+- [x] Found Certificate #4282 (OpenSSL 3.0.8) for main-app reference; CUI uses Certificate #4794 (Sections 4–5)
 
 #### ❌ Step 2: Software Version Match
 - [x] Certificate version: 3.0.8
@@ -100,7 +107,7 @@ This document provides evidence of FIPS validation verification results for cryp
 
 **FIPS Validation Status:** ❌ **NOT FIPS-VALIDATED**
 
-The runtime uses OpenSSL 3.6.0, which does not have CMVP validation. Only OpenSSL FIPS Provider 3.0.8 is currently validated under CMVP Certificate #4282.
+The runtime uses OpenSSL 3.6.0, which does not have CMVP validation. Only OpenSSL FIPS Provider 3.0.8 is currently validated under CMVP Certificate #4282. **CUI protection is not provided by the main application;** it uses the CUI vault and CMVP Certificate #4794 (see Sections 4 and 5).
 
 **Action Required:** Migration to FIPS-validated OpenSSL 3.0.8 or alternative FIPS-validated cryptographic module.
 
@@ -278,10 +285,11 @@ CUI vault database encryption is fully FIPS-validated via Ubuntu 22.04 OpenSSL C
 **Next Review Date:** 2026-04-26
 
 **Change History:**
-- **Version 2.0 (2026-01-27):** Updated to reflect CUI vault-only architecture
-  - Removed Railway Platform TLS/HTTPS section (Railway is prohibited from CUI)
-  - Added CUI Vault Database Encryption section (fully FIPS-validated)
-  - Updated compliance status to show CUI protection is fully FIPS-validated
+- **Version 2.0 (2026-01-27):** CUI certificate #4794 made primary; vault-only architecture
+  - Added prominent CUI certificate callout at top: **NIST CMVP Certificate #4794** (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module, FIPS 140-3 Level 1, Active until 9/10/2026)
+  - Clarified Section 3: Certificate #4282 is main-app (non-CUI) only; CUI protection uses Certificate #4794 (Sections 4–5)
+  - Removed Railway Platform TLS/HTTPS section (Railway is outside CUI boundary)
+  - CUI Vault TLS and Database sections reference Certificate #4794 and official NIST URL
   - Updated summary tables to reflect CUI vault-only architecture
 - **Version 1.0 (2026-01-26):** Initial FIPS verification results document
 

@@ -133,8 +133,24 @@ export async function parseNISTSP800171(
         continue
       }
       
-      // Don't stop for "THE MEANING OF" or "Derived Security Requirements" - these appear within discussion sections
-      // Continue accumulating discussion
+      // Stop if we hit "Derived Security Requirements" or "Basic Security Requirements"
+      // These markers appear BETWEEN controls and signal end of discussion (don't add to discussion)
+      if (trimmed === 'Derived Security Requirements' || trimmed === 'Basic Security Requirements') {
+        const requirement = requirementLines.join(' ').trim()
+        const discussion = discussionLines.join('\n').trim()
+        
+        controls.set(currentControlId!, {
+          controlId: currentControlId!,
+          requirement: requirement || '',
+          discussion: discussion || '',
+        })
+        
+        currentControlId = null
+        currentState = 'none'
+        requirementLines = []
+        discussionLines = []
+        continue
+      }
       
       // Skip page markers in discussion
       if (trimmed.match(/^SP 800-171, REVISION 2/) ||

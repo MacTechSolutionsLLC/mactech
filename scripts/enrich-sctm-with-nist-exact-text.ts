@@ -231,17 +231,21 @@ async function enrichSCTMTable() {
             const currentNISTDisc = cells[3]?.trim() || ''
             // Check if NIST columns need enrichment (empty, "---", or contain short requirement text)
             const shortReq = cells[1]?.trim() || ''
-            const needsEnrichment = (currentNISTReq === '---' || currentNISTReq === '' || currentNISTReq === shortReq) || 
+            // Also check if currentNISTReq is shorter than expected NIST requirement (indicates wrong data)
+            // OR if currentNISTReq matches the short requirement (wrong data in column)
+            const nistReqLength = enriched.nistData?.requirement?.length || 0
+            const needsEnrichment = (currentNISTReq === '---' || currentNISTReq === '' || currentNISTReq === shortReq || 
+                                    (nistReqLength > 0 && currentNISTReq.length < nistReqLength * 0.8)) || 
                                    (currentNISTDisc === '---' || currentNISTDisc === '')
             
-            if (needsEnrichment && enriched.nistData && enriched.nistData.requirement) {
+            // Always update if we have NIST data (force update to ensure correct data)
+            if (enriched.nistData && enriched.nistData.requirement) {
               // Update NIST columns (indices 2 and 3) regardless of status position
-              const nistRequirement = enriched.nistData.requirement
-                ? formatNISTRequirement(enriched.nistData.requirement)
-                : (currentNISTReq === '---' ? '' : currentNISTReq)
-              const nistDiscussion = enriched.nistData.discussion
+              // Always use the NIST data from the parser, not what's currently in the table
+              const nistRequirement = formatNISTRequirement(enriched.nistData.requirement)
+              const nistDiscussion = enriched.nistData.discussion && enriched.nistData.discussion.length > 0
                 ? formatNISTDiscussion(enriched.nistData.discussion, controlId)
-                : (currentNISTDisc === '---' ? '' : currentNISTDisc)
+                : '---'
               
               // Create updated cells array
               const updatedCells = [...cells]
