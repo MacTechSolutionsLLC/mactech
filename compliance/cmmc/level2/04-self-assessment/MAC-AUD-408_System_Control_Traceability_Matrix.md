@@ -1,8 +1,8 @@
 # System Control Traceability Matrix (SCTM) - CMMC Level 2
 
-**Document Version:** 1.4  
+**Document Version:** 1.5  
 **Date:** 2026-01-23  
-**Last Updated:** 2026-01-26  
+**Last Updated:** 2026-01-27  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2 (All 110 Requirements)
@@ -30,6 +30,17 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 - Implementation location (code/system)
 - SSP section reference
 
+**Note on Google VM (Ubuntu) Infrastructure:**
+The Google VM (cui-vault-jamy) running the CUI vault infrastructure is now part of the system boundary. Many controls have VM-specific implementation requirements in addition to application-level implementations. For comprehensive VM control mapping and VM-specific evidence, see:
+- **VM Control Mapping:** `../01-system-scope/MAC-IT-307_Google_VM_Control_Mapping.md`
+- **VM Baseline Configuration:** `../05-evidence/MAC-RPT-129_Google_VM_Baseline_Configuration.md`
+- **VM Security Configuration:** `../05-evidence/MAC-RPT-130_Google_VM_Security_Configuration.md`
+- **VM Maintenance Procedures:** `../05-evidence/MAC-RPT-131_Google_VM_Maintenance_Procedures.md`
+- **VM Monitoring and Logging:** `../05-evidence/MAC-RPT-132_Google_VM_Monitoring_Logging.md`
+- **VM Gap Analysis:** `../05-evidence/MAC-RPT-133_Google_VM_Gap_Analysis.md`
+
+Controls with significant VM-specific requirements are noted in the Evidence column with VM-specific evidence documents.
+
 ---
 
 ## 3. Access Control (AC) - 22 Requirements
@@ -48,8 +59,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.1.10 | Session lock | ✅ Implemented | MAC-POL-210 | MAC-RPT-106_Session_Lock_Implementation_Evidence | MAC-RPT-106_Session_Lock_Implementation_Evidence, MAC-RPT-121_3_1_10_session_lock_Evidence, MAC-RPT-122_3_1_10_session_lock_Evidence | components/SessionLock.tsx | 7.1, 3.1.10 |
 | 3.1.11 | Automatic session termination | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts, MAC-RPT-122_3_1_11_automatic_session_termination_Evidence | 8-hour timeout | 7.1, 3.1.11 |
 | 3.1.12 | Monitor remote access | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts, MAC-RPT-122_3_1_12_monitor_remote_access_Evidence | Audit logging | 7.1, 3.1.12 |
-| 3.1.13 | Cryptographic remote access | 🔄 Inherited | MAC-POL-210 | - | Railway platform | TLS/HTTPS | 7.1, 3.1.13 |
-| 3.1.14 | Managed access control points | 🔄 Inherited | MAC-POL-210 | - | Railway platform | Platform routing | 7.1, 3.1.14 |
+| 3.1.13 | Cryptographic remote access | ✅ Implemented | MAC-POL-210 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated), SSH key-based authentication (Google VM) | 7.1, 3.1.13 |
+| 3.1.14 | Managed access control points | ⚠️ Partially Satisfied | MAC-POL-210 | - | GCP VPC firewall rules, network access controls | GCP VPC firewall (CUI vault), Railway edge routing (non-CUI app) | 7.1, 3.1.14 |
 | 3.1.15 | Authorize remote privileged commands | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts | middleware.ts, lib/authz.ts | 7.1, 3.1.15 |
 | 3.1.16 | Authorize wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.16 |
 | 3.1.17 | Protect wireless access | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.17 |
@@ -81,7 +92,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.3.4 | Alert on audit logging failure | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_4_alert_on_audit_logging_failure_Evidence | generateFailureAlerts() function | 7.4, 3.3.4 |
 | 3.3.5 | Correlate audit records | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_5_correlate_audit_records_Evidence | lib/audit.ts | 7.4, 3.3.5 |
 | 3.3.6 | Audit record reduction/reporting | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export, MAC-RPT-122_3_3_6_audit_record_reduction_reporting_Evidence | CSV export | 7.4, 3.3.6 |
-| 3.3.7 | System clock synchronization | 🔄 Inherited | MAC-POL-218 | - | Railway platform | NTP sync | 7.4, 3.3.7 |
+| 3.3.7 | System clock synchronization | ✅ Implemented | MAC-POL-218 | - | MAC-RPT-129_Google_VM_Baseline_Configuration.md | NTP configuration (Google VM), system time synchronization | 7.4, 3.3.7 |
 | 3.3.8 | Protect audit information | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts, MAC-RPT-122_3_3_8_protect_audit_information_Evidence | Append-only | 7.4, 3.3.8 |
 | 3.3.9 | Limit audit logging management | ✅ Implemented | MAC-POL-218 | - | middleware.ts, MAC-RPT-122_3_3_9_limit_audit_logging_management_Evidence | Admin-only | 7.4, 3.3.9 |
 
@@ -97,8 +108,8 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.4.4 | Security impact analysis | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, ../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md, MAC-RPT-121_3_4_4_security_impact_analysis_Evidence, MAC-RPT-124_Security_Impact_Analysis_Operational_Evidence | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
 | 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-122_3_4_5_change_access_restrictions_Evidence | Access restrictions documented | 7.5, 3.4.5 |
 | 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, MAC-RPT-121_3_4_6_least_functionality_Evidence, MAC-RPT-125_Least_Functionality_Operational_Evidence | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
-| 3.4.7 | Restrict nonessential programs | 🔄 Inherited | MAC-POL-220 | - | Railway platform | Platform controls | 7.5, 3.4.7 |
-| 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory | 7.5, 3.4.8 |
+| 3.4.7 | Restrict nonessential programs | ✅ Implemented | MAC-POL-220 | - | MAC-RPT-129_Google_VM_Baseline_Configuration.md, MAC-RPT-130_Google_VM_Security_Configuration.md | VM-specific program restrictions (Google VM), application-level controls | 7.5, 3.4.7 |
+| 3.4.8 | Software restriction policy | ⚠️ Partially Satisfied | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, GitHub branch protection, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory, GitHub repo integrity (branch protection) | 7.5, 3.4.8 |
 | 3.4.9 | Control user-installed software | ✅ Implemented | MAC-POL-220 | - | ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
 
 ---
@@ -108,7 +119,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221, MAC-SOP-222 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
-| 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js | 7.2, 3.5.2 |
+| 3.5.2 | Authenticate users | ⚠️ Partially Satisfied | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence, GitHub org MFA | NextAuth.js (application), GitHub org-level MFA (platform accounts) | 7.2, 3.5.2 |
 | 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
 | 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
@@ -139,7 +150,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.7.2 | Controls on maintenance tools | ✅ Implemented | MAC-POL-221 | MAC-SOP-238 | MAC-RPT-123_Maintenance_Tool_Inventory_Evidence | lib/maintenance-tool-logging.ts, lib/maintenance-tool-logging-node.ts, app/api/admin/migrate/route.ts, scripts/start-with-migration.js | 7.10, 3.7.2 |
 | 3.7.3 | Sanitize equipment for off-site maintenance | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
 | 3.7.4 | Check maintenance media | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
-| 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented (Inherited) | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence, MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence | Platform MFA | 7.10, 3.7.5 |
+| 3.7.5 | MFA for nonlocal maintenance | ✅ Implemented | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence, MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence | GCP console MFA, SSH MFA (Google VM) | 7.10, 3.7.5 |
 | 3.7.6 | Supervise maintenance personnel | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
 
 ---
@@ -153,7 +164,7 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 | 3.8.3 | Sanitize/destroy media | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_8_3_sanitize_destroy_media_Evidence | No removable media | 7.6, 3.8.3 |
 | 3.8.4 | Mark media with CUI markings | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
 | 3.8.5 | Control access during transport | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
-| 3.8.6 | Cryptographic protection on digital media | 🔄 Inherited | MAC-POL-213 | - | Railway platform | Database encryption | 7.6, 3.8.6 |
+| 3.8.6 | Cryptographic protection on digital media | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault GCP), GCP disk encryption | 7.6, 3.8.6 |
 | 3.8.7 | Control removable media | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, Policy prohibition, user agreements, technical controls | Policy prohibition, browser-based restrictions, endpoint compliance | 7.6, 3.8.7 |
 | 3.8.8 | Prohibit portable storage without owner | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, ../07-nist-controls/NIST-3.8.8_prohibit_portable_storage_without_owner.md, Policy prohibition, owner identification requirements | Policy prohibition, owner identification (for exceptions), asset inventory | 7.6, 3.8.8 |
 | 3.8.9 | Protect backup CUI | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence | Backup encryption (CUI vault) | 7.6, 3.8.9 |
@@ -173,12 +184,12 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.10.1 | Limit physical access | ✅ Implemented | MAC-POL-212 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_10_1_limit_physical_access_Evidence, MAC-RPT-122_3_10_1_limit_physical_access_Evidence, MAC-RPT-125_CUI_Vault_Deployment_Evidence | Platform/facility controls (Railway, Google Cloud) | 7.8, 3.10.1 |
-| 3.10.2 | Protect and monitor facility | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence | ../02-policies-and-procedures/MAC-POL-212_Physical_Security_Policy.md, MAC-RPT-121_3_10_2_protect_and_monitor_facility_Evidence, MAC-RPT-122_3_10_2_protect_and_monitor_facility_Evidence | Facility protection | 7.8, 3.10.2 |
-| 3.10.3 | Escort and monitor visitors | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence | MAC-RPT-111_Visitor_Controls_Evidence, MAC-RPT-121_3_10_3_escort_and_monitor_visitors_Evidence, MAC-RPT-122_3_10_3_escort_and_monitor_visitors_Evidence | Visitor monitoring | 7.8, 3.10.3 |
-| 3.10.4 | Physical access audit logs | ✅ Implemented | MAC-POL-212 | - | /admin/physical-access-logs | Physical access logging | 7.8, 3.10.4 |
-| 3.10.5 | Control physical access devices | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence | MAC-RPT-112_Physical_Access_Device_Evidence, MAC-RPT-121_3_10_5_control_physical_access_devices_Evidence, MAC-RPT-122_3_10_5_control_physical_access_devices_Evidence | Access devices | 7.8, 3.10.5 |
-| 3.10.6 | Safeguarding at alternate work sites | ✅ Implemented | MAC-POL-212 | MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence | MAC-RPT-113_Alternate_Work_Site_Safeguarding_Evidence, MAC-RPT-121_3_10_6_safeguarding_at_alternate_work_sites_Evidence, MAC-RPT-122_3_10_6_safeguarding_at_alternate_work_sites_Evidence | Alternate sites | 7.8, 3.10.6 |
+| 3.10.1 | Limit physical access | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center physical security (CUI vault), GitHub facilities (source code) | 7.8, 3.10.1 |
+| 3.10.2 | Protect and monitor facility | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center facility protection (CUI vault), GitHub facilities (source code) | 7.8, 3.10.2 |
+| 3.10.3 | Escort and monitor visitors | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center visitor controls (CUI vault), GitHub facilities (source code) | 7.8, 3.10.3 |
+| 3.10.4 | Physical access audit logs | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access logs (CUI vault), GitHub facilities (source code) | 7.8, 3.10.4 |
+| 3.10.5 | Control physical access devices | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access devices (CUI vault), GitHub facilities (source code) | 7.8, 3.10.5 |
+| 3.10.6 | Safeguarding at alternate work sites | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center alternate sites (CUI vault), GitHub facilities (source code) | 7.8, 3.10.6 |
 
 ---
 
@@ -207,21 +218,21 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.13.1 | Monitor/control/protect communications | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | Network security (Railway inherited), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers) | 7.13, 3.13.1 |
+| 3.13.1 | Monitor/control/protect communications | ⚠️ Partially Satisfied | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | GCP cloud perimeter (CUI vault), Railway edge routing (non-CUI app), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers) | 7.13, 3.13.1 |
 | 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_2_architectural_designs_Evidence, MAC-RPT-122_3_13_2_architectural_designs_Evidence | System architecture | 7.13, 3.13.2 |
 | 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_3_separate_user_system_management_Evidence | Role separation | 7.13, 3.13.3 |
 | 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 | - | Access controls | Information flow | 7.13, 3.13.4 |
-| 3.13.5 | Implement subnetworks | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network segmentation | 7.13, 3.13.5 |
-| 3.13.6 | Deny-by-default network communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Network controls | 7.13, 3.13.6 |
+| 3.13.5 | Implement subnetworks | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP VPC network segmentation, Railway logical app/db separation | GCP VPC/hypervisor separation (CUI vault), Railway logical segmentation (non-CUI app) | 7.13, 3.13.5 |
+| 3.13.6 | Deny-by-default network communications | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP VPC firewall rules, Railway network controls | GCP infrastructure routing (CUI vault), Railway network controls (non-CUI app) | 7.13, 3.13.6 |
 | 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
-| 3.13.8 | Cryptographic mechanisms for CUI in transit | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated) | 7.13, 3.13.8 |
-| 3.13.9 | Terminate network connections | 🔄 Inherited | MAC-POL-225 | - | Railway platform | Connection management | 7.13, 3.13.9 |
-| 3.13.10 | Cryptographic key management | ✅ Implemented (Inherited) | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
+| 3.13.8 | Cryptographic mechanisms for CUI in transit | ⚠️ Partially Satisfied | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, Railway platform TLS | TLS 1.3 (CUI vault FIPS-validated), Railway platform TLS (non-CUI app only) | 7.13, 3.13.8 |
+| 3.13.9 | Terminate network connections | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP fabric-level connection management, Railway platform session handling | GCP fabric-level termination (CUI vault), Railway platform session handling (non-CUI app) | 7.13, 3.13.9 |
+| 3.13.10 | Cryptographic key management | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
 | 3.13.11 | FIPS-validated cryptography | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence, MAC-RPT-124_FIPS_Migration_Plan, docs/FIPS_VERIFICATION_RESULTS.md, docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence | lib/fips-crypto.ts, lib/fips-jwt.ts, lib/fips-nextauth-config.ts, lib/fips-verification.ts, app/api/admin/fips-status/route.ts, scripts/verify-fips-status.ts, compliance/cmmc/level2/05-evidence/docs/CUI_Vault_TLS_Implementation_Reference.md | 7.13, 3.13.11 |
 | 3.13.12 | Collaborative computing devices | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
 | 3.13.13 | Control mobile code | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117_Mobile_Code_Control_Evidence | MAC-RPT-117_Mobile_Code_Control_Evidence, MAC-RPT-121_3_13_13_control_mobile_code_Evidence, MAC-RPT-122_3_13_13_control_mobile_code_Evidence | Mobile code policy, CSP | 7.13, 3.13.13 |
 | 3.13.14 | Control VoIP | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
-| 3.13.15 | Protect authenticity of communications | 🔄 Inherited | MAC-POL-225 | - | Railway platform | TLS authentication | 7.13, 3.13.15 |
+| 3.13.15 | Protect authenticity of communications | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP TLS certificate validation, Railway platform TLS | GCP TLS authentication (CUI vault), Railway platform TLS (non-CUI app) | 7.13, 3.13.15 |
 | 3.13.16 | Protect CUI at rest | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault FIPS-validated) | 7.13, 3.13.16 |
 
 ---
@@ -245,12 +256,20 @@ This System Control Traceability Matrix (SCTM) provides a comprehensive mapping 
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 90 controls (82%)
-- 🔄 **Inherited:** 10 controls (9%)
+- ✅ **Implemented:** 82 controls (75%)
+- 🔄 **Inherited:** 6 controls (5%)
+- ⚠️ **Partially Satisfied:** 9 controls (8%)
 - ❌ **Not Implemented:** 0 controls (0%)
 - 🚫 **Not Applicable:** 10 controls (9%)
 
-**Recent Implementation Updates (2026-01-26):**
+**Recent Implementation Updates (2026-01-27):**
+- 🔄 Control inheritance reassessment completed - Removed Railway overclaims, added GCP PE inheritance (3.10.1-3.10.6), added GitHub partial inheritance (3.4.8, 3.5.2), corrected SC controls to partial status with proper provider attribution
+- ✅ 3.1.13, 3.3.7, 3.4.7, 3.8.6 - Changed from Inherited to Implemented (customer-implemented controls)
+- 🔄 3.10.1-3.10.6 - Changed from Implemented to Inherited (GCP and GitHub physical security)
+- ⚠️ 3.1.14, 3.13.1, 3.13.5, 3.13.6, 3.13.8, 3.13.9, 3.13.15 - Changed to Partially Satisfied with proper provider attribution (GCP, Railway, GitHub)
+- ⚠️ 3.4.8, 3.5.2 - Changed to Partially Satisfied (GitHub repo integrity and MFA)
+
+**Previous Updates (2026-01-26):**
 - ✅ 3.13.11 (FIPS-validated cryptography) - Fully implemented - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
 - ✅ 3.5.6 (Disable identifiers after inactivity) - Implemented with authentication-time enforcement (assessor-safe approach)
 - ✅ 3.7.2 (Controls on maintenance tools) - Fully implemented with inventory, procedure, and logging
