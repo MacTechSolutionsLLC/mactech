@@ -136,7 +136,58 @@ function parseTableRow(row: string, family: string): Control | null {
   }
   
   // Handle 10-column format (with NIST text)
+  // Note: Some rows may have malformed structure with extra "---" placeholders
+  // We need to detect the actual column positions by looking for status emoji/status text
   if (cells.length >= 10) {
+    // Find the status column (contains emoji or status text)
+    let statusIndex = -1
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i].trim()
+      if (cell.match(/^[✅🔄⚠️❌🚫]/) || 
+          cell.toLowerCase().includes('implemented') ||
+          cell.toLowerCase().includes('inherited') ||
+          cell.toLowerCase().includes('partially') ||
+          cell.toLowerCase().includes('not implemented') ||
+          cell.toLowerCase().includes('not applicable')) {
+        statusIndex = i
+        break
+      }
+    }
+    
+    // If we found status, reconstruct columns from there
+    if (statusIndex > 0) {
+      // Expected order after status: Policy, Procedure, Evidence, Implementation, SSP Section
+      const controlId = cells[0].trim()
+      const requirement = cells[1].trim()
+      const nistRequirement = cells[2]?.trim() === '---' ? undefined : cells[2]?.trim()
+      const nistDiscussion = cells[3]?.trim() === '---' ? undefined : cells[3]?.trim()
+      const status = cells[statusIndex].trim()
+      const policy = statusIndex + 1 < cells.length ? cells[statusIndex + 1].trim() : '-'
+      const procedure = statusIndex + 2 < cells.length ? cells[statusIndex + 2].trim() : '-'
+      const evidence = statusIndex + 3 < cells.length ? cells[statusIndex + 3].trim() : '-'
+      const implementation = statusIndex + 4 < cells.length ? cells[statusIndex + 4].trim() : '-'
+      const sspSection = statusIndex + 5 < cells.length ? cells[statusIndex + 5].trim() : '-'
+      
+      // Clean up policy and procedure references (remove "(to be created)" text)
+      const cleanPolicy = policy.replace(/\s*\(to be created\)/gi, '').trim() || '-'
+      const cleanProcedure = procedure.replace(/\s*\(to be created\)/gi, '').trim() || '-'
+      
+      return {
+        id: controlId,
+        requirement: requirement,
+        nistRequirement: nistRequirement,
+        nistDiscussion: nistDiscussion,
+        status: parseStatus(status),
+        family,
+        policy: cleanPolicy,
+        procedure: cleanProcedure,
+        evidence: evidence || '-',
+        implementation: implementation || '-',
+        sspSection: sspSection || '-',
+      }
+    }
+    
+    // Fallback: try standard 10-column parsing
     const [controlId, requirement, nistRequirement, nistDiscussion, status, policy, procedure, evidence, implementation, sspSection] = cells
     
     // Clean up policy and procedure references (remove "(to be created)" text)
@@ -146,8 +197,8 @@ function parseTableRow(row: string, family: string): Control | null {
     return {
       id: controlId.trim(),
       requirement: requirement.trim(),
-      nistRequirement: nistRequirement?.trim() || undefined,
-      nistDiscussion: nistDiscussion?.trim() || undefined,
+      nistRequirement: nistRequirement?.trim() === '---' ? undefined : nistRequirement?.trim(),
+      nistDiscussion: nistDiscussion?.trim() === '---' ? undefined : nistDiscussion?.trim(),
       status: parseStatus(status),
       family,
       policy: cleanPolicy,

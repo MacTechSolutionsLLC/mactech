@@ -275,7 +275,7 @@ async function verifyProcedure(procedureRef: string): Promise<EvidenceItem> {
  * Verify evidence file exists
  */
 async function verifyEvidenceFile(evidenceRef: string): Promise<EvidenceItem[]> {
-  if (!evidenceRef || evidenceRef === '-') {
+  if (!evidenceRef || evidenceRef === '-' || evidenceRef === '---') {
     return [{
       reference: evidenceRef || '-',
       exists: false,
@@ -1026,27 +1026,30 @@ function calculateComplianceScore(audit: Partial<ControlAuditResult>): number {
   let maxScore = 0
   
   // Policy verification (20 points)
-  maxScore += 20
+  // Only score if there are actual policy references (not just "-" or "---")
   if (audit.evidence?.policies && audit.evidence.policies.length > 0) {
+    maxScore += 20
     const policyScore = audit.evidence.policies.every(p => p.exists) ? 20 : 
                        audit.evidence.policies.some(p => p.exists) ? 10 : 0
     score += policyScore
   }
   
   // Procedure verification (20 points)
-  maxScore += 20
+  // Only score if there are actual procedure references (not just "-" or "---")
   if (audit.evidence?.procedures && audit.evidence.procedures.length > 0) {
+    maxScore += 20
     const procedureScore = audit.evidence.procedures.every(p => p.exists) ? 20 : 
                           audit.evidence.procedures.some(p => p.exists) ? 10 : 0
     score += procedureScore
   }
   
   // Evidence files (30 points)
-  maxScore += 30
+  // Only score if there are actual evidence file references (not just "-" or "---")
   if (audit.evidence?.evidenceFiles && audit.evidence.evidenceFiles.length > 0) {
+    maxScore += 30
     // Separate verifiable files from descriptive references
     const verifiableFiles = audit.evidence.evidenceFiles.filter(e => 
-      e.reference !== '-' && 
+      e.reference !== '-' && e.reference !== '---' &&
       (e.reference.includes('.md') || 
        e.reference.startsWith('MAC-') || 
        e.reference.startsWith('/api/') || 
@@ -1054,7 +1057,7 @@ function calculateComplianceScore(audit: Partial<ControlAuditResult>): number {
        e.reference.includes('/'))
     )
     const descriptiveRefs = audit.evidence.evidenceFiles.filter(e => 
-      e.reference !== '-' && 
+      e.reference !== '-' && e.reference !== '---' &&
       !verifiableFiles.includes(e)
     )
     
@@ -1070,11 +1073,12 @@ function calculateComplianceScore(audit: Partial<ControlAuditResult>): number {
   }
   
   // Code implementation (30 points)
-  maxScore += 30
+  // Only score if there are actual code references (not just "-" or "---")
   if (audit.evidence?.codeVerification && audit.evidence.codeVerification.length > 0) {
+    maxScore += 30
     // Separate verifiable code files from descriptive references
     const verifiableCode = audit.evidence.codeVerification.filter(c => 
-      c.file !== '-' && 
+      c.file !== '-' && c.file !== '---' && 
       (c.file.includes('.ts') || 
        c.file.includes('.tsx') || 
        c.file.includes('.js') || 
@@ -1082,7 +1086,7 @@ function calculateComplianceScore(audit: Partial<ControlAuditResult>): number {
        c.file.includes('model'))
     )
     const descriptiveCode = audit.evidence.codeVerification.filter(c => 
-      c.file !== '-' && !verifiableCode.includes(c)
+      c.file !== '-' && c.file !== '---' && !verifiableCode.includes(c)
     )
     
     if (verifiableCode.length > 0) {
@@ -1115,11 +1119,19 @@ export async function auditControl(control: Control): Promise<ControlAuditResult
   const issues: string[] = []
   
   // Verify policies
-  const policyRefs = control.policy.split(',').map(p => p.trim())
-  const policies = await Promise.all(policyRefs.map(ref => verifyPolicy(ref)))
+  // Filter out "-" and "---" placeholders before processing
+  const policyRefs = control.policy === '-' || control.policy === '---' || !control.policy
+    ? []
+    : control.policy.split(',').map(p => p.trim()).filter(p => p && p !== '-' && p !== '---')
+  const policies = policyRefs.length > 0
+    ? await Promise.all(policyRefs.map(ref => verifyPolicy(ref)))
+    : []
   
   // Verify procedures
-  const procedureRefs = control.procedure === '-' ? [] : control.procedure.split(',').map(p => p.trim())
+  // Filter out "-" and "---" placeholders before processing
+  const procedureRefs = control.procedure === '-' || control.procedure === '---' || !control.procedure
+    ? []
+    : control.procedure.split(',').map(p => p.trim()).filter(p => p && p !== '-' && p !== '---')
   const procedures = procedureRefs.length > 0 
     ? await Promise.all(procedureRefs.map(ref => verifyProcedure(ref)))
     : []
