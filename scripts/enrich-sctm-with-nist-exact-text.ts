@@ -213,6 +213,49 @@ async function enrichSCTMTable() {
         if (enriched) {
           // Check if already has NIST columns
           if (cells.length >= 10) {
+            // Check if NIST columns are empty and need to be populated
+            // Column 2 should be NIST Requirement, Column 3 should be NIST Discussion
+            const currentNISTReq = cells[2]?.trim() || ''
+            const currentNISTDisc = cells[3]?.trim() || ''
+            // Check if NIST columns need enrichment (empty, "---", or contain short requirement text)
+            const shortReq = cells[1]?.trim() || ''
+            const needsEnrichment = (currentNISTReq === '---' || currentNISTReq === '' || currentNISTReq === shortReq) || 
+                                   (currentNISTDisc === '---' || currentNISTDisc === '')
+            
+            if (needsEnrichment && enriched.nistData && enriched.nistData.requirement) {
+              // Find the status column dynamically
+              let statusIndex = -1
+              for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i].trim()
+                if (cell.match(/^[✅🔄⚠️❌🚫]/) || 
+                    cell.toLowerCase().includes('implemented') ||
+                    cell.toLowerCase().includes('inherited') ||
+                    cell.toLowerCase().includes('partially') ||
+                    cell.toLowerCase().includes('not implemented') ||
+                    cell.toLowerCase().includes('not applicable')) {
+                  statusIndex = i
+                  break
+                }
+              }
+              
+              // Update NIST columns (indices 2 and 3) regardless of status position
+              const nistRequirement = enriched.nistData.requirement
+                ? formatNISTRequirement(enriched.nistData.requirement)
+                : (currentNISTReq === '---' ? '' : currentNISTReq)
+              const nistDiscussion = enriched.nistData.discussion
+                ? formatNISTDiscussion(enriched.nistData.discussion, controlId)
+                : (currentNISTDisc === '---' ? '' : currentNISTDisc)
+              
+              // Create updated cells array
+              const updatedCells = [...cells]
+              updatedCells[2] = nistRequirement || '---'
+              updatedCells[3] = nistDiscussion || '---'
+              
+              // Reconstruct the row with updated NIST columns
+              updatedLines.push(`| ${updatedCells.join(' | ')} |`)
+              continue
+            }
+            
             // Already enriched, just keep as is
             updatedLines.push(line)
             continue
