@@ -480,6 +480,14 @@ export default function SCTMTable({ controls, initialFamilyFilter }: SCTMTablePr
                   const isEditing = editingControl === control.id
                   const formData = editFormData[control.id] || {}
                   
+                  // Debug: Log control data for first few controls
+                  if ((control.id === '3.1.1' || control.id === '3.1.2') && expandedRow === control.id) {
+                    console.log(`SCTMTable passing control ${control.id} to ControlDetail:`, {
+                      nistRequirement: control.nistRequirement ? `EXISTS (${control.nistRequirement.length} chars)` : 'UNDEFINED',
+                      nistDiscussion: control.nistDiscussion ? `EXISTS (${control.nistDiscussion.length} chars)` : 'UNDEFINED',
+                    })
+                  }
+                  
                   return (
                     <React.Fragment key={control.id}>
                       <tr

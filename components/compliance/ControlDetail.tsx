@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DocumentViewerModal from './DocumentViewerModal'
 
 interface EvidenceItem {
@@ -83,6 +83,17 @@ const FAMILY_NAMES: Record<string, string> = {
 export default function ControlDetail({ control, auditResult }: ControlDetailProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']))
   const [documentModal, setDocumentModal] = useState<{ path: string; name: string } | null>(null)
+
+  // Debug: Log control data to console
+  useEffect(() => {
+    if (control.id === '3.1.1' || control.id === '3.1.2') {
+      console.log(`ControlDetail received control ${control.id}:`, {
+        nistRequirement: control.nistRequirement ? `EXISTS (${control.nistRequirement.length} chars)` : 'UNDEFINED',
+        nistDiscussion: control.nistDiscussion ? `EXISTS (${control.nistDiscussion.length} chars)` : 'UNDEFINED',
+        allKeys: Object.keys(control),
+      })
+    }
+  }, [control])
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections)
