@@ -6,6 +6,8 @@ import ControlDetail from './ControlDetail'
 interface Control {
   id: string
   requirement: string
+  nistRequirement?: string
+  nistDiscussion?: string
   status: 'implemented' | 'inherited' | 'partially_satisfied' | 'not_implemented' | 'not_applicable'
   family: string
   policy: string

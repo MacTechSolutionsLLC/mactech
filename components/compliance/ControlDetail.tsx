@@ -23,6 +23,8 @@ interface ControlDetailProps {
   control: {
     id: string
     requirement: string
+    nistRequirement?: string
+    nistDiscussion?: string
     status: 'implemented' | 'inherited' | 'partially_satisfied' | 'not_implemented' | 'not_applicable'
     family: string
     policy: string
@@ -220,6 +222,39 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
             </div>
           )}
         </div>
+
+        {/* NIST SP 800-171 Reference */}
+        {(control.nistRequirement || control.nistDiscussion) && (
+          <div className="px-6 py-4">
+            <button
+              onClick={() => toggleSection('nist')}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h4 className="font-medium text-neutral-900">NIST SP 800-171 Reference</h4>
+              <span className="text-neutral-400">{expandedSections.has('nist') ? '▼' : '▶'}</span>
+            </button>
+            {expandedSections.has('nist') && (
+              <div className="mt-3 space-y-4 text-sm">
+                {control.nistRequirement && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h5 className="font-semibold text-blue-900 mb-2">NIST Requirement (Exact Text)</h5>
+                    <div className="text-blue-800 whitespace-pre-wrap font-serif leading-relaxed">
+                      {control.nistRequirement}
+                    </div>
+                  </div>
+                )}
+                {control.nistDiscussion && (
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                    <h5 className="font-semibold text-indigo-900 mb-2">NIST Discussion / Guidance</h5>
+                    <div className="text-indigo-800 whitespace-pre-wrap font-serif leading-relaxed max-h-96 overflow-y-auto">
+                      {control.nistDiscussion}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Policies */}
         {auditResult && auditResult.evidence.policies.length > 0 && (
