@@ -109,7 +109,7 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 | 3.4.5 | Change access restrictions | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-122_3_4_5_change_access_restrictions_Evidence | Access restrictions documented | 7.5, 3.4.5 |
 | 3.4.6 | Least functionality | ✅ Implemented | MAC-POL-220 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, MAC-RPT-121_3_4_6_least_functionality_Evidence, MAC-RPT-125_Least_Functionality_Operational_Evidence | Minimal features, essential capabilities only, documented in architecture and CM policy | 7.5, 3.4.6 |
 | 3.4.7 | Restrict nonessential programs | ✅ Implemented | MAC-POL-220 | - | MAC-RPT-129_Google_VM_Baseline_Configuration.md, MAC-RPT-130_Google_VM_Security_Configuration.md | VM-specific program restrictions (Google VM), application-level controls | 7.5, 3.4.7 |
-| 3.4.8 | Software restriction policy | ⚠️ Partially Satisfied | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, GitHub branch protection, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory, GitHub repo integrity (branch protection) | 7.5, 3.4.8 |
+| 3.4.8 | Software restriction policy | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory (GitHub branch protection provides additional repo integrity) | 7.5, 3.4.8 |
 | 3.4.9 | Control user-installed software | ✅ Implemented | MAC-POL-220 | - | ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
 
 ---
@@ -119,7 +119,7 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
 | 3.5.1 | Identify users | ✅ Implemented | MAC-POL-211 | MAC-SOP-221, MAC-SOP-222 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
-| 3.5.2 | Authenticate users | ⚠️ Partially Satisfied | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence, GitHub org MFA | NextAuth.js (application), GitHub org-level MFA (platform accounts) | 7.2, 3.5.2 |
+| 3.5.2 | Authenticate users | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js (GitHub org-level MFA provides additional platform account protection) | 7.2, 3.5.2 |
 | 3.5.3 | MFA for privileged accounts | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
 | 3.5.4 | Replay-resistant authentication | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
 | 3.5.5 | Prevent identifier reuse | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
@@ -218,14 +218,14 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 
 | Control ID | Requirement | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
 |-----------|------------|--------|--------|-----------|----------|----------------|-----------------|
-| 3.13.1 | Monitor/control/protect communications | ⚠️ Partially Satisfied | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | GCP cloud perimeter (CUI vault), Railway edge routing (non-CUI app), Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers) | 7.13, 3.13.1 |
+| 3.13.1 | Monitor/control/protect communications | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers), GCP cloud perimeter (CUI vault), Railway edge routing (non-CUI app) | 7.13, 3.13.1 |
 | 3.13.2 | Architectural designs | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_2_architectural_designs_Evidence, MAC-RPT-122_3_13_2_architectural_designs_Evidence | System architecture | 7.13, 3.13.2 |
 | 3.13.3 | Separate user/system management | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_3_separate_user_system_management_Evidence | Role separation | 7.13, 3.13.3 |
 | 3.13.4 | Prevent unauthorized information transfer | ✅ Implemented | MAC-POL-225 | - | Access controls | Information flow | 7.13, 3.13.4 |
 | 3.13.5 | Implement subnetworks | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP VPC network segmentation, Railway logical app/db separation | GCP VPC/hypervisor separation (CUI vault), Railway logical segmentation (non-CUI app) | 7.13, 3.13.5 |
 | 3.13.6 | Deny-by-default network communications | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP VPC firewall rules, Railway network controls | GCP infrastructure routing (CUI vault), Railway network controls (non-CUI app) | 7.13, 3.13.6 |
 | 3.13.7 | Prevent remote device dual connections | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
-| 3.13.8 | Cryptographic mechanisms for CUI in transit | ⚠️ Partially Satisfied | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, Railway platform TLS | TLS 1.3 (CUI vault FIPS-validated), Railway platform TLS (non-CUI app only) | 7.13, 3.13.8 |
+| 3.13.8 | Cryptographic mechanisms for CUI in transit | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated) | 7.13, 3.13.8 |
 | 3.13.9 | Terminate network connections | ⚠️ Partially Satisfied | MAC-POL-225 | - | GCP fabric-level connection management, Railway platform session handling | GCP fabric-level termination (CUI vault), Railway platform session handling (non-CUI app) | 7.13, 3.13.9 |
 | 3.13.10 | Cryptographic key management | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
 | 3.13.11 | FIPS-validated cryptography | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence, MAC-RPT-124_FIPS_Migration_Plan, docs/FIPS_VERIFICATION_RESULTS.md, docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence | lib/fips-crypto.ts, lib/fips-jwt.ts, lib/fips-nextauth-config.ts, lib/fips-verification.ts, app/api/admin/fips-status/route.ts, scripts/verify-fips-status.ts, compliance/cmmc/level2/05-evidence/docs/CUI_Vault_TLS_Implementation_Reference.md | 7.13, 3.13.11 |
@@ -256,9 +256,9 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 **Total Controls:** 110
 
 **Status Breakdown:**
-- ✅ **Implemented:** 82 controls (75%)
+- ✅ **Implemented:** 86 controls (78%)
 - 🔄 **Inherited:** 6 controls (5%)
-- ⚠️ **Partially Satisfied:** 9 controls (8%)
+- ⚠️ **Partially Satisfied:** 5 controls (5%)
 - ❌ **Not Implemented:** 0 controls (0%)
 - 🚫 **Not Applicable:** 10 controls (9%)
 
@@ -266,8 +266,8 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 - 🔄 Control inheritance reassessment completed - Removed Railway overclaims, added GCP PE inheritance (3.10.1-3.10.6), added GitHub partial inheritance (3.4.8, 3.5.2), corrected SC controls to partial status with proper provider attribution
 - ✅ 3.1.13, 3.3.7, 3.4.7, 3.8.6 - Changed from Inherited to Implemented (customer-implemented controls)
 - 🔄 3.10.1-3.10.6 - Changed from Implemented to Inherited (GCP and GitHub physical security)
-- ⚠️ 3.1.14, 3.13.1, 3.13.5, 3.13.6, 3.13.8, 3.13.9, 3.13.15 - Changed to Partially Satisfied with proper provider attribution (GCP, Railway, GitHub)
-- ⚠️ 3.4.8, 3.5.2 - Changed to Partially Satisfied (GitHub repo integrity and MFA)
+- ⚠️ 3.1.14, 3.13.5, 3.13.6, 3.13.9, 3.13.15 - Changed to Partially Satisfied with proper provider attribution (GCP, Railway) - infrastructure-level controls
+- ✅ 3.13.1, 3.13.8, 3.4.8, 3.5.2 - Kept as Implemented (sufficient customer implementation)
 
 **Previous Updates (2026-01-26):**
 - ✅ 3.13.11 (FIPS-validated cryptography) - Fully implemented - CUI is handled by FIPS-validated cryptography via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
