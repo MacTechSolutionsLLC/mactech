@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/authz"
 import { storeFile, storeCUIFile } from "@/lib/file-storage"
 import { logFileUpload } from "@/lib/audit"
 import { detectCUIKeywords } from "@/lib/cui-blocker"
+import { isVaultConfigured } from "@/lib/cui-vault-client"
 
 /**
  * POST /api/files/upload
@@ -46,8 +47,21 @@ export async function POST(req: NextRequest) {
     // If user marked as CUI or auto-detected, store as CUI file (CUI takes precedence over FCI)
     const shouldStoreAsCUI = isCUI || hasCUIInFilename || hasCUIInMetadata
 
+    // For CUI files, vault must be configured (CMMC Level 2 requirement)
+    if (shouldStoreAsCUI) {
+      if (!isVaultConfigured()) {
+        return NextResponse.json(
+          {
+            error: 'CUI vault is required for CUI file storage. CUI_VAULT_API_KEY environment variable must be configured.',
+            details: 'CUI content cannot be stored in Railway database per CMMC Level 2 requirements (FIPS-validated cryptography required).'
+          },
+          { status: 503 }
+        )
+      }
+    }
+
     // Store file in appropriate table
-    // CUI files go to StoredCUIFile, FCI files go to StoredFile with isFCI=true, regular files go to StoredFile with isFCI=false
+    // CUI files go to StoredCUIFile (vault-only storage), FCI files go to StoredFile with isFCI=true, regular files go to StoredFile with isFCI=false
     const result = shouldStoreAsCUI
       ? await storeCUIFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined)
       : await storeFile(session.user.id, file, Object.keys(metadata).length > 0 ? metadata : undefined, isFCI)

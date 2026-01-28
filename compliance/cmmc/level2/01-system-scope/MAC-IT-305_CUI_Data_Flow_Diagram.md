@@ -62,8 +62,9 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 │  │ Secondary: PostgreSQL Database (Railway) - METADATA ONLY            │  │
 │  │ - Table: StoredCUIFile (metadata only, not CUI content)              │  │
 │  │ - Stores: filename, size, mimeType, uploader info, access control    │  │
-│  │ - Legacy files: Backward compatibility only                          │  │
-│  │ - Note: Railway infrastructure is PROHIBITED from CUI storage       │  │
+│  │ - Legacy files: Backward compatibility only (exception, not normal) │  │
+│  │ - Vault requirement: All new CUI files require vault (no fallback)   │  │
+│  │ - Note: Railway infrastructure is OUTSIDE CUI security boundary      │  │
 │  │ - Access control: Admin role or file owner only                      │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -163,7 +164,8 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 - Purpose: Stores file metadata, access control data, and provides backward compatibility for legacy files
 - New CUI files are stored in CUI vault; this table stores metadata and legacy files only
 - Encryption: Railway PostgreSQL encryption at rest (for metadata only, not CUI content)
-- Note: Railway infrastructure is PROHIBITED from CUI storage per system boundary
+- **Vault Requirement:** CUI vault is required for all new CUI file uploads. If vault unavailable, upload is rejected (no fallback to Railway storage).
+- Note: Railway infrastructure is OUTSIDE the CUI security boundary. Railway does not store CUI content per system boundary.
 
 **Security Controls:**
 - **3.8.2 (Limit access to CUI on system media):** CUI stored separately from FCI, access-controlled (both CUI vault and application database)

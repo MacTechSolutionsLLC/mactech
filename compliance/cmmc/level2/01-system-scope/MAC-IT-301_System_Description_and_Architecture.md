@@ -52,8 +52,10 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 
 **CUI Storage:**
 - Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
-- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption
+- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography (CMVP Certificate #4794)
+- **Vault Requirement:** CUI vault is required for all new CUI file uploads. If vault unavailable, upload is rejected (no fallback to Railway storage).
 - Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
+- **Railway Role:** Railway is outside the CUI security boundary. Railway functions as a transmission medium for routing CUI to vault, but does not store CUI content.
 - CUI files stored with password protection
 - No CUI stored on removable media
 - CUI access controlled via authentication and password verification
@@ -73,8 +75,10 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 
 **CUI Storage:**
 - Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
-- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography
+- CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography (CMVP Certificate #4794)
+- **Vault Requirement:** CUI vault is required for all new CUI file uploads. If vault unavailable, upload is rejected (no fallback to Railway storage).
 - Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
+- **Railway Role:** Railway is outside the CUI security boundary. Railway functions as a transmission medium for routing CUI to vault, but does not store CUI content.
 - CUI files require password for access
 - No CUI stored on removable media
 

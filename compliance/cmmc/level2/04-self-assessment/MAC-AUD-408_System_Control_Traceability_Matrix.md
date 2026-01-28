@@ -49,211 +49,269 @@ Controls with significant VM-specific requirements are noted in the Evidence col
 **NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
 
 **NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
+
+**NIST SP 800-171 Text:** The "NIST Requirement (Exact Text)" and "NIST Discussion / Guidance" columns contain verbatim text from NIST SP 800-171 Rev. 2. This text is provided for assessor reference and does not modify or extend the requirements.
 ## 3. Access Control (AC) - 22 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.1.1 | Limit system access to authorized users, processes, devices | --- | --- | --- | --- | Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems). |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-221, MAC-SOP-222 | middleware.ts, lib/auth.ts, MAC-RPT-122_3_1_1_limit_system_access_Evidence | NextAuth.js, middleware | 7.1, 3.1.1 |
-| 3.1.2 | Limit access to transactions/functions | --- | --- | --- | --- | Limit system access to the types of transactions and functions that authorized users are permitted to execute. AC-2 Account Management A.9.2.1 User... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, lib/authz.ts, MAC-RPT-122_3_1_2_limit_access_to_transactions_functions_Evidence | RBAC, middleware | 7.1, 3.1.2 |
-| 3.1.3 | Control flow of CUI | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/authz.ts, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, MAC-RPT-122_3_1_3_control_flow_of_cui_Evidence, MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | Access controls, CUI vault | 7.1, 3.1.3 |
-| 3.1.4 | Separate duties | --- | --- | --- | --- | Separate the duties of individuals to reduce the risk of malevolent activity without collusion. AC-5 Separation of Duties A.6.1.2 Segregation of du... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence, MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-122_3_1_4_separate_duties_Evidence | RBAC enforcement (middleware.ts, lib/authz.ts) + SoD matrix documentation (MAC-SOP-235) | 7.1, 3.1.4 |
-| 3.1.5 | Least privilege | --- | --- | --- | --- | Employ the principle of least privilege, including for specific security functions and privileged accounts. AC-6 Least Privilege A.9.1.2 Access to ... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, MAC-RPT-122_3_1_5_least_privilege_Evidence | RBAC | 7.1, 3.1.5 |
-| 3.1.6 | Non-privileged accounts | --- | --- | --- | --- | Use non-privileged accounts or roles when accessing nonsecurity functions. AC-6(2) Least Privilege Non-Privileged Access for Nonsecurity Functions ... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, MAC-RPT-122_3_1_6_non_privileged_accounts_Evidence | prisma/schema.prisma, middleware.ts, lib/authz.ts | 7.1, 3.1.6 |
-| 3.1.7 | Prevent privileged function execution | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts, MAC-RPT-122_3_1_7_prevent_privileged_function_execution_Evidence | RBAC enforcement (middleware.ts) + Audit logging (lib/audit.ts) | 7.1, 3.1.7 |
-| 3.1.8 | Limit unsuccessful logon attempts | --- | --- | --- | --- | Limit unsuccessful logon attempts. AC-7 Unsuccessful Logon Attempts A.9.4.2 Secure logon procedures |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105_Account_Lockout_Implementation_Evidence, MAC-RPT-105 | lib/auth.ts, app/api/auth/custom-signin/route.ts, fail2ban (Google VM) | 7.1, 3.1.8 |
-| 3.1.9 | Privacy/security notices | --- | --- | --- | --- | Provide privacy and security notices consistent with applicable CUI rules. AC-8 System Use Notification A.9.4.2 Secure logon procedures |  | ✅ Implemented | MAC-POL-210 | ../02-policies-and-procedures/user-agreements/MAC-USR-001-Patrick_User_Agreement.md | ../02-policies-and-procedures/user-agreements/MAC-USR-001-Patrick_User_Agreement.md, MAC-RPT-121_3_1_9_privacy_security_notices_Evidence, MAC-RPT-122_3_1_9_privacy_security_notices_Evidence | User acknowledgments | 7.1, 3.1.9 |
-| 3.1.10 | Session lock | --- | --- | --- | --- | Use session lock with patternhiding displays to prevent access and viewing of data after a period of inactivity. AC-11 Session Lock A.11.2.8 Unatte... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-106_Session_Lock_Implementation_Evidence | MAC-RPT-106_Session_Lock_Implementation_Evidence, MAC-RPT-121_3_1_10_session_lock_Evidence, MAC-RPT-122_3_1_10_session_lock_Evidence | components/SessionLock.tsx | 7.1, 3.1.10 |
-| 3.1.11 | Automatic session termination | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts, MAC-RPT-122_3_1_11_automatic_session_termination_Evidence | 8-hour timeout | 7.1, 3.1.11 |
-| 3.1.12 | Monitor remote access | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts, MAC-RPT-122_3_1_12_monitor_remote_access_Evidence | Audit logging | 7.1, 3.1.12 |
-| 3.1.13 | Cryptographic remote access | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, MAC-RPT-134_Google_VM_SSH_Hardening_Evidence | TLS 1.3 (CUI vault FIPS-validated), SSH key-based authentication (Google VM - Protocol 2, key-only auth) | 7.1, 3.1.13 |
-| 3.1.14 | Managed access control points | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC firewall rules (customer-configured), Railway edge routing (customer-configured) | 7.1, 3.1.14 |
-| 3.1.15 | Authorize remote privileged commands | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts, MAC-RPT-135_Google_VM_Sudo_Logging_Evidence | middleware.ts, lib/authz.ts, sudo logging (Google VM - /var/log/sudo.log) | 7.1, 3.1.15 |
-| 3.1.16 | Authorize wireless access | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.16 |
-| 3.1.17 | Protect wireless access | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.17 |
-| 3.1.18 | Control mobile devices | --- | --- | --- | --- | Control connection of mobile devices. AC-19 Access Control for Mobile Devices A.6.2.1 Mobile device policy A.11.2.6 Security of equipment and asset... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_18_control_mobile_devices_Evidence | Browser access | 7.1, 3.1.18 |
-| 3.1.19 | Encrypt CUI on mobile devices | --- | --- | --- | --- | Encrypt CUI on mobile devices and mobile computing platforms. AC-19(5) Access Control for Mobile Devices Full Device / ContainerBased Encryption No... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence | CUI encrypted at rest (CUI vault FIPS-validated), password protected access, no local CUI storage | 7.1, 3.1.19 |
-| 3.1.20 | Verify external systems | --- | --- | --- | --- | Verify and control/limit connections to and use of external systems. AC-20 Use of External Systems A.11.2.6 Security of equipment and assets off-pr... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-304_System_Security_Plan.md | ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_1_20_verify_external_systems_Evidence | External APIs | 7.1, 3.1.20 |
-| 3.1.21 | Limit portable storage | --- | --- | --- | --- | Limit use of portable storage devices on external systems. AC-20(2) Use of External Systems Portable Storage Devices No direct mapping. |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence | MAC-RPT-118_Portable_Storage_Controls_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_21_limit_portable_storage_Evidence, MAC-RPT-122_3_1_21_limit_portable_storage_Evidence | Policy, technical controls | 7.1, 3.1.21 |
-| 3.1.22 | Control CUI on public systems | --- | --- | --- | --- | Control CUI posted or processed on publicly accessible systems. AC-22 Publicly Accessible Content No direct mapping. APPENDIX D PAGE 65 TABLE D-2: ... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence | middleware.ts, MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, MAC-RPT-122_3_1_22_control_cui_on_public_systems_Evidence | Approval workflow | 7.1, 3.1.22 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.1.1 | Limit system access to authorized users, processes, devices | Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems). | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems). |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-221, MAC-SOP-222 | middleware.ts, lib/auth.ts, MAC-RPT-122_3_1_1_limit_system_access_Evidence | NextAuth.js, middleware | 7.1, 3.1.1 |
+| 3.1.2 | Limit access to transactions/functions | Limit system access to the types of transactions and functions that authorized users are permitted to execute. AC-2 Account Management A.9.2.1 User... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Limit system access to the types of transactions and functions that authorized users are permitted to execute. AC-2 Account Management A.9.2.1 User... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, lib/authz.ts, MAC-RPT-122_3_1_2_limit_access_to_transactions_functions_Evidence | RBAC, middleware | 7.1, 3.1.2 |
+| 3.1.3 | Control flow of CUI | Control the flow of CUI in accordance with approved authorizations. AC-4 Information Flow Enforcement A.13.1.3 Segregation in networks A.13.2.1 Inf... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/authz.ts, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, MAC-RPT-122_3_1_3_control_flow_of_cui_Evidence, MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | Access controls, CUI vault | 7.1, 3.1.3 |
+| 3.1.4 | Separate duties | Separate the duties of individuals to reduce the risk of malevolent activity without collusion. AC-5 Separation of Duties A.6.1.2 Segregation of du... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Separate the duties of individuals to reduce the risk of malevolent activity without collusion. AC-5 Separation of Duties A.6.1.2 Segregation of du... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence | MAC-RPT-117_Separation_of_Duties_Enforcement_Evidence, MAC-RPT-121_3_1_4_separate_duties_Evidence, MAC-RPT-122_3_1_4_separate_duties_Evidence | RBAC enforcement (middleware.ts, lib/authz.ts) + SoD matrix documentation (MAC-SOP-235) | 7.1, 3.1.4 |
+| 3.1.5 | Least privilege | Employ the principle of least privilege, including for specific security functions and privileged accounts. AC-6 Least Privilege A.9.1.2 Access to ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Employ the principle of least privilege, including for specific security functions and privileged accounts. AC-6 Least Privilege A.9.1.2 Access to ... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, MAC-RPT-122_3_1_5_least_privilege_Evidence | RBAC | 7.1, 3.1.5 |
+| 3.1.6 | Non-privileged accounts | Use non-privileged accounts or roles when accessing nonsecurity functions. AC-6(2) Least Privilege Non-Privileged Access for Nonsecurity Functions ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Use non-privileged accounts or roles when accessing nonsecurity functions. AC-6(2) Least Privilege Non-Privileged Access for Nonsecurity Functions ... |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | middleware.ts, MAC-RPT-122_3_1_6_non_privileged_accounts_Evidence | prisma/schema.prisma, middleware.ts, lib/authz.ts | 7.1, 3.1.6 |
+| 3.1.7 | Prevent privileged function execution | Prevent non-privileged users from executing privileged functions and capture the execution of such functions in audit logs. AC-6(9) Least Privilege... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts, MAC-RPT-122_3_1_7_prevent_privileged_function_execution_Evidence | RBAC enforcement (middleware.ts) + Audit logging (lib/audit.ts) | 7.1, 3.1.7 |
+| 3.1.8 | Limit unsuccessful logon attempts | Limit unsuccessful logon attempts. AC-7 Unsuccessful Logon Attempts A.9.4.2 Secure logon procedures | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Limit unsuccessful logon attempts. AC-7 Unsuccessful Logon Attempts A.9.4.2 Secure logon procedures |  | ✅ Implemented | MAC-POL-210 | MAC-SOP-222 | MAC-RPT-105_Account_Lockout_Implementation_Evidence, MAC-RPT-105 | lib/auth.ts, app/api/auth/custom-signin/route.ts, fail2ban (Google VM) | 7.1, 3.1.8 |
+| 3.1.9 | Privacy/security notices | Provide privacy and security notices consistent with applicable CUI rules. AC-8 System Use Notification A.9.4.2 Secure logon procedures | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Provide privacy and security notices consistent with applicable CUI rules. AC-8 System Use Notification A.9.4.2 Secure logon procedures |  | ✅ Implemented | MAC-POL-210 | ../02-policies-and-procedures/user-agreements/MAC-USR-001-Patrick_User_Agreement.md | ../02-policies-and-procedures/user-agreements/MAC-USR-001-Patrick_User_Agreement.md, MAC-RPT-121_3_1_9_privacy_security_notices_Evidence, MAC-RPT-122_3_1_9_privacy_security_notices_Evidence | User acknowledgments | 7.1, 3.1.9 |
+| 3.1.10 | Session lock | Use session lock with patternhiding displays to prevent access and viewing of data after a period of inactivity. AC-11 Session Lock A.11.2.8 Unatte... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Use session lock with patternhiding displays to prevent access and viewing of data after a period of inactivity. AC-11 Session Lock A.11.2.8 Unatte... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-106_Session_Lock_Implementation_Evidence | MAC-RPT-106_Session_Lock_Implementation_Evidence, MAC-RPT-121_3_1_10_session_lock_Evidence, MAC-RPT-122_3_1_10_session_lock_Evidence | components/SessionLock.tsx | 7.1, 3.1.10 |
+| 3.1.11 | Automatic session termination | Terminate (automatically) a user session after a defined condition. AC-12 Session Termination No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | lib/auth.ts, MAC-RPT-122_3_1_11_automatic_session_termination_Evidence | 8-hour timeout | 7.1, 3.1.11 |
+| 3.1.12 | Monitor remote access | Monitor and control remote access sessions. AC-17(1) Remote Access Automated Monitoring / Control No direct mapping. APPENDIX D PAGE 64 SECURITY RE... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | lib/audit.ts, MAC-RPT-122_3_1_12_monitor_remote_access_Evidence | Audit logging | 7.1, 3.1.12 |
+| 3.1.13 | Cryptographic remote access | Employ cryptographic mechanisms to protect the confidentiality of remote access sessions. AC-17(2) Remote Access Protection of Confidentiality / In... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, MAC-RPT-134_Google_VM_SSH_Hardening_Evidence | TLS 1.3 (CUI vault FIPS-validated), SSH key-based authentication (Google VM - Protocol 2, key-only auth) | 7.1, 3.1.13 |
+| 3.1.14 | Managed access control points | Route remote access via managed access control points. AC-17(3) Remote Access Managed Access Control Points No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC firewall rules (customer-configured), Railway edge routing (customer-configured) | 7.1, 3.1.14 |
+| 3.1.15 | Authorize remote privileged commands | Authorize remote execution of privileged commands and remote access to securityrelevant information. AC-17(4) Remote Access Privileged Commands / A... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-210 | - | middleware.ts, lib/audit.ts, MAC-RPT-135_Google_VM_Sudo_Logging_Evidence | middleware.ts, lib/authz.ts, sudo logging (Google VM - /var/log/sudo.log) | 7.1, 3.1.15 |
+| 3.1.16 | Authorize wireless access | Authorize wireless access prior to allowing such connections. AC-18 Wireless Access A.6.2.1 Mobile device policy A.13.1.1 Network controls A.13.2.1... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.16 |
+| 3.1.17 | Protect wireless access | Protect wireless access using authentication and encryption. AC-18(1) Wireless Access Authentication and Encryption No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-210 | - | System architecture | Cloud-only, no organizational wireless infrastructure | 7.1, 3.1.17 |
+| 3.1.18 | Control mobile devices | Control connection of mobile devices. AC-19 Access Control for Mobile Devices A.6.2.1 Mobile device policy A.11.2.6 Security of equipment and asset... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Control connection of mobile devices. AC-19 Access Control for Mobile Devices A.6.2.1 Mobile device policy A.11.2.6 Security of equipment and asset... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_18_control_mobile_devices_Evidence | Browser access | 7.1, 3.1.18 |
+| 3.1.19 | Encrypt CUI on mobile devices | Encrypt CUI on mobile devices and mobile computing platforms. AC-19(5) Access Control for Mobile Devices Full Device / ContainerBased Encryption No... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Encrypt CUI on mobile devices and mobile computing platforms. AC-19(5) Access Control for Mobile Devices Full Device / ContainerBased Encryption No... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_19_encrypt_cui_on_mobile_devices_Evidence | CUI encrypted at rest (CUI vault FIPS-validated), password protected access, no local CUI storage | 7.1, 3.1.19 |
+| 3.1.20 | Verify external systems | Verify and control/limit connections to and use of external systems. AC-20 Use of External Systems A.11.2.6 Security of equipment and assets off-pr... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Verify and control/limit connections to and use of external systems. AC-20 Use of External Systems A.11.2.6 Security of equipment and assets off-pr... |  | ✅ Implemented | MAC-POL-210 | ../01-system-scope/MAC-IT-304_System_Security_Plan.md | ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_1_20_verify_external_systems_Evidence | External APIs | 7.1, 3.1.20 |
+| 3.1.21 | Limit portable storage | Limit use of portable storage devices on external systems. AC-20(2) Use of External Systems Portable Storage Devices No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Limit use of portable storage devices on external systems. AC-20(2) Use of External Systems Portable Storage Devices No direct mapping. |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence | MAC-RPT-118_Portable_Storage_Controls_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_1_21_limit_portable_storage_Evidence, MAC-RPT-122_3_1_21_limit_portable_storage_Evidence | Policy, technical controls | 7.1, 3.1.21 |
+| 3.1.22 | Control CUI on public systems | Control CUI posted or processed on publicly accessible systems. AC-22 Publicly Accessible Content No direct mapping. APPENDIX D PAGE 65 TABLE D-2: ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Control CUI posted or processed on publicly accessible systems. AC-22 Publicly Accessible Content No direct mapping. APPENDIX D PAGE 65 TABLE D-2: ... |  | ✅ Implemented | MAC-POL-210 | MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence | middleware.ts, MAC-RPT-121_3_1_22_control_cui_on_public_systems_Evidence, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence, MAC-RPT-122_3_1_22_control_cui_on_public_systems_Evidence | Approval workflow | 7.1, 3.1.22 |
 
 ---
 
 ## 4. Awareness and Training (AT) - 3 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.2.1 | Security awareness | --- | --- | --- | --- | Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activi... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/security-awareness-training-content.md, training/training-completion-log.md, MAC-RPT-121_3_2_1_security_awareness_Evidence, MAC-RPT-122_3_2_1_security_awareness_Evidence | Training program, tracking | 7.3, 3.2.1 |
-| 3.2.2 | Security training | --- | --- | --- | --- | Ensure that personnel are trained to carry out their assigned information security-related duties and responsibilities. AT-2 Security Awareness Tra... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, MAC-RPT-121_3_2_2_security_training_Evidence, MAC-RPT-122_3_2_2_security_training_Evidence | Training program, delivery | 7.3, 3.2.2 |
-| 3.2.3 | Insider threat awareness | --- | --- | --- | --- | Provide security awareness training on recognizing and reporting potential indicators of insider threat. AT-2(2) Security Awareness Training Inside... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, MAC-RPT-121_3_2_3_insider_threat_awareness_Evidence, MAC-RPT-122_3_2_3_insider_threat_awareness_Evidence | Insider threat training, delivery | 7.3, 3.2.3 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.2.1 | Security awareness | Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activi... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activi... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/security-awareness-training-content.md, training/training-completion-log.md, MAC-RPT-121_3_2_1_security_awareness_Evidence, MAC-RPT-122_3_2_1_security_awareness_Evidence | Training program, tracking | 7.3, 3.2.1 |
+| 3.2.2 | Security training | Ensure that personnel are trained to carry out their assigned information security-related duties and responsibilities. AT-2 Security Awareness Tra... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Ensure that personnel are trained to carry out their assigned information security-related duties and responsibilities. AT-2 Security Awareness Tra... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, MAC-RPT-121_3_2_2_security_training_Evidence, MAC-RPT-122_3_2_2_security_training_Evidence | Training program, delivery | 7.3, 3.2.2 |
+| 3.2.3 | Insider threat awareness | Provide security awareness training on recognizing and reporting potential indicators of insider threat. AT-2(2) Security Awareness Training Inside... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Provide security awareness training on recognizing and reporting potential indicators of insider threat. AT-2(2) Security Awareness Training Inside... |  | ✅ Implemented | MAC-POL-219 | MAC-SOP-227 | training/training-completion-log.md, training/security-awareness-training-content.md, MAC-RPT-121_3_2_3_insider_threat_awareness_Evidence, MAC-RPT-122_3_2_3_insider_threat_awareness_Evidence | Insider threat training, delivery | 7.3, 3.2.3 |
 
 ---
 
 ## 5. Audit and Accountability (AU) - 9 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.3.1 | Create and retain audit logs | --- | --- | --- | --- | Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful o... |  | ✅ Implemented | MAC-POL-218 | MAC-RPT-107_Audit_Log_Retention_Evidence, MAC-RPT-107 | MAC-RPT-107_Audit_Log_Retention_Evidence, lib/audit.ts, MAC-RPT-107, MAC-RPT-121_3_3_1_create_and_retain_audit_logs_Evidence, MAC-RPT-122_3_3_1_create_and_retain_audit_logs_Evidence, MAC-RPT-136_Google_VM_Log_Rotation_Evidence | Audit logging, retention verification, log rotation (Google VM - weekly, 4 weeks retention) | 7.4, 3.3.1 |
-| 3.3.2 | Unique user traceability | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | User identification | 7.4, 3.3.2 |
-| 3.3.3 | Review and update logged events | --- | --- | --- | --- | Review and update logged events. AU-2(3) Event Logging Review and Updates No direct mapping. |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | audit-log-reviews/audit-log-review-log.md, MAC-RPT-121_3_3_3_review_and_update_logged_events_Evidence, MAC-RPT-123_3_3_1_create_and_retain_audit_logs_Evidence | MAC-SOP-226_Audit_Log_Review_Procedure.md | 7.4, 3.3.3 |
-| 3.3.4 | Alert on audit logging failure | --- | --- | --- | --- | Alert in the event of an audit logging process failure. AU-5 Response to Audit Logging Process Failures No direct mapping. |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_4_alert_on_audit_logging_failure_Evidence | generateFailureAlerts() function | 7.4, 3.3.4 |
-| 3.3.5 | Correlate audit records | --- | --- | --- | --- | Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspiciou... |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_5_correlate_audit_records_Evidence | lib/audit.ts | 7.4, 3.3.5 |
-| 3.3.6 | Audit record reduction/reporting | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export, MAC-RPT-122_3_3_6_audit_record_reduction_reporting_Evidence | CSV export | 7.4, 3.3.6 |
-| 3.3.7 | System clock synchronization | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | MAC-RPT-137_Google_VM_NTP_Synchronization_Evidence | chrony NTP service (Google VM - synchronized with metadata.google.internal, sub-millisecond accuracy) | 7.4, 3.3.7 |
-| 3.3.8 | Protect audit information | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts, MAC-RPT-122_3_3_8_protect_audit_information_Evidence, MAC-RPT-136_Google_VM_Log_Rotation_Evidence | Append-only, log rotation (Google VM - weekly rotation, 4 weeks retention) | 7.4, 3.3.8 |
-| 3.3.9 | Limit audit logging management | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | middleware.ts, MAC-RPT-122_3_3_9_limit_audit_logging_management_Evidence | Admin-only | 7.4, 3.3.9 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.3.1 | Create and retain audit logs | Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful o... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful o... |  | ✅ Implemented | MAC-POL-218 | MAC-RPT-107_Audit_Log_Retention_Evidence, MAC-RPT-107 | MAC-RPT-107_Audit_Log_Retention_Evidence, lib/audit.ts, MAC-RPT-107, MAC-RPT-121_3_3_1_create_and_retain_audit_logs_Evidence, MAC-RPT-122_3_3_1_create_and_retain_audit_logs_Evidence, MAC-RPT-136_Google_VM_Log_Rotation_Evidence | Audit logging, retention verification, log rotation (Google VM - weekly, 4 weeks retention) | 7.4, 3.3.1 |
+| 3.3.2 | Unique user traceability | Ensure that the actions of individual system users can be uniquely traced to those users, so they can be held accountable for their actions. AU-2 E... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts | User identification | 7.4, 3.3.2 |
+| 3.3.3 | Review and update logged events | Review and update logged events. AU-2(3) Event Logging Review and Updates No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Review and update logged events. AU-2(3) Event Logging Review and Updates No direct mapping. |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | audit-log-reviews/audit-log-review-log.md, MAC-RPT-121_3_3_3_review_and_update_logged_events_Evidence, MAC-RPT-123_3_3_1_create_and_retain_audit_logs_Evidence | MAC-SOP-226_Audit_Log_Review_Procedure.md | 7.4, 3.3.3 |
+| 3.3.4 | Alert on audit logging failure | Alert in the event of an audit logging process failure. AU-5 Response to Audit Logging Process Failures No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Alert in the event of an audit logging process failure. AU-5 Response to Audit Logging Process Failures No direct mapping. |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_4_alert_on_audit_logging_failure_Evidence | generateFailureAlerts() function | 7.4, 3.3.4 |
+| 3.3.5 | Correlate audit records | Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspiciou... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspiciou... |  | ✅ Implemented | MAC-POL-218 | MAC-SOP-226 | lib/audit.ts, MAC-RPT-122_3_3_5_correlate_audit_records_Evidence | lib/audit.ts | 7.4, 3.3.5 |
+| 3.3.6 | Audit record reduction/reporting | Provide audit record reduction and report generation to support ondemand analysis and reporting. AU-7 Audit Record Reduction and Report Generation ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | /api/admin/events/export, MAC-RPT-122_3_3_6_audit_record_reduction_reporting_Evidence | CSV export | 7.4, 3.3.6 |
+| 3.3.7 | System clock synchronization | Provide a system capability that compares and synchronizes internal system clocks with an authoritative source to generate time stamps for audit re... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | MAC-RPT-137_Google_VM_NTP_Synchronization_Evidence | chrony NTP service (Google VM - synchronized with metadata.google.internal, sub-millisecond accuracy) | 7.4, 3.3.7 |
+| 3.3.8 | Protect audit information | Protect audit information and audit logging tools from AU-9 Protection of Audit Information A.12.4.2 Protection of log information APPENDIX D PAGE ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | lib/audit.ts, MAC-RPT-122_3_3_8_protect_audit_information_Evidence, MAC-RPT-136_Google_VM_Log_Rotation_Evidence | Append-only, log rotation (Google VM - weekly rotation, 4 weeks retention) | 7.4, 3.3.8 |
+| 3.3.9 | Limit audit logging management | Limit management of audit logging functionality to a subset of privileged users. AU-9(4) Protection of Audit Information Access by Subset of Privil... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-218 | - | middleware.ts, MAC-RPT-122_3_3_9_limit_audit_logging_management_Evidence | Admin-only | 7.4, 3.3.9 |
 
 ---
 
 ## 6. Configuration Management (CM) - 9 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.4.1 | Baseline configurations | --- | --- | --- | --- | Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_1_baseline_configurations_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence, MAC-RPT-121_3_4_1_baseline_configurations_Evidence, MAC-RPT-122_3_4_1_baseline_configurations_Evidence | CM plan, baseline inventory | 7.5, 3.4.1 |
-| 3.4.2 | Security configuration settings | --- | --- | --- | --- | Establish and enforce security configuration settings for information technology products employed in organizational systems. CM-2 Baseline Configu... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_2_security_configuration_settings_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence, next.config.js, middleware.ts, MAC-RPT-121_3_4_2_security_configuration_settings_Evidence, MAC-RPT-122_3_4_2_security_configuration_settings_Evidence, MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | Baseline, config files, CUI vault | 7.5, 3.4.2 |
-| 3.4.3 | Change control | --- | --- | --- | --- | Track, review, approve or disapprove, and log changes to organizational systems. CM-3 Configuration Change Control A.12.1.2 Change management A.14.... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_3_change_control_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_3_change_control_Evidence, MAC-RPT-122_3_4_3_change_control_Evidence | Version control, approval process | 7.5, 3.4.3 |
-| 3.4.4 | Security impact analysis | --- | --- | --- | --- | Analyze the security impact of changes prior to implementation. CM-4 Security Impact Analysis A.14.2.3 Technical review of applications after opera... |  | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, ../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md, MAC-RPT-121_3_4_4_security_impact_analysis_Evidence, MAC-RPT-124_Security_Impact_Analysis_Operational_Evidence | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
-| 3.4.5 | Change access restrictions | --- | --- | --- | --- | Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems. CM-5 Access Rest... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-122_3_4_5_change_access_restrictions_Evidence | Access restrictions documented | 7.5, 3.4.5 |
-| 3.4.6 | Least functionality | --- | --- | --- | --- | Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities. CM-7 Least Functionality ... |  | ✅ Implemented | MAC-POL-220 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, MAC-RPT-121_3_4_6_least_functionality_Evidence, MAC-RPT-125_Least_Functionality_Operational_Evidence, MAC-RPT-138_Google_VM_Service_Minimization_Evidence | Minimal features, essential capabilities only, documented in architecture and CM policy, unnecessary services disabled (Google VM - bluetooth, cups, avahi-daemon disabled) | 7.5, 3.4.6 |
-| 3.4.7 | Restrict nonessential programs | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-220 | - | MAC-RPT-134_Google_VM_SSH_Hardening_Evidence.md, MAC-RPT-138_Google_VM_Service_Minimization_Evidence.md | VM-specific program restrictions (Google VM), application-level controls | 7.5, 3.4.7 |
-| 3.4.8 | Software restriction policy | --- | --- | --- | --- | Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-byexception (whitelisting) policy to ... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory (GitHub branch protection provides additional repo integrity) | 7.5, 3.4.8 |
-| 3.4.9 | Control user-installed software | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-220 | - | ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.4.1 | Baseline configurations | Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_1_baseline_configurations_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence, MAC-RPT-121_3_4_1_baseline_configurations_Evidence, MAC-RPT-122_3_4_1_baseline_configurations_Evidence | CM plan, baseline inventory | 7.5, 3.4.1 |
+| 3.4.2 | Security configuration settings | Establish and enforce security configuration settings for information technology products employed in organizational systems. CM-2 Baseline Configu... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Establish and enforce security configuration settings for information technology products employed in organizational systems. CM-2 Baseline Configu... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_2_security_configuration_settings_Evidence | MAC-RPT-108_Configuration_Baseline_Evidence, next.config.js, middleware.ts, MAC-RPT-121_3_4_2_security_configuration_settings_Evidence, MAC-RPT-122_3_4_2_security_configuration_settings_Evidence, MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | Baseline, config files, CUI vault | 7.5, 3.4.2 |
+| 3.4.3 | Change control | Track, review, approve or disapprove, and log changes to organizational systems. CM-3 Configuration Change Control A.12.1.2 Change management A.14.... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Track, review, approve or disapprove, and log changes to organizational systems. CM-3 Configuration Change Control A.12.1.2 Change management A.14.... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_3_change_control_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_3_change_control_Evidence, MAC-RPT-122_3_4_3_change_control_Evidence | Version control, approval process | 7.5, 3.4.3 |
+| 3.4.4 | Security impact analysis | Analyze the security impact of changes prior to implementation. CM-4 Security Impact Analysis A.14.2.3 Technical review of applications after opera... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Analyze the security impact of changes prior to implementation. CM-4 Security Impact Analysis A.14.2.3 Technical review of applications after opera... |  | ✅ Implemented | MAC-POL-220 | MAC-SOP-225 | security-impact-analysis/security-impact-analysis-template.md, ../02-policies-and-procedures/MAC-CMP-001_Configuration_Management_Plan.md, MAC-RPT-121_3_4_4_security_impact_analysis_Evidence, MAC-RPT-124_Security_Impact_Analysis_Operational_Evidence | Analysis process (MAC-SOP-225), template, operational use in change control | 7.5, 3.4.4 |
+| 3.4.5 | Change access restrictions | Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems. CM-5 Access Rest... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems. CM-5 Access Rest... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_5_change_access_restrictions_Evidence | MAC-RPT-109_Change_Control_Evidence, MAC-RPT-121_3_4_5_change_access_restrictions_Evidence, MAC-RPT-122_3_4_5_change_access_restrictions_Evidence | Access restrictions documented | 7.5, 3.4.5 |
+| 3.4.6 | Least functionality | Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities. CM-7 Least Functionality ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities. CM-7 Least Functionality ... |  | ✅ Implemented | MAC-POL-220 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, MAC-RPT-121_3_4_6_least_functionality_Evidence, MAC-RPT-125_Least_Functionality_Operational_Evidence, MAC-RPT-138_Google_VM_Service_Minimization_Evidence | Minimal features, essential capabilities only, documented in architecture and CM policy, unnecessary services disabled (Google VM - bluetooth, cups, avahi-daemon disabled) | 7.5, 3.4.6 |
+| 3.4.7 | Restrict nonessential programs | Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services. CM-7(1) Least Functionality Periodic Rev... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-220 | - | MAC-RPT-134_Google_VM_SSH_Hardening_Evidence.md, MAC-RPT-138_Google_VM_Service_Minimization_Evidence.md | VM-specific program restrictions (Google VM), application-level controls | 7.5, 3.4.7 |
+| 3.4.8 | Software restriction policy | Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-byexception (whitelisting) policy to ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-byexception (whitelisting) policy to ... |  | ✅ Implemented | MAC-POL-220 | MAC-RPT-121_3_4_8_software_restriction_policy_Evidence | ../02-policies-and-procedures/MAC-POL-226_Software_Restriction_Policy.md, package.json, MAC-RPT-121_3_4_8_software_restriction_policy_Evidence, MAC-RPT-122_3_4_8_software_restriction_policy_Evidence | Restriction policy, inventory (GitHub branch protection provides additional repo integrity) | 7.5, 3.4.8 |
+| 3.4.9 | Control user-installed software | Control and monitor userinstalled software. CM-11 User-Installed Software A.12.5.1 Installation of software on operational systems A.12.6.2 Restric... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-220 | - | ../02-policies-and-procedures/MAC-POL-220_Configuration_Management_Policy.md, Policy prohibition, endpoint compliance | Policy prohibition, approved software list, change control | 7.5, 3.4.9 |
 
 ---
 
 ## 7. Identification and Authentication (IA) - 11 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.5.1 | Identify users | --- | --- | --- | --- | Identify system users, processes acting on behalf of users, and devices. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-221, MAC-SOP-222 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
-| 3.5.2 | Authenticate users | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js (GitHub org-level MFA provides additional platform account protection) | 7.2, 3.5.2 |
-| 3.5.3 | MFA for privileged accounts | --- | --- | --- | --- | Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts. IA-2(1) Ident... |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
-| 3.5.4 | Replay-resistant authentication | --- | --- | --- | --- | Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts. IA-2(8) Identification and Authenti... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
-| 3.5.5 | Prevent identifier reuse | --- | --- | --- | --- | Prevent reuse of identifiers for a defined period. IA-4 Identifier Management A.9.2.1 User registration and de-registration |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
-| 3.5.6 | Disable identifiers after inactivity | --- | --- | --- | --- | Disable identifiers after a defined period of inactivity. IA-4 Identifier Management A.9.2.1 User registration and de-registration |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence | lib/inactivity-disable.ts, lib/auth.ts, app/api/auth/custom-signin/route.ts, app/api/admin/users/disable-inactive/route.ts | 7.2, 3.5.6 |
-| 3.5.7 | Password complexity | --- | --- | --- | --- | Enforce a minimum password complexity and change of characters when new passwords are created. IA-5(1) Authenticator Management Password-Based Auth... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
-| 3.5.8 | Prohibit password reuse | --- | --- | --- | --- | Prohibit password reuse for a specified number of generations. |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence, MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence | Password history (5 generations) | 7.2, 3.5.8 |
-| 3.5.9 | Temporary passwords | --- | --- | --- | --- | Allow temporary password use for system logons with an immediate change to a permanent password. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts, app/api/auth/custom-signin/route.ts, app/auth/signin/page.tsx, app/api/auth/mfa/enroll/route.ts, prisma/schema.prisma, MAC-RPT-122_3_5_9_temporary_passwords_Evidence | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts | 7.2, 3.5.9 |
-| 3.5.10 | Cryptographically-protected passwords | --- | --- | --- | --- | Store and transmit only cryptographically-protected passwords. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence | bcrypt | 7.2, 3.5.10 |
-| 3.5.11 | Obscure authentication feedback | --- | --- | --- | --- | Obscure feedback of authentication information. IA-6 Authenticator Feedback A.9.4.2 Secure logon procedures APPENDIX D PAGE 72 TABLE D-6: MAPPING I... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence | Error handling | 7.2, 3.5.11 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.5.1 | Identify users | Identify system users, processes acting on behalf of users, and devices. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Identify system users, processes acting on behalf of users, and devices. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-221, MAC-SOP-222 | MAC-RPT-122_3_5_1_identify_users_Evidence, MAC-RPT-130_3_5_1_identify_users_Evidence | User model | 7.2, 3.5.1 |
+| 3.5.2 | Authenticate users | Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite to allowing access to organizational systems. IA-2 Ident... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-211 | - | lib/auth.ts, MAC-RPT-122_3_5_2_authenticate_users_Evidence | NextAuth.js (GitHub org-level MFA provides additional platform account protection) | 7.2, 3.5.2 |
+| 3.5.3 | MFA for privileged accounts | Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts. IA-2(1) Ident... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts. IA-2(1) Ident... |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence | MAC-RPT-104_MFA_Implementation_Evidence, lib/mfa.ts, MAC-RPT-121_3_5_3_mfa_for_privileged_accounts_Evidence, MAC-RPT-122_3_5_3_mfa_for_privileged_accounts_Evidence | lib/mfa.ts, app/auth/mfa/ | 7.2, 3.5.3 |
+| 3.5.4 | Replay-resistant authentication | Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts. IA-2(8) Identification and Authenti... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts. IA-2(8) Identification and Authenti... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_4_replay_resistant_authentication_Evidence | JWT tokens | 7.2, 3.5.4 |
+| 3.5.5 | Prevent identifier reuse | Prevent reuse of identifiers for a defined period. IA-4 Identifier Management A.9.2.1 User registration and de-registration | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Prevent reuse of identifiers for a defined period. IA-4 Identifier Management A.9.2.1 User registration and de-registration |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_5_prevent_identifier_reuse_Evidence, MAC-RPT-122_3_5_5_prevent_identifier_reuse_Evidence | Unique constraint, procedure | 7.2, 3.5.5 |
+| 3.5.6 | Disable identifiers after inactivity | Disable identifiers after a defined period of inactivity. IA-4 Identifier Management A.9.2.1 User registration and de-registration | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Disable identifiers after a defined period of inactivity. IA-4 Identifier Management A.9.2.1 User registration and de-registration |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | MAC-RPT-122_3_5_6_disable_identifiers_after_inactivity_Evidence | lib/inactivity-disable.ts, lib/auth.ts, app/api/auth/custom-signin/route.ts, app/api/admin/users/disable-inactive/route.ts | 7.2, 3.5.6 |
+| 3.5.7 | Password complexity | Enforce a minimum password complexity and change of characters when new passwords are created. IA-5(1) Authenticator Management Password-Based Auth... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Enforce a minimum password complexity and change of characters when new passwords are created. IA-5(1) Authenticator Management Password-Based Auth... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/password-policy.ts, MAC-RPT-122_3_5_7_password_complexity_Evidence | Password policy | 7.2, 3.5.7 |
+| 3.5.8 | Prohibit password reuse | Prohibit password reuse for a specified number of generations. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Prohibit password reuse for a specified number of generations. |  | ✅ Implemented | MAC-POL-211 | MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence | MAC-RPT-120_Identifier_Reuse_Prevention_Evidence, MAC-RPT-121_3_5_8_prohibit_password_reuse_Evidence, MAC-RPT-122_3_5_8_prohibit_password_reuse_Evidence | Password history (5 generations) | 7.2, 3.5.8 |
+| 3.5.9 | Temporary passwords | Allow temporary password use for system logons with an immediate change to a permanent password. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Allow temporary password use for system logons with an immediate change to a permanent password. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-221 | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts, app/api/auth/custom-signin/route.ts, app/auth/signin/page.tsx, app/api/auth/mfa/enroll/route.ts, prisma/schema.prisma, MAC-RPT-122_3_5_9_temporary_passwords_Evidence | lib/temporary-password.ts, app/api/admin/create-user/route.ts, app/api/admin/reset-user-password/route.ts, lib/auth.ts, app/api/auth/change-password/route.ts, middleware.ts | 7.2, 3.5.9 |
+| 3.5.10 | Cryptographically-protected passwords | Store and transmit only cryptographically-protected passwords. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Store and transmit only cryptographically-protected passwords. |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_10_cryptographically_protected_passwords_Evidence | bcrypt | 7.2, 3.5.10 |
+| 3.5.11 | Obscure authentication feedback | Obscure feedback of authentication information. IA-6 Authenticator Feedback A.9.4.2 Secure logon procedures APPENDIX D PAGE 72 TABLE D-6: MAPPING I... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Obscure feedback of authentication information. IA-6 Authenticator Feedback A.9.4.2 Secure logon procedures APPENDIX D PAGE 72 TABLE D-6: MAPPING I... |  | ✅ Implemented | MAC-POL-211 | MAC-SOP-222 | lib/auth.ts, MAC-RPT-122_3_5_11_obscure_authentication_feedback_Evidence | Error handling | 7.2, 3.5.11 |
 
 ---
 
 ## 8. Incident Response (IR) - 3 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.6.1 | Operational incident-handling capability | --- | --- | --- | --- | Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recov... |  | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence, MAC-RPT-122_3_6_1_operational_incident_handling_capability_Evidence | IR capability, IRP | 7.9, 3.6.1 |
-| 3.6.2 | Track, document, and report incidents | --- | --- | --- | --- | Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization. IR-2 Incident Resp... |  | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence, MAC-RPT-122_3_6_2_track_document_and_report_incidents_Evidence | IR procedures | 7.9, 3.6.2 |
-| 3.6.3 | Test incident response capability | --- | --- | --- | --- | Test the organizational incident response capability. IR-3 Incident Response Testing No direct mapping. APPENDIX D PAGE 73 TABLE D-7: MAPPING MAINT... |  | ✅ Implemented | MAC-POL-215 | MAC-SOP-232 | MAC-RPT-121_3_6_3_test_incident_response_capability_Evidence | IR testing, tabletop exercise | 7.9, 3.6.3 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.6.1 | Operational incident-handling capability | Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recov... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recov... |  | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence | MAC-RPT-121_3_6_1_operational_incident_handling_capability_Evidence, MAC-RPT-122_3_6_1_operational_incident_handling_capability_Evidence | IR capability, IRP | 7.9, 3.6.1 |
+| 3.6.2 | Track, document, and report incidents | Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization. IR-2 Incident Resp... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization. IR-2 Incident Resp... |  | ✅ Implemented | MAC-POL-215 | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence | MAC-RPT-121_3_6_2_track_document_and_report_incidents_Evidence, MAC-RPT-122_3_6_2_track_document_and_report_incidents_Evidence | IR procedures | 7.9, 3.6.2 |
+| 3.6.3 | Test incident response capability | Test the organizational incident response capability. IR-3 Incident Response Testing No direct mapping. APPENDIX D PAGE 73 TABLE D-7: MAPPING MAINT... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Test the organizational incident response capability. IR-3 Incident Response Testing No direct mapping. APPENDIX D PAGE 73 TABLE D-7: MAPPING MAINT... |  | ✅ Implemented | MAC-POL-215 | MAC-SOP-232 | MAC-RPT-121_3_6_3_test_incident_response_capability_Evidence | IR testing, tabletop exercise | 7.9, 3.6.3 |
 
 ---
 
 ## 9. Maintenance (MA) - 6 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.7.1 | Perform maintenance | --- | --- | --- | --- | Perform maintenance on organizational systems. |  | ✅ Implemented | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../01-system-scope/MAC-IT-304_System_Security_Plan.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_7_1_perform_maintenance_Evidence, MAC-RPT-122_3_7_1_perform_maintenance_Evidence | Platform/app maintenance | 7.10, 3.7.1 |
-| 3.7.2 | Controls on maintenance tools | --- | --- | --- | --- | Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance. MA-2 Controlled Maintenance A.11.2.4* Equi... |  | ✅ Implemented | MAC-POL-221 | MAC-SOP-238 | MAC-RPT-123_Maintenance_Tool_Inventory_Evidence | lib/maintenance-tool-logging.ts, lib/maintenance-tool-logging-node.ts, app/api/admin/migrate/route.ts, scripts/start-with-migration.js | 7.10, 3.7.2 |
-| 3.7.3 | Sanitize equipment for off-site maintenance | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
-| 3.7.4 | Check maintenance media | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
-| 3.7.5 | MFA for nonlocal maintenance | --- | --- | --- | --- | Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when ... |  | ✅ Implemented | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence, MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence | GCP console MFA, SSH MFA (Google VM) | 7.10, 3.7.5 |
-| 3.7.6 | Supervise maintenance personnel | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.7.1 | Perform maintenance | Perform maintenance on organizational systems. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Perform maintenance on organizational systems. |  | ✅ Implemented | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../01-system-scope/MAC-IT-304_System_Security_Plan.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_7_1_perform_maintenance_Evidence, MAC-RPT-122_3_7_1_perform_maintenance_Evidence | Platform/app maintenance | 7.10, 3.7.1 |
+| 3.7.2 | Controls on maintenance tools | Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance. MA-2 Controlled Maintenance A.11.2.4* Equi... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance. MA-2 Controlled Maintenance A.11.2.4* Equi... |  | ✅ Implemented | MAC-POL-221 | MAC-SOP-238 | MAC-RPT-123_Maintenance_Tool_Inventory_Evidence | lib/maintenance-tool-logging.ts, lib/maintenance-tool-logging-node.ts, app/api/admin/migrate/route.ts, scripts/start-with-migration.js | 7.10, 3.7.2 |
+| 3.7.3 | Sanitize equipment for off-site maintenance | Ensure equipment removed for off-site maintenance is sanitized of any CUI. MA-2 Controlled Maintenance A.11.2.4* Equipment maintenance A.11.2.5* Re... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer equipment | 7.10, 3.7.3 |
+| 3.7.4 | Check maintenance media | Check media containing diagnostic and test programs for malicious code before the media are used in organizational systems. MA-3(2) Maintenance Too... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no diagnostic media | 7.10, 3.7.4 |
+| 3.7.5 | MFA for nonlocal maintenance | Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when ... |  | ✅ Implemented | MAC-POL-221 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence | MAC-RPT-110_Maintenance_MFA_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_7_5_mfa_for_nonlocal_maintenance_Evidence, MAC-RPT-122_3_7_5_mfa_for_nonlocal_maintenance_Evidence | GCP console MFA, SSH MFA (Google VM) | 7.10, 3.7.5 |
+| 3.7.6 | Supervise maintenance personnel | Supervise the maintenance activities of maintenance personnel without required access authorization. MA-5 Maintenance Personnel No direct mapping. ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-221 | - | System architecture | Cloud-only, no customer maintenance personnel | 7.10, 3.7.6 |
 
 ---
 
 ## 10. Media Protection (MP) - 9 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.8.1 | Protect system media | --- | --- | --- | --- | Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital. |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_8_1_protect_system_media_Evidence | Database encryption | 7.6, 3.8.1 |
-| 3.8.2 | Limit access to CUI on media | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Access controls, CUI vault | 7.6, 3.8.2 |
-| 3.8.3 | Sanitize/destroy media | --- | --- | --- | --- | Sanitize or destroy system media containing CUI before disposal or release for reuse. MP-2 Media Access A.8.2.3 Handling of Assets A.8.3.1 Manageme... |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_8_3_sanitize_destroy_media_Evidence | No removable media | 7.6, 3.8.3 |
-| 3.8.4 | Mark media with CUI markings | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
-| 3.8.5 | Control access during transport | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
-| 3.8.6 | Cryptographic protection on digital media | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault GCP), GCP disk encryption | 7.6, 3.8.6 |
-| 3.8.7 | Control removable media | --- | --- | --- | --- | Control the use of removable media on system components. MP-7 Media Use A.8.2.3 Handling of Assets A.8.3.1 Management of removable media 34 CP-9, I... |  | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, Policy prohibition, user agreements, technical controls | Policy prohibition, browser-based restrictions, endpoint compliance | 7.6, 3.8.7 |
-| 3.8.8 | Prohibit portable storage without owner | Prohibit the use of portable storage devices when such devices have no identifiable owner. MP-7(1) Media Use Prohibit Use Without Owner No direct m... |  | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, ../07-nist-controls/NIST-3.8.8_prohibit_portable_storage_without_owner.md, Policy prohibition, owner identification requirements | Policy prohibition, owner identification (for exceptions), asset inventory | 7.6, 3.8.8 |
-| 3.8.9 | Protect backup CUI | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence | Backup encryption (CUI vault) | 7.6, 3.8.9 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.8.1 | Protect system media | Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital. |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_8_1_protect_system_media_Evidence | Database encryption | 7.6, 3.8.1 |
+| 3.8.2 | Limit access to CUI on media | Limit access to CUI on system media to authorized users. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Access controls, CUI vault | 7.6, 3.8.2 |
+| 3.8.3 | Sanitize/destroy media | Sanitize or destroy system media containing CUI before disposal or release for reuse. MP-2 Media Access A.8.2.3 Handling of Assets A.8.3.1 Manageme... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Sanitize or destroy system media containing CUI before disposal or release for reuse. MP-2 Media Access A.8.2.3 Handling of Assets A.8.3.1 Manageme... |  | ✅ Implemented | MAC-POL-213 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_8_3_sanitize_destroy_media_Evidence | No removable media | 7.6, 3.8.3 |
+| 3.8.4 | Mark media with CUI markings | Mark media with necessary CUI markings and distribution limitations. MP-3 Media Marking A.8.2.2 Labelling of Information | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Digital-only, no physical media | 7.6, 3.8.4 |
+| 3.8.5 | Control access during transport | Control access to media containing CUI and maintain accountability for media during transport outside of controlled areas. MP-5 Media Transport A.8... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-213 | - | System architecture | Cloud-only, no physical media transport | 7.6, 3.8.5 |
+| 3.8.6 | Cryptographic protection on digital media | Implement cryptographic mechanisms to protect the confidentiality of CUI stored on digital media during transport unless otherwise protected by alt... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault GCP), GCP disk encryption | 7.6, 3.8.6 |
+| 3.8.7 | Control removable media | Control the use of removable media on system components. MP-7 Media Use A.8.2.3 Handling of Assets A.8.3.1 Management of removable media 34 CP-9, I... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Control the use of removable media on system components. MP-7 Media Use A.8.2.3 Handling of Assets A.8.3.1 Management of removable media 34 CP-9, I... |  | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, Policy prohibition, user agreements, technical controls | Policy prohibition, browser-based restrictions, endpoint compliance | 7.6, 3.8.7 |
+| 3.8.8 | Prohibit portable storage without owner | Prohibit the use of portable storage devices when such devices have no identifiable owner. MP-7(1) Media Use Prohibit Use Without Owner No direct m... | --- | ✅ Implemented | MAC-POL-213 | ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md | ../02-policies-and-procedures/MAC-POL-213_Media_Handling_Policy.md, ../02-policies-and-procedures/MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md, ../07-nist-controls/NIST-3.8.8_prohibit_portable_storage_without_owner.md, Policy prohibition, owner identification requirements | Policy prohibition, owner identification (for exceptions), asset inventory | 7.6, 3.8.8 |
+| 3.8.9 | Protect backup CUI | Protect the confidentiality of backup CUI at storage locations. CP-9 System Backup A.12.3.1 Information backup A.17.1.2 Implementing information se... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-213 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence | Backup encryption (CUI vault) | 7.6, 3.8.9 |
 
 ---
 
 ## 11. Personnel Security (PS) - 2 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.9.1 | Screen individuals prior to access | --- | --- | --- | --- | Screen individuals prior to authorizing access to organizational systems containing CUI. |  | ✅ Implemented | MAC-POL-222 | MAC-SOP-233 | MAC-RPT-121_3_9_1_screen_individuals_prior_to_access_Evidence, MAC-RPT-122_3_9_1_screen_individuals_prior_to_access_Evidence | Screening process, records | 7.7, 3.9.1 |
-| 3.9.2 | Protect systems during/after personnel actions | --- | --- | --- | --- | Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers. PS-3 Personn... |  | ✅ Implemented | MAC-POL-222 | MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | personnel-screening/screening-completion-log.md, personnel-screening/screening-records-template.md, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | Termination procedures, access revocation | 7.7, 3.9.2 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.9.1 | Screen individuals prior to access | Screen individuals prior to authorizing access to organizational systems containing CUI. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Screen individuals prior to authorizing access to organizational systems containing CUI. |  | ✅ Implemented | MAC-POL-222 | MAC-SOP-233 | MAC-RPT-121_3_9_1_screen_individuals_prior_to_access_Evidence, MAC-RPT-122_3_9_1_screen_individuals_prior_to_access_Evidence | Screening process, records | 7.7, 3.9.1 |
+| 3.9.2 | Protect systems during/after personnel actions | Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers. PS-3 Personn... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers. PS-3 Personn... |  | ✅ Implemented | MAC-POL-222 | MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | personnel-screening/screening-completion-log.md, personnel-screening/screening-records-template.md, MAC-RPT-121_3_9_2_protect_systems_during_after_personnel_actions_Evidence | Termination procedures, access revocation | 7.7, 3.9.2 |
 
 ---
 
 ## 12. Physical Protection (PE) - 6 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.10.1 | Limit physical access | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-141_3_10_1_Inherited_Physical_Access_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Physical access to systems hosting CUI is restricted by Google Cloud Platform to authorized personnel only. GCP implements badge-based access controls, least-privilege physical access, and access logging. MacTech Solutions inherits physical access controls from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.1 |
-| 3.10.2 | Protect and monitor facility | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-142_3_10_2_Inherited_Facility_Protection_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Facilities hosting CUI are protected and continuously monitored by Google Cloud Platform through physical security controls, surveillance systems, and on-site security personnel. MacTech Solutions inherits facility protection and monitoring from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.2 |
-| 3.10.3 | Escort and monitor visitors | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-143_3_10_3_Inherited_Visitor_Controls_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Visitors to facilities hosting CUI are escorted and monitored in accordance with Google Cloud Platform physical security policies. MacTech Solutions inherits visitor escort and monitoring controls from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.3 |
-| 3.10.4 | Physical access audit logs | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access logs (CUI vault), GitHub facilities (source code) | 7.8, 3.10.4 |
-| 3.10.5 | Control physical access devices | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access devices (CUI vault), GitHub facilities (source code) | 7.8, 3.10.5 |
-| 3.10.6 | Safeguarding at alternate work sites | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center alternate sites (CUI vault), GitHub facilities (source code) | 7.8, 3.10.6 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.10.1 | Limit physical access | Limit physical access to organizational systems, equipment, and the respective operating environments to authorized individuals. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-141_3_10_1_Inherited_Physical_Access_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Physical access to systems hosting CUI is restricted by Google Cloud Platform to authorized personnel only. GCP implements badge-based access controls, least-privilege physical access, and access logging. MacTech Solutions inherits physical access controls from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.1 |
+| 3.10.2 | Protect and monitor facility | Protect and monitor the physical facility and support infrastructure for organizational systems. PE-2 Physical Access Authorizations A.11.1.2* Phys... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-142_3_10_2_Inherited_Facility_Protection_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Facilities hosting CUI are protected and continuously monitored by Google Cloud Platform through physical security controls, surveillance systems, and on-site security personnel. MacTech Solutions inherits facility protection and monitoring from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.2 |
+| 3.10.3 | Escort and monitor visitors | Escort visitors and monitor visitor activity. PE-3 Physical Access Control A.11.1.1 Physical security perimeter A.11.1.2 Physical entry controls | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | MAC-RPT-143_3_10_3_Inherited_Visitor_Controls_Evidence.md, MAC-SEC-311_Inherited_Control_Statement_GCP_Physical_Security.md | Visitors to facilities hosting CUI are escorted and monitored in accordance with Google Cloud Platform physical security policies. MacTech Solutions inherits visitor escort and monitoring controls from GCP. See MAC-SEC-311 for inheritance statement. | 7.8, 3.10.3 |
+| 3.10.4 | Physical access audit logs | Maintain audit logs of physical access. A.11.1.3 Securing offices, rooms, and facilities | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access logs (CUI vault), GitHub facilities (source code) | 7.8, 3.10.4 |
+| 3.10.5 | Control physical access devices | Control and manage physical access devices. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center access devices (CUI vault), GitHub facilities (source code) | 7.8, 3.10.5 |
+| 3.10.6 | Safeguarding at alternate work sites | Enforce safeguarding measures for CUI at alternate work sites. PE-17 Alternate Work Site A.6.2.2 Teleworking A.11.2.6 Security of equipment and ass... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🔄 Inherited | MAC-POL-212 | - | GCP data center physical security, GitHub facilities | GCP data center alternate sites (CUI vault), GitHub facilities (source code) | 7.8, 3.10.6 |
 
 ---
 
 ## 13. Risk Assessment (RA) - 3 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.11.1 | Periodically assess risk | --- | --- | --- | --- | Periodically assess the risk to organizational operations (including mission, functions, image, or reputation), organizational assets, and individu... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence, MAC-RPT-122_3_11_1_periodically_assess_risk_Evidence | Risk assessment | 7.11, 3.11.1 |
-| 3.11.2 | Scan for vulnerabilities | --- | --- | --- | --- | Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applicati... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence, MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence, MAC-RPT-122_3_11_2_scan_for_vulnerabilities_Evidence | Vulnerability scanning, schedule | 7.11, 3.11.2 |
-| 3.11.3 | Remediate vulnerabilities | --- | --- | --- | --- | Remediate vulnerabilities in accordance with risk assessments. RA-5 Vulnerability Scanning A.12.6.1* Management of technical vulnerabilities APPEND... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence | MAC-RPT-115_Vulnerability_Remediation_Evidence, MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence, MAC-RPT-122_3_11_3_remediate_vulnerabilities_Evidence | Remediation process, timelines | 7.11, 3.11.3 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.11.1 | Periodically assess risk | Periodically assess the risk to organizational operations (including mission, functions, image, or reputation), organizational assets, and individu... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Periodically assess the risk to organizational operations (including mission, functions, image, or reputation), organizational assets, and individu... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence | MAC-RPT-121_3_11_1_periodically_assess_risk_Evidence, MAC-RPT-122_3_11_1_periodically_assess_risk_Evidence | Risk assessment | 7.11, 3.11.1 |
+| 3.11.2 | Scan for vulnerabilities | Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applicati... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applicati... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence, MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_11_2_scan_for_vulnerabilities_Evidence, MAC-RPT-122_3_11_2_scan_for_vulnerabilities_Evidence | Vulnerability scanning, schedule | 7.11, 3.11.2 |
+| 3.11.3 | Remediate vulnerabilities | Remediate vulnerabilities in accordance with risk assessments. RA-5 Vulnerability Scanning A.12.6.1* Management of technical vulnerabilities APPEND... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Remediate vulnerabilities in accordance with risk assessments. RA-5 Vulnerability Scanning A.12.6.1* Management of technical vulnerabilities APPEND... |  | ✅ Implemented | MAC-POL-223 | MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence | MAC-RPT-115_Vulnerability_Remediation_Evidence, MAC-RPT-121_3_11_3_remediate_vulnerabilities_Evidence, MAC-RPT-122_3_11_3_remediate_vulnerabilities_Evidence | Remediation process, timelines | 7.11, 3.11.3 |
 
 ---
 
 ## 14. Security Assessment (CA) - 4 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.12.1 | Periodically assess security controls | --- | --- | --- | --- | Periodically assess the security controls in organizational systems to determine if the controls are effective in their application. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-122_3_12_1_periodically_assess_security_controls_Evidence | Control assessment, assessment report | 7.12, 3.12.1 |
-| 3.12.2 | Develop and implement POA&M | --- | --- | --- | --- | Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence, MAC-RPT-122_3_12_2_develop_and_implement_poa_m_Evidence | POA&M process | 7.12, 3.12.2 |
-| 3.12.3 | Monitor security controls | --- | --- | --- | --- | Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence, MAC-RPT-122_3_12_3_monitor_security_controls_Evidence | Continuous monitoring log | 7.12, 3.12.3 |
-| 3.12.4 | Develop/update SSP | --- | --- | --- | --- | Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security re... |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_4_develop_update_ssp_Evidence | ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_12_4_develop_update_ssp_Evidence, MAC-RPT-122_3_12_4_develop_update_ssp_Evidence | System Security Plan | 7.12, 3.12.4 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.12.1 | Periodically assess security controls | Periodically assess the security controls in organizational systems to determine if the controls are effective in their application. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Periodically assess the security controls in organizational systems to determine if the controls are effective in their application. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence | MAC-RPT-121_3_12_1_periodically_assess_security_controls_Evidence, MAC-RPT-122_3_12_1_periodically_assess_security_controls_Evidence | Control assessment, assessment report | 7.12, 3.12.1 |
+| 3.12.2 | Develop and implement POA&M | Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence | MAC-RPT-121_3_12_2_develop_and_implement_poa_m_Evidence, MAC-RPT-122_3_12_2_develop_and_implement_poa_m_Evidence | POA&M process | 7.12, 3.12.2 |
+| 3.12.3 | Monitor security controls | Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls. |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence | MAC-RPT-121_3_12_3_monitor_security_controls_Evidence, MAC-RPT-122_3_12_3_monitor_security_controls_Evidence | Continuous monitoring log | 7.12, 3.12.3 |
+| 3.12.4 | Develop/update SSP | Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security re... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security re... |  | ✅ Implemented | MAC-POL-224 | MAC-RPT-121_3_12_4_develop_update_ssp_Evidence | ../01-system-scope/MAC-IT-304_System_Security_Plan.md, MAC-RPT-121_3_12_4_develop_update_ssp_Evidence, MAC-RPT-122_3_12_4_develop_update_ssp_Evidence | System Security Plan | 7.12, 3.12.4 |
 
 ---
 
 ## 15. System and Communications Protection (SC) - 16 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.13.1 | Monitor/control/protect communications | --- | --- | --- | --- | Monitor, control, and protect communications (i.e., information transmitted or received by organizational systems) at the external boundaries and k... |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers), GCP cloud perimeter (CUI vault), Railway edge routing (non-CUI app) | 7.13, 3.13.1 |
-| 3.13.2 | Architectural designs | --- | --- | --- | --- | Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security withi... |  | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_2_architectural_designs_Evidence, MAC-RPT-122_3_13_2_architectural_designs_Evidence | System architecture | 7.13, 3.13.2 |
-| 3.13.3 | Separate user/system management | --- | --- | --- | --- | Separate user functionality from system management functionality. SC-2 Application Partitioning No direct mapping. |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_3_separate_user_system_management_Evidence | Role separation | 7.13, 3.13.3 |
-| 3.13.4 | Prevent unauthorized information transfer | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | middleware.ts, lib/authz.ts, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md | Information flow controls (middleware.ts, lib/authz.ts), CUI blocking | 7.13, 3.13.4 |
-| 3.13.5 | Implement subnetworks | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC network segmentation (customer-configured), Railway logical app/db separation (customer-configured), database localhost-only binding | 7.13, 3.13.5 |
-| 3.13.6 | Deny-by-default network communications | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC firewall rules with deny-by-default (customer-configured), Railway network controls (customer-configured), UFW firewall active with deny-by-default (Google VM - SSH/HTTPS allowed, all other inbound denied) | 7.13, 3.13.6 |
-| 3.13.7 | Prevent remote device dual connections | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
-| 3.13.8 | Cryptographic mechanisms for CUI in transit | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated) | 7.13, 3.13.8 |
-| 3.13.9 | Terminate network connections | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | lib/auth.ts, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, MAC-RPT-134_Google_VM_SSH_Hardening_Evidence | Application session termination (8-hour timeout), SSH timeout configuration (Google VM - ClientAliveInterval 120s, ClientAliveCountMax 2), connection management | 7.13, 3.13.9 |
-| 3.13.10 | Cryptographic key management | --- | --- | --- | --- | Establish and manage cryptographic keys for cryptography employed in organizational systems. SC-12 Cryptographic Key Establishment and Management A... |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
-| 3.13.11 | FIPS-validated cryptography | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence, MAC-RPT-124_FIPS_Migration_Plan, docs/FIPS_VERIFICATION_RESULTS.md, docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence | lib/fips-crypto.ts, lib/fips-jwt.ts, lib/fips-nextauth-config.ts, lib/fips-verification.ts, app/api/admin/fips-status/route.ts, scripts/verify-fips-status.ts, compliance/cmmc/level2/05-evidence/docs/CUI_Vault_TLS_Implementation_Reference.md, FIPS kernel mode enabled (Google VM - /proc/sys/crypto/fips_enabled=1), OpenSSL FIPS provider active (Google VM) | 7.13, 3.13.11 |
-| 3.13.12 | Collaborative computing devices | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
-| 3.13.13 | Control mobile code | Control and monitor the use of mobile code. SC-18 Mobile Code No direct mapping. APPENDIX D PAGE 82 NIST SP 800-53 Relevant Security Controls ISO/I... |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117_Mobile_Code_Control_Evidence | MAC-RPT-117_Mobile_Code_Control_Evidence, MAC-RPT-121_3_13_13_control_mobile_code_Evidence, MAC-RPT-122_3_13_13_control_mobile_code_Evidence | Mobile code policy, CSP | 7.13, 3.13.13 |
-| 3.13.14 | Control VoIP | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
-| 3.13.15 | Protect authenticity of communications | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 with certificate validation (customer-configured), TLS authentication configured | 7.13, 3.13.15 |
-| 3.13.16 | Protect CUI at rest | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault FIPS-validated) | 7.13, 3.13.16 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.13.1 | Monitor/control/protect communications | Monitor, control, and protect communications (i.e., information transmitted or received by organizational systems) at the external boundaries and k... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Monitor, control, and protect communications (i.e., information transmitted or received by organizational systems) at the external boundaries and k... |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../02-policies-and-procedures/MAC-POL-225_System_and_Communications_Protection_Policy.md, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-126_Communications_Protection_Operational_Evidence, MAC-RPT-121_3_13_1_monitor_control_protect_communications_Evidence | Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers), GCP cloud perimeter (CUI vault), Railway edge routing (non-CUI app) | 7.13, 3.13.1 |
+| 3.13.2 | Architectural designs | Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security withi... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security withi... |  | ✅ Implemented | MAC-POL-225 | MAC-RPT-121_3_13_2_architectural_designs_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_2_architectural_designs_Evidence, MAC-RPT-122_3_13_2_architectural_designs_Evidence | System architecture | 7.13, 3.13.2 |
+| 3.13.3 | Separate user/system management | Separate user functionality from system management functionality. SC-2 Application Partitioning No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Separate user functionality from system management functionality. SC-2 Application Partitioning No direct mapping. |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_3_separate_user_system_management_Evidence | Role separation | 7.13, 3.13.3 |
+| 3.13.4 | Prevent unauthorized information transfer | Prevent unauthorized and unintended information transfer via shared system resources. SC-4 Information in Shared Resources No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | middleware.ts, lib/authz.ts, MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md | Information flow controls (middleware.ts, lib/authz.ts), CUI blocking | 7.13, 3.13.4 |
+| 3.13.5 | Implement subnetworks | Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks. SC-7 Boundary Pr... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC network segmentation (customer-configured), Railway logical app/db separation (customer-configured), database localhost-only binding | 7.13, 3.13.5 |
+| 3.13.6 | Deny-by-default network communications | Deny network communications traffic by default and allow network communications traffic by exception (i.e., deny all, permit by exception). SC-7(5)... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-128_CUI_Vault_Network_Security_Evidence | GCP VPC firewall rules with deny-by-default (customer-configured), Railway network controls (customer-configured), UFW firewall active with deny-by-default (Google VM - SSH/HTTPS allowed, all other inbound denied) | 7.13, 3.13.6 |
+| 3.13.7 | Prevent remote device dual connections | Prevent remote devices from simultaneously establishing non-remote connections with organizational systems and communicating via some other connect... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | All access remote, no non-remote connections | 7.13, 3.13.7 |
+| 3.13.8 | Cryptographic mechanisms for CUI in transit | Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission unless otherwise protected by alternative physical... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 (CUI vault FIPS-validated) | 7.13, 3.13.8 |
+| 3.13.9 | Terminate network connections | Terminate network connections associated with communications sessions at the end of the sessions or after a defined period of inactivity. SC-10 Net... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | lib/auth.ts, MAC-RPT-128_CUI_Vault_Network_Security_Evidence, MAC-RPT-134_Google_VM_SSH_Hardening_Evidence | Application session termination (8-hour timeout), SSH timeout configuration (Google VM - ClientAliveInterval 120s, ClientAliveCountMax 2), connection management | 7.13, 3.13.9 |
+| 3.13.10 | Cryptographic key management | Establish and manage cryptographic keys for cryptography employed in organizational systems. SC-12 Cryptographic Key Establishment and Management A... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Establish and manage cryptographic keys for cryptography employed in organizational systems. SC-12 Cryptographic Key Establishment and Management A... |  | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence | MAC-RPT-116_Cryptographic_Key_Management_Evidence, MAC-RPT-121_3_13_10_cryptographic_key_management_Evidence, MAC-RPT-122_3_13_10_cryptographic_key_management_Evidence | Key management, documentation | 7.13, 3.13.10 |
+| 3.13.11 | FIPS-validated cryptography | Employ FIPS-validated cryptography when used to protect the confidentiality of CUI. SC-13 Cryptographic Protection A.10.1.1 Policy on the use of cr... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence, MAC-RPT-124_FIPS_Migration_Plan, docs/FIPS_VERIFICATION_RESULTS.md, docs/FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md, MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence | lib/fips-crypto.ts, lib/fips-jwt.ts, lib/fips-nextauth-config.ts, lib/fips-verification.ts, app/api/admin/fips-status/route.ts, scripts/verify-fips-status.ts, compliance/cmmc/level2/05-evidence/docs/CUI_Vault_TLS_Implementation_Reference.md, FIPS kernel mode enabled (Google VM - /proc/sys/crypto/fips_enabled=1), OpenSSL FIPS provider active (Google VM) | 7.13, 3.13.11 |
+| 3.13.12 | Collaborative computing devices | Prohibit remote activation of collaborative computing devices and provide indication of devices in use to users present at the device. SC-15 Collab... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no collaborative devices | 7.13, 3.13.12 |
+| 3.13.13 | Control mobile code | Control and monitor the use of mobile code. SC-18 Mobile Code No direct mapping. APPENDIX D PAGE 82 SECURITY REQUIREMENTS NIST SP 800-53 Relevant S... | --- | ✅ Implemented | MAC-POL-225 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-117_Mobile_Code_Control_Evidence | MAC-RPT-117_Mobile_Code_Control_Evidence, MAC-RPT-121_3_13_13_control_mobile_code_Evidence, MAC-RPT-122_3_13_13_control_mobile_code_Evidence | Mobile code policy, CSP | 7.13, 3.13.13 |
+| 3.13.14 | Control VoIP | Control and monitor the use of Voice over Internet Protocol (VoIP) technologies. SC-19 Voice over Internet Protocol No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 🚫 Not Applicable | MAC-POL-225 | - | System architecture | Web application, no VoIP functionality | 7.13, 3.13.14 |
+| 3.13.15 | Protect authenticity of communications | Protect the authenticity of communications sessions. SC-23 Session Authenticity No direct mapping. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-126_CUI_Vault_TLS_Configuration_Evidence, MAC-RPT-128_CUI_Vault_Network_Security_Evidence | TLS 1.3 with certificate validation (customer-configured), TLS authentication configured | 7.13, 3.13.15 |
+| 3.13.16 | Protect CUI at rest | Protect the confidentiality of CUI at rest. SC-28 Protection of Information at Rest A.8.2.3* Handling of Assets APPENDIX D PAGE 83 TABLE D-14: MAPP... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ✅ Implemented | MAC-POL-225 | - | MAC-RPT-125_CUI_Vault_Deployment_Evidence, MAC-RPT-127_CUI_Vault_Database_Encryption_Evidence | Database encryption (CUI vault FIPS-validated) | 7.13, 3.13.16 |
 
 ---
 
 ## 16. System and Information Integrity (SI) - 7 Requirements
 
 | Control ID | Requirement | NIST Requirement (Exact Text) | NIST Discussion / Guidance | Status | Policy | Procedure | Evidence | Implementation | SSP Section |
-| ----------- | ------------ | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
-| 3.14.1 | Identify/report/correct flaws | --- | --- | --- | --- | Identify, report, and correct system flaws in a timely manner. |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence, MAC-RPT-122_3_14_1_identify_report_correct_flaws_Evidence | Flaw management | 7.14, 3.14.1 |
-| 3.14.2 | Malicious code protection | --- | --- | --- | --- | Provide protection from malicious code at designated locations within organizational systems. |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-112_Physical_Access_Device_Evidence | MAC-RPT-112_Physical_Access_Device_Evidence, MAC-RPT-121_3_14_2_malicious_code_protection_Evidence, MAC-RPT-122_3_14_2_malicious_code_protection_Evidence, MAC-RPT-139_Google_VM_Malicious_Code_Protection_Evidence | Malware protection, ClamAV installed (Google VM - version 1.4.3, on-demand scanning available) | 7.14, 3.14.2 |
-| 3.14.3 | Monitor security alerts | --- | --- | --- | --- | Monitor system security alerts and advisories and take action in response. SI-2 Flaw Remediation A.12.6.1 Management of technical vulnerabilities A... |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-114_Vulnerability_Scanning_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence, MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_3_monitor_security_alerts_Evidence, MAC-RPT-122_3_14_3_monitor_security_alerts_Evidence | Alert monitoring | 7.14, 3.14.3 |
-| 3.14.4 | Update malicious code protection | --- | --- | --- | --- | Update malicious code protection mechanisms when new releases are available. SI-3 Malicious Code Protection A.12.2.1 Controls against malware |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence, MAC-RPT-122_3_14_4_update_malicious_code_protection_Evidence | Protection updates | 7.14, 3.14.4 |
-| 3.14.5 | Periodic/real-time scans | --- | --- | --- | --- | Perform periodic scans of organizational systems and real-time scans of files from external sources as files are downloaded, opened, or executed. |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | MAC-RPT-103_Dependabot_Configuration_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_5_periodic_real_time_scans_Evidence, MAC-RPT-122_3_14_5_periodic_real_time_scans_Evidence, MAC-RPT-140_Google_VM_File_Integrity_Monitoring_Evidence | Vulnerability scanning, AIDE installed (Google VM - version 0.17.4, database initialized, periodic scans available) | 7.14, 3.14.5 |
-| 3.14.6 | Monitor systems and communications | --- | --- | --- | --- | Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks. SI-4 ... |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence, MAC-RPT-122_3_14_6_monitor_systems_and_communications_Evidence | System monitoring, procedures | 7.14, 3.14.6 |
-| 3.14.7 | Identify unauthorized use | --- | --- | --- | --- | Identify unauthorized use of organizational systems. SI-4 System Monitoring No direct mapping. APPENDIX E PAGE 84 APPENDIX E TAILORING CRITERIA his... |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence | MAC-RPT-119_Unauthorized_Use_Detection_Evidence, MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence, MAC-RPT-122_3_14_7_identify_unauthorized_use_Evidence | Automated detection, alerts | 7.14, 3.14.7 |
+| ----------- | ------------ | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | -------- | -------- | ----------- | ---------- | ---------------- | ----------------- |
+| 3.14.1 | Identify/report/correct flaws | Identify, report, and correct system flaws in a timely manner. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Identify, report, and correct system flaws in a timely manner. |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_1_identify_report_correct_flaws_Evidence, MAC-RPT-122_3_14_1_identify_report_correct_flaws_Evidence | Flaw management | 7.14, 3.14.1 |
+| 3.14.2 | Malicious code protection | Provide protection from malicious code at designated locations within organizational systems. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Provide protection from malicious code at designated locations within organizational systems. |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-112_Physical_Access_Device_Evidence | MAC-RPT-112_Physical_Access_Device_Evidence, MAC-RPT-121_3_14_2_malicious_code_protection_Evidence, MAC-RPT-122_3_14_2_malicious_code_protection_Evidence, MAC-RPT-139_Google_VM_Malicious_Code_Protection_Evidence | Malware protection, ClamAV installed (Google VM - version 1.4.3, on-demand scanning available) | 7.14, 3.14.2 |
+| 3.14.3 | Monitor security alerts | Monitor system security alerts and advisories and take action in response. SI-2 Flaw Remediation A.12.6.1 Management of technical vulnerabilities A... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Monitor system security alerts and advisories and take action in response. SI-2 Flaw Remediation A.12.6.1 Management of technical vulnerabilities A... |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-114_Vulnerability_Scanning_Evidence | MAC-RPT-114_Vulnerability_Scanning_Evidence, MAC-RPT-103_Dependabot_Configuration_Evidence, MAC-RPT-121_3_14_3_monitor_security_alerts_Evidence, MAC-RPT-122_3_14_3_monitor_security_alerts_Evidence | Alert monitoring | 7.14, 3.14.3 |
+| 3.14.4 | Update malicious code protection | Update malicious code protection mechanisms when new releases are available. SI-3 Malicious Code Protection A.12.2.1 Controls against malware | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Update malicious code protection mechanisms when new releases are available. SI-3 Malicious Code Protection A.12.2.1 Controls against malware |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_4_update_malicious_code_protection_Evidence, MAC-RPT-122_3_14_4_update_malicious_code_protection_Evidence | Protection updates | 7.14, 3.14.4 |
+| 3.14.5 | Periodic/real-time scans | Perform periodic scans of organizational systems and real-time scans of files from external sources as files are downloaded, opened, or executed. | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Perform periodic scans of organizational systems and real-time scans of files from external sources as files are downloaded, opened, or executed. |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-103_Dependabot_Configuration_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md | MAC-RPT-103_Dependabot_Configuration_Evidence, ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-121_3_14_5_periodic_real_time_scans_Evidence, MAC-RPT-122_3_14_5_periodic_real_time_scans_Evidence, MAC-RPT-140_Google_VM_File_Integrity_Monitoring_Evidence | Vulnerability scanning, AIDE installed (Google VM - version 0.17.4, database initialized, periodic scans available) | 7.14, 3.14.5 |
+| 3.14.6 | Monitor systems and communications | Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks. SI-4 ... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks. SI-4 ... |  | ✅ Implemented | MAC-POL-214 | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence | ../01-system-scope/MAC-IT-301_System_Description_and_Architecture.md, MAC-RPT-118_Portable_Storage_Controls_Evidence, MAC-RPT-121_3_14_6_monitor_systems_and_communications_Evidence, MAC-RPT-122_3_14_6_monitor_systems_and_communications_Evidence | System monitoring, procedures | 7.14, 3.14.6 |
+| 3.14.7 | Identify unauthorized use | Identify unauthorized use of organizational systems. SI-4 System Monitoring No direct mapping. APPENDIX E PAGE 84 APPENDIX E TAILORING CRITERIA LIS... | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | Identify unauthorized use of organizational systems. SI-4 System Monitoring No direct mapping. APPENDIX E PAGE 84 APPENDIX E TAILORING CRITERIA his... |  | ✅ Implemented | MAC-POL-214 | MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence | MAC-RPT-119_Unauthorized_Use_Detection_Evidence, MAC-RPT-121_3_14_7_identify_unauthorized_use_Evidence, MAC-RPT-122_3_14_7_identify_unauthorized_use_Evidence | Automated detection, alerts | 7.14, 3.14.7 |
 
 ---
 
@@ -316,6 +374,1108 @@ This section provides detailed implementation information extracted from NIST SP
 
 
 ---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
+
+## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
+
+This section provides the complete verbatim DISCUSSION text from NIST SP 800-171 Rev. 2 for all controls. The DISCUSSION sections provide technical guidance and interpretation to facilitate implementation and assessment.
+
+**Reference:** NIST SP 800-171 Rev. 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations
+
+### AC - Access Control
+
+### AT - Awareness and Training
+
+### AU - Audit and Accountability
+
+### CM - Configuration Management
+
+### IA - Identification and Authentication
+
+### IR - Incident Response
+
+### MA - Maintenance
+
+### MP - Media Protection
+
+### PS - Personnel Security
+
+### PE - Physical Protection
+
+### RA - Risk Assessment
+
+### CA - Security Assessment
+
+### SC - System and Communications Protection
+
+### SI - System and Information Integrity
 
 ## 17.2. NIST SP 800-171 Discussion Sections (Complete Text)
 

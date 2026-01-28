@@ -1,7 +1,8 @@
 # FIPS Cryptography Assessment Evidence - CMMC Level 2
 
-**Document Version:** 1.0  
+**Document Version:** 3.2  
 **Date:** 2026-01-23  
+**Last Updated:** 2026-01-28  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2, Section 3.13.11
@@ -62,14 +63,20 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 | **Base OpenSSL Library** | 3.0.2 (not the validated component) | ✅ Confirmed |
 | **FIPS Provider Status** | Active | ✅ Confirmed |
 | **Kernel FIPS Mode** | Enabled (`/proc/sys/crypto/fips_enabled = 1`) | ✅ Confirmed |
-| **CMVP Certificate** | Canonical's Ubuntu OpenSSL Cryptographic Module (FIPS 140-3) | ✅ Inherited |
-| **Validation Type** | Inherited from Canonical's CMVP FIPS 140-3 certification | ✅ Validated |
+| **CMVP Certificate** | Certificate #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module | ✅ Validated |
+| **Certificate Status** | Active | ✅ Confirmed |
+| **Standard** | FIPS 140-3 | ✅ Confirmed |
+| **Overall Level** | Level 1 | ✅ Confirmed |
+| **Sunset Date** | 9/10/2026 | ✅ Confirmed |
+| **Initial Validation** | 9/11/2024 | ✅ Confirmed |
+| **Validation Type** | Inherited from Canonical's CMVP FIPS 140-3 certification (Certificate #4794) | ✅ Validated |
 
 **Evidence Collection Status:**
 - **Evidence Required:** ✅ Complete - Ubuntu OpenSSL Cryptographic Module FIPS validation confirmed
-- **Documentation Source:** Canonical's CMVP FIPS 140-3 certification
+- **Documentation Source:** NIST CMVP Certificate #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS 140-3)
+- **CMVP Certificate URL:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
 - **Verification Method:** System verification confirms FIPS provider active and kernel FIPS mode enabled
-- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode
+- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode per Certificate #4794
 
 **Current Implementation:**
 - TLS 1.3 protocol in use for all CUI transmission
@@ -80,7 +87,7 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 **Assessment:**
 - TLS 1.3 with FIPS-compliant cipher suite implemented and operational
 - All cipher suite components (AES-256, GCM, SHA-384) are FIPS-approved algorithms
-- ✅ **FIPS-Validated:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module.
+- ✅ **FIPS-Validated:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is confirmed via NIST CMVP Certificate #4794 (FIPS 140-3 Level 1, Active until 9/10/2026).
 - CUI vault provides dedicated, isolated infrastructure with FIPS-validated cryptography
 - FIPS kernel mode enabled and FIPS provider active (verified via system checks)
 
@@ -117,14 +124,20 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 | **Base OpenSSL Library** | 3.0.2 (not the validated component) | ✅ Confirmed |
 | **FIPS Provider Status** | Active | ✅ Confirmed |
 | **Kernel FIPS Mode** | Enabled (`/proc/sys/crypto/fips_enabled = 1`) | ✅ Confirmed |
-| **CMVP Certificate** | Canonical's Ubuntu OpenSSL Cryptographic Module (FIPS 140-3) | ✅ Inherited |
-| **Validation Type** | Inherited from Canonical's CMVP FIPS 140-3 certification | ✅ Validated |
+| **CMVP Certificate** | Certificate #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module | ✅ Validated |
+| **Certificate Status** | Active | ✅ Confirmed |
+| **Standard** | FIPS 140-3 | ✅ Confirmed |
+| **Overall Level** | Level 1 | ✅ Confirmed |
+| **Sunset Date** | 9/10/2026 | ✅ Confirmed |
+| **Initial Validation** | 9/11/2024 | ✅ Confirmed |
+| **Validation Type** | Inherited from Canonical's CMVP FIPS 140-3 certification (Certificate #4794) | ✅ Validated |
 
 **Evidence Collection Status:**
 - **Evidence Required:** ✅ Complete - Ubuntu OpenSSL Cryptographic Module FIPS validation confirmed
-- **Documentation Source:** Canonical's CMVP FIPS 140-3 certification
+- **Documentation Source:** NIST CMVP Certificate #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS 140-3)
+- **CMVP Certificate URL:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
 - **Verification Method:** System verification confirms FIPS provider active and kernel FIPS mode enabled
-- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode
+- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode per Certificate #4794
 
 **Current Implementation:**
 - Application-level AES-256-GCM encryption in use for CUI records (FIPS-approved algorithm)
@@ -136,7 +149,7 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 **Assessment:**
 - Application-level encryption uses FIPS-approved algorithm (AES-256-GCM)
 - Infrastructure-level encryption provided by Google Cloud Platform
-- ✅ **FIPS-Validated:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module.
+- ✅ **FIPS-Validated:** Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is confirmed via NIST CMVP Certificate #4794 (FIPS 140-3 Level 1, Active until 9/10/2026).
 - CUI vault provides dedicated, isolated storage with multi-layer FIPS-validated encryption
 - FIPS kernel mode enabled and FIPS provider active (verified via system checks)
 
@@ -290,8 +303,8 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 ### 5.1 FIPS-Validated Components
 
 **Components Verified as FIPS-Validated for CUI:**
-- ✅ **CUI Vault TLS/HTTPS (CUI in Transit):** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) - FIPS 140-3 validated (Section 3.1)
-- ✅ **CUI Vault Database Encryption (CUI at Rest):** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) - FIPS 140-3 validated (Section 3.2)
+- ✅ **CUI Vault TLS/HTTPS (CUI in Transit):** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) - FIPS 140-3 validated, Certificate #4794 (Section 3.1)
+- ✅ **CUI Vault Database Encryption (CUI at Rest):** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) - FIPS 140-3 validated, Certificate #4794 (Section 3.2)
 
 **Note:** Railway infrastructure is **PROHIBITED** from CUI processing per system boundary. Railway does NOT handle CUI in transit or at rest. All CUI protection is provided exclusively by the CUI vault infrastructure.
 
@@ -337,8 +350,8 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 
 | Component | Evidence Required | Source | Status | Target Date |
 |-----------|------------------|--------|--------|-------------|
-| CUI Vault TLS/HTTPS (CUI in Transit) | ✅ Complete - FIPS 140-3 validated | Canonical CMVP certification | ✅ Complete | N/A |
-| CUI Vault Database Encryption (CUI at Rest) | ✅ Complete - FIPS 140-3 validated | Canonical CMVP certification | ✅ Complete | N/A |
+| CUI Vault TLS/HTTPS (CUI in Transit) | ✅ Complete - FIPS 140-3 validated | NIST CMVP Certificate #4794 | ✅ Complete | N/A |
+| CUI Vault Database Encryption (CUI at Rest) | ✅ Complete - FIPS 140-3 validated | NIST CMVP Certificate #4794 | ✅ Complete | N/A |
 | Node.js/OpenSSL JWT Signing (Non-CUI) | OpenSSL 3.6.0 FIPS validation, CMVP number | OpenSSL documentation, NIST CMVP | ⚠️ In Progress | Per POA&M timeline |
   - Runtime: Node.js 24.6.0, OpenSSL 3.6.0 ✅ Identified
   - FIPS Support: OpenSSL 3 provider model ✅ Confirmed
@@ -424,6 +437,10 @@ Providers:
 - **Version:** 3.0.5-0ubuntu0.1+Fips2.1
 - **Status:** Active
 - **Base Provider:** OpenSSL Base Provider 3.0.2 (active)
+- **CMVP Certificate:** #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module
+- **Certificate Status:** Active (valid until 9/10/2026)
+- **Standard:** FIPS 140-3 Level 1
+- **Initial Validation:** 9/11/2024
 
 ### 8.3 FIPS Mode Verification
 
@@ -461,6 +478,7 @@ Providers:
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 3.2 (2026-01-28): Updated with official NIST CMVP Certificate #4794 details (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module, FIPS 140-3 Level 1, Active until 9/10/2026)
 - Version 3.1 (2026-01-28): Added VM-specific FIPS validation section with OpenSSL provider verification results
 - Version 3.0 (2026-01-27): Updated to reflect CUI vault-only architecture
   - Removed Railway sections for CUI handling (Railway is prohibited from CUI per system boundary)
@@ -490,3 +508,13 @@ Providers:
 - NIST CMVP: https://csrc.nist.gov/projects/cryptographic-module-validation-program
 - FIPS 140-2: Security Requirements for Cryptographic Modules
 - FIPS 140-3: Security Requirements for Cryptographic Modules (as applicable)
+- **CMVP Certificate #4794:** Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module
+  - Certificate URL: https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
+  - Status: Active
+  - Standard: FIPS 140-3 Level 1
+  - Sunset Date: 9/10/2026
+  - Initial Validation: 9/11/2024 (atsec information security corporation)
+  - Software Version: 3.0.5-0ubuntu0.1+Fips2.1
+  - Vendor: Canonical Ltd.
+  - Caveat: Interim validation; When operated in approved mode; When installed, initialized and configured as specified in Section 11 of the Security Policy
+  - Tested Configurations: Ubuntu 22.04 on IBM z15, AWS c6g.metal (Graviton2), Supermicro SYS-1019P-WTR (Intel Xeon Gold 6226)

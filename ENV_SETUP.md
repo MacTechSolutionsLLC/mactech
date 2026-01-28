@@ -22,9 +22,9 @@ SAM_GOV_API_KEY=your-sam-gov-api-key-here
 # Alternative variable name (also supported):
 # SAM_API_KEY=your-sam-gov-api-key-here
 
-# CUI Vault Configuration (for CUI file storage)
+# CUI Vault Configuration (REQUIRED for CUI file storage - CMMC Level 2 compliance)
 CUI_VAULT_URL=https://vault.mactechsolutionsllc.com
-CUI_VAULT_API_KEY=your-cui-vault-api-key-here
+CUI_VAULT_API_KEY=your-cui-vault-api-key-here  # REQUIRED - CUI vault is mandatory for CUI storage
 # Optional: CUI_VAULT_TIMEOUT=30000 (request timeout in milliseconds, default: 30000)
 # Optional: CUI_VAULT_RETRY_ATTEMPTS=3 (number of retry attempts, default: 3)
 
@@ -40,6 +40,6 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - For PostgreSQL, use: `DATABASE_URL="postgresql://user:password@localhost:5432/mactech"`
 - The OpenAI API key is required for the AI chatbot feature. Get your key from https://platform.openai.com/api-keys
 - The SAM.gov API key is required for the Contract Discovery feature. Get your key from https://api.sam.gov/
-- The CUI Vault API key is required for CUI file storage in the dedicated vault. If not configured, CUI files will be stored in the local database. The vault URL defaults to `https://vault.mactechsolutionsllc.com` if not specified.
-- For Railway/production: Add `CUI_VAULT_URL` and `CUI_VAULT_API_KEY` to Railway environment variables in your project settings
+- **CUI Vault API key is REQUIRED** for CUI file storage (CMMC Level 2 compliance requirement). If not configured, CUI file uploads will be rejected (no fallback to Railway storage). The vault URL defaults to `https://vault.mactechsolutionsllc.com` if not specified.
+- **For Railway/production:** Add `CUI_VAULT_URL` and `CUI_VAULT_API_KEY` to Railway environment variables in your project settings. CUI vault must be configured before accepting CUI uploads.
 

@@ -306,60 +306,36 @@ export async function storeCUIFile(
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
-  // Check if CUI vault is configured
-  const useVault = isVaultConfigured()
-
-  if (useVault) {
-    try {
-      // Store in CUI vault
-      const vaultResult = await storeCUIInVault(
-        buffer,
-        file.name,
-        file.type,
-        metadata
-      )
-
-      // Store metadata in local database for listing/management
-      const storedFile = await prisma.storedCUIFile.create({
-        data: {
-          userId,
-          filename: file.name,
-          mimeType: file.type,
-          size: file.size,
-          data: Buffer.alloc(0), // Empty data since file is in vault
-          metadata: metadata ? JSON.stringify(metadata) : null,
-          signedUrlExpiresAt: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRES_IN),
-          storedInVault: true,
-          vaultId: vaultResult.id,
-        },
-      })
-
-      // Generate signed URL (note: CUI files require password, so signed URLs may not be used)
-      const signedUrl = generateSignedUrl(storedFile.id)
-
-      return {
-        fileId: storedFile.id,
-        signedUrl,
-      }
-    } catch (error: any) {
-      // Log error and fall back to local storage
-      console.error('Failed to store CUI in vault, falling back to local storage:', error.message)
-      // Continue to local storage fallback below
-    }
+  // CUI vault is REQUIRED for CUI storage (CMMC Level 2 compliance requirement)
+  // Railway fallback storage is prohibited - CUI content must be stored in FIPS-validated vault
+  if (!isVaultConfigured()) {
+    throw new Error(
+      'CUI vault is required for CUI file storage. CUI_VAULT_API_KEY environment variable must be configured. ' +
+      'CUI content cannot be stored in Railway database per CMMC Level 2 requirements (FIPS-validated cryptography required).'
+    )
   }
 
-  // Fallback: Store CUI file in local database
+  // Store in CUI vault (required - no fallback to Railway storage)
+  const vaultResult = await storeCUIInVault(
+    buffer,
+    file.name,
+    file.type,
+    metadata
+  )
+
+  // Store metadata in local database for listing/management
+  // Note: CUI content is stored in vault only, Railway DB stores metadata only
   const storedFile = await prisma.storedCUIFile.create({
     data: {
       userId,
       filename: file.name,
       mimeType: file.type,
       size: file.size,
-      data: buffer,
+      data: Buffer.alloc(0), // Empty data - CUI content is in vault only
       metadata: metadata ? JSON.stringify(metadata) : null,
       signedUrlExpiresAt: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRES_IN),
-      storedInVault: false,
-      vaultId: null,
+      storedInVault: true,
+      vaultId: vaultResult.id,
     },
   })
 

@@ -28,8 +28,8 @@ The CUI vault integration allows the main application to store CUI files in the 
 
 ### Environment Variables
 
-**Required (if using vault):**
-- `CUI_VAULT_API_KEY` - API key for vault authentication
+**Required (CUI vault is mandatory for CUI storage):**
+- `CUI_VAULT_API_KEY` - API key for vault authentication (REQUIRED - no fallback to Railway storage)
 
 **Optional:**
 - `CUI_VAULT_URL` - Vault API base URL (default: `https://vault.mactechsolutionsllc.com`)
@@ -72,10 +72,11 @@ npx prisma migrate dev
 
 1. **New CUI File Upload:**
    - User uploads CUI file via `/api/files/upload`
-   - System checks if `CUI_VAULT_API_KEY` is configured
-   - If configured: File stored in CUI vault via API
-   - If not configured: File stored in local database (backward compatibility)
+   - System validates that `CUI_VAULT_API_KEY` is configured (REQUIRED)
+   - **If vault not configured:** Upload is rejected with error (no fallback to Railway storage)
+   - **If vault configured:** File stored in CUI vault via API
    - Metadata always stored in local database for listing/management
+   - **CMMC Requirement:** CUI vault is required for CUI storage (FIPS-validated cryptography required)
 
 2. **File Retrieval:**
    - User requests CUI file via `/api/files/cui/[id]`
@@ -98,15 +99,16 @@ npx prisma migrate dev
 ## Backward Compatibility
 
 **Existing Files:**
-- All existing CUI files remain in local database
+- All existing CUI files remain in local database (legacy files)
 - `storedInVault: false` for all existing records
 - Existing files continue to work via local database retrieval
-- No automatic migration required
+- Legacy files are exception, not normal operation
 
-**Fallback Behavior:**
-- If vault is unavailable: Falls back to local database storage
-- If API key not configured: Uses local database storage
-- Error handling ensures system remains functional
+**Fail-Secure Behavior (No Fallback):**
+- **If vault is unavailable:** Upload is rejected with error (no fallback to Railway storage)
+- **If API key not configured:** Upload is rejected with error (no fallback to Railway storage)
+- **CMMC Requirement:** CUI content cannot be stored in Railway database (FIPS-validated cryptography required)
+- Error handling ensures CUI content never touches Railway storage
 
 ---
 

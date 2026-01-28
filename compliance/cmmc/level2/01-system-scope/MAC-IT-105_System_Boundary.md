@@ -48,12 +48,13 @@
 │     INTERNAL NETWORK SEGMENT (Railway Platform)              │
 │         PostgreSQL Database (Internal Tier)                  │
 │  - FCI storage (GovernmentContractDiscovery, etc.)          │
-│  - CUI storage (StoredCUIFile table - application level)     │
+│  - CUI metadata (StoredCUIFile table - metadata only)        │
 │  - User accounts & authentication                            │
 │  - Event logs (AppEvent table)                               │
 │  - File storage (StoredFile table - BYTEA)                  │
 │  - Database security capabilities (Railway managed)          │
 │  - Not directly accessible from internet                      │
+│  - Note: CUI content is NOT stored here (vault-only)        │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        │ HTTPS/TLS 1.3 (API Key Auth)
@@ -151,9 +152,10 @@
 
 2. **PostgreSQL Database**
    - Location: Railway cloud platform
-   - Purpose: Storage of FCI, CUI, user accounts, event logs, files
+   - Purpose: Storage of FCI, CUI metadata, user accounts, event logs, files
    - FCI files: StoredFile table
-   - CUI files: StoredCUIFile table (separate storage with password protection)
+   - CUI metadata: StoredCUIFile table (metadata only, CUI content stored in vault)
+   - **Note:** Railway is outside the CUI security boundary. Railway database stores CUI metadata only, not CUI content.
    - Evidence: `prisma/schema.prisma`, Railway platform
 
 3. **Authentication System**
@@ -229,6 +231,12 @@
 - CUI keyword detection for auto-classification
 - User acknowledgment required for CUI handling (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`)
 - Procedural controls and training
+
+**CUI Security Boundary:**
+- **Railway is not part of the CUI security boundary.** Railway does not process, store, decrypt, or terminate CUI. Railway functions solely as a pass-through transport layer for encrypted data. All cryptographic operations protecting CUI in transit are performed using FIPS-validated cryptographic modules within the CUI Vault enclave.
+- CUI content storage is vault-only (FIPS-validated cryptography required)
+- Railway database stores CUI metadata only, not CUI content
+- CUI vault is required for all new CUI file uploads (no fallback to Railway storage)
 
 **Prohibited Data Types:**
 - Classified information

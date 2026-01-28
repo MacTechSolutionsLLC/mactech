@@ -203,11 +203,13 @@ CUI is **PROHIBITED** from being stored, processed, or transmitted in any compon
    - User browsers and client devices - Outside system boundary, no CUI storage on client devices
    - User network connections - Outside system boundary
 
-5. **Railway Infrastructure - PROHIBITED for CUI:**
-   - Railway platform infrastructure components - Inherited, not assessed for CUI
-   - Railway-managed network infrastructure - Infrastructure only, no CUI processing
-   - **CUI Transit:** Railway does NOT handle CUI in transit. All CUI in transit is via CUI vault (TLS 1.3, FIPS-validated)
-   - **CUI Storage:** Railway does NOT store CUI content. Railway database stores metadata and legacy files only. All CUI content is stored in CUI vault.
+5. **Railway Infrastructure - OUTSIDE CUI Security Boundary:**
+   - Railway platform infrastructure components - Outside CUI security boundary
+   - Railway-managed network infrastructure - Transmission medium only, not cryptographic boundary
+   - **Railway Role:** Railway functions as a transmission medium for routing CUI to the vault. Railway terminates TLS for user → Railway app connection, but CUI is re-encrypted using FIPS-validated cryptography before storage in vault.
+   - **CUI Transit:** Railway transports encrypted CUI data between user and vault, but does not perform cryptographic operations protecting CUI. All cryptographic operations protecting CUI are performed by FIPS-validated modules in the CUI Vault.
+   - **CUI Storage:** Railway does NOT store CUI content. Railway database stores metadata and legacy files only. All CUI content is stored in CUI vault (FIPS-validated storage).
+   - **CUI Processing:** Railway processes CUI routing/metadata in memory (transient, no persistence). Railway does not log CUI content.
 
 **Technical Enforcement Mechanisms:**
 
@@ -225,8 +227,11 @@ The following technical controls enforce CUI boundary restrictions and prevent C
    - CUI routing enforced via `storeCUIFile()` function - new CUI files routed to CUI vault on GCP, metadata stored in `StoredCUIFile` table
    - CUI detection and classification logic (`lib/cui-blocker.ts`) identifies CUI for proper routing
    - File upload API (`app/api/files/upload/route.ts`) routes CUI files to `storeCUIFile()` function
+   - **Vault requirement enforcement:** `storeCUIFile()` function requires vault to be configured - no fallback to Railway storage
+   - **Fail-secure behavior:** If vault unavailable, upload is rejected with clear error message
    - Code-level enforcement prevents CUI from being stored in FCI table
-   - Evidence: `lib/file-storage.ts` (storeCUIFile function), `app/api/files/upload/route.ts` (CUI routing logic)
+   - Code-level enforcement prevents CUI content from being stored in Railway database (vault-only storage)
+   - Evidence: `lib/file-storage.ts` (storeCUIFile function - vault required, no fallback), `app/api/files/upload/route.ts` (CUI routing logic, vault validation)
 
 3. **Access Control Enforcement:**
    - CUI access requires authentication + MFA + password verification + role-based authorization
@@ -2042,7 +2047,8 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - CUI vault: ✅ Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 - CUI vault: TLS 1.3 with FIPS-validated cryptography
 - CUI vault: Kernel FIPS mode enabled, FIPS provider active
-- ✅ **VM Implementation (Google VM):** FIPS kernel mode verified enabled (`/proc/sys/crypto/fips_enabled = 1`), OpenSSL FIPS provider active (Ubuntu 22.04 OpenSSL Cryptographic Module version 3.0.5-0ubuntu0.1+Fips2.1). See evidence: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md` (Section 8)
+- **CMVP Certificate:** #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS 140-3 Level 1, Active until 9/10/2026)
+- ✅ **VM Implementation (Google VM):** FIPS kernel mode verified enabled (`/proc/sys/crypto/fips_enabled = 1`), OpenSSL FIPS provider active (Ubuntu 22.04 OpenSSL Cryptographic Module version 3.0.5-0ubuntu0.1+Fips2.1, Certificate #4794). See evidence: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md` (Section 8)
 - Main application: FIPS cryptography assessment conducted
 - Main application: FIPS-validated JWT implementation complete (Option 2)
 - FIPS verification tools created

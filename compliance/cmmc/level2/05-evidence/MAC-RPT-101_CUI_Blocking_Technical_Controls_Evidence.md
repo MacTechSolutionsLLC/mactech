@@ -52,14 +52,15 @@ export function detectCUIKeywords(input: any): boolean {
 **Purpose:** Stores CUI files separately from FCI files with password protection.
 
 **Key Functions:**
-- `storeCUIFile(userId: string, file: File, metadata?: Record<string, any>)`: Stores CUI file in StoredCUIFile table
-- `getCUIFile(fileId: string, userId?: string, userRole?: string)`: Retrieves CUI file with authentication and role-based access control
+- `storeCUIFile(userId: string, file: File, metadata?: Record<string, any>)`: Routes CUI file to CUI vault (vault required, no fallback)
+- `getCUIFile(fileId: string, userId?: string, userRole?: string)`: Retrieves CUI file from vault with authentication and role-based access control
 - `listCUIFiles(userId: string, includeDeleted: boolean, userRole?: string)`: Lists CUI files for user
 
 **Database Model:**
-- `StoredCUIFile` table in PostgreSQL
+- `StoredCUIFile` table in PostgreSQL (metadata only)
 - Separate from `StoredFile` table (FCI files)
-- Same structure: id, userId, filename, mimeType, size, data (BYTEA), uploadedAt, deletedAt, metadata
+- Structure: id, userId, filename, mimeType, size, data (BYTEA - empty for vault-stored files), uploadedAt, deletedAt, metadata, storedInVault, vaultId
+- **Note:** CUI content is stored in CUI vault only. Railway database stores metadata only.
 
 **Code Evidence:**
 ```typescript
@@ -69,9 +70,15 @@ export async function storeCUIFile(
   file: File,
   metadata?: Record<string, any>
 ): Promise<{ fileId: string; signedUrl: string }> {
-  // Stores CUI file in StoredCUIFile table
+  // CUI vault is REQUIRED (no fallback to Railway storage)
+  if (!isVaultConfigured()) {
+    throw new Error('CUI vault is required for CUI file storage...')
+  }
+  // Stores CUI file in CUI vault (FIPS-validated)
+  const vaultResult = await storeCUIInVault(buffer, file.name, file.type, metadata)
+  // Stores metadata in Railway DB (metadata only, data: Buffer.alloc(0))
   const storedFile = await prisma.storedCUIFile.create({
-    data: { userId, filename: file.name, mimeType: file.type, size: file.size, data: buffer, ... }
+    data: { userId, filename: file.name, mimeType: file.type, size: file.size, data: Buffer.alloc(0), storedInVault: true, vaultId: vaultResult.id, ... }
   })
 }
 
