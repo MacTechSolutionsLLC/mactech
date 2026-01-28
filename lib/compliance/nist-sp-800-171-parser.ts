@@ -58,12 +58,15 @@ export async function parseNISTSP800171(
       if (currentControlId) {
         const requirement = requirementLines.join(' ').trim()
         const discussion = discussionLines.join('\n').trim()
-        
-        controls.set(currentControlId, {
-          controlId: currentControlId,
-          requirement: requirement || '',
-          discussion: discussion || '',
-        })
+        const existing = controls.get(currentControlId)
+        // Don't overwrite an existing control that has discussion with one that doesn't (e.g. duplicate in appendix/table)
+        if (!existing?.discussion || discussion) {
+          controls.set(currentControlId, {
+            controlId: currentControlId,
+            requirement: requirement || existing?.requirement || '',
+            discussion: discussion || existing?.discussion || '',
+          })
+        }
       }
       
       // Start new control
@@ -119,13 +122,14 @@ export async function parseNISTSP800171(
         // Save current control
         const requirement = requirementLines.join(' ').trim()
         const discussion = discussionLines.join('\n').trim()
-        
-        controls.set(currentControlId!, {
-          controlId: currentControlId!,
-          requirement: requirement || '',
-          discussion: discussion || '',
-        })
-        
+        const existing = controls.get(currentControlId!)
+        if (!existing?.discussion || discussion) {
+          controls.set(currentControlId!, {
+            controlId: currentControlId!,
+            requirement: requirement || existing?.requirement || '',
+            discussion: discussion || existing?.discussion || '',
+          })
+        }
         currentControlId = null
         currentState = 'none'
         requirementLines = []
@@ -138,13 +142,14 @@ export async function parseNISTSP800171(
       if (trimmed === 'Derived Security Requirements' || trimmed === 'Basic Security Requirements') {
         const requirement = requirementLines.join(' ').trim()
         const discussion = discussionLines.join('\n').trim()
-        
-        controls.set(currentControlId!, {
-          controlId: currentControlId!,
-          requirement: requirement || '',
-          discussion: discussion || '',
-        })
-        
+        const existing = controls.get(currentControlId!)
+        if (!existing?.discussion || discussion) {
+          controls.set(currentControlId!, {
+            controlId: currentControlId!,
+            requirement: requirement || existing?.requirement || '',
+            discussion: discussion || existing?.discussion || '',
+          })
+        }
         currentControlId = null
         currentState = 'none'
         requirementLines = []
@@ -169,12 +174,14 @@ export async function parseNISTSP800171(
   if (currentControlId) {
     const requirement = requirementLines.join(' ').trim()
     const discussion = discussionLines.join('\n').trim()
-    
-    controls.set(currentControlId, {
-      controlId: currentControlId,
-      requirement: requirement || '',
-      discussion: discussion || '',
-    })
+    const existing = controls.get(currentControlId)
+    if (!existing?.discussion || discussion) {
+      controls.set(currentControlId, {
+        controlId: currentControlId,
+        requirement: requirement || existing?.requirement || '',
+        discussion: discussion || existing?.discussion || '',
+      })
+    }
   }
   
   return controls
@@ -215,7 +222,7 @@ export function formatForMarkdownCell(text: string, maxLength?: number): string 
 /**
  * Get first paragraph of DISCUSSION for table display
  */
-export function getDiscussionPreview(discussion: string, maxLength: number = 200): string {
+export function getDiscussionPreview(discussion: string, maxLength: number = 400): string {
   if (!discussion) return ''
   
   // Get first paragraph (up to first double newline or first sentence)

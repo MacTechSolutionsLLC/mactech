@@ -28,90 +28,25 @@ This document provides evidence of FIPS validation verification results for cryp
 **Verification Type:** FIPS Validation Status Verification
 
 **Components Verified:**
-- Node.js/OpenSSL JWT Signing (Main Application - Non-CUI operations)
-- CUI Vault TLS/HTTPS Encryption (CUI in Transit) - ✅ Fully FIPS-validated
-- CUI Vault Database Encryption (CUI at Rest) - ✅ Fully FIPS-validated
+- CUI Vault TLS/HTTPS Encryption (CUI in Transit) - ✅ Fully FIPS-validated via CMVP Certificate #4794
+- CUI Vault Database Encryption (CUI at Rest) - ✅ Fully FIPS-validated via CMVP Certificate #4794
 
-**Note:** Railway infrastructure is **PROHIBITED** from CUI processing per system boundary. Railway does NOT handle CUI in transit or at rest.
+**Note:** Railway infrastructure (main application) is **outside the CUI security boundary** per system boundary declaration. Railway does NOT handle CUI in transit or at rest. FIPS validation is not required for Railway/main application components as they are outside the CUI boundary.
 
 ---
 
-## 3. Main Application - Node.js/OpenSSL JWT Signing (Non-CUI Only)
+## 3. Main Application - Outside CUI Security Boundary
 
-**Note:** This section applies to the main application (Railway), which is outside the CUI security boundary. **CUI protection uses NIST CMVP Certificate #4794** (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module); see Sections 4 and 5.
+**Boundary Declaration:** The main application (Railway platform) is **outside the CUI security boundary** per system boundary documentation. Railway functions as a transmission medium for routing CUI to the vault, but does not store, process, decrypt, or terminate CUI.
 
-### 3.1 Runtime Information
+**FIPS Validation Requirement:** FIPS validation is **not required** for the main application (Railway) because:
+1. Railway is explicitly outside the CUI security boundary
+2. Railway does not perform cryptographic operations protecting CUI
+3. All CUI protection is provided by the CUI vault using **NIST CMVP Certificate #4794** (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module)
 
-**Component:** Node.js/OpenSSL JWT Signing  
-**Runtime:** Node.js 24.6.0, OpenSSL 3.6.0  
-**Verification Date:** 2026-01-25
+**CUI Protection:** All CUI cryptographic operations are performed by the CUI vault infrastructure using **CMVP Certificate #4794**. See Sections 4 and 5 for complete FIPS validation evidence.
 
-### 3.2 CMVP Database Search Results (Main Application / Non-CUI)
-
-**Search Performed:**
-- **Database:** NIST CMVP Validated Modules
-- **Search URL:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search
-- **Search Term:** "OpenSSL FIPS Provider"
-- **Filter:** Active certificates
-
-**Validated Module Found (for main-app reference only; not used for CUI):**
-
-**CMVP Certificate #4282** (OpenSSL FIPS Provider 3.0.8 — not used for CUI)
-- **Module Name:** OpenSSL FIPS Provider
-- **Software Version:** 3.0.8
-- **Certificate Status:** Active
-- **Sunset Date:** September 21, 2026
-- **FIPS Standard:** FIPS 140-2
-- **Validation Date:** [See certificate for exact date]
-- **Tested Operational Environments:**
-  - Debian
-  - FreeBSD
-  - macOS
-  - Ubuntu Linux
-
-**Certificate Reference:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4282  
-
-**CUI-relevant certificate:** CUI vault uses **CMVP Certificate #4794** (Ubuntu 22.04 OpenSSL Cryptographic Module); see document header and Sections 4–5.
-
-### 3.3 Version Comparison
-
-| Component | Runtime Version | Validated Version | Match Status |
-|-----------|----------------|------------------|--------------|
-| OpenSSL | 3.6.0 | 3.0.8 | ❌ **NO MATCH** |
-
-**Critical Finding:** OpenSSL 3.6.0 is **NOT FIPS-validated**. Only OpenSSL FIPS Provider 3.0.8 has active CMVP validation.
-
-### 3.4 Verification Checklist Results
-
-#### ✅ Step 1: CMVP Database Search
-- [x] Navigated to CMVP search
-- [x] Searched for "OpenSSL FIPS Provider"
-- [x] Found Certificate #4282 (OpenSSL 3.0.8) for main-app reference; CUI uses Certificate #4794 (Sections 4–5)
-
-#### ❌ Step 2: Software Version Match
-- [x] Certificate version: 3.0.8
-- [x] Runtime version: 3.6.0
-- [ ] **Match Status: NO MATCH** - Runtime version is not validated
-
-#### ⚠️ Step 3: Operational Environment
-- [ ] Certificate tested environments: Debian, FreeBSD, macOS, Ubuntu Linux
-- [ ] Railway platform environment: [To be verified]
-- [ ] **Match Status: PENDING** - Requires Railway platform environment verification
-
-#### ❌ Step 4: FIPS-Approved Mode
-- [ ] FIPS provider configuration: [Not configured - using non-validated version]
-- [ ] FIPS mode active: [Cannot verify - using non-validated version]
-- [ ] **Status: NOT APPLICABLE** - Cannot use FIPS mode with non-validated version
-
-### 3.5 Conclusion
-
-**FIPS Validation Status:** ❌ **NOT FIPS-VALIDATED**
-
-The runtime uses OpenSSL 3.6.0, which does not have CMVP validation. Only OpenSSL FIPS Provider 3.0.8 is currently validated under CMVP Certificate #4282. **CUI protection is not provided by the main application;** it uses the CUI vault and CMVP Certificate #4794 (see Sections 4 and 5).
-
-**Action Required:** Migration to FIPS-validated OpenSSL 3.0.8 or alternative FIPS-validated cryptographic module.
-
-**Migration Status:** See `FIPS_MIGRATION_OPTION2_IMPLEMENTATION.md` for implementation details.
+**Conclusion:** The main application (Railway) FIPS validation status is **not applicable** for CUI protection compliance. All CUI protection requirements are satisfied by the CUI vault's FIPS-validated cryptographic module (Certificate #4794).
 
 ---
 

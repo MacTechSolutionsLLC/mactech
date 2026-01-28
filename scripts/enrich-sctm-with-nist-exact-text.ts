@@ -41,7 +41,7 @@ function escapeCell(content: string): string {
 /**
  * Format NIST requirement for table cell (truncate if too long)
  */
-function formatNISTRequirement(requirement: string, maxLength: number = 150): string {
+function formatNISTRequirement(requirement: string, maxLength: number = 300): string {
   if (!requirement) return ''
   const formatted = formatForMarkdownCell(requirement, maxLength)
   return escapeCell(formatted)
@@ -50,7 +50,7 @@ function formatNISTRequirement(requirement: string, maxLength: number = 150): st
 /**
  * Format NIST discussion for table cell (preview with reference to full text)
  */
-function formatNISTDiscussion(discussion: string, controlId: string, maxLength: number = 200): string {
+function formatNISTDiscussion(discussion: string, controlId: string, maxLength: number = 400): string {
   if (!discussion) return ''
   
   const preview = getDiscussionPreview(discussion, maxLength)

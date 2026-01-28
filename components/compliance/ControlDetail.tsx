@@ -83,6 +83,9 @@ const FAMILY_NAMES: Record<string, string> = {
 export default function ControlDetail({ control, auditResult }: ControlDetailProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']))
   const [documentModal, setDocumentModal] = useState<{ path: string; name: string } | null>(null)
+  const [nistFullText, setNistFullText] = useState<{ requirement?: string; discussion?: string }>({})
+  const [nistLoading, setNistLoading] = useState<{ requirement?: boolean; discussion?: boolean }>({})
+  const [nistExpanded, setNistExpanded] = useState<{ requirement?: boolean; discussion?: boolean }>({})
 
   // Debug: Log control data to console
   useEffect(() => {
@@ -103,6 +106,36 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
       newExpanded.add(section)
     }
     setExpandedSections(newExpanded)
+  }
+
+  const isTruncated = (text: string): boolean => {
+    return text.endsWith('...') || text.includes('[See full')
+  }
+
+  const fetchFullNISTText = async (type: 'requirement' | 'discussion') => {
+    if (nistFullText[type]) {
+      // Already fetched, just toggle
+      setNistExpanded(prev => ({ ...prev, [type]: !prev[type] }))
+      return
+    }
+
+    setNistLoading(prev => ({ ...prev, [type]: true }))
+    try {
+      const response = await fetch(`/api/admin/compliance/nist-text/${control.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setNistFullText(prev => ({
+          ...prev,
+          requirement: data.requirement,
+          discussion: data.discussion,
+        }))
+        setNistExpanded(prev => ({ ...prev, [type]: true }))
+      }
+    } catch (error) {
+      console.error(`Error fetching full NIST ${type}:`, error)
+    } finally {
+      setNistLoading(prev => ({ ...prev, [type]: false }))
+    }
   }
 
   const getEvidencePath = (item: EvidenceItem): string | null => {
@@ -247,9 +280,22 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
             <div className="mt-3 space-y-4 text-sm">
               {control.nistRequirement ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h5 className="font-semibold text-blue-900 mb-2">NIST Requirement (Exact Text)</h5>
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="font-semibold text-blue-900">NIST Requirement (Exact Text)</h5>
+                    {isTruncated(control.nistRequirement) && (
+                      <button
+                        onClick={() => fetchFullNISTText('requirement')}
+                        disabled={nistLoading.requirement}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50"
+                      >
+                        {nistLoading.requirement ? 'Loading...' : nistExpanded.requirement ? 'Show Less' : 'See Full'}
+                      </button>
+                    )}
+                  </div>
                   <div className="text-blue-800 whitespace-pre-wrap font-serif leading-relaxed">
-                    {control.nistRequirement}
+                    {nistExpanded.requirement && nistFullText.requirement
+                      ? nistFullText.requirement
+                      : control.nistRequirement}
                   </div>
                 </div>
               ) : (
@@ -260,9 +306,22 @@ export default function ControlDetail({ control, auditResult }: ControlDetailPro
               )}
               {control.nistDiscussion ? (
                 <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                  <h5 className="font-semibold text-indigo-900 mb-2">NIST Discussion / Guidance</h5>
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="font-semibold text-indigo-900">NIST Discussion / Guidance</h5>
+                    {isTruncated(control.nistDiscussion) && (
+                      <button
+                        onClick={() => fetchFullNISTText('discussion')}
+                        disabled={nistLoading.discussion}
+                        className="text-sm text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-50"
+                      >
+                        {nistLoading.discussion ? 'Loading...' : nistExpanded.discussion ? 'Show Less' : 'See Full'}
+                      </button>
+                    )}
+                  </div>
                   <div className="text-indigo-800 whitespace-pre-wrap font-serif leading-relaxed max-h-96 overflow-y-auto">
-                    {control.nistDiscussion}
+                    {nistExpanded.discussion && nistFullText.discussion
+                      ? nistFullText.discussion
+                      : control.nistDiscussion}
                   </div>
                 </div>
               ) : (
