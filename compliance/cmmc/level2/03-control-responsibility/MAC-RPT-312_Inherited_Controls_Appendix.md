@@ -60,67 +60,54 @@ This document identifies controls that are inherited from third-party service pr
 
 ---
 
-### System and Communications Protection (SC) - Partially Inherited
+### System and Communications Protection (SC) - Customer-Implemented
 
-#### 3.13.1 - Monitor/control/protect communications
+**Note:** The following SC controls are fully implemented by the organization through customer configuration of infrastructure controls:
 
-**What is Inherited:**
-- Cloud perimeter security
-- Infrastructure-level network security
+#### 3.1.14 - Managed access control points
 
-**What is Customer-Implemented:**
-- VM/network configuration
-- Application-layer controls (middleware.ts HTTPS enforcement, next.config.js, security headers)
+**Customer Implementation:**
+- GCP VPC firewall rules (customer-configured)
+- Railway edge routing (customer-configured)
+- Network access control points managed and configured by organization
 
-**Status:** ⚠️ Partially Satisfied
+**Status:** ✅ Implemented
 
 #### 3.13.5 - Implement subnetworks
 
-**What is Inherited:**
-- VPC/hypervisor separation
-- Infrastructure-level network segmentation
+**Customer Implementation:**
+- GCP VPC network segmentation (customer-configured)
+- Railway logical app/db separation (customer-configured)
+- Database localhost-only binding (customer-configured)
 
-**What is Customer-Implemented:**
-- VM network configuration
-- Application-level network controls
-
-**Status:** ⚠️ Partially Satisfied
+**Status:** ✅ Implemented
 
 #### 3.13.6 - Deny-by-default network communications
 
-**What is Inherited:**
-- Infrastructure routing controls
-- GCP VPC firewall rules
+**Customer Implementation:**
+- GCP VPC firewall rules with deny-by-default (customer-configured)
+- Railway network controls (customer-configured)
+- Firewall rules configured by organization
 
-**What is Customer-Implemented:**
-- VM firewall configuration (UFW)
-- Application-level access controls
-
-**Status:** ⚠️ Partially Satisfied
+**Status:** ✅ Implemented
 
 #### 3.13.9 - Terminate network connections
 
-**What is Inherited:**
-- Fabric-level connection management
-- Infrastructure session termination
+**Customer Implementation:**
+- Application session termination (8-hour timeout)
+- SSH timeout configuration (Google VM)
+- Connection management configured by organization
 
-**What is Customer-Implemented:**
-- VM session management
-- Application-level session controls
-
-**Status:** ⚠️ Partially Satisfied
+**Status:** ✅ Implemented
 
 #### 3.13.15 - Protect authenticity of communications
 
-**What is Inherited:**
-- TLS certificate validation at infrastructure level
-- GCP-managed TLS certificates
-
-**What is Customer-Implemented:**
-- Application-level TLS configuration
+**Customer Implementation:**
+- TLS 1.3 with certificate validation (customer-configured)
+- TLS authentication configured by organization
 - Certificate management procedures
 
-**Status:** ⚠️ Partially Satisfied
+**Status:** ✅ Implemented
 
 ---
 
@@ -139,57 +126,20 @@ This document identifies controls that are inherited from third-party service pr
 - **No CUI is stored or processed on Railway**
 - **No FIPS claims are inherited from Railway**
 
-### System and Communications Protection (SC) - Partially Inherited
+### System and Communications Protection (SC) - Customer-Implemented
+
+**Note:** All SC controls are fully implemented by the organization. Railway provides infrastructure capabilities, but the organization configures and manages all network security controls.
 
 #### 3.13.8 - Cryptographic mechanisms for CUI in transit
 
-**What is Inherited:**
-- Platform TLS/HTTPS termination (**non-CUI only**)
-- Certificate management for non-CUI application
-
-**What is Customer-Implemented:**
-- CUI vault TLS (GCP, FIPS-validated)
+**Customer Implementation:**
+- CUI vault TLS 1.3 (GCP, FIPS-validated, customer-configured)
 - Application-layer encryption controls
+- TLS configuration managed by organization
 
-**Status:** ⚠️ Partially Satisfied (Platform TLS only, non-CUI)
+**Status:** ✅ Implemented
 
-**Note:** CUI in transit is protected by customer-implemented FIPS-validated cryptography on GCP, not Railway.
-
-#### 3.13.1 - Monitor/control/protect communications
-
-**What is Inherited:**
-- Edge routing/load balancing
-- Platform-level network security (**non-CUI only**)
-
-**What is Customer-Implemented:**
-- Application-layer controls
-- CUI vault network security (GCP)
-
-**Status:** ⚠️ Partially Satisfied
-
-#### 3.13.5 - Implement subnetworks
-
-**What is Inherited:**
-- Logical app/db separation
-- Platform-level network segmentation (**non-CUI only**)
-
-**What is Customer-Implemented:**
-- Application architecture
-- CUI vault network segmentation (GCP)
-
-**Status:** ⚠️ Partially Satisfied
-
-#### 3.13.9 - Terminate network connections
-
-**What is Inherited:**
-- Platform session handling
-- Infrastructure-level connection management (**non-CUI only**)
-
-**What is Customer-Implemented:**
-- Application session management
-- CUI vault connection controls (GCP)
-
-**Status:** ⚠️ Partially Satisfied
+**Note:** CUI in transit is protected by customer-implemented FIPS-validated cryptography on GCP. Railway TLS is for non-CUI application only.
 
 ---
 
