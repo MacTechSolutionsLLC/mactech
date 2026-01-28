@@ -45,9 +45,20 @@ export default function SCTMPage() {
 
   const fetchSCTMData = async () => {
     try {
-      const response = await fetch('/api/admin/compliance/sctm')
+      // Add timestamp to prevent caching
+      const response = await fetch(`/api/admin/compliance/sctm?t=${Date.now()}`)
       if (response.ok) {
         const data = await response.json()
+        // Debug: Log first control to verify NIST fields
+        if (data.controls && data.controls.length > 0) {
+          const firstControl = data.controls.find((c: any) => c.id === '3.1.1')
+          if (firstControl) {
+            console.log('SCTM Page received control 3.1.1:', {
+              nistRequirement: firstControl.nistRequirement ? `EXISTS (${firstControl.nistRequirement.length} chars)` : 'UNDEFINED',
+              nistDiscussion: firstControl.nistDiscussion ? 'EXISTS' : 'UNDEFINED',
+            })
+          }
+        }
         setControls(data.controls || [])
         setSummary(data.summary)
       }
