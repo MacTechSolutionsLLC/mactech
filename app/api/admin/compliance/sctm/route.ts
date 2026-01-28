@@ -34,6 +34,15 @@ export async function GET() {
     // Parse controls
     const controls = parseSCTM(content)
 
+    // Debug: Log a sample control to verify NIST fields
+    const sampleControl = controls.find(c => c.id === '3.1.13')
+    if (sampleControl) {
+      console.log('[SCTM API] Control 3.1.13:', {
+        nistRequirement: sampleControl.nistRequirement ? `EXISTS (${sampleControl.nistRequirement.length} chars)` : 'UNDEFINED',
+        nistDiscussion: sampleControl.nistDiscussion ? 'EXISTS' : 'UNDEFINED',
+      })
+    }
+
     // Calculate summary statistics
     const summary = calculateSummaryStats(controls)
 
