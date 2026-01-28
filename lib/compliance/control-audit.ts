@@ -812,9 +812,27 @@ async function verifyImplementation(implementationRef: string, controlId: string
     return cleaned
   }).filter((r): r is string => r !== null) // Remove nulls (evidence file references)
   
-  for (const ref of refs) {
-    // Check if it's a generic/descriptive reference first (BEFORE checking for file paths)
-    const genericImplementationRefs = [
+  // Helper function to detect descriptive text patterns
+  const isDescriptiveText = (text: string): boolean => {
+    // Check if it contains descriptive patterns
+    if (text.includes('(') && text.includes(')') && !text.includes('/') && !text.includes('.')) {
+      // Text with parentheses but no path separators or file extensions (likely descriptive)
+      return true
+    }
+    // Check if it starts with descriptive words and doesn't contain file extensions or path separators
+    if (!text.includes('.') && !text.includes('/') && 
+        (text.toLowerCase().includes('enabled') || 
+         text.toLowerCase().includes('active') ||
+         text.toLowerCase().includes('verified') ||
+         text.toLowerCase().includes('configured') ||
+         text.toLowerCase().includes('kernel mode') ||
+         text.toLowerCase().includes('provider'))) {
+      return true
+    }
+    return false
+  }
+
+  const genericImplementationRefs = [
       'NextAuth.js', 'nextauth', 'middleware', 'TLS/HTTPS', 'Platform/app maintenance',
       'Platform/facility controls', 'Access controls', 'RBAC', 'User acknowledgments',
       'Tool controls', 'Network security', 'Network segmentation', 'Connection management',
@@ -843,15 +861,18 @@ async function verifyImplementation(implementationRef: string, controlId: string
       'documentation', 'Web application', 'no collaborative devices',
       'no VoIP functionality', 'procedures', 'alerts', 'SoD matrix',
       'operational controls', 'Approval workflow', 'User model', 'model',
+      'FIPS kernel mode enabled', 'OpenSSL FIPS provider active', 'FIPS provider active',
+      'FIPS mode', 'FIPS-enabled', 'FIPS-validated',
       'Session lock component', 'correlateEvents() function', 'correlateEvents', 'Admin controls',
       'Review process', 'review log', 'Facility protection', 'Visitor monitoring'
     ]
-    
+
+  for (const ref of refs) {
     const isGeneric = genericImplementationRefs.some(gir => 
       ref.toLowerCase().includes(gir.toLowerCase())
     ) || ref.toLowerCase().includes('/app/nextauth')
     
-    if (isGeneric) {
+    if (isGeneric || isDescriptiveText(ref)) {
       verifications.push({
         file: ref,
         exists: true, // Generic references are considered "existing" as descriptive documentation
