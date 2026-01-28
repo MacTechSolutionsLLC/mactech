@@ -49,30 +49,12 @@ export async function parseNISTSP800171(
       continue
     }
     
-    // Check for DISCUSSION keyword FIRST (before skipping page markers)
-    // This must happen before other checks
-    if (trimmed === 'DISCUSSION' && currentControlId && currentState === 'requirement') {
-      currentState = 'discussion'
-      // Don't include the keyword itself
-      continue
-    }
-    
-    // Skip page markers and formatting (unless we're in discussion)
-    if (currentState !== 'discussion' && (
-        trimmed.match(/^SP 800-171, REVISION 2/) ||
-        trimmed.match(/^CHAPTER THREE PAGE/) ||
-        trimmed.match(/^This publication is available/) ||
-        trimmed.match(/^________________________________________________________________/) ||
-        trimmed.match(/^TABLE \d+:/) ||
-        trimmed.match(/^FIGURE \d+:/))) {
-      continue
-    }
-    
-    // Check for control ID pattern: "3.X.Y" at start of line
+    // Check for control ID pattern FIRST (before DISCUSSION check)
+    // This ensures we save previous control before starting new one
     const controlMatch = trimmed.match(/^(3\.\d+\.\d+)\s+(.+)$/)
     
     if (controlMatch) {
-      // Save previous control if exists
+      // Save previous control if exists (this handles discussion that was accumulated)
       if (currentControlId) {
         const requirement = requirementLines.join(' ').trim()
         const discussion = discussionLines.join('\n').trim()
@@ -92,10 +74,29 @@ export async function parseNISTSP800171(
       continue
     }
     
+    // Check for DISCUSSION keyword (after control check)
+    if (trimmed === 'DISCUSSION' && currentControlId && currentState === 'requirement') {
+      currentState = 'discussion'
+      // Don't include the keyword itself
+      continue
+    }
+    
+    // Skip page markers and formatting (unless we're in discussion)
+    if (currentState !== 'discussion' && (
+        trimmed.match(/^SP 800-171, REVISION 2/) ||
+        trimmed.match(/^CHAPTER THREE PAGE/) ||
+        trimmed.match(/^This publication is available/) ||
+        trimmed.match(/^________________________________________________________________/) ||
+        trimmed.match(/^TABLE \d+:/) ||
+        trimmed.match(/^FIGURE \d+:/))) {
+      continue
+    }
+    
     // Process based on current state
     if (currentState === 'requirement' && currentControlId) {
       // We're accumulating requirement text
       // Stop accumulating if we hit section markers (these appear between requirement and DISCUSSION)
+      // But keep currentState as 'requirement' to wait for DISCUSSION keyword
       if (trimmed === 'Derived Security Requirements' ||
           trimmed === 'Basic Security Requirements' ||
           trimmed.match(/^THE MEANING OF/) ||
@@ -106,36 +107,14 @@ export async function parseNISTSP800171(
         continue
       }
       
-      // Continue accumulating requirement (only if we haven't hit DISCUSSION yet)
-      if (trimmed !== 'DISCUSSION') {
-        requirementLines.push(trimmed)
-      }
+      // Continue accumulating requirement (only if we haven't hit section markers)
+      requirementLines.push(trimmed)
     } else if (currentState === 'discussion' && currentControlId) {
       // We're accumulating discussion text
-      // Stop if we hit another control
-      if (trimmed.match(/^(3\.\d+\.\d+)\s+/)) {
-        // Save current control first
-        const requirement = requirementLines.join(' ').trim()
-        const discussion = discussionLines.join('\n').trim()
-        
-        controls.set(currentControlId!, {
-          controlId: currentControlId!,
-          requirement: requirement || '',
-          discussion: discussion || '',
-        })
-        
-        // Process this line as new control
-        const newControlMatch = trimmed.match(/^(3\.\d+\.\d+)\s+(.+)$/)
-        if (newControlMatch) {
-          currentControlId = newControlMatch[1]
-          requirementLines = [newControlMatch[2]]
-          discussionLines = []
-          currentState = 'requirement'
-        }
-        continue
-      }
+      // Note: Control matching is handled above, so we don't need to check here
       
-      // Stop if we hit a section header
+      // Stop if we hit a section header (but not a control)
+      // Section headers like "3.1 Access Control" indicate end of discussion
       if (trimmed.match(/^3\.\d+\s+[A-Z]/) && !trimmed.match(/^3\.\d+\.\d+/)) {
         // Save current control
         const requirement = requirementLines.join(' ').trim()
@@ -153,6 +132,9 @@ export async function parseNISTSP800171(
         discussionLines = []
         continue
       }
+      
+      // Don't stop for "THE MEANING OF" or "Derived Security Requirements" - these appear within discussion sections
+      // Continue accumulating discussion
       
       // Skip page markers in discussion
       if (trimmed.match(/^SP 800-171, REVISION 2/) ||

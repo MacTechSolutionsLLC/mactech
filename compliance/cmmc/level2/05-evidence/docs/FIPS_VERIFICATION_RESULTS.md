@@ -139,13 +139,17 @@ The runtime uses OpenSSL 3.6.0, which does not have CMVP validation. Only OpenSS
 **Kernel FIPS Mode:** ✅ Enabled (`/proc/sys/crypto/fips_enabled = 1`)
 
 **FIPS Validation:**
-- **Validation Type:** Inherited from Canonical's CMVP FIPS 140-3 certification
+- **Validation Type:** CMVP FIPS 140-3 Level 1 validation
 - **Module Provider:** Canonical Ltd.
-- **Validation Status:** ✅ FIPS-validated
-- **CMVP Certificate:** Canonical's Ubuntu OpenSSL Cryptographic Module (FIPS 140-3)
+- **Validation Status:** ✅ FIPS-validated (Active)
+- **CMVP Certificate:** #4794 - Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module
+- **FIPS Standard:** FIPS 140-3
+- **Overall Level:** 1
+- **Sunset Date:** September 10, 2026
+- **Certificate URL:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
 
 **Implementation:**
-Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. Validation is inherited from Canonical's CMVP FIPS 140-3 certification for the Ubuntu OpenSSL module.
+Although the base OpenSSL library version is 3.0.2, cryptographic operations protecting CUI are performed by Canonical's Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode. This module is validated under CMVP Certificate #4794 (FIPS 140-3 Level 1, Active until September 10, 2026).
 
 **Verification Evidence:**
 - FIPS kernel enabled: `/proc/sys/crypto/fips_enabled = 1`
@@ -179,8 +183,10 @@ Although the base OpenSSL library version is 3.0.2, cryptographic operations pro
 **Status:** ✅ **FULLY FIPS-VALIDATED**
 
 **FIPS Validation:**
-- ✅ **FIPS-Validated:** Canonical's Ubuntu OpenSSL Cryptographic Module (FIPS 140-3)
-- ✅ **CMVP Certificate:** Inherited from Canonical's CMVP certification
+- ✅ **FIPS-Validated:** Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module
+- ✅ **CMVP Certificate:** #4794 (FIPS 140-3 Level 1, Active)
+- ✅ **Certificate URL:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
+- ✅ **Sunset Date:** September 10, 2026
 - ✅ **Module Version:** 3.0.5-0ubuntu0.1+Fips2.1
 - ✅ **Kernel FIPS Mode:** Enabled (`/proc/sys/crypto/fips_enabled = 1`)
 - ✅ **FIPS Provider Status:** Active
@@ -188,9 +194,10 @@ Although the base OpenSSL library version is 3.0.2, cryptographic operations pro
 
 **Evidence Collection Status:**
 - **Evidence Required:** ✅ Complete - Ubuntu OpenSSL Cryptographic Module FIPS validation confirmed
-- **Documentation Source:** Canonical's CMVP FIPS 140-3 certification
+- **Documentation Source:** NIST CMVP Certificate #4794 (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module, FIPS 140-3 Level 1)
+- **Certificate Reference:** https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4794
 - **Verification Method:** System verification confirms FIPS provider active and kernel FIPS mode enabled
-- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode
+- **Status:** ✅ FIPS-Validated - Ubuntu 22.04 OpenSSL Cryptographic Module operating in FIPS-approved mode (CMVP Certificate #4794)
 
 ### 5.3 Conclusion
 
@@ -219,11 +226,11 @@ CUI vault database encryption is fully FIPS-validated via Ubuntu 22.04 OpenSSL C
 **CUI Protection Compliance Score:** 100%
 
 **Rationale:**
-- ✅ CUI Vault TLS/HTTPS: Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
-- ✅ CUI Vault Database Encryption: Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
+- ✅ CUI Vault TLS/HTTPS: Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (CMVP Certificate #4794, FIPS 140-3 Level 1)
+- ✅ CUI Vault Database Encryption: Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (CMVP Certificate #4794, FIPS 140-3 Level 1)
 - ✅ All CUI protection is fully FIPS-validated
 - ❌ Main application JWT signing requires migration to FIPS-validated module (for non-CUI operations only)
-- ✅ Railway infrastructure is prohibited from CUI processing - Railway FIPS validation not required for CUI protection
+- ✅ Railway infrastructure is outside CUI security boundary - Railway FIPS validation not required for CUI protection
 
 ---
 
