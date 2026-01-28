@@ -76,61 +76,70 @@ tcp   LISTEN 0      244          127.0.0.1:5432       0.0.0.0:*    users:(("post
 
 ## 4. Firewall Configuration
 
-### 4.1 Current Firewall Status
+### 4.1 UFW Firewall Status
 
 **Firewall System:** UFW (Uncomplicated Firewall)  
-**Status:** ⚠️ Inactive
+**Status:** ✅ Active
 
-**Verification:**
-```bash
-sudo ufw status verbose
-```
+**Validation Date:** 2026-01-28T05:27:30.298216  
+**Validation Status:** ✅ PASS
 
-**Output:**
-```
-Status: inactive
-```
-
-**Current State:** Firewall is not active
+**Firewall Status:**
+- ✅ UFW installed: YES
+- ✅ Firewall active: YES
+- ✅ Default deny incoming: YES
+- ✅ SSH (22/tcp) allowed: YES
+- ✅ HTTPS (443/tcp) allowed: YES
 
 ---
 
-### 4.2 Firewall Remediation Required
+### 4.2 UFW Configuration
 
-**Issue:** UFW firewall is inactive, leaving system without host-based firewall protection
-
-**Remediation Plan:**
-1. Configure UFW firewall rules
-2. Allow HTTPS (port 443) inbound
-3. Allow SSH (port 22) inbound (for management)
-4. Deny all other inbound connections
-5. Enable UFW firewall
-6. Verify firewall rules are active
-
-**Recommended Firewall Rules:**
-```bash
-# Allow HTTPS
-sudo ufw allow 443/tcp
-
-# Allow SSH (for management)
-sudo ufw allow 22/tcp
-
-# Deny all other inbound
-sudo ufw default deny incoming
-
-# Allow all outbound
-sudo ufw default allow outgoing
-
-# Enable firewall
-sudo ufw enable
+**UFW Status (verbose):**
+```
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
 ```
 
-**Priority:** High  
-**Target Completion:** 2026-02-03
+**UFW Firewall Rules:**
+```
+To                         Action      From
+--                         ------      ----
+80/tcp                     ALLOW IN    Anywhere                  
+Anywhere on ens160         LIMIT IN    Anywhere                  
+22/tcp                     ALLOW IN    Anywhere                   # SSH
+443/tcp                    ALLOW IN    Anywhere                   # HTTPS
+80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+Anywhere (v6) on ens160    LIMIT IN    Anywhere (v6)             
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # SSH
+443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS
+```
 
-**POAM Reference:** POAM-010 (CUI Vault Firewall Configuration)
+**Numbered Rules:**
+```
+[ 1] 80/tcp                     ALLOW IN    Anywhere                  
+[ 2] Anywhere on ens160         LIMIT IN    Anywhere                  
+[ 3] 22/tcp                     ALLOW IN    Anywhere                   # SSH
+[ 4] 443/tcp                    ALLOW IN    Anywhere                   # HTTPS
+[ 5] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 6] Anywhere (v6) on ens160    LIMIT IN    Anywhere (v6)             
+[ 7] 22/tcp (v6)                ALLOW IN    Anywhere (v6)              # SSH
+[ 8] 443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS
+```
 
-**Evidence:** Firewall configuration required and tracked in POAM.
+**Firewall Configuration:**
+- Default policy: Deny incoming, allow outgoing
+- Logging: Enabled (low level)
+- IPv4 rules: Configured
+- IPv6 rules: Configured
+- SSH access: Allowed (port 22/tcp)
+- HTTPS access: Allowed (port 443/tcp)
+- HTTP access: Allowed (port 80/tcp)
+- Rate limiting: Enabled on interface ens160
+
+**Status:** ✅ Implemented - UFW firewall active with deny-by-default configuration
 
 ---
 
@@ -279,11 +288,9 @@ curl -s https://vault.mactechsolutionsllc.com/cui/store \
 - ✅ TLS/HTTPS configured with strong cipher suite
 - ✅ Security headers configured
 - ✅ Database bound to localhost only
-- ⚠️ Host-based firewall (UFW) inactive (remediation in progress)
+- ✅ Host-based firewall (UFW) active with deny-by-default
 
-**Status:** ⚠️ Partially Satisfied (firewall configuration pending)
-
-**Remediation:** POAM-010 tracks firewall configuration.
+**Status:** ✅ Implemented
 
 ---
 
@@ -301,43 +308,67 @@ curl -s https://vault.mactechsolutionsllc.com/cui/store \
 
 ---
 
-## 10. Network Security Recommendations
+## 10. SSH Hardening Configuration
 
-### 10.1 Immediate Actions
+### 10.1 SSH Configuration
 
-1. **Enable UFW Firewall** (Priority: High)
-   - Configure firewall rules
-   - Enable UFW firewall
-   - Verify firewall is active
+**Configuration File:** `/etc/ssh/sshd_config`  
+**Validation Date:** 2026-01-28T05:27:29.894492  
+**Validation Status:** ✅ PASS (8/8 checks passed)
+
+**SSH Hardening Details:**
+- Protocol 2 enforced
+- Password authentication disabled
+- Key-based authentication only
+- Root login prohibited
+- Connection timeout configured (ClientAliveInterval: 120 seconds, ClientAliveCountMax: 2)
+- Maximum authentication attempts: 3
+
+**SSH Configuration Evidence:**
+- See `MAC-RPT-134_Google_VM_SSH_Hardening_Evidence.md` for complete SSH hardening validation results
+
+---
+
+## 11. Network Security Recommendations
+
+### 11.1 Ongoing Maintenance
+
+1. **Monitor UFW Firewall Rules** (Priority: Low)
+   - Review firewall rules quarterly
+   - Verify only necessary ports are open
+   - Document any rule changes
 
 2. **Configure Network Monitoring** (Priority: Medium)
    - Set up network access logging
    - Configure monitoring alerts
    - Establish log review process
 
-3. **Document Google Cloud Firewall Rules** (Priority: Medium)
+3. **Document Google Cloud Firewall Rules** (Priority: Low)
    - Document VPC firewall rules
    - Verify firewall rule configuration
    - Document network access policies
 
 ---
 
-### 10.2 Ongoing Maintenance
+### 11.2 Ongoing Maintenance
 
 1. **Regular Firewall Rule Review**
-   - Review firewall rules quarterly
+   - Review UFW firewall rules quarterly
    - Verify only necessary ports are open
    - Document any rule changes
+   - Review GCP VPC firewall rules
 
 2. **Network Security Monitoring**
    - Monitor network access logs
    - Review security alerts
    - Investigate suspicious activity
+   - Monitor SSH access logs
 
 3. **Security Configuration Updates**
    - Keep TLS configuration current
    - Update security headers as needed
    - Review and update firewall rules
+   - Review SSH configuration periodically
 
 ---
 
@@ -360,6 +391,7 @@ curl -s https://vault.mactechsolutionsllc.com/cui/store \
 **Next Review Date:** 2026-04-27
 
 **Change History:**
+- **Version 1.1 (2026-01-28):** Updated UFW firewall status from inactive to active, added SSH hardening section, added UFW validation results
 - **Version 1.0 (2026-01-27):** Initial network security evidence document
 
 ---

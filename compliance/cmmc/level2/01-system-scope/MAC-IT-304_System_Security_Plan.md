@@ -745,6 +745,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 **Implementation:**
 - ✅ Account lockout mechanism fully implemented (2026-01-23). Configuration: 5 failed attempts = 30 minute lockout. See evidence: `../05-evidence/MAC-RPT-105_Account_Lockout_Implementation_Evidence.md`
 - Failed login attempts logged in audit system
+- ✅ **VM Implementation (Google VM):** fail2ban service active and configured for SSH access protection. Configuration: 3 failed attempts = 1 hour ban. SSH jail monitoring `/var/log/auth.log`. See evidence: `../05-evidence/MAC-RPT-105_Account_Lockout_Implementation_Evidence.md` (Section 10)
 - Login failure events captured in AppEvent table
 - Account lockout policy to be defined and implemented
 
@@ -820,6 +821,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - TLS encryption provided by Railway platform (inherited)
 - All communications encrypted in transit
 - No unencrypted remote access allowed
+- ✅ **VM Implementation (Google VM):** SSH Protocol 2 enforced, key-based authentication only (password authentication disabled), strong cipher algorithms (AES-256-GCM, AES-128-GCM), strong MAC algorithms (HMAC-SHA2-256/512 with ETM). See evidence: `../05-evidence/MAC-RPT-134_Google_VM_SSH_Hardening_Evidence.md`
 
 **Evidence:**
 - Railway platform TLS/HTTPS (inherited)
@@ -848,6 +850,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 **Implementation:**
 - Remote execution of privileged commands restricted to ADMIN role
 - Privileged command execution logged in audit system
+- ✅ **VM Implementation (Google VM):** Sudo logging configured with log file (`/var/log/sudo.log`), log input/output enabled, syslog integration (AUTH facility). See evidence: `../05-evidence/MAC-RPT-135_Google_VM_Sudo_Logging_Evidence.md`
 - Security-relevant information access controlled via RBAC
 - Admin actions require authentication and authorization
 
@@ -1298,6 +1301,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Audit logging system implemented via AppEvent table
 - Audit logs capture authentication events, admin actions, file operations, security events, system events
 - Audit logs retained for minimum 90 days
+- ✅ **VM Implementation (Google VM):** Log rotation configured (weekly rotation, 4 weeks retention). All system logs configured for rotation. See evidence: `../05-evidence/MAC-RPT-136_Google_VM_Log_Rotation_Evidence.md`
 - Audit logs enable monitoring, analysis, investigation, and reporting
 - Audit log retention policy established and documented
 - Retention verification process implemented
@@ -1400,6 +1404,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - System clock synchronization provided by Railway platform (inherited)
 - Audit records include UTC timestamps
 - Time synchronization managed by platform infrastructure
+- ✅ **VM Implementation (Google VM):** chrony NTP service active and synchronized with metadata.google.internal (stratum 2 source). Time accuracy: sub-millisecond precision (3.007 microseconds offset). See evidence: `../05-evidence/MAC-RPT-137_Google_VM_NTP_Synchronization_Evidence.md`
 - Timestamps accurate and synchronized
 
 **Evidence:**
@@ -1414,6 +1419,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Audit logs append-only (no update/delete operations)
 - Audit log access restricted to ADMIN role
 - Audit logging tools protected via access controls
+- ✅ **VM Implementation (Google VM):** Log rotation configured with restricted permissions (root:adm ownership). Log files protected from unauthorized deletion via logrotate. See evidence: `../05-evidence/MAC-RPT-136_Google_VM_Log_Rotation_Evidence.md`
 - Audit information protected from unauthorized modification
 - Database-level protection of audit records
 
@@ -1533,6 +1539,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - System configured with essential capabilities only
 - Unnecessary features disabled or not implemented
 - Minimal system footprint
+- ✅ **VM Implementation (Google VM):** Unnecessary services disabled (bluetooth, cups, avahi-daemon). Only essential services enabled (security, application, cloud integration, time/task services). See evidence: `../05-evidence/MAC-RPT-138_Google_VM_Service_Minimization_Evidence.md`
 - Least functionality principle applied in system design
 
 **Evidence:**
@@ -1956,6 +1963,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - GCP VPC firewall rules with deny-by-default (customer-configured for CUI vault)
 - Railway network controls (customer-configured for non-CUI app)
 - Default-deny, allow-by-exception enforced through customer-configured firewall rules
+- ✅ **VM Implementation (Google VM):** UFW firewall active with deny-by-default policy. SSH (22/tcp) and HTTPS (443/tcp) allowed, all other inbound traffic denied. See evidence: `../05-evidence/MAC-RPT-128_CUI_Vault_Network_Security_Evidence.md` (Section 4)
 - Network access controls configured and managed by organization
 
 **Evidence:**
@@ -2003,6 +2011,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Application session termination after 8 hours of inactivity (customer-configured)
 - SSH timeout configuration on Google VM (customer-configured)
 - Connection termination configured and managed by organization
+- ✅ **VM Implementation (Google VM):** SSH connection timeout configured (ClientAliveInterval: 120 seconds, ClientAliveCountMax: 2, effective timeout: 240 seconds / 4 minutes). See evidence: `../05-evidence/MAC-RPT-134_Google_VM_SSH_Hardening_Evidence.md`
 - Session management implemented in application (lib/auth.ts)
 
 **Evidence:**
@@ -2033,6 +2042,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - CUI vault: ✅ Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 - CUI vault: TLS 1.3 with FIPS-validated cryptography
 - CUI vault: Kernel FIPS mode enabled, FIPS provider active
+- ✅ **VM Implementation (Google VM):** FIPS kernel mode verified enabled (`/proc/sys/crypto/fips_enabled = 1`), OpenSSL FIPS provider active (Ubuntu 22.04 OpenSSL Cryptographic Module version 3.0.5-0ubuntu0.1+Fips2.1). See evidence: `../05-evidence/MAC-RPT-110_FIPS_Cryptography_Assessment_Evidence.md` (Section 8)
 - Main application: FIPS cryptography assessment conducted
 - Main application: FIPS-validated JWT implementation complete (Option 2)
 - FIPS verification tools created
@@ -2159,6 +2169,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Malicious code protection provided by Railway platform at infrastructure level (inherited)
 - Endpoint protection verified via endpoint inventory
 - Malicious code protection at system entry and exit points
+- ✅ **VM Implementation (Google VM):** ClamAV installed (version 1.4.3) with on-demand scanning capability. Signature database updates configured (freshclam). See evidence: `../05-evidence/MAC-RPT-139_Google_VM_Malicious_Code_Protection_Evidence.md`
 - Protection mechanisms documented and verified
 
 **Evidence:**
@@ -2206,6 +2217,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Periodic system scanning via Dependabot (weekly dependency scanning)
 - Real-time file scanning provided by Railway platform (inherited)
 - External source file scanning managed by platform
+- ✅ **VM Implementation (Google VM):** AIDE (Advanced Intrusion Detection Environment) installed (version 0.17.4) with database initialized. File integrity monitoring available for periodic scans. See evidence: `../05-evidence/MAC-RPT-140_Google_VM_File_Integrity_Monitoring_Evidence.md`
 - Scanning schedule and results documented
 
 **Evidence:**

@@ -391,7 +391,69 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 
 ---
 
-## 8. Document Control
+## 8. VM-Specific FIPS Validation (Google Cloud Compute Engine)
+
+### 8.1 VM FIPS Status Verification
+
+**VM:** cui-vault-jamy (Google Cloud Compute Engine)  
+**Operating System:** Ubuntu 22.04 LTS  
+**Validation Date:** 2026-01-28T05:27:31.132495
+
+**FIPS Status Verification:**
+- ✅ **FIPS enabled:** YES
+- ✅ **FIPS status:** FIPS enabled: 1
+- ✅ **OpenSSL FIPS provider:** YES
+
+### 8.2 OpenSSL Providers
+
+**OpenSSL Providers (Active):**
+```
+Providers:
+  base
+    name: OpenSSL Base Provider
+    version: 3.0.2
+    status: active
+  fips
+    name: Ubuntu 22.04 OpenSSL Cryptographic Module
+    version: 3.0.5-0ubuntu0.1+Fips2.1
+    status: active
+```
+
+**FIPS Provider Details:**
+- **Provider Name:** Ubuntu 22.04 OpenSSL Cryptographic Module
+- **Version:** 3.0.5-0ubuntu0.1+Fips2.1
+- **Status:** Active
+- **Base Provider:** OpenSSL Base Provider 3.0.2 (active)
+
+### 8.3 FIPS Mode Verification
+
+**Kernel FIPS Mode:**
+- FIPS mode: Enabled (`/proc/sys/crypto/fips_enabled = 1`)
+- FIPS provider: Active and operational
+- Cryptographic operations: Using FIPS-validated module
+
+**Verification Results:**
+- ✅ FIPS kernel mode: Enabled
+- ✅ FIPS provider: Active
+- ✅ OpenSSL FIPS provider: Available and operational
+- ✅ FIPS-validated cryptography: Operational
+
+### 8.4 Compliance with Control 3.13.11 (VM Implementation)
+
+**VM-Specific FIPS Implementation:**
+- ✅ FIPS kernel mode enabled
+- ✅ OpenSSL FIPS provider active
+- ✅ Ubuntu 22.04 OpenSSL Cryptographic Module operational
+- ✅ FIPS-validated cryptography in use for CUI protection
+
+**Combined Implementation:**
+- Application-level: FIPS-validated cryptography via Ubuntu OpenSSL Cryptographic Module
+- VM-level: FIPS kernel mode enabled, FIPS provider active
+- **Status:** ✅ Fully FIPS-Validated
+
+---
+
+## 9. Document Control
 
 **Prepared By:** MacTech Solutions Compliance Team  
 **Reviewed By:** [To be completed]  
@@ -399,6 +461,7 @@ This document provides evidence of the FIPS-validated cryptography assessment co
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 3.1 (2026-01-28): Added VM-specific FIPS validation section with OpenSSL provider verification results
 - Version 3.0 (2026-01-27): Updated to reflect CUI vault-only architecture
   - Removed Railway sections for CUI handling (Railway is prohibited from CUI per system boundary)
   - Made CUI vault TLS/HTTPS the primary section for CUI in transit

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-01-28T06:30:39.265Z",
+  "summary": {
+    "total": 499,
+    "found": 498,
+    "missing": 1
+  },
+  "missingFiles": [
+    {
+      "controlId": "3.13.4",
+      "type": "implementation",
+      "reference": "lib/authz.ts)",
+      "exists": false,
+      "expectedPaths": [
+        "/Users/patrick/mactech/lib/authz.ts)"
+      ],
+      "issue": "Implementation file not found: lib/authz.ts)"
+    }
+  ]
+}

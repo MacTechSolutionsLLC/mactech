@@ -183,7 +183,94 @@ if (user.failedLoginAttempts > 0 || user.lockedUntil) {
 
 ---
 
-## 9. Document Control
+## 10. VM-Specific Implementation (Google Cloud Compute Engine)
+
+### 10.1 fail2ban Configuration
+
+**VM:** cui-vault-jamy (Google Cloud Compute Engine)  
+**Operating System:** Ubuntu 22.04 LTS  
+**Service:** fail2ban
+
+**Validation Date:** 2026-01-28T05:27:30.107787  
+**Validation Status:** ✅ PASS
+
+### 10.2 fail2ban Installation and Status
+
+**Installation Status:**
+- ✅ fail2ban-server found: YES
+- ✅ Service active: YES
+- ✅ Configuration file exists: YES
+- ✅ fail2ban-client working: YES
+
+**Service Status:** active
+
+### 10.3 fail2ban Configuration
+
+**Configuration File:** `/etc/fail2ban/jail.local`
+
+**Configuration:**
+```ini
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+
+[sshd]
+enabled = true
+port = 22
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 3600
+findtime = 600
+```
+
+**Configuration Parameters:**
+- **bantime:** 3600 seconds (1 hour)
+- **findtime:** 600 seconds (10 minutes)
+- **maxretry:** 3 failed attempts
+- **Jail:** sshd (SSH daemon protection)
+
+### 10.4 fail2ban Status
+
+**SSH Jail Status:**
+```
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 1
+|  |- Total failed: 1
+|  `- File list: /var/log/auth.log
+`- Actions
+   |- Currently banned: 0
+   |- Total banned: 0
+   `- Banned IP list: 
+```
+
+**Operational Status:**
+- fail2ban service: Active and monitoring
+- SSH jail: Enabled and protecting SSH access
+- Log monitoring: `/var/log/auth.log`
+- Ban enforcement: Active
+
+### 10.5 Compliance with Control 3.1.8 (VM Implementation)
+
+**VM-Specific Implementation:**
+- ✅ fail2ban installed and active
+- ✅ SSH access protected (max 3 failed attempts)
+- ✅ Automatic IP banning (1 hour ban duration)
+- ✅ Monitoring SSH authentication failures
+- ✅ Log file: `/var/log/auth.log`
+
+**Combined Implementation:**
+- Application-level: Account lockout in application (5 attempts, 30 minutes)
+- VM-level: fail2ban SSH protection (3 attempts, 1 hour)
+- **Defense in depth:** Multiple layers of protection
+
+**Status:** ✅ Implemented (both application and VM levels)
+
+---
+
+## 11. Document Control
 
 **Prepared By:** MacTech Solutions Development Team  
 **Reviewed By:** [To be completed]  
@@ -191,6 +278,7 @@ if (user.failedLoginAttempts > 0 || user.lockedUntil) {
 **Next Review Date:** [To be completed]
 
 **Change History:**
+- Version 1.1 (2026-01-28): Added VM-specific fail2ban implementation section with validation results
 - Version 1.0 (2026-01-23): Initial account lockout implementation evidence created
 
 ---

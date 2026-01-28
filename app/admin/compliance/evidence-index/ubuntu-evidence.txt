@@ -1,0 +1,815 @@
+AIDE Validation - CMMC 3.14.5
+================================================================================
+Date: 2026-01-28T05:27:31.265173
+Control: 3.14.5 (Periodic/real-time scans)
+
+Installation Status:
+  AIDE installed: YES
+  Database exists: YES
+  Configuration exists: YES
+
+AIDE Version:
+--------------------------------------------------------------------------------
+Aide 0.17.4
+
+Compiled with the following options:
+
+WITH_MMAP
+WITH_PCRE
+WITH_POSIX_ACL
+WITH_SELINUX
+WITH_XATTR
+WITH_CAPABILITIES
+WITH_E2FSATTRS
+WITH_ZLIB
+WITH_MHASH
+WITH_AUDIT
+
+Default config values:
+config file: <none>
+database_in: <none>
+database_out: <none>
+
+Available hashsum groups:
+md5: yes
+sha1: yes
+sha256: yes
+sha512: yes
+rmd160: yes
+tiger: yes
+crc32: yes
+crc32b: yes
+haval: yes
+whirlpool: yes
+gost: yes
+stribog256: no
+stribog512: no
+
+Default compound groups:
+R: l+p+u+g+s+c+m+i+n+md5+acl+selinux+xattrs+ftype+e2fsattrs+caps
+L: l+p+u+g+i+n+acl+selinux+xattrs+ftype+e2fsattrs+caps
+>: l+p+u+g+i+n+acl+S+selinux+xattrs+ftype+e2fsattrs+caps
+H: md5+sha1+rmd160+tiger+crc32+haval+gost+crc32b+sha256+sha512+whirlpool
+X: acl+selinux+xattrs+e2fsattrs+caps
+
+
+Note: Configure periodic scan cron job manually for full compliance.
+ClamAV Validation - CMMC 3.14.2
+================================================================================
+Date: 2026-01-28T05:27:31.253410
+Control: 3.14.2 (Malicious code protection)
+
+Installation Status:
+  ClamAV installed: YES
+  Daemon active: NO
+
+ClamAV Version:
+--------------------------------------------------------------------------------
+ClamAV 1.4.3
+
+
+Note: Configure daily scan cron job manually for full compliance.
+fail2ban Validation - CMMC 3.1.8
+================================================================================
+Date: 2026-01-28T05:27:30.107787
+Control: 3.1.8 (Limit unsuccessful logon attempts)
+
+Installation Status:
+  fail2ban-server found: YES
+  Service active: YES
+  Configuration file exists: YES
+  fail2ban-client working: YES
+
+Service Status:
+active
+
+
+fail2ban Status (sshd jail):
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed:	1
+|  |- Total failed:	1
+|  `- File list:	/var/log/auth.log
+`- Actions
+   |- Currently banned:	0
+   |- Total banned:	0
+   `- Banned IP list:	
+
+
+Configuration File (/etc/fail2ban/jail.local):
+--------------------------------------------------------------------------------
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+
+[sshd]
+enabled = true
+port = 22
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 3600
+findtime = 600
+FIPS Mode Validation - CMMC 3.13.11
+================================================================================
+Date: 2026-01-28T05:27:31.132495
+Control: 3.13.11 (FIPS-validated cryptography)
+
+FIPS Status:
+  FIPS enabled: YES
+  FIPS status: FIPS enabled: 1
+  OpenSSL FIPS provider: YES
+
+OpenSSL Providers:
+--------------------------------------------------------------------------------
+Providers:
+  base
+    name: OpenSSL Base Provider
+    version: 3.0.2
+    status: active
+  fips
+    name: Ubuntu 22.04 OpenSSL Cryptographic Module
+    version: 3.0.5-0ubuntu0.1+Fips2.1
+    status: active
+Log Rotation Validation - CMMC 3.3.1,3.3.8
+================================================================================
+Date: 2026-01-28T05:27:30.326692
+Control: 3.3.1 (Create and retain audit logs), 3.3.8 (Protect audit information)
+
+Configuration Checks:
+  Rotate setting present: YES
+  Weekly rotation: YES
+  Compression enabled: YES
+  Proper permissions (0640): NO
+  Configuration valid: YES
+
+Configuration File (/etc/logrotate.conf):
+--------------------------------------------------------------------------------
+# see "man logrotate" for details
+
+# global options do not affect preceding include directives
+
+# rotate log files weekly
+weekly
+
+# use the adm group by default, since this is the owning group
+# of /var/log/syslog.
+su root adm
+
+# keep 4 weeks worth of backlogs
+rotate 4
+
+# create new (empty) log files after rotating old ones
+create
+
+# use date as a suffix of the rotated file
+#dateext
+
+# uncomment this if you want your log files compressed
+#compress
+
+# packages drop log rotation information into this directory
+include /etc/logrotate.d
+
+# system-specific logs may also be configured here.
+
+
+Configuration Test Output:
+--------------------------------------------------------------------------------
+WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.
+
+reading config file /etc/logrotate.conf
+including /etc/logrotate.d
+reading config file alternatives
+reading config file apport
+reading config file apt
+reading config file bootlog
+reading config file btmp
+reading config file certbot
+reading config file chrony
+reading config file clamav-freshclam
+reading config file cloud-init
+reading config file dpkg
+reading config file fail2ban
+reading config file nginx
+reading config file postgresql-common
+reading config file rsyslog
+reading config file ubuntu-pro-client
+reading config file ufw
+reading config file unattended-upgrades
+reading config file wtmp
+Reading state from file: /var/lib/logrotate/status
+Allocating hash table for state file, size 64 entries
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+
+Handling 19 logs
+
+rotating pattern: /var/log/alternatives.log  monthly (12 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/alternatives.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/apport.log  after 1 days (7 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/apport.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a day ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/apt/term.log  monthly (12 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/apt/term.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/apt/history.log  monthly (12 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/apt/history.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/boot.log
+ after 1 days (7 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/boot.log
+  log /var/log/boot.log does not exist -- skipping
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/btmp  monthly (1 rotations)
+empty log files are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/btmp
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/letsencrypt/*.log  weekly (12 rotations)
+empty log files are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/letsencrypt/letsencrypt.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/chrony/*.log  weekly (4 rotations)
+empty log files are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/chrony/*.log
+  log /var/log/chrony/*.log does not exist -- skipping
+not running postrotate script, since no logs were rotated
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/clamav/freshclam.log  weekly (12 rotations)
+empty log files are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/clamav/freshclam.log
+Creating new state
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 05:00
+  log does not need rotating (log has already been rotated)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/cloud-init*.log
+ 1048576 bytes (6 rotations)
+empty log files are not rotated, old logs are removed
+considering log /var/log/cloud-init-output.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log size is below the 'size' threshold)
+considering log /var/log/cloud-init.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /var/log/dpkg.log  monthly (12 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/dpkg.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/fail2ban.log  weekly (4 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/fail2ban.log
+Creating new state
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 05:00
+  log does not need rotating (log has already been rotated)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/nginx/*.log  after 1 days (14 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/nginx/access.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a day ago)
+considering log /var/log/nginx/error.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a day ago)
+not running prerotate script, since no logs will be rotated
+not running postrotate script, since no logs were rotated
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/postgresql/*.log  weekly (10 rotations)
+empty log files are not rotated, old logs are removed
+considering log /var/log/postgresql/postgresql-14-main.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+
+rotating pattern: /var/log/syslog
+/var/log/mail.info
+/var/log/mail.warn
+/var/log/mail.err
+/var/log/mail.log
+/var/log/daemon.log
+/var/log/kern.log
+/var/log/auth.log
+/var/log/user.log
+/var/log/lpr.log
+/var/log/cron.log
+/var/log/debug
+/var/log/messages
+ weekly (4 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/syslog
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+considering log /var/log/mail.info
+  log /var/log/mail.info does not exist -- skipping
+considering log /var/log/mail.warn
+  log /var/log/mail.warn does not exist -- skipping
+considering log /var/log/mail.err
+  log /var/log/mail.err does not exist -- skipping
+considering log /var/log/mail.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+considering log /var/log/daemon.log
+  log /var/log/daemon.log does not exist -- skipping
+considering log /var/log/kern.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+considering log /var/log/auth.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+considering log /var/log/user.log
+  log /var/log/user.log does not exist -- skipping
+considering log /var/log/lpr.log
+  log /var/log/lpr.log does not exist -- skipping
+considering log /var/log/cron.log
+  log /var/log/cron.log does not exist -- skipping
+considering log /var/log/debug
+  log /var/log/debug does not exist -- skipping
+considering log /var/log/messages
+  log /var/log/messages does not exist -- skipping
+not running postrotate script, since no logs were rotated
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/ubuntu-advantage*.log  monthly (6 rotations)
+empty log files are not rotated, old logs are removed
+considering log /var/log/ubuntu-advantage.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+
+rotating pattern: /var/log/ufw.log
+ weekly (4 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/ufw.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a week ago)
+not running postrotate script, since no logs were rotated
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/unattended-upgrades/unattended-upgrades.log 
+/var/log/unattended-upgrades/unattended-upgrades-dpkg.log
+/var/log/unattended-upgrades/unattended-upgrades-shutdown.log
+ monthly (6 rotations)
+empty log files are not rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/unattended-upgrades/unattended-upgrades.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+considering log /var/log/unattended-upgrades/unattended-upgrades-dpkg.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+considering log /var/log/unattended-upgrades/unattended-upgrades-shutdown.log
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+
+rotating pattern: /var/log/wtmp  monthly (1 rotations)
+empty log files are rotated, only log files >= 1048576 bytes are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 4 (pid 44075)
+considering log /var/log/wtmp
+  Now: 2026-01-28 05:27
+  Last rotated at 2026-01-28 00:00
+  log does not need rotating (log has been rotated at 2026-01-28 00:00, which is less than a month ago)
+  log does not need rotating ('minsize' directive is used and the log size is smaller than the minsize value)
+switching euid from 0 to 0 and egid from 4 to 0 (pid 44075)
+NTP Time Synchronization Validation - CMMC 3.3.7
+================================================================================
+Date: 2026-01-28T05:27:31.041548
+Control: 3.3.7 (System clock synchronization)
+
+Time Synchronization Status:
+  Clock synchronized: YES
+  systemd-timesyncd active: NO
+  chrony active: YES
+  chronyd active: YES
+  Any NTP service active: YES
+  chrony working: YES
+
+Time Status (timedatectl):
+--------------------------------------------------------------------------------
+               Local time: Wed 2026-01-28 05:27:30 UTC
+           Universal time: Wed 2026-01-28 05:27:30 UTC
+                 RTC time: Wed 2026-01-28 05:27:30
+                Time zone: Etc/UTC (UTC, +0000)
+System clock synchronized: yes
+              NTP service: active
+          RTC in local TZ: no
+
+
+chrony Tracking:
+--------------------------------------------------------------------------------
+Reference ID    : A9FEA9FE (metadata.google.internal)
+Stratum         : 3
+Ref time (UTC)  : Wed Jan 28 05:24:43 2026
+System time     : 0.000003007 seconds fast of NTP time
+Last offset     : +0.000001057 seconds
+RMS offset      : 0.000158237 seconds
+Frequency       : 74.851 ppm slow
+Residual freq   : +0.000 ppm
+Skew            : 0.003 ppm
+Root delay      : 0.000134691 seconds
+Root dispersion : 0.000249679 seconds
+Update interval : 1029.9 seconds
+Leap status     : Normal
+
+
+chrony Sources:
+--------------------------------------------------------------------------------
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^* metadata.google.internal      2  10   377   166   +786ns[+1843ns] +/-  145us
+
+
+Service Minimization Validation - CMMC 3.4.6
+================================================================================
+Date: 2026-01-28T05:27:34.367129
+Control: 3.4.6 (Least functionality)
+
+Service Status:
+  Unnecessary services disabled: 3/3
+  Unnecessary services still enabled: 0
+
+Disabled Services:
+  ✓ bluetooth (disabled)
+  ✓ cups (disabled)
+  ✓ avahi-daemon (disabled)
+
+All Enabled Services (sample):
+--------------------------------------------------------------------------------
+UNIT FILE                                             STATE   VENDOR PRESET
+apparmor.service                                      enabled enabled
+auditd.service                                        enabled enabled
+blk-availability.service                              enabled enabled
+chrony.service                                        enabled enabled
+cloud-config.service                                  enabled enabled
+cloud-final.service                                   enabled enabled
+cloud-init-local.service                              enabled enabled
+cloud-init.service                                    enabled enabled
+console-setup.service                                 enabled enabled
+cron.service                                          enabled enabled
+cui-vault.service                                     enabled enabled
+dmesg.service                                         enabled enabled
+e2scrub_reap.service                                  enabled enabled
+fail2ban.service                                      enabled enabled
+finalrd.service                                       enabled enabled
+getty@.service                                        enabled enabled
+google-cloud-ops-agent.service                        enabled enabled
+google-guest-agent.service                            enabled enabled
+google-osconfig-agent.service                         enabled enabled
+google-shutdown-scripts.service                       enabled enabled
+google-startup-scripts.service                        enabled enabled
+grub-common.service                                   enabled enabled
+grub-initrd-fallback.service                          enabled enabled
+haveged.service                                       enabled enabled
+keyboard-setup.service                                enabled enabled
+lvm2-monitor.service                                  enabled enabled
+lxd-agent.service                                     enabled enabled
+multipathd.service                                    enabled enabled
+networkd-dispatcher.service                           enabled enabled
+SSH Hardening Validation - CMMC 3.1.13,3.13.9
+================================================================================
+Date: 2026-01-28T05:27:29.894492
+Control: 3.1.13 (Cryptographic remote access), 3.13.9 (Terminate network connections)
+
+Configuration File: /etc/ssh/sshd_config
+SSH Syntax Valid: YES
+
+Configuration Checks:
+  ✓ Protocol 2: PASS
+  ✓ PasswordAuthentication no: PASS
+  ✓ PubkeyAuthentication yes: PASS
+  ✓ UsePAM yes: PASS
+  ✓ PermitRootLogin no: PASS
+  ✓ ClientAliveInterval 300: PASS
+  ✓ ClientAliveCountMax 2: PASS
+  ✓ MaxAuthTries 3: PASS
+
+Passed: 8/8
+
+Full SSH Configuration (sshd -T):
+--------------------------------------------------------------------------------
+port 22
+addressfamily any
+listenaddress 0.0.0.0:22
+usepam yes
+logingracetime 30
+x11displayoffset 10
+maxauthtries 3
+maxsessions 10
+clientaliveinterval 120
+clientalivecountmax 2
+streamlocalbindmask 0177
+permitrootlogin no
+ignorerhosts yes
+ignoreuserknownhosts no
+hostbasedauthentication no
+hostbasedusesnamefrompacketonly no
+pubkeyauthentication yes
+kerberosauthentication no
+kerberosorlocalpasswd yes
+kerberosticketcleanup yes
+gssapiauthentication no
+gssapicleanupcredentials yes
+gssapikeyexchange no
+gssapistrictacceptorcheck yes
+gssapistorecredentialsonrekey no
+gssapikexalgorithms gss-group14-sha256-,gss-group16-sha512-,gss-nistp256-sha256-,gss-curve25519-sha256-,gss-group14-sha1-,gss-gex-sha1-
+passwordauthentication no
+kbdinteractiveauthentication no
+printmotd no
+printlastlog yes
+x11forwarding no
+x11uselocalhost yes
+permittty yes
+permituserrc yes
+strictmodes yes
+tcpkeepalive yes
+permitemptypasswords no
+compression yes
+gatewayports no
+usedns no
+allowtcpforwarding yes
+allowagentforwarding yes
+disableforwarding no
+allowstreamlocalforwarding yes
+streamlocalbindunlink no
+fingerprinthash SHA256
+exposeauthinfo no
+pidfile /run/sshd.pid
+modulifile /etc/ssh/moduli
+xauthlocation /usr/bin/xauth
+ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr
+macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
+banner /etc/issue.net
+forcecommand none
+chrootdirectory none
+trustedusercakeys none
+revokedkeys none
+securitykeyprovider internal
+authorizedprincipalsfile none
+versionaddendum none
+authorizedkeyscommand none
+authorizedkeyscommanduser none
+authorizedprincipalscommand none
+authorizedprincipalscommanduser none
+hostkeyagent none
+kexalgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1,ecdh-sha2-nistp256
+casignaturealgorithms ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256
+hostbasedacceptedalgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256
+hostkeyalgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256
+pubkeyacceptedalgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256
+loglevel VERBOSE
+syslogfacility AUTH
+authorizedkeysfile .ssh/authorized_keys .ssh/authorized_keys2
+hostkey /etc/ssh/ssh_host_rsa_key
+hostkey /etc/ssh/ssh_host_ecdsa_key
+hostkey /etc/ssh/ssh_host_ed25519_key
+acceptenv LANG
+acceptenv LC_*
+authenticationmethods any
+subsystem sftp /usr/lib/openssh/sftp-server
+maxstartups 10:30:100
+persourcemaxstartups none
+persourcenetblocksize 32:128
+permittunnel no
+ipqos lowdelay throughput
+rekeylimit 0 0
+permitopen any
+permitlisten any
+permituserenvironment no
+pubkeyauthoptions none
+Sudo Logging Validation - CMMC 3.1.15
+================================================================================
+Date: 2026-01-28T05:27:31.042249
+Control: 3.1.15 (Authorize remote privileged commands)
+
+Configuration Checks:
+  Config file exists: YES
+  Log file setting: YES
+  Log input: YES
+  Log output: YES
+  Syslog auth: YES
+  Log file exists: YES
+
+Configuration File (/etc/sudoers.d/99-cmmc-logging):
+--------------------------------------------------------------------------------
+# CMMC 2.0 Level 2 - Sudo logging configuration
+Defaults logfile=/var/log/sudo.log
+Defaults log_input,log_output
+Defaults syslog=auth
+UFW Firewall Validation - CMMC 3.13.6
+================================================================================
+Date: 2026-01-28T05:27:30.298216
+Control: 3.13.6 (Deny-by-default network communications)
+
+Firewall Status:
+  UFW installed: YES
+  Firewall active: YES
+  Default deny incoming: YES
+  SSH (22/tcp) allowed: YES
+  HTTPS (443/tcp) allowed: YES
+
+UFW Status (verbose):
+--------------------------------------------------------------------------------
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+80/tcp                     ALLOW IN    Anywhere                  
+Anywhere on ens160         LIMIT IN    Anywhere                  
+22/tcp                     ALLOW IN    Anywhere                   # SSH
+443/tcp                    ALLOW IN    Anywhere                   # HTTPS
+80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+Anywhere (v6) on ens160    LIMIT IN    Anywhere (v6)             
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # SSH
+443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS
+
+
+
+UFW Rules (numbered):
+--------------------------------------------------------------------------------
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 80/tcp                     ALLOW IN    Anywhere                  
+[ 2] Anywhere on ens160         LIMIT IN    Anywhere                  
+[ 3] 22/tcp                     ALLOW IN    Anywhere                   # SSH
+[ 4] 443/tcp                    ALLOW IN    Anywhere                   # HTTPS
+[ 5] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 6] Anywhere (v6) on ens160    LIMIT IN    Anywhere (v6)             
+[ 7] 22/tcp (v6)                ALLOW IN    Anywhere (v6)              # SSH
+[ 8] 443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS
+
+CMMC 2.0 Level 2 Hardening Validation Summary
+================================================================================
+
+Date: 2026-01-28T05:27:34.369101
+Total Checks: 10
+Passed: 10
+Failed: 0
+Warnings: 0
+Pass Rate: 100.0%
+
+Validation Results:
+--------------------------------------------------------------------------------
+✓ 3.1.13,3.13.9: SSH Hardening
+   Status: PASS
+   Details: SSH hardening validation: 8/8 checks passed. Syntax valid: True
+   Evidence: /opt/compliance/validation-evidence/ssh_hardening_validation.txt
+
+✓ 3.1.8: fail2ban Configuration
+   Status: PASS
+   Details: fail2ban: Service active=True, Config exists=True
+   Evidence: /opt/compliance/validation-evidence/fail2ban_validation.txt
+
+✓ 3.13.6: UFW Firewall
+   Status: PASS
+   Details: UFW: Active=True, Deny incoming=True, SSH=True, HTTPS=True
+   Evidence: /opt/compliance/validation-evidence/ufw_firewall_validation.txt
+
+✓ 3.3.1,3.3.8: Log Rotation
+   Status: PASS
+   Details: Log rotation: Rotate=True, Weekly=True, Valid=True
+   Evidence: /opt/compliance/validation-evidence/log_rotation_validation.txt
+
+✓ 3.3.7: NTP Configuration
+   Status: PASS
+   Details: NTP: Synchronized=True, Service active=True (timesyncd=False, chrony=True)
+   Evidence: /opt/compliance/validation-evidence/ntp_validation.txt
+
+✓ 3.1.15: Sudo Logging
+   Status: PASS
+   Details: Sudo logging: Config exists=True, Log file=True
+   Evidence: /opt/compliance/validation-evidence/sudo_logging_validation.txt
+
+✓ 3.13.11: FIPS Verification
+   Status: PASS
+   Details: FIPS: Enabled=True, Provider=True
+   Evidence: /opt/compliance/validation-evidence/fips_validation.txt
+
+✓ 3.14.2: ClamAV Installation
+   Status: PASS
+   Details: ClamAV: Installed=True, Daemon active=False
+   Evidence: /opt/compliance/validation-evidence/clamav_validation.txt
+
+✓ 3.14.5: AIDE Installation
+   Status: PASS
+   Details: AIDE: Installed=True, Database=True, Config=True
+   Evidence: /opt/compliance/validation-evidence/aide_validation.txt
+
+✓ 3.4.6: Service Minimization
+   Status: PASS
+   Details: Service minimization: 3/3 unnecessary services disabled
+   Evidence: /opt/compliance/validation-evidence/service_minimization_validation.txt
+
