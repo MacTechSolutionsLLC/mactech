@@ -5,7 +5,9 @@
 
 export interface Control {
   id: string                    // e.g., "3.1.1"
-  requirement: string           // Full requirement text
+  requirement: string           // Full requirement text (short summary)
+  nistRequirement?: string      // NIST SP 800-171 exact requirement text (verbatim)
+  nistDiscussion?: string       // NIST SP 800-171 DISCUSSION section (verbatim)
   status: 'implemented' | 'inherited' | 'partially_satisfied' | 'not_implemented' | 'not_applicable'
   family: string                // AC, AT, AU, CM, etc.
   policy: string                // MAC-POL-XXX
@@ -111,6 +113,7 @@ function extractFamily(sectionNumber: number): string {
 
 /**
  * Parse a markdown table row into a Control object
+ * Supports both 8-column (legacy) and 10-column (with NIST text) formats
  */
 function parseTableRow(row: string, family: string): Control | null {
   // Remove leading/trailing pipe and split by pipe
@@ -121,23 +124,49 @@ function parseTableRow(row: string, family: string): Control | null {
     .split('|')
     .map(cell => cell.trim())
   
+  // Support both 8-column (legacy) and 10-column (enriched) formats
   if (cells.length < 8) {
     return null
   }
   
-  const [id, requirement, status, policy, procedure, evidence, implementation, sspSection] = cells
-  
   // Skip header rows
+  const id = cells[0]
   if (id === 'Control ID' || id.includes('---') || !id.match(/^\d+\.\d+\.\d+/)) {
     return null
   }
+  
+  // Handle 10-column format (with NIST text)
+  if (cells.length >= 10) {
+    const [controlId, requirement, nistRequirement, nistDiscussion, status, policy, procedure, evidence, implementation, sspSection] = cells
+    
+    // Clean up policy and procedure references (remove "(to be created)" text)
+    const cleanPolicy = policy.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
+    const cleanProcedure = procedure.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
+    
+    return {
+      id: controlId.trim(),
+      requirement: requirement.trim(),
+      nistRequirement: nistRequirement?.trim() || undefined,
+      nistDiscussion: nistDiscussion?.trim() || undefined,
+      status: parseStatus(status),
+      family,
+      policy: cleanPolicy,
+      procedure: cleanProcedure,
+      evidence: evidence.trim() || '-',
+      implementation: implementation.trim() || '-',
+      sspSection: sspSection.trim() || '-',
+    }
+  }
+  
+  // Handle 8-column format (legacy)
+  const [controlId, requirement, status, policy, procedure, evidence, implementation, sspSection] = cells
   
   // Clean up policy and procedure references (remove "(to be created)" text)
   const cleanPolicy = policy.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
   const cleanProcedure = procedure.trim().replace(/\s*\(to be created\)/gi, '').trim() || '-'
   
   return {
-    id: id.trim(),
+    id: controlId.trim(),
     requirement: requirement.trim(),
     status: parseStatus(status),
     family,

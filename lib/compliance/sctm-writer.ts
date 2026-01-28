@@ -103,11 +103,47 @@ export async function updateControlInSCTM(
     .split('|')
     .map(cell => cell.trim())
   
+  // Support both 8-column (legacy) and 10-column (enriched) formats
   if (cells.length < 8) {
     throw new Error(`Invalid control row format for ${controlId}`)
   }
   
-  // Update cells based on updates object
+  // Handle 10-column format (with NIST text)
+  if (cells.length >= 10) {
+    // Column order: Control ID, Requirement, NIST Requirement, NIST Discussion, Status, Policy, Procedure, Evidence, Implementation, SSP Section
+    const [id, requirement, nistRequirement, nistDiscussion, status, policy, procedure, evidence, implementation, sspSection] = cells
+    
+    // Update status (with emoji)
+    let updatedStatus = status
+    if (updates.status !== undefined) {
+      const emoji = STATUS_EMOJI_MAP[updates.status] || ''
+      const text = STATUS_TEXT_MAP[updates.status] || updates.status
+      updatedStatus = `${emoji} ${text}`
+    }
+    
+    // Update NIST fields if provided
+    const updatedNISTRequirement = updates.nistRequirement !== undefined ? formatCell(updates.nistRequirement) : formatCell(nistRequirement)
+    const updatedNISTDiscussion = updates.nistDiscussion !== undefined ? formatCell(updates.nistDiscussion) : formatCell(nistDiscussion)
+    
+    // Update other fields
+    const updatedPolicy = updates.policy !== undefined ? formatCell(updates.policy) : formatCell(policy)
+    const updatedProcedure = updates.procedure !== undefined ? formatCell(updates.procedure) : formatCell(procedure)
+    const updatedEvidence = updates.evidence !== undefined ? formatCell(updates.evidence) : formatCell(evidence)
+    const updatedImplementation = updates.implementation !== undefined ? formatCell(updates.implementation) : formatCell(implementation)
+    const updatedSspSection = updates.sspSection !== undefined ? formatCell(updates.sspSection) : formatCell(sspSection)
+    
+    // Reconstruct the row
+    const escapeCell = (cell: string) => cell.replace(/\|/g, '\\|')
+    const updatedRow = `| ${escapeCell(id)} | ${escapeCell(requirement)} | ${escapeCell(updatedNISTRequirement)} | ${escapeCell(updatedNISTDiscussion)} | ${escapeCell(updatedStatus)} | ${escapeCell(updatedPolicy)} | ${escapeCell(updatedProcedure)} | ${escapeCell(updatedEvidence)} | ${escapeCell(updatedImplementation)} | ${escapeCell(updatedSspSection)} |`
+    
+    // Replace the line
+    lines[controlLineIndex] = updatedRow
+    const updatedContent = lines.join('\n')
+    await writeFile(filePath, updatedContent, 'utf-8')
+    return
+  }
+  
+  // Handle 8-column format (legacy)
   // Column order: Control ID, Requirement, Status, Policy, Procedure, Evidence, Implementation, SSP Section
   const [id, requirement, status, policy, procedure, evidence, implementation, sspSection] = cells
   
