@@ -27,6 +27,7 @@ export const ALLOWED_MIME_TYPES_CUI = [
   "image/png",
   "image/gif",
   "application/json",
+  "application/octet-stream", // fallback when browser does not set file.type
 ] as const
 
 // Allowed MIME types (configurable)

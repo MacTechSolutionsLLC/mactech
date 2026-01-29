@@ -1,6 +1,7 @@
 /**
  * CUI Vault API server - implements docs/CUI_VAULT_API_CONTRACT.md
  * POST /v1/files/upload (Bearer JWT), GET /v1/files/:vaultId (?token= JWT), DELETE /v1/files/:vaultId (X-VAULT-KEY)
+ * CORS enabled so browser can upload from app origin (e.g. www.mactechsolutionsllc.com).
  */
 const express = require('express')
 const multer = require('multer')
@@ -12,6 +13,24 @@ const crypto = require('crypto')
 
 const app = express()
 const config = getConfig()
+
+// CORS: allow browser uploads from app origin(s). Comma-separated list or * for any.
+const corsOrigins = (process.env.CUI_VAULT_CORS_ORIGIN || '*').split(',').map(s => s.trim()).filter(Boolean)
+function corsMiddleware(req, res, next) {
+  const origin = req.headers.origin
+  const allow = corsOrigins.length === 0 || corsOrigins.includes('*')
+    ? '*'
+    : (origin && corsOrigins.includes(origin) ? origin : corsOrigins[0])
+  res.set('Access-Control-Allow-Origin', allow)
+  res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+  res.set('Access-Control-Max-Age', '86400')
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end()
+  }
+  next()
+}
+app.use(corsMiddleware)
 
 if (!config.jwtSecret || !config.apiKey || !config.encryptionKeyHex) {
   console.error('Missing required env: CUI_VAULT_JWT_SECRET (or CUI_VAULT_API_KEY), CUI_VAULT_API_KEY, CUI_ENCRYPTION_KEY')

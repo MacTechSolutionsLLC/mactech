@@ -36,6 +36,9 @@ CUI file bytes never touch Railway. The browser uploads and downloads CUI direct
 - `CUI_VAULT_TIMEOUT` - Request timeout in milliseconds (default: 30000)
 - `CUI_VAULT_RETRY_ATTEMPTS` - Number of retry attempts (default: 3)
 
+**Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:
+- `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`) or `*` for any. Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
+
 ### Railway Configuration
 
 Add the following environment variables in Railway:
@@ -136,6 +139,19 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 ---
 
 ## Testing
+
+**GUI upload path (Admin → Vault):**
+
+1. Log in as an admin and go to **Admin → File Management**.
+2. Open the **CUI** tab. If the vault is not configured, a banner will show (uses `GET /api/cui/vault-status`).
+3. Check **Store as CUI**, choose a file, and upload. The flow is:
+   - `POST /api/cui/upload-session` (fileName, mimeType, fileSize) → returns `uploadUrl`, `uploadToken`
+   - Browser `POST uploadUrl` with `Authorization: Bearer <uploadToken>` and multipart `file` (direct to vault; CORS must allow your app origin via `CUI_VAULT_CORS_ORIGIN` on the vault server)
+   - Vault responds with `{ vaultId, size, mimeType }`
+   - `POST /api/cui/record` with `{ vaultId, size, mimeType }` → creates metadata and audit log
+4. Verify the file appears in the CUI list and view/delete work as expected.
+
+**Automated:** Run `npm run test:cui-flow` to validate token/URL generation (no network calls).
 
 **Manual Testing Required:**
 

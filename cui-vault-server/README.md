@@ -21,6 +21,7 @@ Implements the [CUI Vault API Contract](../../docs/CUI_VAULT_API_CONTRACT.md): P
 | `DB_PASSWORD` | Yes for DB | PostgreSQL password |
 | `PORT` | No | Default 3001 (listen 127.0.0.1) |
 | `CUI_VAULT_MAX_FILE_SIZE` | No | Max upload size bytes (default 52428800 = 50MB) |
+| `CUI_VAULT_CORS_ORIGIN` | Yes for browser uploads | Comma-separated allowed origins (e.g. `https://www.mactechsolutionsllc.com`) or `*`. Required so the app’s GUI can POST to the vault from a different origin. |
 
 ## Database
 

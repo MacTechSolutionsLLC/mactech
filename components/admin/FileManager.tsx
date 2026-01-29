@@ -67,6 +67,7 @@ export default function FileManager({ files }: FileManagerProps) {
   const [showViewerModal, setShowViewerModal] = useState(false)
   const [viewerUrl, setViewerUrl] = useState<string | null>(null)
   const [loadingView, setLoadingView] = useState(false)
+  const [vaultConfigured, setVaultConfigured] = useState<boolean | null>(null)
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
   const systemFiles = files
@@ -78,6 +79,18 @@ export default function FileManager({ files }: FileManagerProps) {
       setActiveTab(tabParam as 'database' | 'fci' | 'compliance' | 'cui')
     }
   }, [searchParams])
+
+  // Check vault status when CUI tab is active (so we can show a message if not configured)
+  useEffect(() => {
+    if (activeTab === 'cui') {
+      fetch('/api/cui/vault-status')
+        .then((res) => res.json())
+        .then((data) => setVaultConfigured(data.configured === true))
+        .catch(() => setVaultConfigured(false))
+    } else {
+      setVaultConfigured(null)
+    }
+  }, [activeTab])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -161,12 +174,13 @@ export default function FileManager({ files }: FileManagerProps) {
 
     try {
       if (isCUI) {
+        const mimeType = file.type?.trim() || 'application/octet-stream'
         const sessionRes = await fetch('/api/cui/upload-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             fileName: file.name,
-            mimeType: file.type,
+            mimeType,
             fileSize: file.size,
           }),
         })
@@ -195,13 +209,13 @@ export default function FileManager({ files }: FileManagerProps) {
         const vaultData = await vaultRes.json().catch(() => ({}))
         const vaultId = vaultData.vaultId || vaultData.id
         const size = vaultData.size ?? file.size
-        const mimeType = vaultData.mimeType || file.type
+        const recordMimeType = vaultData.mimeType || mimeType
         if (!vaultId) throw new Error('Vault did not return vaultId')
 
         const recordRes = await fetch('/api/cui/record', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vaultId, size, mimeType }),
+          body: JSON.stringify({ vaultId, size, mimeType: recordMimeType }),
         })
         const recordData = await recordRes.json()
         if (!recordRes.ok) throw new Error(recordData.error || 'Failed to record CUI file')
@@ -585,6 +599,11 @@ export default function FileManager({ files }: FileManagerProps) {
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <h2 className="text-lg font-semibold text-amber-900 mb-2">CUI Files</h2>
           </div>
+          {vaultConfigured === false && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm font-medium text-red-800">CUI vault is not configured. CUI uploads will fail until <code className="bg-red-100 px-1 rounded">CUI_VAULT_API_KEY</code> and <code className="bg-red-100 px-1 rounded">CUI_VAULT_JWT_SECRET</code> (or <code className="bg-red-100 px-1 rounded">CUI_VAULT_URL</code> if vault is elsewhere) are set on the app, and the vault server has <code className="bg-red-100 px-1 rounded">CUI_VAULT_CORS_ORIGIN</code> set to allow this site.</p>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
