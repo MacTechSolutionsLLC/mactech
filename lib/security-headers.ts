@@ -7,6 +7,16 @@ export interface SecurityHeaders {
   [key: string]: string
 }
 
+/** CUI vault origin for CSP connect-src (browser uploads directly to vault) */
+function getCuiVaultCspOrigin(): string {
+  const url = process.env.CUI_VAULT_URL || "https://vault.mactechsolutionsllc.com"
+  try {
+    return new URL(url).origin
+  } catch {
+    return "https://vault.mactechsolutionsllc.com"
+  }
+}
+
 /**
  * Get security headers for responses
  */
@@ -27,13 +37,14 @@ export function getSecurityHeaders(): SecurityHeaders {
 
     // Content Security Policy
     // Note: Next.js requires 'unsafe-inline' and 'unsafe-eval' for scripts
+    // connect-src includes CUI vault origin so the browser can POST uploads directly to the vault
     "Content-Security-Policy":
       "default-src 'self'; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
       "style-src 'self' 'unsafe-inline'; " +
       "img-src 'self' data: https:; " +
       "font-src 'self' data:; " +
-      "connect-src 'self'; " +
+      "connect-src 'self' " + getCuiVaultCspOrigin() + "; " +
       "frame-ancestors 'none';",
 
     // X-Frame-Options (redundant with CSP frame-ancestors, but included for compatibility)

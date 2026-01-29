@@ -71,6 +71,8 @@ function MFAVerifyForm() {
         setTimeout(() => {
           if (role === 'ADMIN') {
             router.push('/admin')
+          } else if (role === 'GUEST') {
+            router.push('/portal')
           } else {
             router.push('/user/contract-discovery')
           }

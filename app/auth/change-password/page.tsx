@@ -81,6 +81,8 @@ function ChangePasswordForm() {
       // Redirect based on user role
       if (session?.user?.role === 'ADMIN') {
         router.push('/admin')
+      } else if (session?.user?.role === 'GUEST') {
+        router.push('/portal')
       } else {
         router.push('/user/contract-discovery')
       }

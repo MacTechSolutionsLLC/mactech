@@ -39,16 +39,37 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
-  // Protect user portal routes (require authentication, allow all roles)
-  if (pathname.startsWith("/user")) {
+  // Protect guest portal routes (require authentication, GUEST role only)
+  if (pathname.startsWith("/portal")) {
     if (!session) {
-      // Redirect to sign in if not authenticated
       const signInUrl = new URL("/auth/signin", req.url)
       signInUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(signInUrl)
     }
+    if (session.user?.role !== "GUEST") {
+      if (session.user?.role === "ADMIN") {
+        return NextResponse.redirect(new URL("/admin", req.url))
+      }
+      return NextResponse.redirect(new URL("/user/contract-discovery", req.url))
+    }
+    if (session.user?.mustChangePassword && pathname !== "/auth/change-password") {
+      const changePasswordUrl = new URL("/auth/change-password", req.url)
+      changePasswordUrl.searchParams.set("required", "true")
+      return NextResponse.redirect(changePasswordUrl)
+    }
+    return NextResponse.next()
+  }
 
-    // Check if password change is required
+  // Protect user portal routes (require authentication, USER or ADMIN; GUEST goes to /portal)
+  if (pathname.startsWith("/user")) {
+    if (!session) {
+      const signInUrl = new URL("/auth/signin", req.url)
+      signInUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(signInUrl)
+    }
+    if (session.user?.role === "GUEST") {
+      return NextResponse.redirect(new URL("/portal", req.url))
+    }
     if (session.user?.mustChangePassword && pathname !== "/auth/change-password") {
       const changePasswordUrl = new URL("/auth/change-password", req.url)
       changePasswordUrl.searchParams.set("required", "true")
@@ -56,18 +77,17 @@ export default auth((req) => {
     }
   }
 
-  // Protect admin routes (require ADMIN role)
+  // Protect admin routes (require ADMIN role; GUEST goes to /portal)
   if (pathname.startsWith("/admin")) {
     if (!session) {
-      // Redirect to sign in if not authenticated
       const signInUrl = new URL("/auth/signin", req.url)
       signInUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(signInUrl)
     }
-
-    // Check if user is admin
+    if (session.user?.role === "GUEST") {
+      return NextResponse.redirect(new URL("/portal", req.url))
+    }
     if (session.user?.role !== "ADMIN") {
-      // Redirect to user contract discovery if not admin
       return NextResponse.redirect(new URL("/user/contract-discovery", req.url))
     }
 

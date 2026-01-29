@@ -65,7 +65,7 @@ function generateConfigSnapshot() {
     xContentTypeOptions: 'nosniff',
     referrerPolicy: 'strict-origin-when-cross-origin',
     xFrameOptions: 'DENY',
-    csp: 'default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: https:; font-src \'self\' data:; connect-src \'self\'; frame-ancestors \'none\';',
+    csp: 'default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: https:; font-src \'self\' data:; connect-src \'self\' CUI_VAULT_ORIGIN (for direct-to-vault uploads); frame-ancestors \'none\';',
   }
 
   // Session configuration

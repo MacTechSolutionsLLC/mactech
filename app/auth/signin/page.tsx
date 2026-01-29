@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams?.get('callbackUrl') ?? ''
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -107,13 +109,13 @@ export default function SignInPage() {
           // and redirect to change-password if needed
           if (sessionData?.user?.role === 'ADMIN') {
             router.push('/admin')
+          } else if (sessionData?.user?.role === 'GUEST') {
+            router.push(callbackUrl && callbackUrl.startsWith('/portal') ? callbackUrl : '/portal')
           } else {
-            // Redirect regular users to contract discovery
-            router.push('/user/contract-discovery')
+            router.push(callbackUrl && callbackUrl.startsWith('/user') ? callbackUrl : '/user/contract-discovery')
           }
           router.refresh()
         } catch {
-          // Fallback: redirect to contract discovery
           router.push('/user/contract-discovery')
           router.refresh()
         }
@@ -205,5 +207,21 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function SignInFallback() {
+  return (
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center text-neutral-500">Loading…</div>
+    </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInFallback />}>
+      <SignInForm />
+    </Suspense>
   )
 }

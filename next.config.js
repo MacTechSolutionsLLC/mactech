@@ -44,7 +44,14 @@ const nextConfig = {
   // Security headers for CMMC Level 1 compliance
   async headers() {
     const isProduction = process.env.NODE_ENV === "production"
-    
+    // CUI vault origin for connect-src (browser uploads directly to vault)
+    const vaultUrl = process.env.CUI_VAULT_URL || "https://vault.mactechsolutionsllc.com"
+    let vaultOrigin = "https://vault.mactechsolutionsllc.com"
+    try {
+      vaultOrigin = new URL(vaultUrl).origin
+    } catch (e) {}
+    const cspConnectSrc = `'self' ${vaultOrigin}`
+
     return [
       {
         source: "/:path*",
@@ -63,7 +70,7 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';",
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src ${cspConnectSrc}; frame-ancestors 'none';`,
           },
           {
             key: "Permissions-Policy",

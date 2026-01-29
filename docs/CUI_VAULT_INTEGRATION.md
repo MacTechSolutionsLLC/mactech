@@ -39,6 +39,8 @@ CUI file bytes never touch Railway. The browser uploads and downloads CUI direct
 **Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:
 - `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`) or `*` for any. Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
 
+**App Content Security Policy:** The app adds the CUI vault origin to the CSP `connect-src` directive (in `next.config.js` and `lib/security-headers.ts`) so the browser allows fetch/XHR to the vault. If you use a different vault URL via `CUI_VAULT_URL`, that origin is included automatically.
+
 ### Railway Configuration
 
 Add the following environment variables in Railway:
