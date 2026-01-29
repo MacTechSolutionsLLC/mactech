@@ -22,7 +22,6 @@ export default function Navigation() {
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     { href: '/cmmc', label: 'CMMC' },
-    { href: '/vault', label: 'CUI Vault' },
     { href: '/showcase', label: 'Showcase' },
     { href: '/readiness', label: 'Assessment' },
     { href: '/leadership', label: 'Leadership' },
