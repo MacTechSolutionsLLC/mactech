@@ -57,6 +57,7 @@ export type ActionType =
   | "cui_file_access"
   | "cui_file_access_denied"
   | "cui_file_delete"
+  | "cui_file_delete_failed"
   | "user_attestation"
   | "maintenance_tool_access"
   | "maintenance_tool_operation"
@@ -206,10 +207,11 @@ async function enrichTarget(targetType: TargetType | undefined, targetId: string
           return {
             targetType,
             targetId,
-            filename: cuiFile.filename,
+            vaultId: cuiFile.vaultId ?? null,
             fileSize: cuiFile.size,
             mimeType: cuiFile.mimeType,
             isCUI: true,
+            filenameRedacted: cuiFile.vaultId ? `CUI-${cuiFile.vaultId}` : `CUI-${targetId}`,
             uploadedAt: cuiFile.uploadedAt.toISOString(),
             uploadedBy: {
               userId: cuiFile.userId,
@@ -730,7 +732,8 @@ export async function logFileUpload(
       if (cuiFile) {
         cuiFileInfo = {
           fileId: cuiFile.id,
-          filename: cuiFile.filename,
+          vaultId: cuiFile.vaultId ?? null,
+          filenameRedacted: cuiFile.vaultId ? `CUI-${cuiFile.vaultId}` : `CUI-${cuiFile.id}`,
           mimeType: cuiFile.mimeType,
           size: cuiFile.size,
           isCUI: true,
@@ -748,8 +751,7 @@ export async function logFileUpload(
     // If file lookup fails, use provided information
     console.error("Failed to fetch file info for upload log:", error)
   }
-  
-  // Use enriched file info or fallback to provided data
+
   const finalFileInfo = cuiFileInfo || fileInfo || {
     fileId,
     filename,
@@ -758,7 +760,31 @@ export async function logFileUpload(
     isCUI: isCUI !== undefined ? isCUI : null,
     isFCI: isFCI !== undefined ? isFCI : null,
   }
-  
+
+  const toWhomCUI = cuiFileInfo
+    ? {
+        targetType: "cui_file" as const,
+        targetId: fileId,
+        fileId: cuiFileInfo.fileId,
+        vaultId: cuiFileInfo.vaultId,
+        filenameRedacted: cuiFileInfo.filenameRedacted,
+        fileSize: finalFileInfo.size,
+        mimeType: finalFileInfo.mimeType,
+        isCUI: true,
+        isFCI: false,
+        ...(finalFileInfo.uploadedBy ? { uploadedBy: (finalFileInfo as { uploadedBy?: unknown }).uploadedBy } : {}),
+      }
+    : {
+        targetType: "file" as const,
+        targetId: fileId,
+        filename: finalFileInfo.filename,
+        fileSize: finalFileInfo.size,
+        mimeType: finalFileInfo.mimeType,
+        isCUI: false,
+        isFCI: finalFileInfo.isFCI !== undefined ? finalFileInfo.isFCI : (isFCI || false),
+        ...(finalFileInfo.uploadedBy ? { uploadedBy: (finalFileInfo as { uploadedBy?: unknown }).uploadedBy } : {}),
+      }
+
   await logEvent(
     "file_upload",
     userId,
@@ -768,16 +794,7 @@ export async function logFileUpload(
     fileId,
     {
       what: "File upload",
-      toWhom: {
-        targetType: cuiFileInfo ? "cui_file" : "file",
-        targetId: fileId,
-        filename: finalFileInfo.filename,
-        fileSize: finalFileInfo.size,
-        mimeType: finalFileInfo.mimeType,
-        isCUI: finalFileInfo.isCUI !== undefined ? finalFileInfo.isCUI : (isCUI || false),
-        isFCI: finalFileInfo.isFCI !== undefined ? finalFileInfo.isFCI : (isFCI || false),
-        ...(finalFileInfo.uploadedBy ? { uploadedBy: finalFileInfo.uploadedBy } : {}),
-      },
+      toWhom: toWhomCUI,
       security: {
         sessionId: sessionId,
       },
@@ -848,7 +865,8 @@ export async function logFileDownload(
         isCUI = true
         fileInfo = {
           fileId: cuiFile.id,
-          filename: cuiFile.filename,
+          vaultId: cuiFile.vaultId ?? null,
+          filenameRedacted: cuiFile.vaultId ? `CUI-${cuiFile.vaultId}` : `CUI-${cuiFile.id}`,
           mimeType: cuiFile.mimeType,
           size: cuiFile.size,
           isCUI: true,
@@ -863,10 +881,33 @@ export async function logFileDownload(
       }
     }
   } catch (error) {
-    // If file lookup fails, use provided information
     console.error("Failed to fetch file info for download log:", error)
   }
-  
+
+  const toWhomDownload = isCUI
+    ? {
+        targetType: "cui_file" as const,
+        targetId: fileId,
+        fileId: fileInfo.fileId,
+        vaultId: fileInfo.vaultId,
+        filenameRedacted: fileInfo.filenameRedacted,
+        fileSize: fileInfo.size,
+        mimeType: fileInfo.mimeType,
+        isCUI: true,
+        isFCI: false,
+        ...(fileInfo.uploadedBy ? { uploadedBy: fileInfo.uploadedBy } : {}),
+      }
+    : {
+        targetType: "file" as const,
+        targetId: fileId,
+        filename: fileInfo.filename,
+        fileSize: fileInfo.size,
+        mimeType: fileInfo.mimeType,
+        isCUI: false,
+        isFCI: fileInfo.isFCI || false,
+        ...(fileInfo.uploadedBy ? { uploadedBy: fileInfo.uploadedBy } : {}),
+      }
+
   await logEvent(
     isCUI ? "cui_file_access" : "file_download",
     userId,
@@ -875,23 +916,14 @@ export async function logFileDownload(
     isCUI ? "cui_file" : "file",
     fileId,
     {
-      what: isCUI ? "CUI file download" : "File download",
-      toWhom: {
-        targetType: isCUI ? "cui_file" : "file",
-        targetId: fileId,
-        filename: fileInfo.filename,
-        fileSize: fileInfo.size,
-        mimeType: fileInfo.mimeType,
-        isCUI: isCUI,
-        isFCI: fileInfo.isFCI || false,
-        ...(fileInfo.uploadedBy ? { uploadedBy: fileInfo.uploadedBy } : {}),
-      },
+      what: isCUI ? "CUI file access" : "File download",
+      toWhom: toWhomDownload,
       security: {
         sessionId: sessionId,
       },
-      context: {
-        message: `Downloaded file: ${fileInfo.filename} (ID: ${fileInfo.fileId}, Size: ${fileInfo.size || 'unknown'} bytes, Type: ${fileInfo.mimeType || 'unknown'})`,
-      },
+      context: isCUI
+        ? { message: `CUI file access (ID: ${fileId}, vaultId: ${fileInfo.vaultId ?? 'n/a'})` }
+        : { message: `Downloaded file: ${fileInfo.filename} (ID: ${fileInfo.fileId}, Size: ${fileInfo.size || 'unknown'} bytes, Type: ${fileInfo.mimeType || 'unknown'})` },
     }
   )
 }

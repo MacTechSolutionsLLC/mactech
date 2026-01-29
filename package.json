@@ -20,7 +20,9 @@
     "seed:poam": "tsx scripts/seed-poam-items.ts",
     "verify:fips": "tsx scripts/verify-fips-status.ts",
     "test:fips-jwt": "tsx scripts/test-fips-jwt.ts",
-    "update:poam-024": "tsx scripts/update-poam-024-fips.ts"
+    "check:cui-boundary": "tsx scripts/check-cui-boundary.ts",
+    "update:poam-024": "tsx scripts/update-poam-024-fips.ts",
+    "test:cui-flow": "tsx scripts/test-cui-flow.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

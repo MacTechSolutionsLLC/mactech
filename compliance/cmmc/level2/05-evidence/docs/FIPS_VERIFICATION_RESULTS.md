@@ -37,7 +37,7 @@ This document provides evidence of FIPS validation verification results for cryp
 
 ## 3. Main Application - Outside CUI Security Boundary
 
-**Boundary Declaration:** The main application (Railway platform) is **outside the CUI security boundary** per system boundary documentation. Railway functions as a transmission medium for routing CUI to the vault, but does not store, process, decrypt, or terminate CUI.
+**Boundary Declaration:** The main application (Railway platform) is **outside the CUI security boundary** per system boundary documentation. Railway does not receive, decrypt, process, or store CUI file bytes. Railway terminates TLS for metadata and token issuance only, not for CUI bytes. All CUI upload/download occurs directly between browser and FIPS vault.
 
 **FIPS Validation Requirement:** FIPS validation is **not required** for the main application (Railway) because:
 1. Railway is explicitly outside the CUI security boundary

@@ -51,12 +51,11 @@ export async function GET(
         }).catch(() => null)
         
         if (cuiFile) {
-          // This is a CUI file - redirect to CUI endpoint
           return NextResponse.json(
-            { 
-              error: "This is a CUI file. Password required for access.",
+            {
+              error: "This is a CUI file. Use the CUI Files tab and click View to open in the secure viewer (direct from vault).",
               isCUI: true,
-              redirectTo: `/api/files/cui/${id}`
+              viewSessionUrl: `/api/cui/view-session?id=${id}`,
             },
             { status: 403 }
           )

@@ -30,7 +30,7 @@
 │  - Authenticated access via NextAuth.js                      │
 │  - Security headers enforced                                │
 └──────────────────────┬──────────────────────────────────────┘
-                       │ HTTPS/TLS (Railway)
+                       │ HTTPS/TLS (Railway - metadata/token only)
                        ↓
 ┌─────────────────────────────────────────────────────────────┐
 │     PUBLIC NETWORK SEGMENT (Railway Platform)                │
@@ -75,7 +75,17 @@
 │  - Files accessible via signed URLs with expiration          │
 │  - Access logged in AppEvent table                           │
 └─────────────────────────────────────────────────────────────┘
+       │
+       │ Direct HTTPS/TLS for CUI bytes (Vault only)
+       ▼
+┌─────────────────────────────────────────────────────────────┐
+│     CUI VAULT (Google Cloud Platform)                        │
+│  - TLS terminates for CUI upload/download                    │
+│  - CUI bytes never transit Railway                           │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**CUI Byte Boundary Note:** Railway terminates TLS for metadata and token issuance only, not for CUI bytes. CUI file upload/download occurs directly between browser and vault; TLS for CUI payloads terminates on the vault host.
 
 **Network Segmentation:**
 - **Public Network Segment:** Next.js application operates in publicly accessible network tier (accepts HTTPS from internet)

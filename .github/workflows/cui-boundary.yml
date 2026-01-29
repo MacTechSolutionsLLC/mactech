@@ -1,0 +1,32 @@
+name: CUI Boundary Check
+
+on:
+  pull_request:
+    paths:
+      - 'app/api/**'
+      - 'lib/file-storage.ts'
+      - 'lib/cui-vault-client.ts'
+      - 'lib/audit.ts'
+      - 'components/**'
+      - 'scripts/check-cui-boundary.ts'
+  push:
+    branches: [main]
+    paths:
+      - 'app/api/**'
+      - 'lib/file-storage.ts'
+      - 'lib/cui-vault-client.ts'
+      - 'lib/audit.ts'
+      - 'components/**'
+      - 'scripts/check-cui-boundary.ts'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run check:cui-boundary

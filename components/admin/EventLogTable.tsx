@@ -134,7 +134,9 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                                         <div><strong>Type:</strong> {details.toWhom.targetType}</div>
                                         {details.toWhom.targetName && <div><strong>Name:</strong> {details.toWhom.targetName}</div>}
                                         {details.toWhom.targetEmail && <div><strong>Email:</strong> {details.toWhom.targetEmail}</div>}
-                                        {details.toWhom.filename && <div><strong>Filename:</strong> {details.toWhom.filename}</div>}
+                                        {details.toWhom.targetType === 'cui_file'
+                                          ? (details.toWhom.filenameRedacted && <div><strong>File:</strong> {details.toWhom.filenameRedacted}</div>)
+                                          : (details.toWhom.filename && <div><strong>Filename:</strong> {details.toWhom.filename}</div>)}
                                         {details.toWhom.fileSize && <div><strong>File Size:</strong> {details.toWhom.fileSize} bytes</div>}
                                         {details.toWhom.mimeType && <div><strong>MIME Type:</strong> {details.toWhom.mimeType}</div>}
                                         {details.toWhom.isCUI !== undefined && <div><strong>CUI File:</strong> {details.toWhom.isCUI ? "Yes" : "No"}</div>}
@@ -286,8 +288,8 @@ export default function EventLogTable({ events, total }: EventLogTableProps) {
                     try {
                       if (event.details) {
                         const details = JSON.parse(event.details)
-                        targetName = details.toWhom?.targetName || 
-                                    details.toWhom?.filename || 
+                        targetName = details.toWhom?.targetName ||
+                                    (details.toWhom?.targetType === 'cui_file' ? details.toWhom?.filenameRedacted : details.toWhom?.filename) ||
                                     details.toWhom?.contractTitle ||
                                     details.toWhom?.poamId ||
                                     details.toWhom?.targetEmail ||

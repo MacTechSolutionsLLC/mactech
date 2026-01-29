@@ -11,25 +11,26 @@
 import { prisma } from "./prisma"
 import { validateFilename } from "./cui-blocker"
 import * as crypto from "crypto"
-import { isVaultConfigured, storeCUIInVault, getCUIFromVault, deleteCUIFromVault } from "./cui-vault-client"
+import { isVaultConfigured, deleteCUIFromVault } from "./cui-vault-client"
 
-// Allowed MIME types (configurable)
-const ALLOWED_MIME_TYPES = [
+// Maximum file size: 10MB (exported for CUI upload-session metadata validation)
+export const MAX_FILE_SIZE = 10 * 1024 * 1024
+export const ALLOWED_MIME_TYPES_CUI = [
   "application/pdf",
   "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "text/plain",
   "text/csv",
   "image/jpeg",
   "image/png",
   "image/gif",
   "application/json",
-]
+] as const
 
-// Maximum file size: 10MB
-const MAX_FILE_SIZE = 10 * 1024 * 1024
+// Allowed MIME types (configurable)
+const ALLOWED_MIME_TYPES = [...ALLOWED_MIME_TYPES_CUI]
 
 // Signed URL expiration: 1 hour (default)
 const DEFAULT_SIGNED_URL_EXPIRES_IN = 60 * 60 * 1000 // 1 hour in milliseconds
@@ -82,7 +83,7 @@ export async function storeFile(
   }
 
   // Validate filename (no longer blocking CUI keywords, just validating format)
-  // CUI files should be stored using storeCUIFile() instead
+  // CUI files must use direct-to-vault upload; no CUI bytes on Railway
 
   // Read file data
   const arrayBuffer = await file.arrayBuffer()
@@ -274,74 +275,39 @@ export async function listFiles(
 }
 
 /**
- * Verify CUI password
- * Temporary implementation: password is "cui"
- * TODO: Make configurable via environment variable
+ * Record CUI upload metadata after client uploads directly to vault.
+ * Railway never receives CUI bytes; this creates only DB metadata.
  */
-export function verifyCUIPassword(password: string): boolean {
-  return password === "cui"
-}
-
-/**
- * Store CUI file in database or CUI vault
- */
-export async function storeCUIFile(
+export async function recordCUIUploadMetadata(
   userId: string,
-  file: File,
-  metadata?: Record<string, any>
+  vaultId: string,
+  size: number,
+  mimeType: string,
+  displayLabel?: string
 ): Promise<{ fileId: string; signedUrl: string }> {
-  // Validate file type
-  const typeValidation = validateFileType(file)
-  if (!typeValidation.valid) {
-    throw new Error(typeValidation.error)
-  }
-
-  // Validate file size
-  const sizeValidation = validateFileSize(file)
-  if (!sizeValidation.valid) {
-    throw new Error(sizeValidation.error)
-  }
-
-  // Read file data
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
-
-  // CUI vault is REQUIRED for CUI storage (CMMC Level 2 compliance requirement)
-  // Railway fallback storage is prohibited - CUI content must be stored in FIPS-validated vault
   if (!isVaultConfigured()) {
     throw new Error(
-      'CUI vault is required for CUI file storage. CUI_VAULT_API_KEY environment variable must be configured. ' +
-      'CUI content cannot be stored in Railway database per CMMC Level 2 requirements (FIPS-validated cryptography required).'
+      'CUI vault is required. CUI_VAULT_API_KEY environment variable must be configured.'
     )
   }
 
-  // Store in CUI vault (required - no fallback to Railway storage)
-  const vaultResult = await storeCUIInVault(
-    buffer,
-    file.name,
-    file.type,
-    metadata
-  )
+  const filename = displayLabel && /^CUI-/.test(displayLabel) ? displayLabel : `CUI-${vaultId}`
 
-  // Store metadata in local database for listing/management
-  // Note: CUI content is stored in vault only, Railway DB stores metadata only
   const storedFile = await prisma.storedCUIFile.create({
     data: {
       userId,
-      filename: file.name,
-      mimeType: file.type,
-      size: file.size,
-      data: Buffer.alloc(0), // Empty data - CUI content is in vault only
-      metadata: metadata ? JSON.stringify(metadata) : null,
+      filename,
+      mimeType,
+      size,
+      data: Buffer.alloc(0),
+      metadata: null,
       signedUrlExpiresAt: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRES_IN),
       storedInVault: true,
-      vaultId: vaultResult.id,
+      vaultId,
     },
   })
 
-  // Generate signed URL (note: CUI files require password, so signed URLs may not be used)
   const signedUrl = generateSignedUrl(storedFile.id)
-
   return {
     fileId: storedFile.id,
     signedUrl,
@@ -349,40 +315,23 @@ export async function storeCUIFile(
 }
 
 /**
- * Get CUI file with password verification
+ * Get CUI file metadata only (for view-session). Never fetches or returns file bytes.
  */
-export async function getCUIFile(
+export async function getCUIFileMetadataForView(
   fileId: string,
-  password?: string,
-  userId?: string,
+  userId: string,
   userRole?: string
-) {
-  // Password verification is optional (removed per security requirements)
-  // Access control is handled via authentication and role-based access
-
-  // Get file metadata from local database
+): Promise<{ id: string; vaultId: string; size: number; mimeType: string; filename: string }> {
   const file = await prisma.storedCUIFile.findUnique({
     where: { id: fileId },
     select: {
       id: true,
-      userId: true,
-      filename: true,
-      mimeType: true,
-      size: true,
-      data: true,
-      uploadedAt: true,
-      deletedAt: true,
-      signedUrlExpiresAt: true,
-      metadata: true,
-      storedInVault: true,
       vaultId: true,
-      uploader: {
-        select: {
-          id: true,
-          email: true,
-          name: true,
-        },
-      },
+      size: true,
+      mimeType: true,
+      filename: true,
+      userId: true,
+      deletedAt: true,
     },
   })
 
@@ -390,58 +339,31 @@ export async function getCUIFile(
     throw new Error("CUI file not found")
   }
 
-  // Check if file is deleted
   if (file.deletedAt) {
     throw new Error("CUI file has been deleted")
   }
 
-  // Access control: user can access their own CUI files, admin can access any CUI file
-  if (userId) {
-    // Check if user owns the file OR is admin
-    if (file.userId !== userId && userRole !== "ADMIN") {
-      throw new Error("Access denied")
-    }
-  } else {
-    throw new Error("Authentication required")
+  if (file.userId !== userId && userRole !== "ADMIN") {
+    throw new Error("Access denied")
   }
 
-  // If file is stored in vault, retrieve from vault
-  if (file.storedInVault && file.vaultId) {
-    try {
-      const vaultFile = await getCUIFromVault(file.vaultId)
-      
-      // Return file in same format as local database
-      return {
-        id: file.id,
-        userId: file.userId,
-        filename: vaultFile.filename || file.filename,
-        mimeType: vaultFile.mimeType || file.mimeType,
-        size: vaultFile.size || file.size,
-        data: vaultFile.data,
-        uploadedAt: file.uploadedAt,
-        deletedAt: file.deletedAt,
-        signedUrlExpiresAt: file.signedUrlExpiresAt,
-        metadata: file.metadata,
-        storedInVault: file.storedInVault,
-        vaultId: file.vaultId,
-        uploader: file.uploader,
-      }
-    } catch (error: any) {
-      // If vault retrieval fails, log error and throw
-      console.error('Failed to retrieve CUI from vault:', error.message)
-      throw new Error(`Failed to retrieve CUI file from vault: ${error.message}`)
-    }
+  if (!file.vaultId) {
+    throw new Error("CUI file has no vault reference")
   }
 
-  // File is in local database, return as-is
-  return file
+  return {
+    id: file.id,
+    vaultId: file.vaultId,
+    size: file.size,
+    mimeType: file.mimeType,
+    filename: file.filename,
+  }
 }
 
 /**
- * Delete CUI file (logical deletion)
+ * Delete CUI file: vault first, then DB. If vault delete fails, do not mark DB deleted; throw.
  */
 export async function deleteCUIFile(fileId: string, userId: string, userRole?: string): Promise<void> {
-  // Verify user owns the file or is admin
   const file = await prisma.storedCUIFile.findUnique({
     where: { id: fileId },
     select: {
@@ -456,22 +378,14 @@ export async function deleteCUIFile(fileId: string, userId: string, userRole?: s
     throw new Error("CUI file not found")
   }
 
-  // Check if user owns the file OR is admin
   if (file.userId !== userId && userRole !== "ADMIN") {
     throw new Error("Access denied")
   }
 
-  // If file is stored in vault, attempt to delete from vault
   if (file.storedInVault && file.vaultId) {
-    try {
-      await deleteCUIFromVault(file.vaultId)
-    } catch (error: any) {
-      // Log error but continue with logical deletion in database
-      console.error('Failed to delete CUI from vault (continuing with logical deletion):', error.message)
-    }
+    await deleteCUIFromVault(file.vaultId)
   }
 
-  // Logical deletion in local database (marks as deleted for both vault and local files)
   await prisma.storedCUIFile.update({
     where: { id: fileId },
     data: {

@@ -126,7 +126,7 @@ The system implements all 110 NIST SP 800-171 Rev. 2 security controls required 
 
 1. **Next.js Application (Railway Platform)**
    - Application code that processes CUI files
-   - CUI file upload/download API endpoints (`/api/files/upload`, `/api/files/cui/[id]`)
+   - CUI upload/view session endpoints (`/api/cui/upload-session`, `/api/cui/view-session`)
    - CUI keyword detection and classification logic (`lib/cui-blocker.ts`)
    - CUI access control middleware and authorization checks
 
@@ -206,10 +206,11 @@ CUI is **PROHIBITED** from being stored, processed, or transmitted in any compon
 5. **Railway Infrastructure - OUTSIDE CUI Security Boundary:**
    - Railway platform infrastructure components - Outside CUI security boundary
    - Railway-managed network infrastructure - Transmission medium only, not cryptographic boundary
-   - **Railway Role:** Railway functions as a transmission medium for routing CUI to the vault. Railway terminates TLS for user → Railway app connection, but CUI is re-encrypted using FIPS-validated cryptography before storage in vault.
-   - **CUI Transit:** Railway transports encrypted CUI data between user and vault, but does not perform cryptographic operations protecting CUI. All cryptographic operations protecting CUI are performed by FIPS-validated modules in the CUI Vault.
-   - **CUI Storage:** Railway does NOT store CUI content. Railway database stores metadata and legacy files only. All CUI content is stored in CUI vault (FIPS-validated storage).
-   - **CUI Processing:** Railway processes CUI routing/metadata in memory (transient, no persistence). Railway does not log CUI content.
+   - **Railway Role:** Railway does NOT receive, decrypt, process, or store CUI file bytes. Railway hosts the UI, authenticates users, and issues short-lived tokens for vault upload/view. All CUI upload/download occurs directly between browser and FIPS vault.
+   - **TLS:** Railway terminates TLS for metadata and token issuance only, not for CUI bytes. Endpoints such as `/api/cui/upload-session`, `/api/cui/view-session`, and `/api/cui/record` carry only metadata and tokens; CUI file bytes never flow to or from Railway.
+   - **CUI Transit:** CUI file bytes flow directly between browser and vault (TLS terminates on vault for CUI payloads). Railway does not perform cryptographic operations protecting CUI. All cryptographic operations protecting CUI are performed by FIPS-validated modules in the CUI Vault.
+   - **CUI Storage:** Railway does NOT store CUI content. Railway database stores metadata only (fileId, vaultId, size, mimeType, owner, timestamps). All CUI content is stored in CUI vault (FIPS-validated storage).
+   - **CUI Processing:** Railway does not process CUI bytes. Railway does not log CUI content; audit logs for CUI events use redacted identifiers (no raw filenames).
 
 **Technical Enforcement Mechanisms:**
 
@@ -224,21 +225,17 @@ The following technical controls enforce CUI boundary restrictions and prevent C
    - Evidence: `prisma/schema.prisma` (StoredCUIFile model separate from StoredFile model), `lib/cui-vault-client.ts` (CUI vault integration)
 
 2. **Application-Level Enforcement:**
-   - CUI routing enforced via `storeCUIFile()` function - new CUI files routed to CUI vault on GCP, metadata stored in `StoredCUIFile` table
-   - CUI detection and classification logic (`lib/cui-blocker.ts`) identifies CUI for proper routing
-   - File upload API (`app/api/files/upload/route.ts`) routes CUI files to `storeCUIFile()` function
-   - **Vault requirement enforcement:** `storeCUIFile()` function requires vault to be configured - no fallback to Railway storage
-   - **Fail-secure behavior:** If vault unavailable, upload is rejected with clear error message
-   - Code-level enforcement prevents CUI from being stored in FCI table
-   - Code-level enforcement prevents CUI content from being stored in Railway database (vault-only storage)
-   - Evidence: `lib/file-storage.ts` (storeCUIFile function - vault required, no fallback), `app/api/files/upload/route.ts` (CUI routing logic, vault validation)
+   - CUI upload: `/api/files/upload` rejects multipart CUI (400) with message to use direct-to-vault flow. Browser obtains upload token from `/api/cui/upload-session` (metadata only), uploads file directly to vault, then records metadata via `/api/cui/record`. Railway never receives CUI file bytes.
+   - CUI view: Browser obtains view URL/token from `/api/cui/view-session` and opens vault URL directly. `/api/files/cui/[id]` returns view session only (no file bytes).
+   - CUI delete: Railway calls vault DELETE first; only on success marks DB record deleted. On vault failure, DB is not updated and failure is logged (no filename).
+   - CUI detection (`lib/cui-blocker.ts`) used only to reject CUI at `/api/files/upload`; no CUI bytes accepted on Railway.
+   - Evidence: `app/api/cui/upload-session/route.ts`, `app/api/cui/view-session/route.ts`, `app/api/cui/record/route.ts`, `app/api/files/upload/route.ts` (rejects CUI multipart), `lib/cui-vault-client.ts` (token issuance only; no byte APIs)
 
 3. **Access Control Enforcement:**
-   - CUI access requires authentication + MFA + password verification + role-based authorization
-   - CUI files only accessible via `/api/files/cui/[id]` endpoint (not via `/api/files/[id]`)
-   - Separate API endpoints enforce CUI access restrictions
-   - Role-based access control limits CUI access to authorized users only
-   - Evidence: `app/api/files/cui/[id]/route.ts` (CUI access control), `lib/file-storage.ts` (getCUIFile function)
+   - CUI access requires authentication and role-based authorization. View session and delete require ownership or ADMIN.
+   - CUI view: `/api/cui/view-session?id=...` returns vault URL + token; browser opens vault directly. `/api/files/[id]` returns 403 with message for CUI files.
+   - CUI delete: `/api/files/cui/[id]` DELETE calls vault first; only on success marks DB deleted (failures logged without filename).
+   - Evidence: `app/api/cui/upload-session/route.ts`, `app/api/cui/view-session/route.ts`, `app/api/cui/record/route.ts`, `app/api/files/cui/[id]/route.ts`, `lib/file-storage.ts` (getCUIFileMetadataForView, deleteCUIFile)
 
 4. **Code Enforcement:**
    - `lib/file-storage.ts` enforces separate storage paths (cannot store CUI in FCI table)
@@ -256,7 +253,7 @@ The following technical controls enforce CUI boundary restrictions and prevent C
 
 1. **FCI-Only Components (`StoredFile` table):**
    - **Prohibition:** CUI cannot be stored in `StoredFile` table
-   - **Technical Enforcement:** Code-level routing via `storeCUIFile()` function prevents CUI from being stored in FCI table
+   - **Technical Enforcement:** Direct-to-vault flow prevents CUI bytes from reaching Railway; metadata-only routing prevents CUI from being stored in FCI table
    - **Evidence:** `lib/file-storage.ts` (separate storage functions), `app/api/files/upload/route.ts` (routing logic)
 
 2. **External APIs (SAM.gov, USAspending.gov):**
@@ -337,9 +334,9 @@ The complete CUI data flow, including ingress, storage, processing, egress, and 
 
 - **Storage (3.8.2, 3.13.11):** CUI content is stored **EXCLUSIVELY** in the CUI vault on Google Cloud Platform with FIPS-validated encryption. Railway database stores CUI metadata only (not CUI content). Control 3.8.2 (Limit access to CUI on system media) is implemented through CUI vault isolation and access controls. Control 3.13.11 (FIPS-validated cryptography) is implemented through CUI vault FIPS-validated encryption.
 
-- **Processing (3.1.3, 3.8.2):** CUI access is controlled through password verification, role-based authorization, and comprehensive audit logging. Controls 3.1.3 and 3.8.2 are enforced at the application logic layer.
+- **Processing (3.1.3, 3.8.2):** CUI access is controlled through token issuance, role-based authorization, and comprehensive audit logging (no CUI bytes on Railway). Controls 3.1.3 and 3.8.2 are enforced at the application logic layer.
 
-- **Egress (3.1.3, 3.13.11):** CUI exits the system via `/api/files/cui/[id]` with authentication, MFA, authorization, and HTTPS/TLS encryption. Control 3.1.3 implements controlled CUI flow, and Control 3.13.11 implements encrypted transmission.
+- **Egress (3.1.3, 3.13.11):** CUI exits the system via vault URL/token issuance (`/api/cui/view-session`) and direct vault HTTPS/TLS streaming. Control 3.1.3 implements controlled CUI flow, and Control 3.13.11 implements encrypted transmission.
 
 - **Destruction (3.8.2):** CUI is securely deleted via Prisma ORM operations with permanent database record removal. Control 3.8.2 is implemented through secure deletion procedures documented in the Media Handling Policy.
 
@@ -435,7 +432,7 @@ The system connects to the following external systems:
 
 **CUI File Access:**
 - CUI files require authentication (user must be logged in)
-- CUI files require password verification (password: "cui")
+- CUI access uses vault-issued view tokens (no password verification on Railway)
 - Users can only access their own CUI files (unless admin)
 - Admins can access all CUI files
 - All CUI file access attempts are logged to audit log
@@ -449,7 +446,7 @@ The system connects to the following external systems:
 **Evidence:**
 - CUI file storage: `lib/file-storage.ts` (storeCUIFile, getCUIFile functions)
 - CUI file upload: `app/api/files/upload/route.ts`
-- CUI file download: `app/api/files/cui/[id]/route.ts`
+- CUI file view session: `app/api/cui/view-session/route.ts`
 - CUI file list: `app/api/files/cui/list/route.ts`
 - CUI password prompt: `components/CUIPasswordPrompt.tsx`
 - CUI file manager UI: `components/admin/FileManager.tsx`
@@ -983,7 +980,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 - Public pages do not display CUI
 - Admin portal requires authentication for CUI access
 - PublicContent approval workflow prevents unauthorized public posting
-- CUI files can only be accessed via `/api/files/cui/[id]` endpoint with password
+- CUI files can only be accessed via `/api/cui/view-session` and direct vault URL/token
 
 **Evidence:**
 - `middleware.ts` (route protection)
@@ -1023,7 +1020,7 @@ This section provides detailed implementation information for all 110 NIST SP 80
 
 **Evidence:**
 - `lib/auth.ts` (lines 7-95)
-- `lib/auth.ts` (lines 39-42: password verification)
+- `app/api/cui/view-session/route.ts` (token issuance and auth checks)
 - `lib/auth.ts` (lines 59-94: session management)
 - `middleware.ts` (authentication enforcement)
 

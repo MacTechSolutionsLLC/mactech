@@ -33,12 +33,12 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        INGRESS POINT                                        │
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
-│  │ POST /api/files/upload                                               │  │
+│  │ POST /api/cui/upload-session                                         │  │
 │  │ - Authentication required (NextAuth.js)                              │  │
 │  │ - MFA required for all users (CMMC Level 2)                          │  │
-│  │ - File upload with CUI flag or auto-detection                        │  │
-│  │ - CUI keyword detection (lib/cui-blocker.ts)                          │  │
-│  │ - File classification: CUI vs FCI                                    │  │
+│  │ - Metadata only: fileName, mimeType, fileSize                        │  │
+│  │ - Returns uploadUrl + short-lived token                              │  │
+│  │ - Browser uploads CUI directly to vault (no bytes on Railway)        │  │
 │  │ Control: 3.1.3 (Control CUI flow)                                   │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -61,7 +61,7 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
 │  │ Secondary: PostgreSQL Database (Railway) - METADATA ONLY            │  │
 │  │ - Table: StoredCUIFile (metadata only, not CUI content)              │  │
-│  │ - Stores: filename, size, mimeType, uploader info, access control    │  │
+│  │ - Stores: redacted label, size, mimeType, uploader info, access ctrl │  │
 │  │ - Legacy files: Backward compatibility only (exception, not normal) │  │
 │  │ - Vault requirement: All new CUI files require vault (no fallback)   │  │
 │  │ - Note: Railway infrastructure is OUTSIDE CUI security boundary      │  │
@@ -74,11 +74,11 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 │                        PROCESSING POINT                                     │
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
 │  │ Application Logic                                                    │  │
-│  │ - CUI file access control (lib/file-storage.ts)                     │  │
-│  │ - Password verification for CUI access                                │  │
+│  │ - CUI metadata access control (no byte handling)                     │  │
+│  │ - View-session token issuance (/api/cui/view-session)                │  │
 │  │ - Role-based authorization checks                                    │  │
-│  │ - CUI access logging (audit system)                                  │  │
-│  │ - CUI keyword monitoring and detection                               │  │
+│  │ - CUI access logging (audit system, no filenames)                    │  │
+│  │ - CUI keyword detection only to block CUI on /api/files/upload       │  │
 │  │ Control: 3.1.3 (Control CUI flow)                                   │  │
 │  │ Control: 3.8.2 (Limit access to CUI on system media)               │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
@@ -90,14 +90,14 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 ┌─────────────────────────────┐   ┌─────────────────────────────────────────┐
 │      EGRESS POINT           │   │      ADMIN EXPORT EGRESS                │
 │  ┌───────────────────────┐ │   │  ┌───────────────────────────────────┐  │
-│  │ GET /api/files/cui/[id]│ │   │  │ Admin-only CUI exports           │  │
-│  │ - Authentication req'd │ │   │  │ - CSV exports with CUI markings │  │
-│  │ - MFA required         │ │   │  │ - Reports containing CUI        │  │
-│  │ - Password verification│ │   │  │ - CUI-marked documents          │  │
-│  │ - Role-based access    │ │   │  │ Control: 3.1.3 (Control CUI)    │  │
-│  │ - Access logged        │ │   │  └───────────────────────────────────┘  │
-│  │ Control: 3.1.3         │ │   └─────────────────────────────────────────┘
-│  └───────────────────────┘ │
+│  │ GET /api/cui/view-session│ │  │  │ Admin-only CUI exports           │  │
+│  │ - Authentication req'd  │ │  │  │ - Reports containing CUI        │  │
+│  │ - MFA required          │ │  │  │ - CUI-marked documents          │  │
+│  │ - Returns vault URL+token│ │ │  │ Control: 3.1.3 (Control CUI)    │  │
+│  │ - Browser opens vault   │ │  │  └───────────────────────────────────┘  │
+│  │ - Access logged (no fn) │ │  └─────────────────────────────────────────┘
+│  │ Control: 3.1.3          │ │
+│  └────────────────────────┘ │
 └─────────────────────────────┘
        │
        │ HTTPS/TLS (Encrypted)
@@ -127,20 +127,21 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 
 ### 1. Ingress Point
 
-**Location:** `/api/files/upload` endpoint  
-**Function:** CUI file upload and classification
+**Location:** `/api/cui/upload-session` endpoint  
+**Function:** CUI upload session (metadata only); browser uploads bytes directly to vault
 
 **Security Controls:**
-- **3.1.3 (Control CUI flow):** CUI files are identified and routed to separate storage
+- **3.1.3 (Control CUI flow):** CUI uploads are routed to vault via tokenized direct upload
 - **3.5.3 (MFA):** All users must authenticate with MFA before uploading CUI
 - **3.5.1 (Identify users):** Authentication required via NextAuth.js
 - **3.3.1 (Audit logging):** All CUI uploads logged to audit system
 
 **Implementation:**
-- File upload API: `app/api/files/upload/route.ts`
-- CUI detection: `lib/cui-blocker.ts` (`detectCUIKeywords`)
+- Upload session API: `app/api/cui/upload-session/route.ts`
+- Direct upload to vault: `POST https://vault.<domain>/v1/files/upload` (Bearer token)
+- CUI detection: `lib/cui-blocker.ts` (reject CUI on `/api/files/upload`)
 - Authentication: `lib/authz.ts` (`requireAuth`)
-- Storage routing: `lib/file-storage.ts` (`storeCUIFile`)
+- Metadata record: `app/api/cui/record/route.ts` (`recordCUIUploadMetadata`)
 
 ---
 
@@ -187,7 +188,7 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 **Function:** CUI access control, authorization, and monitoring
 
 **Security Controls:**
-- **3.1.3 (Control CUI flow):** CUI access controlled via password verification and role-based access
+- **3.1.3 (Control CUI flow):** CUI access controlled via vault token issuance and role-based access
 - **3.8.2 (Limit access to CUI on system media):** Only authorized users (admin or file owner) can access CUI
 - **3.3.1 (Audit logging):** All CUI access attempts logged
 - **3.5.3 (MFA):** MFA required for all CUI system access
@@ -202,21 +203,22 @@ This document provides the authoritative CUI data flow diagram for the MacTech S
 
 ### 4. Egress Point
 
-**Location:** `/api/files/cui/[id]` endpoint and admin export functions  
-**Function:** Authorized CUI file download and export
+**Location:** `/api/cui/view-session` endpoint and admin export functions  
+**Function:** Authorized CUI file access via vault URL/token; browser downloads directly from vault
 
 **Security Controls:**
-- **3.1.3 (Control CUI flow):** CUI egress controlled via authentication, authorization, and password verification
+- **3.1.3 (Control CUI flow):** CUI egress controlled via authentication, authorization, and vault token issuance
 - **3.5.3 (MFA):** MFA required for all users accessing CUI
 - **3.8.2 (Limit access to CUI on system media):** Only authorized users can download CUI
 - **3.3.1 (Audit logging):** All CUI downloads logged
 - **3.13.11 (FIPS-validated cryptography):** CUI transmission encrypted via HTTPS/TLS
 
 **Implementation:**
-- Download API: `app/api/files/cui/[id]/route.ts`
+- View session API: `app/api/cui/view-session/route.ts`
+- Direct vault download: `GET https://vault.<domain>/v1/files/{vaultId}?token=...`
 - Export functions: Admin-only export capabilities
-- Encryption in transit: HTTPS/TLS (Railway platform, inherited control)
-- Access logging: `lib/audit.ts` (CUI file access events)
+- Encryption in transit: HTTPS/TLS (vault terminates CUI bytes)
+- Access logging: `lib/audit.ts` (CUI file access events, no filenames)
 
 ---
 

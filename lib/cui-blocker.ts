@@ -119,7 +119,7 @@ export function validateNoCUI(input: any): void {
   // CUI is now supported, so this function no longer blocks
   // It's kept for backward compatibility but only logs warnings
   if (detectCUIKeywords(input)) {
-    console.warn("[CUI Detection] CUI keywords detected in input. CUI files should be stored using storeCUIFile().")
+    console.warn("[CUI Detection] CUI keywords detected in input. CUI files must be uploaded via the CUI Files tab (direct-to-vault).")
   }
 }
 

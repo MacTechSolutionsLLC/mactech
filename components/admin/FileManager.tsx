@@ -65,9 +65,7 @@ export default function FileManager({ files }: FileManagerProps) {
   const [fciFiles, setFciFiles] = useState<FCIFile[]>([])
   const [selectedCUIFile, setSelectedCUIFile] = useState<{ id: string; filename: string } | null>(null)
   const [showViewerModal, setShowViewerModal] = useState(false)
-  const [viewerFileData, setViewerFileData] = useState<string | null>(null)
-  const [viewerMimeType, setViewerMimeType] = useState<string>('')
-  const [viewerFileSize, setViewerFileSize] = useState<number>(0)
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null)
   const [loadingView, setLoadingView] = useState(false)
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
@@ -162,42 +160,72 @@ export default function FileManager({ files }: FileManagerProps) {
     setUploadError(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
       if (isCUI) {
-        formData.append('isCUI', 'true')
-      } else if (isFCI) {
-        formData.append('isFCI', 'true')
-      }
+        const sessionRes = await fetch('/api/cui/upload-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            mimeType: file.type,
+            fileSize: file.size,
+          }),
+        })
+        const sessionData = await sessionRes.json()
+        if (!sessionRes.ok) throw new Error(sessionData.error || 'Failed to get upload session')
 
-      const response = await fetch('/api/files/upload', {
-        method: 'POST',
-        body: formData,
-      })
+        const { uploadUrl, uploadToken } = sessionData
+        const vaultFormData = new FormData()
+        vaultFormData.append('file', file)
+        const vaultRes = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${uploadToken}` },
+          body: vaultFormData,
+        })
+        if (!vaultRes.ok) {
+          const errText = await vaultRes.text()
+          let errMsg = 'Vault upload failed'
+          try {
+            const errJson = JSON.parse(errText)
+            errMsg = errJson.detail || errJson.error || errMsg
+          } catch {
+            errMsg = errText || errMsg
+          }
+          throw new Error(errMsg)
+        }
+        const vaultData = await vaultRes.json().catch(() => ({}))
+        const vaultId = vaultData.vaultId || vaultData.id
+        const size = vaultData.size ?? file.size
+        const mimeType = vaultData.mimeType || file.type
+        if (!vaultId) throw new Error('Vault did not return vaultId')
 
-      const data = await response.json()
+        const recordRes = await fetch('/api/cui/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vaultId, size, mimeType }),
+        })
+        const recordData = await recordRes.json()
+        if (!recordRes.ok) throw new Error(recordData.error || 'Failed to record CUI file')
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to upload file')
-      }
-
-      // Refresh the page to show the new file
-      router.refresh()
-      
-      // If CUI file, reload CUI files list
-      if (data.isCUI) {
+        router.refresh()
         await loadCUIFiles()
-      } else if (data.isFCI) {
-        // If FCI file, reload FCI files list
-        await loadFCIFiles()
+      } else {
+        const formData = new FormData()
+        formData.append('file', file)
+        if (isFCI) formData.append('isFCI', 'true')
+
+        const response = await fetch('/api/files/upload', { method: 'POST', body: formData })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error || 'Failed to upload file')
+
+        router.refresh()
+        if (data.isFCI) await loadFCIFiles()
       }
-      
-      // Reset the input and checkboxes
+
       e.target.value = ''
       setIsCUI(false)
       setIsFCI(false)
-    } catch (error: any) {
-      setUploadError(error.message || 'Failed to upload file')
+    } catch (error: unknown) {
+      setUploadError(error instanceof Error ? error.message : 'Failed to upload file')
     } finally {
       setUploading(false)
     }
@@ -206,37 +234,25 @@ export default function FileManager({ files }: FileManagerProps) {
   const handleCUIView = async (fileId: string, filename: string) => {
     setSelectedCUIFile({ id: fileId, filename })
     setLoadingView(true)
-    
+
     try {
-      // Fetch CUI file directly (no password required)
-      const response = await fetch(`/api/files/cui/${fileId}`)
-      
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to load CUI file')
-      }
-
+      const response = await fetch(`/api/cui/view-session?id=${encodeURIComponent(fileId)}`)
       const data = await response.json()
-      
-      if (!data.data || !data.mimeType) {
-        throw new Error('Invalid response from server')
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to get view session')
+      if (!data.viewUrl) throw new Error('Invalid view session response')
 
-      // Show viewer modal with file data
-      setViewerFileData(data.data)
-      setViewerMimeType(data.mimeType)
-      setViewerFileSize(data.size || 0)
+      setViewerUrl(data.viewUrl)
       setShowViewerModal(true)
-    } catch (err: any) {
-      console.error('Error loading CUI file:', err)
-      alert(err.message || 'Failed to load CUI file')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to open CUI file'
+      alert(message)
     } finally {
       setLoadingView(false)
     }
   }
 
-  const handleDeleteCUIFile = async (fileId: string, filename: string) => {
-    if (!confirm(`Delete CUI file "${filename}"? This action cannot be undone.`)) {
+  const handleDeleteCUIFile = async (fileId: string, _filename: string) => {
+    if (!confirm('Delete this CUI file? This action cannot be undone.')) {
       return
     }
 
@@ -628,10 +644,9 @@ export default function FileManager({ files }: FileManagerProps) {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleCUIView(file.id, file.filename)}
-                            disabled={loadingView}
-                            className="px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50"
+                            className="px-3 py-1 text-xs font-medium rounded border border-blue-200 text-blue-700 hover:bg-blue-50"
                           >
-                            {loadingView ? 'Loading...' : 'View'}
+                            Open secure viewer
                           </button>
                           <button
                             onClick={() => handleDeleteCUIFile(file.id, file.filename)}
@@ -665,20 +680,16 @@ export default function FileManager({ files }: FileManagerProps) {
         </Suspense>
       )}
 
-      {/* CUI File Viewer Modal */}
-      {showViewerModal && selectedCUIFile && viewerFileData && (
+      {/* CUI Secure Viewer Modal */}
+      {showViewerModal && selectedCUIFile && viewerUrl && (
         <CUIFileViewerModal
           fileId={selectedCUIFile.id}
           filename={selectedCUIFile.filename}
-          fileData={viewerFileData}
-          mimeType={viewerMimeType}
-          size={viewerFileSize}
+          viewUrl={viewerUrl}
           isOpen={showViewerModal}
           onClose={() => {
             setShowViewerModal(false)
-            setViewerFileData(null)
-            setViewerMimeType('')
-            setViewerFileSize(0)
+            setViewerUrl(null)
             setSelectedCUIFile(null)
           }}
         />

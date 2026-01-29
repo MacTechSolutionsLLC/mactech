@@ -1,26 +1,25 @@
 # CUI Vault Integration Guide
 
-**Date:** 2026-01-27  
-**Status:** Implementation Complete
+**Date:** 2026-01-28  
+**Status:** Direct-to-vault flow (Railway never handles CUI bytes)
 
 ---
 
 ## Overview
 
-The CUI vault integration allows the main application to store CUI files in the dedicated vault infrastructure (vault.mactechsolutionsllc.com) instead of the local PostgreSQL database. The integration maintains backward compatibility with existing files stored in the local database.
+CUI file bytes never touch Railway. The browser uploads and downloads CUI directly to/from the CUI vault (vault.mactechsolutionsllc.com). Railway hosts the UI, authenticates users, and issues short-lived tokens for vault upload/view; Railway stores only non-CUI metadata (fileId, vaultId, size, mimeType, owner, timestamps). **Railway terminates TLS for metadata and token issuance only, not for CUI bytes.**
 
 ---
 
 ## Implementation Summary
 
-### Files Created
-- `lib/cui-vault-client.ts` - CUI vault API client library
-
-### Files Modified
-- `lib/file-storage.ts` - Updated CUI file storage/retrieval functions
-- `prisma/schema.prisma` - Added `storedInVault` and `vaultId` fields
-- `prisma/migrations/20260126224611_add_cui_vault_fields/migration.sql` - Database migration
-- `ENV_SETUP.md` - Added CUI vault environment variable documentation
+### Key Files
+- `lib/cui-vault-client.ts` - Token issuance (createUploadSession, createViewSession); deleteCUIFromVault (no byte APIs)
+- `app/api/cui/upload-session/route.ts` - Returns uploadUrl + token (metadata only)
+- `app/api/cui/view-session/route.ts` - Returns viewUrl + token (metadata only)
+- `app/api/cui/record/route.ts` - Records metadata after client uploads to vault
+- `lib/file-storage.ts` - recordCUIUploadMetadata, getCUIFileMetadataForView, deleteCUIFile (vault first, then DB)
+- `app/api/files/upload/route.ts` - Rejects CUI multipart (400); CUI must use direct-to-vault flow
 
 ---
 
@@ -29,7 +28,8 @@ The CUI vault integration allows the main application to store CUI files in the 
 ### Environment Variables
 
 **Required (CUI vault is mandatory for CUI storage):**
-- `CUI_VAULT_API_KEY` - API key for vault authentication (REQUIRED - no fallback to Railway storage)
+- `CUI_VAULT_API_KEY` - API key for vault authentication and server-side delete
+- `CUI_VAULT_JWT_SECRET` - Secret for signing upload/view JWTs (fallback: CUI_VAULT_API_KEY)
 
 **Optional:**
 - `CUI_VAULT_URL` - Vault API base URL (default: `https://vault.mactechsolutionsllc.com`)
@@ -41,7 +41,8 @@ The CUI vault integration allows the main application to store CUI files in the 
 Add the following environment variables in Railway:
 1. Go to your Railway project → Variables
 2. Add `CUI_VAULT_URL` (optional, defaults to `https://vault.mactechsolutionsllc.com`)
-3. Add `CUI_VAULT_API_KEY` (required for vault integration)
+3. Add `CUI_VAULT_API_KEY` (required for vault integration and server-side delete)
+4. Add `CUI_VAULT_JWT_SECRET` (required for upload/view token signing; fallback: `CUI_VAULT_API_KEY`)
 
 ---
 
@@ -68,26 +69,23 @@ npx prisma migrate dev
 
 ## How It Works
 
-### Storage Flow
+### Storage Flow (no CUI bytes on Railway)
 
 1. **New CUI File Upload:**
-   - User uploads CUI file via `/api/files/upload`
-   - System validates that `CUI_VAULT_API_KEY` is configured (REQUIRED)
-   - **If vault not configured:** Upload is rejected with error (no fallback to Railway storage)
-   - **If vault configured:** File stored in CUI vault via API
-   - Metadata always stored in local database for listing/management
-   - **CMMC Requirement:** CUI vault is required for CUI storage (FIPS-validated cryptography required)
+   - UI calls `POST /api/cui/upload-session` with metadata only (fileName, mimeType, fileSize). Railway returns uploadUrl + uploadToken.
+   - Browser uploads file directly to vault (POST uploadUrl with Bearer token, multipart file). TLS for CUI bytes terminates on vault.
+   - Vault returns vaultId, size, mimeType. UI calls `POST /api/cui/record` with { vaultId, size, mimeType }. Railway creates StoredCUIFile metadata only.
+   - **Railway never receives CUI file bytes.**
 
-2. **File Retrieval:**
-   - User requests CUI file via `/api/files/cui/[id]`
-   - System checks `storedInVault` flag in local database
-   - If `storedInVault: true`: Retrieve from vault via API
-   - If `storedInVault: false`: Retrieve from local database (existing files)
+2. **File View:**
+   - UI calls `GET /api/cui/view-session?id=fileId`. Railway returns viewUrl (vault URL with token in query).
+   - Browser opens viewUrl directly; vault streams file bytes. **Railway never receives or returns CUI file bytes.**
 
-3. **File Listing:**
-   - All CUI files listed from local database metadata
-   - Works for both vault and local files
-   - Access control maintained (user sees own files, admin sees all)
+3. **File Delete:**
+   - UI calls `DELETE /api/files/cui/[id]`. Railway calls vault DELETE first; only on success marks DB record deleted. On vault failure, DB is not updated and failure is logged (no filename).
+
+4. **File Listing:**
+   - All CUI files listed from local database metadata. Access control: user sees own files, admin sees all.
 
 4. **File Deletion:**
    - If file is in vault: Attempt to delete from vault (if endpoint exists)

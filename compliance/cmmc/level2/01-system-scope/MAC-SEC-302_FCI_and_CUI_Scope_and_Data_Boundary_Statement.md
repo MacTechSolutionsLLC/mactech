@@ -67,24 +67,25 @@ The following data types are **explicitly prohibited** from being uploaded, stor
 ### 4.1 Technical Controls
 
 **Current Implementation:**
-- File uploads are disabled to prevent CUI entry
-- System does not accept file uploads (endpoint returns 403 Forbidden)
-- CUI keyword monitoring is used for spill detection only (not prevention)
-- Database schema defines FCI data structures
-- File upload API (`app/api/files/upload/route.ts`) returns 403 Forbidden
+- CUI file bytes are never accepted by Railway; uploads and downloads are direct-to-vault only
+- Railway endpoints accept metadata and issue short-lived tokens (`/api/cui/upload-session`, `/api/cui/view-session`, `/api/cui/record`)
+- CUI keyword monitoring is used to **block CUI** on `/api/files/upload` and log detection
+- Database schema stores FCI data and CUI metadata only (no CUI content in Railway DB)
 
 **Technical Enforcement:**
-- **File Uploads:** Disabled. Endpoint returns 403 Forbidden with message: "File uploads are disabled. This system handles FCI only and does not accept file uploads."
-- **CUI Keyword Monitoring:** `monitorCUIKeywords()` function monitors input for CUI keywords and logs detection (monitoring-only, does not block)
-- **Monitoring Behavior:** Keyword detection is logged as "cui_spill_detected" event in audit log. Input is NOT blocked.
+- **CUI Uploads:** `/api/files/upload` rejects CUI multipart with 400 and instructs direct-to-vault upload. CUI bytes never transit Railway.
+- **CUI Keyword Monitoring:** `detectCUIKeywords()` used to identify and block CUI on non-CUI upload path; detection may be logged as monitoring event.
+- **CUI Boundary Enforcement:** Upload and view tokens are issued via Railway; CUI bytes flow directly between browser and vault.
 - **Code References:**
-  - CUI monitoring implementation: `lib/cui-blocker.ts`
-  - File upload endpoint: `app/api/files/upload/route.ts` (returns 403 Forbidden)
-  - File storage service: `lib/file-storage.ts` (deprecated)
+  - CUI detection: `lib/cui-blocker.ts`
+  - Upload session: `app/api/cui/upload-session/route.ts`
+  - View session: `app/api/cui/view-session/route.ts`
+  - Metadata record: `app/api/cui/record/route.ts`
+  - Upload rejection: `app/api/files/upload/route.ts`
 
-**Technical Enforcement Evidence:** See `05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md` for detailed documentation of technical CUI monitoring controls, including code references and implementation details.
+**Technical Enforcement Evidence:** See `05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md` and `docs/CUI_VAULT_API_CONTRACT.md` for direct-to-vault flow and boundary enforcement.
 
-**Limitation:** The system does not process CUI. Keyword detection is used solely as a spill-detection mechanism and is not relied upon as a security boundary. File uploads are disabled to prevent CUI entry. Enforcement combines technical controls (file uploads disabled) with procedural controls (user training and acknowledgment) and monitoring (spill detection).
+**Boundary Statement:** The system processes CUI only within the vault boundary. Railway terminates TLS for metadata and token issuance only, not for CUI bytes. This enforcement combines technical controls (direct-to-vault, upload rejection), procedural controls (user training), and monitoring (spill detection).
 
 ### 4.2 Procedural Controls
 

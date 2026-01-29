@@ -1,43 +1,37 @@
 /**
  * CUI Vault API Client
- * 
- * Client library for communicating with the CUI vault infrastructure
- * at vault.mactechsolutionsllc.com
- * 
- * Handles storage, retrieval, and management of CUI files in the dedicated vault
+ *
+ * Railway uses this client for metadata and token issuance only. Railway never
+ * sends or receives CUI file bytes. TLS on Railway terminates for metadata/token
+ * endpoints only; CUI bytes flow directly between browser and vault.
+ *
+ * Vault base URL: CUI_VAULT_URL (e.g. https://vault.mactechsolutionsllc.com)
+ * Assumed vault contract: POST /v1/files/upload (multipart, Bearer), GET /v1/files/{vaultId} (Bearer), DELETE /v1/files/{vaultId}
  */
 
-interface VaultStoreResponse {
-  stored: boolean
-  id: string
-}
-
-interface VaultGetResponse {
-  id: string
-  data: string // base64 encoded
-  filename: string
-  mimeType: string
-  size: number
-  created_at: string
-}
+import crypto from 'crypto'
 
 interface VaultErrorResponse {
   detail: string
   error?: string
 }
 
+const UPLOAD_TOKEN_TTL_SEC = 15 * 60 // 15 minutes
+const VIEW_TOKEN_TTL_SEC = 15 * 60   // 15 minutes
+
 /**
  * Get CUI vault configuration from environment variables
  */
-function getVaultConfig(): { url: string; apiKey: string } | null {
+function getVaultConfig(): { url: string; apiKey: string; jwtSecret: string } | null {
   const url = process.env.CUI_VAULT_URL || 'https://vault.mactechsolutionsllc.com'
   const apiKey = process.env.CUI_VAULT_API_KEY
+  const jwtSecret = process.env.CUI_VAULT_JWT_SECRET || process.env.CUI_VAULT_API_KEY || ''
 
-  if (!apiKey) {
+  if (!apiKey || !jwtSecret) {
     return null
   }
 
-  return { url, apiKey }
+  return { url, apiKey, jwtSecret }
 }
 
 /**
@@ -48,7 +42,92 @@ export function isVaultConfigured(): boolean {
 }
 
 /**
- * Make authenticated request to CUI vault API
+ * Create a short-lived JWT for vault upload or view.
+ * Vault must validate using same CUI_VAULT_JWT_SECRET (or CUI_VAULT_API_KEY fallback).
+ */
+function createVaultJWT(
+  payload: { action: string; userId?: string; vaultId?: string; fileSize?: number; mimeType?: string },
+  ttlSec: number
+): string {
+  const config = getVaultConfig()
+  if (!config) {
+    throw new Error('CUI vault not configured: CUI_VAULT_JWT_SECRET or CUI_VAULT_API_KEY required')
+  }
+
+  const header = { alg: 'HS256', typ: 'JWT' }
+  const now = Math.floor(Date.now() / 1000)
+  const body = {
+    ...payload,
+    iat: now,
+    exp: now + ttlSec,
+  }
+  const b64 = (s: string) => Buffer.from(s, 'utf8').toString('base64url')
+  const headerB64 = b64(JSON.stringify(header))
+  const bodyB64 = b64(JSON.stringify(body))
+  const signatureInput = `${headerB64}.${bodyB64}`
+  const signature = crypto.createHmac('sha256', config.jwtSecret).update(signatureInput).digest('base64url')
+  return `${signatureInput}.${signature}`
+}
+
+/**
+ * Create upload session: Railway issues JWT only; no file bytes.
+ * Returns uploadUrl and token for browser to POST file directly to vault.
+ */
+export function createUploadSession(params: {
+  fileName: string
+  mimeType: string
+  fileSize: number
+  userId: string
+}): { uploadUrl: string; uploadToken: string; expiresAt: string } {
+  const config = getVaultConfig()
+  if (!config) {
+    throw new Error('CUI vault not configured: CUI_VAULT_JWT_SECRET or CUI_VAULT_API_KEY required')
+  }
+
+  const baseUrl = config.url.replace(/\/$/, '')
+  const uploadUrl = `${baseUrl}/v1/files/upload`
+  const token = createVaultJWT(
+    {
+      action: 'upload',
+      userId: params.userId,
+      fileSize: params.fileSize,
+      mimeType: params.mimeType,
+    },
+    UPLOAD_TOKEN_TTL_SEC
+  )
+  const expiresAt = new Date(Date.now() + UPLOAD_TOKEN_TTL_SEC * 1000).toISOString()
+
+  return {
+    uploadUrl,
+    uploadToken: token,
+    expiresAt,
+  }
+}
+
+/**
+ * Create view session: Railway issues JWT only; no file bytes.
+ * Returns viewUrl (with token in query) for browser to open directly against vault.
+ */
+export function createViewSession(vaultId: string): { viewUrl: string; viewToken: string; expiresAt: string } {
+  const config = getVaultConfig()
+  if (!config) {
+    throw new Error('CUI vault not configured: CUI_VAULT_JWT_SECRET or CUI_VAULT_API_KEY required')
+  }
+
+  const baseUrl = config.url.replace(/\/$/, '')
+  const token = createVaultJWT({ action: 'view', vaultId }, VIEW_TOKEN_TTL_SEC)
+  const viewUrl = `${baseUrl}/v1/files/${vaultId}?token=${encodeURIComponent(token)}`
+  const expiresAt = new Date(Date.now() + VIEW_TOKEN_TTL_SEC * 1000).toISOString()
+
+  return {
+    viewUrl,
+    viewToken: token,
+    expiresAt,
+  }
+}
+
+/**
+ * Make authenticated request to CUI vault API (metadata/delete only; no CUI bytes)
  */
 async function vaultRequest<T>(
   endpoint: string,
@@ -89,18 +168,18 @@ async function vaultRequest<T>(
         throw new Error(errorData.detail || errorData.error || `Vault API error: ${response.status} ${response.statusText}`)
       }
 
+      if (response.status === 204) {
+        return undefined as T
+      }
       return await response.json() as T
     } catch (error: any) {
       lastError = error
 
-      // Don't retry on authentication errors or client errors (4xx)
       if (error.message?.includes('401') || error.message?.includes('403') || error.message?.includes('404')) {
         throw error
       }
 
-      // Don't retry on last attempt
       if (attempt < retryAttempts) {
-        // Exponential backoff: wait 2^attempt * 100ms
         const delay = Math.pow(2, attempt) * 100
         await new Promise(resolve => setTimeout(resolve, delay))
         continue
@@ -112,96 +191,36 @@ async function vaultRequest<T>(
 }
 
 /**
- * Store CUI file in vault
+ * Delete CUI file from vault. Throws on failure (non-2xx).
+ * Caller must not mark DB record deleted unless this succeeds (or vault returns 404).
  */
-export async function storeCUIInVault(
-  fileData: Buffer,
-  filename: string,
-  mimeType: string,
-  metadata?: Record<string, any>
-): Promise<{ id: string }> {
-  // Convert file data to base64
-  const base64Data = fileData.toString('base64')
-
-  const payload = {
-    data: base64Data,
-    filename,
-    mimeType,
-    size: fileData.length,
-    ...(metadata && { metadata }),
+export async function deleteCUIFromVault(vaultId: string): Promise<void> {
+  const config = getVaultConfig()
+  if (!config) {
+    throw new Error('CUI vault not configured: CUI_VAULT_API_KEY environment variable required')
   }
 
-  const response = await vaultRequest<VaultStoreResponse>('/cui/store', {
-    method: 'POST',
-    body: JSON.stringify(payload),
+  const response = await fetch(`${config.url.replace(/\/$/, '')}/v1/files/${vaultId}`, {
+    method: 'DELETE',
+    headers: {
+      'X-VAULT-KEY': config.apiKey,
+    },
   })
 
-  if (!response.stored || !response.id) {
-    throw new Error('Failed to store CUI in vault: Invalid response')
+  if (response.status === 404) {
+    return
   }
 
-  return { id: response.id }
-}
-
-/**
- * Retrieve CUI file from vault
- */
-export async function getCUIFromVault(
-  id: string
-): Promise<{ data: Buffer; filename: string; mimeType: string; size: number; created_at: string }> {
-  const response = await vaultRequest<VaultGetResponse>(`/cui/${id}`, {
-    method: 'GET',
-  })
-
-  if (!response.data || !response.filename) {
-    throw new Error('Invalid response from vault: Missing file data')
-  }
-
-  // Decode base64 data
-  const data = Buffer.from(response.data, 'base64')
-
-  return {
-    data,
-    filename: response.filename,
-    mimeType: response.mimeType || 'application/octet-stream',
-    size: response.size || data.length,
-    created_at: response.created_at,
-  }
-}
-
-/**
- * List CUI files from vault (if endpoint exists)
- * Returns empty array if endpoint doesn't exist
- */
-export async function listCUIFromVault(): Promise<Array<{ id: string; created_at: string }>> {
-  try {
-    const response = await vaultRequest<Array<{ id: string; created_at: string }>>('/cui/list', {
-      method: 'GET',
-    })
-    return response || []
-  } catch (error: any) {
-    // If endpoint doesn't exist (404), return empty array
-    if (error.message?.includes('404') || error.message?.includes('not found')) {
-      return []
+  if (!response.ok) {
+    const text = await response.text()
+    let detail: string
+    try {
+      const json = JSON.parse(text) as VaultErrorResponse
+      detail = json.detail || json.error || response.statusText
+    } catch {
+      detail = response.statusText || text
     }
-    throw error
-  }
-}
-
-/**
- * Delete CUI file from vault (if endpoint exists)
- */
-export async function deleteCUIFromVault(id: string): Promise<void> {
-  try {
-    await vaultRequest<void>(`/cui/${id}`, {
-      method: 'DELETE',
-    })
-  } catch (error: any) {
-    // If endpoint doesn't exist (404), that's okay - file may already be deleted
-    if (error.message?.includes('404') || error.message?.includes('not found')) {
-      return
-    }
-    throw error
+    throw new Error(detail || `Vault DELETE failed: ${response.status}`)
   }
 }
 
@@ -222,9 +241,8 @@ export async function checkVaultHealth(): Promise<boolean> {
       },
     })
 
-    // Health endpoint may return 401 for unauthenticated, but that means it's responding
     return response.status === 200 || response.status === 401
-  } catch (error) {
+  } catch {
     return false
   }
 }

@@ -58,13 +58,13 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 - **Railway Role:** Railway is outside the CUI security boundary. Railway functions as a transmission medium for routing CUI to vault, but does not store CUI content.
 - CUI files stored with password protection
 - No CUI stored on removable media
-- CUI access controlled via authentication and password verification
+- CUI access controlled via authentication and vault token issuance (no Railway password verification)
 
 **CUI Processing:**
-- CUI files can be uploaded with explicit CUI marking
-- System auto-detects CUI keywords in filenames and metadata
-- CUI files stored separately from FCI files
-- CUI access requires password verification
+- CUI uploads use a direct-to-vault flow. Railway issues short-lived tokens (metadata only); browser uploads bytes to vault.
+- System auto-detects CUI keywords only to **block** CUI on `/api/files/upload` (no CUI bytes accepted on Railway).
+- CUI files stored separately from FCI files (vault for bytes; Railway for metadata).
+- CUI access requires authentication and vault-issued view tokens (no password verification on Railway).
 
 ### 2.3 FCI and CUI Storage
 
@@ -78,13 +78,13 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 - CUI vault provides isolated, encrypted storage for CUI records using AES-256-GCM encryption with FIPS-validated cryptography (CMVP Certificate #4794)
 - **Vault Requirement:** CUI vault is required for all new CUI file uploads. If vault unavailable, upload is rejected (no fallback to Railway storage).
 - Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
-- **Railway Role:** Railway is outside the CUI security boundary. Railway functions as a transmission medium for routing CUI to vault, but does not store CUI content.
-- CUI files require password for access
+- **Railway Role:** Railway is outside the CUI security boundary. Railway terminates TLS for metadata and token issuance only, not for CUI bytes. CUI bytes flow directly between browser and vault.
+- CUI access uses vault view tokens; Railway does not handle CUI bytes.
 - No CUI stored on removable media
 
 **FCI and CUI Processing:**
 - FCI is ingested via automated processes from public government APIs (SAM.gov, USAspending.gov)
-- CUI is uploaded by users with explicit marking or auto-detection
+- CUI is uploaded by users via direct-to-vault flow (upload-session token from Railway; bytes sent to vault)
 - FCI and CUI are processed, analyzed, and stored for authorized user access
 - All FCI and CUI access is restricted to authenticated users with appropriate authorization
 

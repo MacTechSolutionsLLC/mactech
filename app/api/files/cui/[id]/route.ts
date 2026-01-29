@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getCUIFile } from "@/lib/file-storage"
+import { getCUIFileMetadataForView } from "@/lib/file-storage"
+import { createViewSession } from "@/lib/cui-vault-client"
+import { deleteCUIFile } from "@/lib/file-storage"
 import { requireAuth } from "@/lib/authz"
-import { logFileDownload, logEvent } from "@/lib/audit"
+import { logEvent } from "@/lib/audit"
 import { prisma } from "@/lib/prisma"
 
 /**
  * GET /api/files/cui/[id]
- * View CUI file (view-only, no download)
- * Requires authentication (password prompt removed per security requirements)
- * Returns JSON with base64-encoded file data for modal viewing
+ * Returns view session (viewUrl, viewToken, expiresAt) for browser to open CUI directly from vault.
+ * Railway does NOT return file bytes.
  */
 export async function GET(
   req: NextRequest,
@@ -18,23 +19,9 @@ export async function GET(
     const session = await requireAuth()
     const { id } = await context.params
 
-    // Get CUI file (password verification removed - access control via authentication)
-    const file = await getCUIFile(
-      id,
-      undefined, // No password required
-      session.user.id,
-      session.user.role
-    )
+    const metadata = await getCUIFileMetadataForView(id, session.user.id, session.user.role)
+    const result = createViewSession(metadata.vaultId)
 
-    // Log CUI file view (not download)
-    await logFileDownload(
-      session.user.id,
-      session.user.email || "unknown",
-      file.id,
-      file.filename
-    )
-
-    // Log CUI file access event
     await logEvent(
       "cui_file_access",
       session.user.id,
@@ -43,34 +30,30 @@ export async function GET(
       "cui_file",
       id,
       {
-        filename: file.filename,
-        fileId: file.id,
-        message: `CUI file viewed: ${file.filename}`,
+        fileId: metadata.id,
+        vaultId: metadata.vaultId,
+        fileSize: metadata.size,
+        mimeType: metadata.mimeType,
         accessType: "view_only",
       }
     )
 
-    // Convert file data to base64 for JSON response
-    const base64Data = Buffer.from(file.data).toString('base64')
-    
-    // Return JSON with cache control headers to prevent browser caching
-    return NextResponse.json({
-      data: base64Data,
-      filename: file.filename,
-      mimeType: file.mimeType,
-      size: file.size
-    }, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'X-Content-Type-Options': 'nosniff',
+    return NextResponse.json(
+      {
+        viewUrl: result.viewUrl,
+        viewToken: result.viewToken,
+        expiresAt: result.expiresAt,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, private",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
       }
-    })
-  } catch (error: any) {
-    console.error("CUI file view error:", error)
-    
-    // Log failed access attempt
+    )
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "CUI file view failed"
     try {
       const session = await requireAuth()
       const { id } = await context.params
@@ -81,27 +64,23 @@ export async function GET(
         false,
         "cui_file",
         id,
-        {
-          error: error.message,
-          message: `CUI file access denied: ${error.message}`,
-        }
+        { error: message }
       )
-    } catch (logError) {
+    } catch {
       // Ignore logging errors
     }
-    
     return NextResponse.json(
-      { error: error.message || "CUI file view failed" },
-      { status: error.message?.includes("not found") ? 404 : 
-               error.message?.includes("password") ? 403 : 403 }
+      { error: message },
+      {
+        status: message.includes("not found") || message.includes("deleted") ? 404 : 403,
+      }
     )
   }
 }
 
 /**
  * DELETE /api/files/cui/[id]
- * Delete CUI file (logical deletion)
- * Requires admin
+ * Deletes CUI in vault first, then marks record deleted. If vault delete fails, DB is not updated.
  */
 export async function DELETE(
   req: NextRequest,
@@ -111,16 +90,9 @@ export async function DELETE(
     const session = await requireAuth()
     const { id } = await context.params
 
-    // Get CUI file
     const file = await prisma.storedCUIFile.findUnique({
       where: { id },
-      include: {
-        uploader: {
-          select: {
-            email: true,
-          },
-        },
-      },
+      select: { id: true, userId: true, vaultId: true },
     })
 
     if (!file) {
@@ -130,7 +102,6 @@ export async function DELETE(
       )
     }
 
-    // Check access: user owns file OR is admin
     if (file.userId !== session.user.id && session.user.role !== "ADMIN") {
       return NextResponse.json(
         { error: "Access denied" },
@@ -138,15 +109,8 @@ export async function DELETE(
       )
     }
 
-    // Logical deletion
-    await prisma.storedCUIFile.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
-    })
+    await deleteCUIFile(id, session.user.id, session.user.role)
 
-    // Log CUI file deletion
     await logEvent(
       "cui_file_delete",
       session.user.id,
@@ -156,17 +120,8 @@ export async function DELETE(
       id,
       {
         what: "CUI file deletion",
-        file: {
-          fileId: file.id,
-          filename: file.filename,
-          mimeType: file.mimeType,
-          size: file.size,
-          uploadedAt: file.uploadedAt.toISOString(),
-          uploadedBy: {
-            userEmail: file.uploader.email,
-          },
-        },
-        message: `Deleted CUI file: ${file.filename} (ID: ${file.id})`,
+        fileId: file.id,
+        vaultId: file.vaultId,
       }
     )
 
@@ -174,11 +129,34 @@ export async function DELETE(
       success: true,
       message: "CUI file deleted successfully",
     })
-  } catch (error: any) {
-    console.error("CUI file delete error:", error)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to delete CUI file"
+    try {
+      const session = await requireAuth()
+      const { id } = await context.params
+      const file = await prisma.storedCUIFile.findUnique({
+        where: { id },
+        select: { id: true, vaultId: true },
+      })
+      await logEvent(
+        "cui_file_delete_failed",
+        session.user.id,
+        session.user.email || null,
+        false,
+        "cui_file",
+        id,
+        {
+          fileId: file?.id,
+          vaultId: file?.vaultId,
+          error: message,
+        }
+      )
+    } catch {
+      // Ignore logging errors
+    }
     return NextResponse.json(
-      { error: error.message || "Failed to delete CUI file" },
-      { status: error.message?.includes("Admin") ? 403 : 500 }
+      { error: message },
+      { status: 500 }
     )
   }
 }
