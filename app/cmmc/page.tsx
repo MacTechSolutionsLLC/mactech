@@ -111,12 +111,23 @@ export default function CMMCPage() {
                   </ul>
                 </div>
               </details>
-              <Link
-                href="/contact"
-                className="btn-secondary inline-flex items-center justify-center text-center mt-auto"
-              >
-                Contact us
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                <Link
+                  href="/contact"
+                  className="btn-secondary inline-flex items-center justify-center text-center"
+                >
+                  Contact us
+                </Link>
+                <Link
+                  href="/vault"
+                  className="text-body-sm text-accent-700 font-medium hover:text-accent-800 transition-colors duration-gentle inline-flex items-center justify-center gap-1"
+                >
+                  Learn more
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
             </div>
             <div className="card-interactive p-6 flex flex-col fade-in-delay-2">
               <h3 className="heading-3 mb-3">CMMC Compliance Package</h3>
