@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Startup script that runs database migrations before starting the Next.js server
- * This ensures migrations run at runtime when the database is accessible,
- * rather than during build time when services might not be connected.
+ * Startup script that runs database migrations before starting the Next.js server.
+ * Runs on every deploy (Railway: npm start). Migrations run at runtime when
+ * DATABASE_URL is available, not during build.
  */
 
 // Immediate logging to ensure we can see the script started
