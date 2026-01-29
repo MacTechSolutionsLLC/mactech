@@ -39,7 +39,7 @@ const DEFAULT_SIGNED_URL_EXPIRES_IN = 60 * 60 * 1000 // 1 hour in milliseconds
  * Validate file type
  */
 export function validateFileType(file: File): { valid: boolean; error?: string } {
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  if (!(ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
     return {
       valid: false,
       error: `File type ${file.type} is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,
