@@ -103,6 +103,34 @@
     @apply card hover:border-neutral-300 hover:shadow-sm;
   }
 
+  /* Disclosure / dropdown sections (details/summary) */
+  .disclosure-section {
+    @apply border-b border-neutral-200 py-3;
+  }
+
+  .disclosure-section:last-child {
+    @apply border-b-0;
+  }
+
+  .disclosure-summary {
+    @apply cursor-pointer list-none flex items-center justify-between gap-2 text-body font-medium text-accent-700;
+    @apply hover:text-accent-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-600 focus:ring-offset-2 rounded-sm;
+    transition: color 0.2s ease;
+  }
+
+  .disclosure-chevron {
+    @apply shrink-0 transition-transform duration-200 ease-smooth;
+  }
+
+  .disclosure-section[open] .disclosure-chevron {
+    transform: rotate(180deg);
+  }
+
+  .disclosure-content {
+    @apply pt-3 text-body text-neutral-700;
+  }
+
   /* Subtle fade-in animation */
   .fade-in {
     animation: fadeIn 0.6s ease-smooth;
