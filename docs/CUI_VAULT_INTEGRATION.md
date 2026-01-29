@@ -112,15 +112,26 @@ npx prisma migrate dev
 
 ## API Endpoints
 
-The CUI vault client uses the following endpoints (assumed format):
+Vault API contract (see [CUI_VAULT_API_CONTRACT.md](CUI_VAULT_API_CONTRACT.md)):
 
-- **Store:** `POST /cui/store` - Store CUI file
-- **Retrieve:** `GET /cui/[id]` - Retrieve CUI file by ID
-- **List:** `GET /cui/list` - List CUI files (may not exist)
-- **Delete:** `DELETE /cui/[id]` - Delete CUI file (may not exist)
-- **Health:** `GET /health` - Health check
+- **Upload:** `POST /v1/files/upload` — `Authorization: Bearer <uploadToken>`, multipart `file`; response `{ vaultId, sha256?, size, mimeType, createdAt }`
+- **View:** `GET /v1/files/{vaultId}?token=<viewToken>` — returns raw file bytes with `Content-Type` and `Content-Disposition`
+- **Delete:** `DELETE /v1/files/{vaultId}` — `X-VAULT-KEY: <apiKey>`; 204 or 404
+- **Health:** `GET /health` — 200 OK (no auth)
 
-**Note:** The exact API format may need adjustment based on actual vault API implementation.
+---
+
+## Integrating the vault into your website or enclave
+
+To use the deployable CUI vault from your own application or enclave over HTTPS:
+
+1. **Deploy the vault** (VM or container) so it is reachable at an HTTPS URL (e.g. `https://vault.yourdomain.com`). TLS 1.3 must terminate at the vault host so CUI bytes are never decrypted outside the FIPS boundary.
+2. **Configure your app** with the vault base URL and a shared JWT secret (and API key for server-side delete). Your app must **not** receive or decrypt CUI file bytes; it only issues short-lived tokens.
+3. **Upload flow:** Your backend authenticates the user, then returns an upload URL and a signed JWT (e.g. `POST /api/cui/upload-session` → `{ uploadUrl, uploadToken }`). The browser (or client) uploads the file directly to `uploadUrl` with `Authorization: Bearer <uploadToken>`. Your backend then records metadata (e.g. `vaultId`, size, mimeType) after the client reports success.
+4. **View flow:** Your backend returns a view URL that includes a signed JWT (e.g. `https://vault.yourdomain.com/v1/files/{vaultId}?token=<viewToken>`). The user opens that URL in the browser; the vault streams the file. Your backend never handles the file bytes.
+5. **Delete:** Your backend calls `DELETE /v1/files/{vaultId}` with `X-VAULT-KEY` and, on success, removes the record from your metadata store.
+
+**Reference implementation:** This repo uses `lib/cui-vault-client.ts` and the `/api/cui/*` routes for token issuance and metadata; the browser talks directly to the vault for upload and view. You can mirror that pattern in your stack (any language) as long as CUI bytes never touch your app server.
 
 ---
 
@@ -134,47 +145,40 @@ The CUI vault client uses the following endpoints (assumed format):
    export CUI_VAULT_URL=https://vault.mactechsolutionsllc.com
    ```
 
-2. **Test Store:**
-   - Upload a CUI file via the application
-   - Verify file is stored in vault
-   - Verify metadata is stored in local database with `storedInVault: true`
+2. **Test Upload:**
+   - Upload a CUI file via the application (direct-to-vault flow)
+   - Verify file is stored in vault and metadata in local database with `storedInVault: true`
 
-3. **Test Retrieve:**
-   - Retrieve the CUI file via the application
-   - Verify file data is retrieved from vault
-   - Verify password protection still works
+3. **Test View:**
+   - Open a CUI file via the application; verify the browser loads from vault URL with token
+   - Verify file data is streamed from vault (no CUI bytes on Railway)
 
-4. **Test Fallback:**
-   - Remove `CUI_VAULT_API_KEY` environment variable
-   - Upload a CUI file
-   - Verify file is stored in local database (fallback)
+4. **Test No Fallback:**
+   - With vault unavailable or `CUI_VAULT_API_KEY` unset, attempt CUI upload
+   - Verify upload is rejected (no fallback to Railway storage)
 
-5. **Test Existing Files:**
-   - Access an existing CUI file (stored before integration)
-   - Verify it's retrieved from local database
-   - Verify it still works correctly
+5. **Test Existing (legacy) files:**
+   - Access a file stored before vault integration (`storedInVault: false`)
+   - Verify it is retrieved from local database as documented
 
 ---
 
 ## Error Handling
 
 **Vault Unavailable:**
-- Logs error to console
-- Falls back to local database storage
-- System remains functional
+- CUI upload is rejected (no fallback to Railway storage)
+- Error returned to user; CUI bytes never touch Railway
 
-**Invalid API Key:**
-- Logs error to console
-- Falls back to local database storage
-- System remains functional
+**Invalid or Missing API Key:**
+- CUI upload is rejected
+- Server-side delete will fail until key is configured
 
 **Network Timeout:**
-- Retries with exponential backoff (up to 3 attempts)
-- Falls back to local database if all retries fail
+- Retries with exponential backoff (up to `CUI_VAULT_RETRY_ATTEMPTS`)
+- On final failure, upload is rejected (no fallback)
 
 **Invalid Response:**
-- Logs error to console
-- Falls back to local database storage
+- Logs error; operation fails; no CUI stored on Railway
 
 ---
 
@@ -242,6 +246,9 @@ The CUI vault client uses the following endpoints (assumed format):
 
 ## Related Documentation
 
+- [CUI_VAULT_API_CONTRACT.md](CUI_VAULT_API_CONTRACT.md) — Vault API contract
+- [DEPLOYABLE_CUI_VAULT_PRODUCT.md](DEPLOYABLE_CUI_VAULT_PRODUCT.md) — Deployable CUI vault product scope
+- [DEPLOYABLE_CUI_VAULT_BUILD.md](DEPLOYABLE_CUI_VAULT_BUILD.md) — Build and run instructions
 - CUI Vault Deployment Evidence: `compliance/cmmc/level2/05-evidence/MAC-RPT-125_CUI_Vault_Deployment_Evidence.md`
 - CUI Vault Architecture: `compliance/cmmc/level2/01-system-scope/MAC-IT-306_CUI_Vault_Architecture_Diagram.md`
-- System Security Plan: `compliance/cmmc/system/01-system-scope/MAC-IT-304_System_Security_Plan.md`
+- C3PAO evidence package: run `scripts/export-cmmc-evidence-package.sh` on the vault VM to produce a tarball for auditor handoff

@@ -21,6 +21,7 @@ export default function Navigation() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
+    { href: '/cmmc', label: 'CMMC' },
     { href: '/showcase', label: 'Showcase' },
     { href: '/readiness', label: 'Assessment' },
     { href: '/leadership', label: 'Leadership' },

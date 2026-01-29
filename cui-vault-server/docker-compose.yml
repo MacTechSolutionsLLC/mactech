@@ -1,0 +1,35 @@
+# Local dev: vault + PostgreSQL. TLS and nginx are not included; use for testing API only.
+# Generate CUI_ENCRYPTION_KEY: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: cuivault
+      POSTGRES_USER: cuivault_user
+      POSTGRES_PASSWORD: vaultlocal
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cuivault_user -d cuivault"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  vault:
+    build: .
+    environment:
+      BIND: "0.0.0.0"
+      CUI_VAULT_JWT_SECRET: dev-jwt-secret
+      CUI_VAULT_API_KEY: dev-api-key
+      CUI_ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: cuivault
+      DB_USER: cuivault_user
+      DB_PASSWORD: vaultlocal
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy

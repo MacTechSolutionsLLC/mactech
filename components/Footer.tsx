@@ -42,6 +42,14 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link 
+                  href="/cmmc" 
+                  className="text-body-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-gentle"
+                >
+                  CMMC & CUI
+                </Link>
+              </li>
+              <li>
+                <Link 
                   href="/services" 
                   className="text-body-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-gentle"
                 >

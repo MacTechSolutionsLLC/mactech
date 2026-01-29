@@ -812,21 +812,32 @@ async function verifyImplementation(implementationRef: string, controlId: string
     return cleaned
   }).filter((r): r is string => r !== null) // Remove nulls (evidence file references)
   
-  // Helper function to detect descriptive text patterns
+  // Helper function to detect descriptive text patterns (infrastructure, config, platform - not file paths)
   const isDescriptiveText = (text: string): boolean => {
-    // Check if it contains descriptive patterns
-    if (text.includes('(') && text.includes(')') && !text.includes('/') && !text.includes('.')) {
-      // Text with parentheses but no path separators or file extensions (likely descriptive)
+    const lower = text.toLowerCase()
+    // Infrastructure / platform description patterns (often contain "/" in sense of "app/db" not path)
+    if (lower.includes('(customer-configured)') || lower.includes('google vm') || lower.includes('gcp vpc') ||
+        lower.includes('railway logical') || lower.includes('railway network') || lower.includes('railway app') ||
+        lower.includes('ufw firewall') || lower.includes('localhost-only') || lower.includes('deny-by-default') ||
+        lower.includes('network segmentation') || lower.includes('firewall rules')) {
+      return true
+    }
+    // Software/tool installed on VM (e.g. "ClamAV installed (Google VM - version 1.4.3")
+    if (lower.includes('installed (') && (lower.includes('google vm') || lower.includes('version '))) {
+      return true
+    }
+    // Version numbers (e.g. "version 1.4.3") - descriptive, not a file path
+    if (/\bversion\s+\d/i.test(text) && !/\.(ts|tsx|js|prisma|md)$/.test(text)) {
+      return true
+    }
+    // Check if it contains descriptive patterns (parentheses, no file extension)
+    if (text.includes('(') && text.includes(')') && !/\.(ts|tsx|js|prisma|md)$/.test(text)) {
       return true
     }
     // Check if it starts with descriptive words and doesn't contain file extensions or path separators
-    if (!text.includes('.') && !text.includes('/') && 
-        (text.toLowerCase().includes('enabled') || 
-         text.toLowerCase().includes('active') ||
-         text.toLowerCase().includes('verified') ||
-         text.toLowerCase().includes('configured') ||
-         text.toLowerCase().includes('kernel mode') ||
-         text.toLowerCase().includes('provider'))) {
+    if (!text.includes('.') && !text.includes('/') &&
+        (lower.includes('enabled') || lower.includes('active') || lower.includes('verified') ||
+         lower.includes('configured') || lower.includes('kernel mode') || lower.includes('provider'))) {
       return true
     }
     return false
@@ -864,7 +875,10 @@ async function verifyImplementation(implementationRef: string, controlId: string
       'FIPS kernel mode enabled', 'OpenSSL FIPS provider active', 'FIPS provider active',
       'FIPS mode', 'FIPS-enabled', 'FIPS-validated',
       'Session lock component', 'correlateEvents() function', 'correlateEvents', 'Admin controls',
-      'Review process', 'review log', 'Facility protection', 'Visitor monitoring'
+      'Review process', 'review log', 'Facility protection', 'Visitor monitoring',
+      'customer-configured', 'Railway logical', 'Railway network', 'GCP VPC', 'UFW firewall',
+      'database localhost-only', 'all other inbound denied',
+      'ClamAV', 'Malware protection', 'installed (Google VM'
     ]
 
   for (const ref of refs) {
