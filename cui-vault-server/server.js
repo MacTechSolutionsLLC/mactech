@@ -1,10 +1,14 @@
 /**
  * CUI Vault API server - implements docs/CUI_VAULT_API_CONTRACT.md
  * POST /v1/files/upload (Bearer JWT), GET /v1/files/:vaultId (?token= JWT), DELETE /v1/files/:vaultId (X-VAULT-KEY)
+ * POST /v1/evidence-check (X-VAULT-KEY) - run CMMC evidence script and return output
  * CORS enabled so browser can upload from app origin (e.g. www.mactechsolutionsllc.com).
  */
 const express = require('express')
 const multer = require('multer')
+const { exec } = require('child_process')
+const fs = require('fs')
+const path = require('path')
 const { getConfig } = require('./config')
 const { getKey, encrypt, decrypt } = require('./crypto-util')
 const { verify: verifyJwt } = require('./jwt-util')
@@ -149,6 +153,57 @@ app.delete('/v1/files/:vaultId', async (req, res) => {
     console.error('Delete error:', err)
     res.status(500).json({ detail: 'Internal server error' })
   }
+})
+
+// POST /v1/evidence-check — X-VAULT-KEY: run CMMC evidence script, capture output, write to file, return for UI
+app.post('/v1/evidence-check', (req, res) => {
+  const key = req.headers['x-vault-key']
+  if (!key || key !== config.apiKey) {
+    return res.status(401).json({ detail: 'Unauthorized' })
+  }
+
+  const scriptPath = config.evidenceScriptPath
+  const outputDir = path.resolve(config.evidenceOutputDir)
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const outputFilename = `vault_evidence_${timestamp}.txt`
+
+  if (!fs.existsSync(path.dirname(scriptPath))) {
+    return res.status(503).json({
+      detail: 'Evidence script path not found on vault server',
+      scriptPath,
+    })
+  }
+
+  // Run: python3 <script> --output-dir <dir> 2>&1
+  const cmd = `python3 "${scriptPath}" --output-dir "${outputDir}" 2>&1`
+  exec(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 300000 }, (err, stdout, stderr) => {
+    const combined = [stdout || '', stderr || ''].filter(Boolean).join('\n--- stderr ---\n') || '(no output)'
+    let writtenPath = null
+    try {
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true })
+      }
+      writtenPath = path.join(outputDir, outputFilename)
+      fs.writeFileSync(writtenPath, combined, 'utf8')
+    } catch (writeErr) {
+      console.error('Evidence output write error:', writeErr)
+    }
+    if (err) {
+      return res.status(200).json({
+        success: false,
+        output: combined,
+        filename: outputFilename,
+        error: err.message || String(err),
+        writtenPath: writtenPath || undefined,
+      })
+    }
+    return res.status(200).json({
+      success: true,
+      output: combined,
+      filename: outputFilename,
+      writtenPath: writtenPath || undefined,
+    })
+  })
 })
 
 const bind = process.env.BIND || '127.0.0.1'

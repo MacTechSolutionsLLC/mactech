@@ -15,6 +15,8 @@ function getConfig() {
   }
   const port = parseInt(process.env.PORT || '3001', 10)
   const maxFileSizeBytes = parseInt(process.env.CUI_VAULT_MAX_FILE_SIZE || '52428800', 10) // 50MB default
+  const evidenceScriptPath = process.env.CUI_VAULT_EVIDENCE_SCRIPT_PATH || '/home/patrick_mactechsolutionsllc_com/cmmc_hardening_validation_evidence.py'
+  const evidenceOutputDir = process.env.CUI_VAULT_EVIDENCE_OUTPUT_DIR || './reports'
 
   return {
     jwtSecret,
@@ -23,6 +25,8 @@ function getConfig() {
     dbConfig,
     port,
     maxFileSizeBytes,
+    evidenceScriptPath,
+    evidenceOutputDir,
   }
 }
 

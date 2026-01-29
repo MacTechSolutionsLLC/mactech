@@ -126,22 +126,28 @@ export function createViewSession(vaultId: string): { viewUrl: string; viewToken
   }
 }
 
+/** Options for vaultRequest (timeout override for long-running ops like evidence check) */
+type VaultRequestOptions = RequestInit & { timeoutMs?: number }
+
 /**
  * Make authenticated request to CUI vault API (metadata/delete only; no CUI bytes)
  */
 async function vaultRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: VaultRequestOptions = {}
 ): Promise<T> {
   const config = getVaultConfig()
   if (!config) {
     throw new Error('CUI vault not configured: CUI_VAULT_API_KEY environment variable required')
   }
 
-  const timeout = parseInt(process.env.CUI_VAULT_TIMEOUT || '30000', 10)
+  const defaultTimeout = parseInt(process.env.CUI_VAULT_TIMEOUT || '30000', 10)
+  const timeout = options.timeoutMs ?? defaultTimeout
   const retryAttempts = parseInt(process.env.CUI_VAULT_RETRY_ATTEMPTS || '3', 10)
+  const { timeoutMs: _t, ...fetchOptions } = options
 
-  const url = `${config.url}${endpoint}`
+  const baseUrl = config.url.replace(/\/$/, '')
+  const url = `${baseUrl}${endpoint}`
   const headers = {
     'X-VAULT-KEY': config.apiKey,
     'Content-Type': 'application/json',
@@ -156,7 +162,7 @@ async function vaultRequest<T>(
       const timeoutId = setTimeout(() => controller.abort(), timeout)
 
       const response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         headers,
         signal: controller.signal,
       })
@@ -188,6 +194,27 @@ async function vaultRequest<T>(
   }
 
   throw lastError || new Error('Vault API request failed after retries')
+}
+
+export interface VaultEvidenceCheckResult {
+  success: boolean
+  output: string
+  filename: string
+  error?: string
+  writtenPath?: string
+}
+
+/**
+ * Run CMMC evidence check on the vault server. Vault runs the configured Python script
+ * and returns stdout/stderr for viewing and download in the UI.
+ * Uses a 5.5-minute timeout since the script can run long.
+ */
+export async function runVaultEvidenceCheck(): Promise<VaultEvidenceCheckResult> {
+  const result = await vaultRequest<VaultEvidenceCheckResult>('/v1/evidence-check', {
+    method: 'POST',
+    timeoutMs: 330000, // 5.5 min for long-running evidence script
+  })
+  return result
 }
 
 /**

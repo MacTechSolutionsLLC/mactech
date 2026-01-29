@@ -68,6 +68,10 @@ export default function FileManager({ files }: FileManagerProps) {
   const [viewerUrl, setViewerUrl] = useState<string | null>(null)
   const [loadingView, setLoadingView] = useState(false)
   const [vaultConfigured, setVaultConfigured] = useState<boolean | null>(null)
+  const [evidenceLoading, setEvidenceLoading] = useState(false)
+  const [evidenceResult, setEvidenceResult] = useState<{ output: string; filename: string; success: boolean } | null>(null)
+  const [evidenceError, setEvidenceError] = useState<string | null>(null)
+  const [showEvidenceModal, setShowEvidenceModal] = useState(false)
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
   const systemFiles = files
@@ -596,9 +600,83 @@ export default function FileManager({ files }: FileManagerProps) {
       {/* CUI Files Tab */}
       {activeTab === 'cui' && (
         <>
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <h2 className="text-lg font-semibold text-amber-900 mb-2">CUI Files</h2>
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold text-amber-900">CUI Files</h2>
+            <button
+              type="button"
+              onClick={async () => {
+                setEvidenceLoading(true)
+                setEvidenceError(null)
+                setEvidenceResult(null)
+                setShowEvidenceModal(true)
+                try {
+                  const res = await fetch('/api/cui/vault-evidence-check', { method: 'POST' })
+                  const data = await res.json()
+                  if (!res.ok) throw new Error(data.error || 'Evidence check failed')
+                  setEvidenceResult({
+                    output: data.output ?? '',
+                    filename: data.filename ?? 'vault_evidence.txt',
+                    success: data.success === true,
+                  })
+                } catch (err) {
+                  setEvidenceError(err instanceof Error ? err.message : 'Evidence check failed')
+                } finally {
+                  setEvidenceLoading(false)
+                }
+              }}
+              disabled={evidenceLoading || vaultConfigured === false}
+              className="px-4 py-2 text-sm font-medium rounded border border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {evidenceLoading ? 'Running Vault Evidence Check…' : 'Run Vault Evidence Check'}
+            </button>
           </div>
+          {showEvidenceModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+                  <h3 className="text-lg font-semibold text-neutral-900">Vault Evidence Check</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEvidenceModal(false)
+                      setEvidenceResult(null)
+                      setEvidenceError(null)
+                    }}
+                    className="text-neutral-500 hover:text-neutral-700 text-2xl font-bold leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="p-4 overflow-auto flex-1 min-h-0">
+                  {evidenceLoading && (
+                    <p className="text-sm text-neutral-600">Running evidence script on vault… This may take a few minutes.</p>
+                  )}
+                  {evidenceError && (
+                    <p className="text-sm text-red-600">{evidenceError}</p>
+                  )}
+                  {!evidenceLoading && evidenceResult && (
+                    <>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-sm font-medium ${evidenceResult.success ? 'text-green-700' : 'text-amber-700'}`}>
+                          {evidenceResult.success ? 'Completed' : 'Completed with errors'}
+                        </span>
+                        <a
+                          href={URL.createObjectURL(new Blob([evidenceResult.output], { type: 'text/plain' }))}
+                          download={evidenceResult.filename}
+                          className="px-3 py-1.5 text-sm font-medium rounded border border-blue-200 text-blue-700 hover:bg-blue-50"
+                        >
+                          Download
+                        </a>
+                      </div>
+                      <pre className="p-4 bg-neutral-50 rounded border border-neutral-200 text-xs overflow-auto max-h-[60vh] whitespace-pre-wrap font-mono">
+                        {evidenceResult.output || '(no output)'}
+                      </pre>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           {vaultConfigured === false && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm font-medium text-red-800">CUI vault is not configured. CUI uploads will fail until <code className="bg-red-100 px-1 rounded">CUI_VAULT_API_KEY</code> and <code className="bg-red-100 px-1 rounded">CUI_VAULT_JWT_SECRET</code> (or <code className="bg-red-100 px-1 rounded">CUI_VAULT_URL</code> if vault is elsewhere) are set on the app, and the vault server has <code className="bg-red-100 px-1 rounded">CUI_VAULT_CORS_ORIGIN</code> set to allow this site.</p>

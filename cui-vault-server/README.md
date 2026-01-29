@@ -21,6 +21,8 @@ Implements the [CUI Vault API Contract](../../docs/CUI_VAULT_API_CONTRACT.md): P
 | `DB_PASSWORD` | Yes for DB | PostgreSQL password |
 | `PORT` | No | Default 3001 (listen 127.0.0.1) |
 | `CUI_VAULT_MAX_FILE_SIZE` | No | Max upload size bytes (default 52428800 = 50MB) |
+| `CUI_VAULT_EVIDENCE_SCRIPT_PATH` | No | Path to CMMC evidence script on vault host (default `/home/patrick_mactechsolutionsllc_com/cmmc_hardening_validation_evidence.py`). |
+| `CUI_VAULT_EVIDENCE_OUTPUT_DIR` | No | Directory for evidence output files (default `./reports`). |
 | `CUI_VAULT_CORS_ORIGIN` | Yes for browser uploads | Comma-separated allowed origins (e.g. `https://www.mactechsolutionsllc.com`) or `*`. Required so the app’s GUI can POST to the vault from a different origin. |
 
 ## Database
@@ -49,3 +51,4 @@ Server listens on `127.0.0.1:PORT`. Put nginx (or another reverse proxy) in fron
 - `POST /v1/files/upload` — `Authorization: Bearer <uploadToken>`, multipart `file`
 - `GET /v1/files/:vaultId?token=<viewToken>` — returns raw file bytes
 - `DELETE /v1/files/:vaultId` — `X-VAULT-KEY: <apiKey>`, 204 or 404
+- `POST /v1/evidence-check` — `X-VAULT-KEY: <apiKey>`. Runs the CMMC evidence script (`CUI_VAULT_EVIDENCE_SCRIPT_PATH`) with `--output-dir`; writes stdout/stderr to a timestamped file in `CUI_VAULT_EVIDENCE_OUTPUT_DIR` and returns `{ success, output, filename }` for the UI to view and download.
