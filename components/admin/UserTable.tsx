@@ -212,6 +212,7 @@ export default function UserTable({ users }: UserTableProps) {
               <option value="all">All Roles</option>
               <option value="ADMIN">Admin</option>
               <option value="USER">User</option>
+              <option value="GUEST">Guest</option>
             </select>
             
             <select
@@ -444,6 +445,7 @@ export default function UserTable({ users }: UserTableProps) {
                             >
                               <option value="USER">USER</option>
                               <option value="ADMIN">ADMIN</option>
+                              <option value="GUEST">GUEST</option>
                             </select>
                           </div>
                         ) : (
@@ -451,6 +453,8 @@ export default function UserTable({ users }: UserTableProps) {
                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
                               user.role === "ADMIN"
                                 ? "bg-purple-100 text-purple-800"
+                                : user.role === "GUEST"
+                                ? "bg-neutral-100 text-neutral-800"
                                 : "bg-blue-100 text-blue-800"
                             }`}
                             onClick={() => handleStartEdit(user.id, 'role', user.role)}
@@ -620,12 +624,15 @@ export default function UserTable({ users }: UserTableProps) {
                       >
                         <option value="USER">USER</option>
                         <option value="ADMIN">ADMIN</option>
+                        <option value="GUEST">GUEST</option>
                       </select>
                     ) : (
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
                           user.role === "ADMIN"
                             ? "bg-purple-100 text-purple-800"
+                            : user.role === "GUEST"
+                            ? "bg-neutral-100 text-neutral-800"
                             : "bg-blue-100 text-blue-800"
                         }`}
                         onClick={() => handleStartEdit(user.id, 'role', user.role)}

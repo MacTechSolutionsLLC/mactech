@@ -34,6 +34,7 @@ export default async function UsersPage() {
     disabled: users.filter(u => u.disabled).length,
     admins: users.filter(u => u.role === "ADMIN" && !u.disabled).length,
     users: users.filter(u => u.role === "USER" && !u.disabled).length,
+    guests: users.filter(u => u.role === "GUEST" && !u.disabled).length,
   }
 
   return (
@@ -58,7 +59,7 @@ export default async function UsersPage() {
         </div>
 
         {/* Statistics Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
             <div className="text-sm font-medium text-neutral-500">Total Users</div>
             <div className="text-2xl font-bold text-neutral-900 mt-1">{stats.total}</div>
@@ -78,6 +79,10 @@ export default async function UsersPage() {
           <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
             <div className="text-sm font-medium text-neutral-500">Standard Users</div>
             <div className="text-2xl font-bold text-blue-600 mt-1">{stats.users}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border border-neutral-200">
+            <div className="text-sm font-medium text-neutral-500">Guests</div>
+            <div className="text-2xl font-bold text-neutral-700 mt-1">{stats.guests}</div>
           </div>
         </div>
 

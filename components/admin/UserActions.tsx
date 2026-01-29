@@ -287,28 +287,76 @@ export default function UserActions({ user }: UserActionsProps) {
                   {loading ? '...' : user.disabled ? "Enable User" : "Disable User"}
                 </button>
                 {user.role === "USER" && (
-                  <button
-                    onClick={() => {
-                      setIsDropdownOpen(false)
-                      handleRoleChange("ADMIN")
-                    }}
-                    disabled={loading}
-                    className="w-full text-left px-3 py-2 text-sm text-purple-700 rounded hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {loading ? '...' : 'Make Admin'}
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("ADMIN")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-purple-700 rounded hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make Admin'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("GUEST")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-neutral-700 rounded hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make Guest'}
+                    </button>
+                  </>
                 )}
                 {user.role === "ADMIN" && (
-                  <button
-                    onClick={() => {
-                      setIsDropdownOpen(false)
-                      handleRoleChange("USER")
-                    }}
-                    disabled={loading}
-                    className="w-full text-left px-3 py-2 text-sm text-blue-700 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {loading ? '...' : 'Make User'}
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("USER")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-blue-700 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make User'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("GUEST")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-neutral-700 rounded hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make Guest'}
+                    </button>
+                  </>
+                )}
+                {user.role === "GUEST" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("USER")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-blue-700 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make User'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleRoleChange("ADMIN")
+                      }}
+                      disabled={loading}
+                      className="w-full text-left px-3 py-2 text-sm text-purple-700 rounded hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? '...' : 'Make Admin'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>

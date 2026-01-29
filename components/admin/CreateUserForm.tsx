@@ -25,7 +25,7 @@ export default function CreateUserForm() {
   const [formData, setFormData] = useState({
     email: '',
     name: '',
-    role: 'USER' as 'USER' | 'ADMIN',
+    role: 'USER' as 'USER' | 'ADMIN' | 'GUEST',
   })
 
   // Clear success message after 3 seconds
@@ -288,15 +288,18 @@ export default function CreateUserForm() {
           </label>
           <select
             value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' })}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' | 'GUEST' })}
             className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
           >
             <option value="USER">USER - Standard user access</option>
             <option value="ADMIN">ADMIN - Full administrative access</option>
+            <option value="GUEST">GUEST - Customer portal (upload FCI/CUI, read resources)</option>
           </select>
           <p className="mt-1 text-xs text-neutral-500">
             {formData.role === 'USER'
               ? 'Users can access the user portal and manage contracts'
+              : formData.role === 'GUEST'
+              ? 'Guests can access the customer portal to upload FCI/CUI and read shared documents'
               : 'Admins have full system access including user management'}
           </p>
         </div>
@@ -316,7 +319,7 @@ export default function CreateUserForm() {
               setFormData({
                 email: '',
                 name: '',
-                role: 'USER',
+                role: 'USER' as 'USER' | 'ADMIN' | 'GUEST',
               })
               setError(null)
               setFieldErrors({})

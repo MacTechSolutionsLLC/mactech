@@ -69,7 +69,6 @@ model ReadinessAssessment {
   email            String
   name             String?
   organization     String?
-  interestPath     String
   systemType       String
   authStatus       String
   auditHistory     String
