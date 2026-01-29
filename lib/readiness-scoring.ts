@@ -2,10 +2,13 @@ import { ReadinessAssessmentData } from './validation'
 
 export type ReadinessScore = 'low' | 'medium' | 'high'
 
+export type CmmcPath = 'federal-capture-platform' | 'deployable-cui-vault' | 'cmmc-compliance-package'
+
 export interface ReadinessResult {
   score: ReadinessScore
   scoreValue: number
   gapsSummary: string[]
+  interestPath: CmmcPath
 }
 
 export function calculateReadinessScore(
@@ -110,6 +113,7 @@ export function calculateReadinessScore(
     score: scoreCategory,
     scoreValue: score,
     gapsSummary: gaps,
+    interestPath: data.interestPath,
   }
 }
 

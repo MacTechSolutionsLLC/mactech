@@ -114,7 +114,7 @@ export default function VaultPage() {
         <div className="max-w-6xl mx-auto">
           <h2 className="heading-2 mb-4">HTTPS &amp; API Integration</h2>
           <p className="text-body text-neutral-700 max-w-3xl mb-4 leading-relaxed">
-            Your app authenticates users and issues short-lived JWTs for upload and view. The browser uploads and downloads CUI directly to and from the vault over HTTPS—your application never handles CUI file bytes. API: POST /v1/files/upload, GET /v1/files/{vaultId}, DELETE /v1/files/{vaultId}.
+            Your app authenticates users and issues short-lived JWTs for upload and view. The browser uploads and downloads CUI directly to and from the vault over HTTPS—your application never handles CUI file bytes. API: POST /v1/files/upload, GET /v1/files/:id, DELETE /v1/files/:id.
           </p>
           <p className="text-body-sm text-neutral-600">
             Contact us for integration support and environment configuration.

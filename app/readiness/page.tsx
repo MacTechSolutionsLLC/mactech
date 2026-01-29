@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+type CmmcPath = 'federal-capture-platform' | 'deployable-cui-vault' | 'cmmc-compliance-package'
+
 interface FormData {
   email: string
   name: string
   organization: string
+  interestPath: CmmcPath | ''
   systemType: string
   authStatus: string
   auditHistory: string
@@ -21,6 +24,7 @@ export default function ReadinessPage() {
     email: '',
     name: '',
     organization: '',
+    interestPath: '',
     systemType: '',
     authStatus: '',
     auditHistory: '',
@@ -33,9 +37,10 @@ export default function ReadinessPage() {
     score: string
     scoreValue: number
     gapsSummary: string[]
+    interestPath: CmmcPath
   } | null>(null)
 
-  const totalSteps = 6
+  const totalSteps = 7
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData({ ...formData, [field]: value })
@@ -87,17 +92,19 @@ export default function ReadinessPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 1: return formData.email.length > 0
-      case 2: return formData.systemType.length > 0
-      case 3: return formData.authStatus.length > 0
-      case 4: return formData.auditHistory.length > 0
-      case 5: return formData.infraMaturity.length > 0
-      case 6: return formData.timelinePressure.length > 0
+      case 2: return formData.interestPath.length > 0
+      case 3: return formData.systemType.length > 0
+      case 4: return formData.authStatus.length > 0
+      case 5: return formData.auditHistory.length > 0
+      case 6: return formData.infraMaturity.length > 0
+      case 7: return formData.timelinePressure.length > 0
       default: return false
     }
   }
 
   const stepLabels = [
     'Contact Information',
+    'CMMC Path',
     'System Context',
     'Authorization Status',
     'Audit History',
@@ -105,16 +112,22 @@ export default function ReadinessPage() {
     'Timeline',
   ]
 
+  const pathLabels: Record<CmmcPath, string> = {
+    'federal-capture-platform': 'Federal Capture Platform',
+    'deployable-cui-vault': 'Deployable CUI Vault',
+    'cmmc-compliance-package': 'CMMC Compliance Package',
+  }
+
   return (
     <div className="bg-white min-h-screen">
-      {/* Header - Editorial, calm */}
+      {/* Header - Editorial, calm, aligned with CMMC offerings */}
       <section className="section-narrow bg-white border-b border-neutral-200">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
-            <h1 className="heading-hero mb-4">Readiness Assessment</h1>
+            <h1 className="heading-hero mb-4">Understand Your Readiness</h1>
             <p className="text-body-lg text-neutral-700 max-w-2xl leading-relaxed">
-              Understand your current authorization and compliance readiness. 
-              This assessment helps us understand your program context.
+              Choose your CMMC path—Federal Capture Platform, Deployable CUI Vault, or Compliance Package—and answer a few questions. 
+              We&apos;ll send a readiness profile and tailored next steps.
             </p>
           </div>
         </div>
@@ -206,8 +219,45 @@ export default function ReadinessPage() {
                 </div>
               )}
 
-              {/* Step 2: System Type - Program context framing */}
+              {/* Step 2: CMMC Path — aligned with three offerings */}
               {currentStep === 2 && (
+                <div className="fade-in">
+                  <h2 className="heading-2 mb-2">Which CMMC Offering Are You Considering?</h2>
+                  <p className="text-body text-neutral-600 mb-8">
+                    Choose the path that best fits your program. We&apos;ll tailor recommendations accordingly.
+                  </p>
+                  <div className="space-y-3">
+                    {[
+                      { value: 'federal-capture-platform' as const, label: 'Federal Capture Platform', desc: 'Capture, CUI boundary, and compliance in one integrated place—full platform.' },
+                      { value: 'deployable-cui-vault' as const, label: 'Deployable CUI Vault', desc: 'FIPS boundary you plug into any app or enclave—reduce scope and cost.' },
+                      { value: 'cmmc-compliance-package' as const, label: 'CMMC Compliance Package', desc: 'Policies, procedures, and evidence tooling for your own system.' },
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className={`block p-5 border-2 rounded-sm cursor-pointer transition-all duration-gentle ${
+                          formData.interestPath === option.value
+                            ? 'border-accent-700 bg-accent-50'
+                            : 'border-neutral-200 hover:border-neutral-300 bg-white'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="interestPath"
+                          value={option.value}
+                          checked={formData.interestPath === option.value}
+                          onChange={(e) => handleChange('interestPath', e.target.value as CmmcPath)}
+                          className="sr-only"
+                        />
+                        <div className="font-semibold text-neutral-900 mb-1">{option.label}</div>
+                        <div className="text-body-sm text-neutral-600">{option.desc}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: System Type - Program context framing */}
+              {currentStep === 3 && (
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">System Context</h2>
                   <p className="text-body text-neutral-600 mb-8">
@@ -244,8 +294,8 @@ export default function ReadinessPage() {
                 </div>
               )}
 
-              {/* Step 3: Authorization Status */}
-              {currentStep === 3 && (
+              {/* Step 4: Authorization Status */}
+              {currentStep === 4 && (
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">Authorization Status</h2>
                   <p className="text-body text-neutral-600 mb-8">
@@ -282,8 +332,8 @@ export default function ReadinessPage() {
                 </div>
               )}
 
-              {/* Step 4: Audit History */}
-              {currentStep === 4 && (
+              {/* Step 5: Audit History */}
+              {currentStep === 5 && (
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">Audit History</h2>
                   <p className="text-body text-neutral-600 mb-8">
@@ -320,8 +370,8 @@ export default function ReadinessPage() {
                 </div>
               )}
 
-              {/* Step 5: Infrastructure Maturity */}
-              {currentStep === 5 && (
+              {/* Step 6: Infrastructure Maturity */}
+              {currentStep === 6 && (
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">Infrastructure Maturity</h2>
                   <p className="text-body text-neutral-600 mb-8">
@@ -358,8 +408,8 @@ export default function ReadinessPage() {
                 </div>
               )}
 
-              {/* Step 6: Timeline Pressure */}
-              {currentStep === 6 && (
+              {/* Step 7: Timeline Pressure */}
+              {currentStep === 7 && (
                 <div className="fade-in">
                   <h2 className="heading-2 mb-2">Timeline</h2>
                   <p className="text-body text-neutral-600 mb-8">
@@ -402,11 +452,21 @@ export default function ReadinessPage() {
                   <div className="mb-8">
                     <h2 className="heading-2 mb-2">Your Readiness Assessment</h2>
                     <p className="text-body text-neutral-600">
-                      Based on your responses, here&apos;s your readiness profile.
+                      Based on your responses, here&apos;s your readiness profile and your chosen CMMC path.
                     </p>
                   </div>
 
                   <div className="space-y-8">
+                    {/* Chosen path - aligned with three offerings */}
+                    <div className="border-l-4 border-accent-700 bg-accent-50 p-6 rounded-sm">
+                      <h3 className="heading-3 mb-2">Your Path: {pathLabels[result.interestPath]}</h3>
+                      <p className="text-body text-neutral-700 leading-relaxed">
+                        {result.interestPath === 'federal-capture-platform' && 'Federal Capture Platform — capture, CUI boundary, and compliance in one integrated place.'}
+                        {result.interestPath === 'deployable-cui-vault' && 'Deployable CUI Vault — a FIPS boundary you plug into any app or enclave.'}
+                        {result.interestPath === 'cmmc-compliance-package' && 'CMMC Compliance Package — policies, procedures, and evidence tooling for your own system.'}
+                      </p>
+                    </div>
+
                     {/* Score Display - Elegant */}
                     <div className="bg-neutral-50 border border-neutral-200 p-8 rounded-sm">
                       <div className="flex items-baseline justify-between mb-4">
@@ -461,20 +521,25 @@ export default function ReadinessPage() {
                       </div>
                     </div>
 
-                    {/* Next Steps - Calm, confident */}
+                    {/* Next Steps - Calm, confident, tailored to path */}
                     <div className="bg-accent-50 border border-accent-200 p-8 rounded-sm">
                       <h3 className="heading-3 mb-3">Next Steps</h3>
                       <p className="text-body text-neutral-700 mb-6 leading-relaxed">
                         We&apos;ve sent your assessment results to your email. A MacTech Solutions team member 
-                        will reach out to discuss how we can help address these gaps and improve your readiness.
+                        will reach out to discuss your {pathLabels[result.interestPath]} needs and how we can help.
                       </p>
-                      <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
                         <Link href="/contact" className="btn-primary">
                           Contact Us
                         </Link>
-                        <Link href="/services" className="btn-secondary">
-                          View Services
+                        <Link href="/cmmc" className="btn-secondary">
+                          CMMC Offerings
                         </Link>
+                        {result.interestPath === 'deployable-cui-vault' && (
+                          <Link href="/vault" className="btn-ghost text-accent-700 font-medium">
+                            Learn more about the Deployable CUI Vault →
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>

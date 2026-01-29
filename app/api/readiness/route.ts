@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
             email: data.email,
             name: data.name || null,
             organization: data.organization || null,
+            interestPath: data.interestPath,
             systemType: data.systemType,
             authStatus: data.authStatus,
             auditHistory: data.auditHistory,
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
       email: data.email,
       name: data.name || '',
       organization: data.organization?.trim() || '',
+      interestPath: data.interestPath,
       readinessScore: result.scoreValue,
       readinessLevel: result.score.toUpperCase(),
       systemType: data.systemType,
@@ -112,6 +114,7 @@ export async function POST(request: NextRequest) {
             ${result.score.toUpperCase()} READINESS
           </p>
         </div>
+        <h3>Your Path: ${result.interestPath === 'federal-capture-platform' ? 'Federal Capture Platform' : result.interestPath === 'deployable-cui-vault' ? 'Deployable CUI Vault' : 'CMMC Compliance Package'}</h3>
         <h3>Identified Gaps & Recommendations</h3>
         <ul>
           ${result.gapsSummary.map(gap => `<li>${gap}</li>`).join('')}
@@ -126,6 +129,8 @@ Thank you for completing the MacTech Solutions Readiness Assessment.
 
 Readiness Score: ${result.scoreValue}/100
 ${result.score.toUpperCase()} READINESS
+
+Your Path: ${result.interestPath === 'federal-capture-platform' ? 'Federal Capture Platform' : result.interestPath === 'deployable-cui-vault' ? 'Deployable CUI Vault' : 'CMMC Compliance Package'}
 
 Identified Gaps & Recommendations:
 ${result.gapsSummary.map(gap => `- ${gap}`).join('\n')}
@@ -146,6 +151,7 @@ MacTech Solutions Team
         score: result.score,
         scoreValue: result.scoreValue,
         gapsSummary: result.gapsSummary,
+        interestPath: result.interestPath,
       },
     })
   } catch (error) {

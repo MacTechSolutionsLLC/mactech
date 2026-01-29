@@ -15,10 +15,17 @@ export const contactFormSchema = z.object({
   honeypot: data.honeypot || undefined,
 }))
 
+export const cmmcPathEnum = z.enum([
+  'federal-capture-platform',
+  'deployable-cui-vault',
+  'cmmc-compliance-package',
+])
+
 export const readinessAssessmentSchema = z.object({
   email: z.string().email('Invalid email address'),
   name: z.string().min(2).max(100).optional(),
   organization: z.string().max(200).optional(),
+  interestPath: cmmcPathEnum,
   systemType: z.enum(['new-system', 'existing-system', 'legacy-system', 'cloud-migration']),
   authStatus: z.enum(['not-started', 'in-progress', 'renewal', 'troubled']),
   auditHistory: z.enum(['no-audits', 'passed-recently', 'failed-recently', 'mixed']),
