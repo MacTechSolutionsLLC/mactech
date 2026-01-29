@@ -50,6 +50,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
+                  href="/vault" 
+                  className="text-body-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-gentle"
+                >
+                  Deployable CUI Vault
+                </Link>
+              </li>
+              <li>
+                <Link 
                   href="/services" 
                   className="text-body-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-gentle"
                 >
