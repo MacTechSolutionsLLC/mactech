@@ -49,12 +49,10 @@ export function detectCUIKeywords(input: any): boolean {
 
 **File:** `lib/file-storage.ts`
 
-**Purpose:** Stores CUI files separately from FCI files with password protection.
+**Purpose:** Enforces CUI boundary rules by storing **CUI metadata only** on Railway and delegating CUI byte storage to the dedicated CUI vault (direct-to-vault).
 
 **Key Functions:**
-- `storeCUIFile(userId: string, file: File, metadata?: Record<string, any>)`: Routes CUI file to CUI vault (vault required, no fallback)
-- `getCUIFile(fileId: string, userId?: string, userRole?: string)`: Retrieves CUI file from vault with authentication and role-based access control
-- `listCUIFiles(userId: string, includeDeleted: boolean, userRole?: string)`: Lists CUI files for user
+- `recordCUIUploadMetadata(...)`: Creates the `StoredCUIFile` metadata record after the browser uploads bytes directly to the vault\n+- `getCUIFileMetadataForView(...)`: Returns metadata (including `vaultId`) only; never returns file bytes\n+- `deleteCUIFile(...)`: Deletes vault record first, then marks metadata deleted\n+- `listCUIFiles(...)`: Lists CUI metadata by owner/admin access rules
 
 **Database Model:**
 - `StoredCUIFile` table in PostgreSQL (metadata only)
@@ -64,31 +62,15 @@ export function detectCUIKeywords(input: any): boolean {
 
 **Code Evidence:**
 ```typescript
-// From lib/file-storage.ts
-export async function storeCUIFile(
+// From lib/file-storage.ts (CUI metadata record for vault-stored files)
+export async function recordCUIUploadMetadata(
   userId: string,
-  file: File,
-  metadata?: Record<string, any>
+  vaultId: string,
+  size: number,
+  mimeType: string,
+  displayLabel?: string
 ): Promise<{ fileId: string; signedUrl: string }> {
-  // CUI vault is REQUIRED (no fallback to Railway storage)
-  if (!isVaultConfigured()) {
-    throw new Error('CUI vault is required for CUI file storage...')
-  }
-  // Stores CUI file in CUI vault (FIPS-validated)
-  const vaultResult = await storeCUIInVault(buffer, file.name, file.type, metadata)
-  // Stores metadata in Railway DB (metadata only, data: Buffer.alloc(0))
-  const storedFile = await prisma.storedCUIFile.create({
-    data: { userId, filename: file.name, mimeType: file.type, size: file.size, data: Buffer.alloc(0), storedInVault: true, vaultId: vaultResult.id, ... }
-  })
-}
-
-export async function getCUIFile(
-  fileId: string,
-  userId?: string,
-  userRole?: string
-): Promise<StoredCUIFile> {
-  // Retrieves CUI file with authentication and role-based access control
-  // Admin role can access all CUI files; users can only access their own
+  // Stores metadata only on Railway; data is empty for vault-stored CUI
 }
 ```
 
@@ -96,35 +78,20 @@ export async function getCUIFile(
 
 ### 3. CUI File Upload API
 
-**File:** `app/api/files/upload/route.ts`
+**Files:**\n- `app/api/cui/upload-session/route.ts` (metadata-only session)\n- `app/api/cui/record/route.ts` (metadata record after vault upload)\n- `app/api/files/upload/route.ts` (non-CUI only; rejects CUI)
 
-**Purpose:** Handles file uploads with CUI detection and separate storage.
+**Purpose:** Ensures CUI bytes never transit Railway by issuing short-lived vault tokens and requiring direct-to-vault upload.
 
 **Implementation:**
-- Requires authentication (`requireAuth()`)
-- Accepts `isCUI` flag from form data (user checkbox)
-- Auto-detects CUI keywords in filename and metadata using `detectCUIKeywords()`
-- Routes to `storeCUIFile()` if CUI detected or user selected
-- Routes to `storeFile()` for non-CUI files
+- Requires authentication and MFA (`requireAuth()` enforces step-up MFA)\n+- `POST /api/cui/upload-session` accepts **metadata only** and returns `{ uploadUrl, uploadToken, expiresAt }`\n+- Browser uploads CUI bytes directly to the vault endpoint `POST /v1/files/upload` using `Authorization: Bearer <uploadToken>`\n+- `POST /api/cui/record` stores vault metadata only (`vaultId`, size, mimeType; no filename)\n+- `POST /api/files/upload` is **non-CUI only** and rejects any attempt to send CUI bytes to Railway
 
 **Code Evidence:**
 ```typescript
-// From app/api/files/upload/route.ts
+// From app/api/cui/upload-session/route.ts (metadata-only)
 export async function POST(req: NextRequest) {
   const session = await requireAuth()
-  const formData = await req.formData()
-  const file = formData.get("file") as File
-  const isCUI = formData.get("isCUI") === "true"
-  
-  // Auto-detect CUI
-  const hasCUIInFilename = detectCUIKeywords(file.name)
-  const hasCUIInMetadata = detectCUIKeywords(metadata)
-  const shouldStoreAsCUI = isCUI || hasCUIInFilename || hasCUIInMetadata
-  
-  // Store in appropriate table
-  const result = shouldStoreAsCUI
-    ? await storeCUIFile(session.user.id, file, metadata)
-    : await storeFile(session.user.id, file, metadata)
+  const body = await req.json()
+  // returns uploadUrl + uploadToken for direct browser-to-vault upload
 }
 ```
 
@@ -132,29 +99,19 @@ export async function POST(req: NextRequest) {
 
 ### 4. CUI File Download API
 
-**File:** `app/api/files/cui/[id]/route.ts`
+**Files:**\n- `app/api/cui/view-session/route.ts` (metadata-only session)\n- `app/api/files/cui/[id]/route.ts` (returns view session only)
 
-**Purpose:** Provides authenticated, role-based access to CUI files.
+**Purpose:** Provides authenticated, role-based access to CUI by returning a short-lived vault URL/token.\n\n**Important:** Railway does **not** return CUI file bytes.
 
 **Implementation:**
-- Requires authentication (user must be logged in)
-- Requires ADMIN role for access to all CUI files
-- Users can only access their own CUI files (unless admin)
-- All access attempts logged to audit log
+- Requires authentication and MFA (`requireAuth()`)\n+- Authorization: user must be owner or ADMIN\n+- Returns `{ viewUrl, viewToken, expiresAt }` for direct browser-to-vault streaming\n+- Logs all access attempts (success and denial) without storing CUI bytes on Railway
 
 **Code Evidence:**
 ```typescript
 // From app/api/files/cui/[id]/route.ts
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const session = await requireAuth()
-  
-  // Admin role required for CUI file access
-  if (session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 })
-  }
-  
-  const file = await getCUIFile(id, session.user.id, session.user.role)
-  // Return file...
+  // Returns viewUrl/token only; browser opens vault URL directly
 }
 ```
 
@@ -163,16 +120,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
 ## Access Control
 
 **CUI File Access:**
-- Authentication required (user must be logged in)
-- ADMIN role required for CUI file access
-- Role-based access control enforced
-- Users can only access their own CUI files (unless admin)
-- All CUI file access attempts logged to audit log
+- Authentication required (user must be logged in)\n+- MFA required for protected access (step-up; `mfaVerified=true`)\n+- Role-based access control enforced: users can access their own CUI metadata and obtain view tokens; ADMIN can access all\n+- All CUI access attempts logged to audit log
 
 **Access Logging:**
 - Successful access: Logged as "cui_file_access" event
 - Failed access: Logged as "cui_file_access_denied" event
-- Includes file ID, filename, user information, role, and timestamp
+- Includes file ID, vaultId, user information, role, and timestamp (no plaintext CUI bytes)
 - All access attempts audited for compliance monitoring
 
 ---
@@ -180,12 +133,9 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
 ## Testing Evidence
 
 **Test Scenarios:**
-1. Upload file with CUI checkbox → Stored in StoredCUIFile table
-2. Upload file with CUI keywords in filename → Auto-detected and stored as CUI
+1. Request upload session (`/api/cui/upload-session`) → returns vault upload URL/token (metadata only)\n+2. Browser uploads file directly to vault (`/v1/files/upload`) → vault returns `vaultId`\n+3. Record metadata (`/api/cui/record`) → Railway stores metadata only (`StoredCUIFile` with `vaultId`, `data` empty)\n+4. Attempt to upload CUI to `/api/files/upload` → rejected with instructions to use direct-to-vault flow
 3. Access CUI file without authentication → 401 Unauthorized
-4. Access CUI file without ADMIN role → 403 Forbidden
-5. Access CUI file with ADMIN role → File downloaded
-6. List CUI files → Shows only user's own CUI files (unless admin)
+4. Access CUI file without MFA verification → 403 (MFA required)\n+5. Access CUI file as owner or ADMIN → returns vault view URL/token; bytes stream from vault to browser\n+6. List CUI files → Shows only user's own files (unless admin)
 
 **Code Review Evidence:**
 - Code review confirms CUI files stored separately
@@ -199,17 +149,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
 
 **CUI File Protection:**
 - Separate storage (StoredCUIFile table)
-- Admin authentication required for access
-- Role-based access control (ADMIN role required)
-- Authentication required for all access
-- Access control (users see only their own, admins see all)
+- Primary CUI bytes stored only in the vault boundary (encrypted at rest)\n+- Authentication + MFA required for access to protected resources and CUI token issuance\n+- Role-based access control (users see only their own; admins see all)
 - Comprehensive audit logging of all access attempts
-- Encryption at rest (Railway platform)
-- Encryption in transit (HTTPS/TLS)
+- Encryption at rest: vault AES-256-GCM (FIPS-validated module per vault evidence)\n+- Encryption in transit: TLS 1.3 to vault for CUI bytes
 
 **Access Control Management:**
-- Admin role authentication enforced at API level
-- Role-based authorization checks implemented
+- Authorization enforced at API level (owner/admin checks)\n+- MFA gating enforced in middleware and authorization helper (`requireAuth`)
 - Access attempts logged to audit system
 - Failed access attempts logged for security monitoring
 
@@ -230,12 +175,12 @@ Technical controls (separate storage, admin authentication, role-based access co
 ## Code References
 
 - CUI Detection Library: `lib/cui-blocker.ts`
-- CUI File Storage: `lib/file-storage.ts` (storeCUIFile, getCUIFile)
-- CUI File Upload API: `app/api/files/upload/route.ts`
+- CUI File Storage (metadata): `lib/file-storage.ts` (`recordCUIUploadMetadata`, `getCUIFileMetadataForView`, `deleteCUIFile`)\n+- CUI Upload Session API: `app/api/cui/upload-session/route.ts`\n+- CUI Metadata Record API: `app/api/cui/record/route.ts`\n+- Non-CUI Upload API (rejects CUI): `app/api/files/upload/route.ts`
 - CUI File Download API: `app/api/files/cui/[id]/route.ts`
 - CUI File List API: `app/api/files/cui/list/route.ts`
 - Database Schema: `prisma/schema.prisma` (StoredCUIFile model)
 - Authentication: NextAuth.js with role-based access control
+ - CUI boundary CI guardrail: `scripts/check-cui-boundary.ts`, `.github/workflows/cui-boundary.yml`
 
 ---
 
@@ -246,10 +191,8 @@ Technical controls (separate storage, admin authentication, role-based access co
 ## Document Control
 
 **Prepared By:** MacTech Solutions Compliance Team  
-**Date:** 2026-01-24  
-**Version:** 2.0
+**Date:** 2026-01-30  
+**Version:** 3.0
 
 **Change History:**
-- Version 2.1 (2026-01-24): Updated CUI access control to rely on admin authentication and audit logging instead of password protection
-- Version 2.0 (2026-01-24): Updated to reflect CUI support (CMMC Level 2) - CUI files now stored separately with admin authentication
-- Version 1.0 (2026-01-21): Initial document for CUI blocking/monitoring (CMMC Level 2)
+- Version 3.0 (2026-01-30): Updated to direct-to-vault architecture; Railway stores metadata only; CUI download returns vault view session only; added CI guardrail references.\n+- Version 2.0 (2026-01-24): Initial Level 2 draft.\n+- Version 1.0 (2026-01-21): Initial document.

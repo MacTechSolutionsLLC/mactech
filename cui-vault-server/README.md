@@ -23,7 +23,7 @@ Implements the [CUI Vault API Contract](../../docs/CUI_VAULT_API_CONTRACT.md): P
 | `CUI_VAULT_MAX_FILE_SIZE` | No | Max upload size bytes (default 52428800 = 50MB) |
 | `CUI_VAULT_EVIDENCE_SCRIPT_PATH` | No | Path to CMMC evidence script on vault host (default `/home/patrick_mactechsolutionsllc_com/cmmc_hardening_validation_evidence.py`). |
 | `CUI_VAULT_EVIDENCE_OUTPUT_DIR` | No | Directory for evidence output files (default `./reports`). |
-| `CUI_VAULT_CORS_ORIGIN` | Yes for browser uploads | Comma-separated allowed origins (e.g. `https://www.mactechsolutionsllc.com`) or `*`. Required so the app’s GUI can POST to the vault from a different origin. |
+| `CUI_VAULT_CORS_ORIGIN` | Yes for browser uploads | Comma-separated allowed origins (e.g. `https://www.mactechsolutionsllc.com`). **Do not use `*` in production.** Required so the app’s GUI can POST to the vault from a different origin. |
 
 ## Database
 

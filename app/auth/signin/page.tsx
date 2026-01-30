@@ -62,6 +62,7 @@ function SignInForm() {
         sessionStorage.setItem('mfa_userId', customSignInData.userId)
         sessionStorage.setItem('mfa_userEmail', customSignInData.userEmail)
         sessionStorage.setItem('mfa_userRole', customSignInData.userRole)
+        if (callbackUrl) sessionStorage.setItem('mfa_callbackUrl', callbackUrl)
         const result = await signIn('credentials', {
           email,
           password,
@@ -81,6 +82,7 @@ function SignInForm() {
         sessionStorage.setItem('mfa_userId', customSignInData.userId)
         sessionStorage.setItem('mfa_userEmail', customSignInData.userEmail)
         sessionStorage.setItem('mfa_userRole', customSignInData.userRole)
+        if (callbackUrl) sessionStorage.setItem('mfa_callbackUrl', callbackUrl)
         
         // Complete password authentication with NextAuth (session will be created)
         const result = await signIn('credentials', {

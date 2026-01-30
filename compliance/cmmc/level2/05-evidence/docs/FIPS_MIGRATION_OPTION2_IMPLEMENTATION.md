@@ -14,6 +14,8 @@ Option 2 has been implemented using a FIPS-validated cryptography wrapper that:
 3. Verifies FIPS status before operations
 4. Falls back gracefully when FIPS mode is not available
 
+**Scope note (assessor-safe):**\n+This migration applies to **application JWT/session cryptography** (access control). It is not part of the cryptographic mechanisms protecting **CUI bytes** under SC.L2-3.13.11 in the approved architecture.\n+\n+For CUI confidentiality, FIPS-validated cryptography is provided by the dedicated CUI vault boundary (Ubuntu 22.04 OpenSSL Cryptographic Module, CMVP Certificate #4794). The main application does not encrypt/decrypt CUI bytes and does not terminate TLS for CUI bytes.
+
 ---
 
 ## Implementation Details
@@ -70,11 +72,9 @@ Option 2 has been implemented using a FIPS-validated cryptography wrapper that:
 
 ### Current Status
 
-**Runtime:** Node.js 24.6.0, OpenSSL 3.6.0  
-**FIPS Status:** Not Active (OpenSSL 3.6.0 not validated)  
-**Target:** OpenSSL 3.0.8 FIPS Provider (CMVP Certificate #4282)
+**Runtime (application JWT/session hardening):** Node.js 24.6.0, OpenSSL 3.6.0  \n+**FIPS Status (application JWT/session):** Not active as a validated CMVP module in this runtime context  \n+**Target (optional):** A validated operational environment for application-level JWT/session signing, if pursued as defense-in-depth
 
-### To Activate FIPS Mode
+### Optional: To Activate FIPS Mode (application JWT/session only)
 
 **Option A: Railway Platform Configuration**
 1. Contact Railway support to request Node.js runtime with OpenSSL 3.0.8
@@ -110,16 +110,11 @@ curl -H "Authorization: Bearer TOKEN" \
 - NextAuth.js integration complete
 - FIPS status verification in place
 
-⚠️ **FIPS Mode:** Not Active
-- OpenSSL 3.6.0 is not FIPS-validated
-- Migration to OpenSSL 3.0.8 FIPS Provider required
-- Code is ready for FIPS mode when available
+⚠️ **Application JWT/session FIPS mode (optional hardening):**\n+- Not required for SC.L2-3.13.11 CUI confidentiality (vault boundary provides FIPS-validated cryptography)\n+- If pursued, requires a validated operational environment and runtime evidence
 
-### To Achieve Full Compliance
+### Optional: To Achieve Full Compliance (application JWT/session only)
 
-1. **Migrate to OpenSSL 3.0.8 FIPS Provider**
-   - Railway platform: Request Node.js with OpenSSL 3.0.8
-   - Or: Configure OpenSSL 3.0.8 FIPS provider manually
+1. **Obtain a validated operational environment** (hosting/runtime that supports a CMVP-validated module and FIPS-approved mode)
 
 2. **Verify FIPS Mode is Active**
    - Run `npm run verify:fips`

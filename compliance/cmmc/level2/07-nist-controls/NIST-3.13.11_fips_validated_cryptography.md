@@ -93,7 +93,7 @@ Control is fully implemented. All CUI is protected using FIPS-validated cryptogr
 
 **Database Encryption (CUI at Rest):**
 - **Encryption Algorithm:** AES-256-GCM
-- **Application-Level:** Python cryptography library using FIPS-validated module
+- **Application-Level:** Node.js `crypto` (AES-256-GCM) on Ubuntu 22.04 in FIPS mode (backed by Ubuntu 22.04 OpenSSL Cryptographic Module per Certificate #4794)
 - **Infrastructure-Level:** Google Cloud Platform disk encryption
 - **FIPS Module:** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider)
 - **Status:** ✅ FIPS-validated and operational
@@ -102,7 +102,7 @@ Control is fully implemented. All CUI is protected using FIPS-validated cryptogr
 - ✅ **CUI Vault TLS/HTTPS:** Fully FIPS-validated via Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) operating in FIPS-approved mode
 - ✅ **CUI Vault Database Encryption:** FIPS-validated (uses Ubuntu OpenSSL Cryptographic Module)
 - ✅ **All CUI Protection:** All CUI is handled by FIPS-validated cryptography
-- ✅ **Main Application JWT:** FIPS-validated JWT code implementation complete (non-CUI operations)
+- ✅ **Application JWT/session crypto:** Not used to encrypt/decrypt CUI bytes; treated as access control hardening (out of scope for SC.L2-3.13.11 CUI confidentiality cryptography)
 - ✅ **Password Hashing (bcrypt):** Not subject to FIPS validation (password hashing, not encryption)
 
 ### 4.2 System/Configuration Evidence

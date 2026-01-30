@@ -36,8 +36,7 @@ CUI file bytes never touch Railway. The browser uploads and downloads CUI direct
 - `CUI_VAULT_TIMEOUT` - Request timeout in milliseconds (default: 30000)
 - `CUI_VAULT_RETRY_ATTEMPTS` - Number of retry attempts (default: 3)
 
-**Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:
-- `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`) or `*` for any. Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
+**Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:\n+- `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`). **Do not use `*` in production.** Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
 
 **App Content Security Policy:** The app adds the CUI vault origin to the CSP `connect-src` directive (in `next.config.js` and `lib/security-headers.ts`) so the browser allows fetch/XHR to the vault. If you use a different vault URL via `CUI_VAULT_URL`, that origin is included automatically.
 
@@ -159,7 +158,7 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 
 1. **Set Environment Variables:**
    ```bash
-   export CUI_VAULT_API_KEY=77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd
+   export CUI_VAULT_API_KEY="<your_vault_api_key>"
    export CUI_VAULT_URL=https://vault.mactechsolutionsllc.com
    ```
 

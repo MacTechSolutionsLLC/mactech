@@ -263,7 +263,7 @@ This document provides the architecture diagram and detailed description of the 
 - Certificate Authority: Let's Encrypt R12 → ISRG Root X1
 
 **Encryption:**
-- Application-level: AES-256-GCM (Python cryptography library)
+- Application-level: AES-256-GCM (Node.js `crypto` module backed by Ubuntu 22.04 OpenSSL Cryptographic Module in FIPS mode)
 - Infrastructure-level: Google Cloud Platform disk encryption
 
 **Authentication:**

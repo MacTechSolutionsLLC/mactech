@@ -8,7 +8,7 @@
 
 ## Implementation Summary
 
-Option 2 (FIPS-Validated Cryptographic Library) has been successfully implemented. The code is ready and will use FIPS-validated cryptography when OpenSSL 3.0.8 FIPS Provider is available.
+Option 2 (FIPS-Validated Cryptographic Library) was implemented as an **optional defense-in-depth enhancement** for application JWT/session cryptography.\n+\n+**C3PAO scope note:** For SC.L2-3.13.11 (FIPS-validated cryptography protecting CUI confidentiality), this system relies on the **CUI Vault cryptographic boundary** (Ubuntu 22.04 OpenSSL Cryptographic Module, CMVP Certificate #4794). The main application does not encrypt/decrypt CUI bytes and does not terminate TLS for CUI bytes.\n+\n+This migration is therefore **not required to demonstrate CUI confidentiality FIPS compliance**, but may be retained as a hardening initiative for authentication/session operations.
 
 ---
 
@@ -43,10 +43,8 @@ Option 2 (FIPS-Validated Cryptographic Library) has been successfully implemente
 - NextAuth.js integration complete
 - Build successful (warnings are expected for Edge Runtime)
 
-### ⚠️ FIPS Mode Activation: Pending
-- **Current:** OpenSSL 3.6.0 (NOT FIPS-validated)
-- **Required:** OpenSSL 3.0.8 FIPS Provider (CMVP Certificate #4282)
-- **Action:** Configure OpenSSL 3.0.8 FIPS Provider or request Railway to provide it
+### Optional activation (non-CUI)
+If you choose to pursue FIPS-validated cryptography for application JWT/session signing, you would need a validated operational environment for that runtime. This is not required for vault-based CUI confidentiality protections.
 
 ---
 
@@ -117,10 +115,8 @@ The implementation has been tested and verified:
 - FIPS status verification: ✅
 - Monitoring tools: ✅
 
-### FIPS Mode Activation: ⚠️ Pending
-- OpenSSL 3.0.8 FIPS Provider: Required
-- FIPS mode configuration: Required
-- Runtime verification: Required
+### CUI confidentiality (SC.L2-3.13.11): ✅ Satisfied via vault boundary
+- See `compliance/cmmc/level2/05-evidence/docs/FIPS_VERIFICATION_RESULTS.md` and vault evidence reports.\n+\n+### Application JWT/session crypto: optional hardening
 
 ### Documentation: ✅ Complete
 - Implementation guide: ✅

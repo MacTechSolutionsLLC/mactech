@@ -86,10 +86,7 @@ This document provides evidence of the implementation of multifactor authenticat
 ### 3.3 MFA Enforcement
 
 **Enforcement Rules:**
-- MFA required for all ADMIN role accounts
-- MFA required on every login (not just first login)
-- MFA bypass not allowed for ADMIN accounts
-- MFA optional for USER role (future enhancement)
+- MFA is required for **all authenticated users** (ADMIN, USER, and GUEST) accessing protected application resources.\n+- MFA is required on every login (not just first login).\n+- MFA bypass is not allowed.\n+- Access to protected routes and CUI-capable operations is **gated** until MFA is verified (step-up enforcement).
 
 **Enrollment Process:**
 1. User with ADMIN role logs in with password
@@ -103,11 +100,7 @@ This document provides evidence of the implementation of multifactor authenticat
 **Authentication Process:**
 1. User enters email and password
 2. Password verified
-3. System detects ADMIN role and MFA required
-4. User prompted for TOTP code
-5. User enters TOTP code from app (or backup code)
-6. TOTP code verified
-7. Authentication complete, session created
+3. System requires MFA for the authenticated session\n+4. User is prompted for TOTP code (or backup code)\n+5. MFA code is verified\n+6. Session is updated to mark MFA as verified (`mfaVerified=true`)\n+7. Access granted to protected resources (middleware and server authorization enforce MFA gating)
 
 ### 3.4 Backup Codes
 
@@ -156,10 +149,7 @@ This document provides evidence of the implementation of multifactor authenticat
 ### 5.2 MFA Bypass Prevention
 
 **Controls:**
-- No MFA bypass for ADMIN accounts
-- MFA required for all ADMIN logins
-- MFA status verified on every authentication
-- MFA verification required before session creation
+- No MFA bypass.\n+- MFA required for all logins.\n+- MFA status verified on every authentication.\n+- MFA verification is required before access to protected resources; the session is marked `mfaVerified=true` and enforcement occurs in middleware and server authorization helpers.
 
 ### 5.3 Account Lockout Integration
 

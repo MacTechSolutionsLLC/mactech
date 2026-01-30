@@ -46,6 +46,12 @@ export default auth((req) => {
       signInUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(signInUrl)
     }
+    // Enforce MFA step-up before allowing portal access
+    if ((session.user as any)?.mfaRequired && !(session.user as any)?.mfaVerified) {
+      const mfaUrl = new URL("/auth/mfa/verify", req.url)
+      mfaUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(mfaUrl)
+    }
     if (session.user?.role !== "GUEST") {
       if (session.user?.role === "ADMIN") {
         return NextResponse.redirect(new URL("/admin", req.url))
@@ -67,6 +73,12 @@ export default auth((req) => {
       signInUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(signInUrl)
     }
+    // Enforce MFA step-up before allowing user access
+    if ((session.user as any)?.mfaRequired && !(session.user as any)?.mfaVerified) {
+      const mfaUrl = new URL("/auth/mfa/verify", req.url)
+      mfaUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(mfaUrl)
+    }
     if (session.user?.role === "GUEST") {
       return NextResponse.redirect(new URL("/portal", req.url))
     }
@@ -83,6 +95,12 @@ export default auth((req) => {
       const signInUrl = new URL("/auth/signin", req.url)
       signInUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(signInUrl)
+    }
+    // Enforce MFA step-up before allowing admin access
+    if ((session.user as any)?.mfaRequired && !(session.user as any)?.mfaVerified) {
+      const mfaUrl = new URL("/auth/mfa/verify", req.url)
+      mfaUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(mfaUrl)
     }
     if (session.user?.role === "GUEST") {
       return NextResponse.redirect(new URL("/portal", req.url))

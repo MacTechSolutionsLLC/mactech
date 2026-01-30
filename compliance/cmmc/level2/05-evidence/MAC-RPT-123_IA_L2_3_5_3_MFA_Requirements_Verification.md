@@ -76,7 +76,7 @@ This document provides verification evidence that all MFA requirements under IA.
 - MFA is implemented using TOTP (Time-based One-Time Password)
 - MFA is enforced for all users (including privileged ADMIN accounts) through the authentication flow
 - The custom signin route (`/api/auth/custom-signin`) checks MFA requirements for all users
-- MFA verification is required before session creation for privileged accounts
+- MFA verification is required before access to protected resources (step-up enforcement). The authenticated session is updated to mark `mfaVerified=true` after successful MFA verification.
 
 **Evidence:**
 - **MFA Implementation:** `lib/mfa.ts`
@@ -118,8 +118,8 @@ This document provides verification evidence that all MFA requirements under IA.
 **Implementation:**
 - All access to the system is network access (web application over HTTPS/TLS)
 - MFA is enforced for privileged (ADMIN) accounts on every login
-- MFA verification occurs before session creation
-- Protected routes require valid session, which requires MFA verification
+- MFA verification occurs as a step-up requirement; access is gated until MFA is verified
+- Protected routes require a valid authenticated session **and** `mfaVerified=true`
 
 **Evidence:**
 - **Authentication Flow:** `app/api/auth/custom-signin/route.ts`
@@ -130,7 +130,7 @@ This document provides verification evidence that all MFA requirements under IA.
 - **Route Protection:** `middleware.ts`
   - All protected routes require valid session
   - Admin routes (`/admin/*`) require ADMIN role
-  - Session is only created after successful MFA verification (if required)
+  - Access is blocked until MFA is verified (`mfaVerified=true`) for any user requiring MFA
 
 - **MFA Verification:** `app/api/auth/mfa/verify/route.ts`
   - Verifies TOTP codes or backup codes
@@ -139,8 +139,7 @@ This document provides verification evidence that all MFA requirements under IA.
 
 **Verification:**
 - ✅ MFA is enforced for privileged accounts on network access
-- ✅ MFA verification is required before session creation
-- ✅ Protected routes cannot be accessed without MFA verification
+- ✅ Protected routes cannot be accessed without MFA verification (`mfaVerified=true`)
 - ✅ All network communications are encrypted via HTTPS/TLS
 
 **Compliance Status:** ✅ **MET**

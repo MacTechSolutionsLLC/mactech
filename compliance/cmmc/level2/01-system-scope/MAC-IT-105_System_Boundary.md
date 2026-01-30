@@ -232,13 +232,13 @@
 **CUI Stored in System:**
 - Controlled Unclassified Information (CUI) as defined by 32 CFR Part 2002 and the CUI Registry
 - Contract proposals, Statements of Work (SOWs), and contract documentation containing CUI
-- CUI files stored in separate StoredCUIFile table with password protection
+- CUI metadata stored in separate `StoredCUIFile` table (Railway) with vault reference (`vaultId`) for vault-stored files
 - CUI handled according to established CUI handling procedures
 
 **CUI Handling:**
 - CUI files stored separately from FCI files
-- CUI files require password protection for access (password: "cui" - temporary)
-- CUI keyword detection for auto-classification
+- CUI file bytes are stored and protected in the dedicated CUI vault; Railway stores metadata only for vault-stored files
+- CUI keyword detection is used to prevent misrouting of CUI bytes to non-CUI upload paths (spill prevention)
 - User acknowledgment required for CUI handling (`MAC-FRM-203_User_Access_and_FCI_Handling_Acknowledgement.md`)
 - Procedural controls and training
 

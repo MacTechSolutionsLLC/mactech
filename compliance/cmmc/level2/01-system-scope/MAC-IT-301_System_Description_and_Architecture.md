@@ -45,10 +45,7 @@ The system handles:
 The system processes, stores, and manages Controlled Unclassified Information (CUI) as defined by 32 CFR Part 2002 and the CUI Registry.
 
 **CUI Handling:**
-- CUI files are stored separately from FCI files in `StoredCUIFile` database table
-- CUI files require password protection for access
-- CUI keyword auto-detection for file classification
-- CUI access attempts logged to audit log
+- CUI files are handled via a **direct-to-vault** model: the browser uploads/downloads CUI bytes directly to/from the dedicated CUI vault.\n+- Railway stores **CUI metadata only** in `StoredCUIFile` (e.g., vaultId, size, mimeType, owner, timestamps) and enforces access control and audit logging.\n+- CUI keyword detection is used for spill prevention (to prevent misrouting CUI bytes to non-CUI endpoints).\n+- CUI access attempts are logged to the audit log.
 
 **CUI Storage:**
 - Primary CUI storage: Dedicated CUI vault infrastructure on Google Cloud Platform (vault.mactechsolutionsllc.com)
@@ -56,7 +53,6 @@ The system processes, stores, and manages Controlled Unclassified Information (C
 - **Vault Requirement:** CUI vault is required for all new CUI file uploads. If vault unavailable, upload is rejected (no fallback to Railway storage).
 - Metadata and legacy files: Railway PostgreSQL `StoredCUIFile` table (for backward compatibility and file metadata only)
 - **Railway Role:** Railway is outside the CUI security boundary. Railway functions as a transmission medium for routing CUI to vault, but does not store CUI content.
-- CUI files stored with password protection
 - No CUI stored on removable media
 - CUI access controlled via authentication and vault token issuance (no Railway password verification)
 

@@ -47,7 +47,7 @@ This document provides evidence of the deployment of a dedicated CUI vault infra
 
 **Environment Variables:**
 ```
-CUI_VAULT_API_KEY=77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd
+CUI_VAULT_API_KEY=<your_vault_api_key>
 DB_NAME=cuivault
 DB_USER=cuivault_user
 ```
@@ -117,7 +117,7 @@ curl -i https://vault.mactechsolutionsllc.com/health
 
 # CUI storage test (successful)
 curl -s https://vault.mactechsolutionsllc.com/cui/store \
-  -H "X-VAULT-KEY: 77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd" \
+  -H "X-VAULT-KEY: <your_vault_api_key>" \
   -H "Content-Type: application/json" \
   -d '{"test":"CUI_SAMPLE"}'
 # Response: {"stored":true,"id":"696edbf3-9e33-4d9e-a08c-40dc473cf1e5"}
@@ -133,19 +133,25 @@ curl -s https://vault.mactechsolutionsllc.com/cui/store \
 
 ### 3.4 Encryption Library Verification
 
-**Encryption Library:** Python cryptography library  
-**Algorithm:** AES-GCM (Advanced Encryption Standard - Galois/Counter Mode)
+**Encryption Library:** Node.js `crypto` module (AES-256-GCM)  
+**Algorithm:** AES-256-GCM (Advanced Encryption Standard - Galois/Counter Mode)  
+**Note:** On the Ubuntu 22.04 vault host operating in FIPS mode, Node crypto is backed by the Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider; CMVP Certificate #4794).
 
 **Verification:**
 ```bash
-python3 - << 'EOF'
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-print("AESGCM available and loaded")
+node - << 'EOF'
+const crypto = require('crypto')
+const key = crypto.randomBytes(32)
+const iv = crypto.randomBytes(12)
+const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+cipher.update(Buffer.from('test'))
+cipher.final()
+console.log('AES-256-GCM OK')
 EOF
-# Output: AESGCM available and loaded
+# Output: AES-256-GCM OK
 ```
 
-**Evidence:** AES-GCM encryption library available and operational for CUI encryption operations.
+**Evidence:** AES-256-GCM encryption is available and operational for CUI encryption operations on the vault host.
 
 ---
 

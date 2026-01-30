@@ -4,6 +4,9 @@
 **Component:** Node.js/OpenSSL JWT Signing  
 **Runtime:** Node.js 24.6.0, OpenSSL 3.6.0
 
+**Scope note (CUI confidentiality):**
+This document pertains to **application JWT/session signing** cryptography. In the approved CUI architecture, CUI confidentiality cryptography (SC.L2-3.13.11) is provided by the dedicated CUI vault boundary (CMVP Certificate #4794). The application does not encrypt/decrypt CUI bytes and does not terminate TLS for CUI bytes.
+
 ---
 
 ## CMVP Database Search Results
@@ -40,7 +43,7 @@
 |-----------|----------------|------------------|--------------|
 | OpenSSL | 3.6.0 | 3.0.8 | ❌ **NO MATCH** |
 
-**Critical Finding:** OpenSSL 3.6.0 is **NOT FIPS-validated**. Only OpenSSL FIPS Provider 3.0.8 has active CMVP validation.
+**Finding (application JWT/session signing only):** OpenSSL 3.6.0 is not listed as CMVP-validated for the OpenSSL FIPS Provider certificate identified in this search (3.0.8 / Certificate #4282).
 
 ---
 

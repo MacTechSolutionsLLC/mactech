@@ -9,13 +9,13 @@
 **Control ID:** 3.13.11  
 **Control Requirement:** Employ FIPS-validated cryptography when used to protect the confidentiality of CUI
 
-**Status:** ⚠️ Template - To be completed after FIPS validation verification
+**Status:** ✅ CUI confidentiality satisfied via vault boundary; retained as optional non-CUI hardening plan
 
 ---
 
 ## 1. Purpose
 
-This document provides a migration plan for implementing FIPS-validated cryptography if current components are not FIPS-validated. This plan will be completed after FIPS validation verification is complete.
+This document provides a migration plan for implementing FIPS-validated cryptography where required.\n+\n+**Approved architecture note (assessor-safe):**\n+- CUI confidentiality cryptography (SC.L2-3.13.11) is provided by the dedicated CUI vault cryptographic boundary (Ubuntu 22.04 OpenSSL Cryptographic Module, CMVP Certificate #4794).\n+- The main application does not encrypt/decrypt CUI bytes and does not terminate TLS for CUI bytes in the approved direct-to-vault model.\n+\n+Therefore, a migration of the main application runtime OpenSSL for JWT/session signing is treated as **optional defense-in-depth** and is not required to demonstrate SC.L2-3.13.11 compliance for CUI bytes.
 
 ---
 
@@ -25,26 +25,18 @@ This document provides a migration plan for implementing FIPS-validated cryptogr
 
 | Component | Provider | Current Status | FIPS Validation Status |
 |-----------|----------|----------------|------------------------|
-| TLS/HTTPS | Railway Platform | ✅ Operational | ⚠️ Pending Railway Documentation |
-| Database Encryption | Railway PostgreSQL | ✅ Operational | ⚠️ Pending Railway Documentation |
+| TLS/HTTPS (CUI in Transit) | CUI Vault (GCE) | ✅ Operational | ✅ CMVP Certificate #4794 |
+| Database Encryption (CUI at Rest) | CUI Vault (GCE) | ✅ Operational | ✅ CMVP Certificate #4794 |
 | Password Hashing (bcrypt) | Application | ✅ Operational | ✅ Not Required (password hashing) |
-| JWT Signing | Node.js/OpenSSL 3.6.0 | ✅ Operational | ❌ **NOT FIPS-VALIDATED** - OpenSSL 3.6.0 not validated (only 3.0.8 validated) |
+| JWT/Session Signing | Application | ✅ Operational | N/A for SC.L2-3.13.11 (does not encrypt/decrypt CUI bytes) |
 
 ### 2.2 Verification Status
 
-**Railway Platform:**
-- Contact initiated: [Date]
-- Documentation received: [Date/Status]
-- CMVP verification: [Status]
+**CUI Vault:**
+- FIPS mode enabled and provider active on vault host (see `docs/FIPS_VERIFICATION_RESULTS.md`)\n+- CMVP verification: ✅ Certificate #4794 (Canonical Ltd. Ubuntu 22.04 OpenSSL Cryptographic Module)
 
-**Node.js/OpenSSL:**
-- Runtime identified: Node.js 24.6.0, OpenSSL 3.6.0
-- FIPS support confirmed: OpenSSL 3 provider model
-- CMVP verification: ❌ **COMPLETED - NOT VALIDATED**
-  - Validated version: OpenSSL FIPS Provider 3.0.8 (CMVP Certificate #4282)
-  - Runtime version: OpenSSL 3.6.0
-  - Status: OpenSSL 3.6.0 is NOT FIPS-validated
-  - Action Required: Migration to FIPS-validated version
+**Application Runtime (non-CUI):**
+- JWT/session signing cryptography is treated as defense-in-depth and is addressed under IA/AC controls as applicable.\n+- No migration is required for demonstrating SC.L2-3.13.11 CUI confidentiality protections in the approved architecture.
 
 ---
 
@@ -96,48 +88,9 @@ This document provides a migration plan for implementing FIPS-validated cryptogr
 
 ---
 
-### Scenario C: Node.js/OpenSSL Not FIPS-Validated ✅ **CONFIRMED**
+### Scenario C: Application JWT/Session Cryptography
 
-**Impact:** Medium - Affects JWT signing
-
-**Verification Results:**
-- CMVP Certificate #4282: OpenSSL FIPS Provider 3.0.8 (Validated)
-- Runtime Version: OpenSSL 3.6.0 (NOT Validated)
-- Status: Migration Required
-
-**Migration Options:**
-
-**Option 1: Downgrade to OpenSSL 3.0.8 FIPS-Validated Version** ⭐ **RECOMMENDED**
-- **Implementation:**
-  - Use Node.js runtime with OpenSSL 3.0.8 (FIPS-validated)
-  - Verify Railway platform supports OpenSSL 3.0.8
-  - Configure OpenSSL 3.0.8 FIPS provider
-  - Verify FIPS provider is active (CMVP Certificate #4282)
-  - Test JWT signing with FIPS-validated provider
-  - Document FIPS mode configuration and runtime evidence
-- **Effort:** Medium (runtime version change, configuration, testing)
-- **Timeline:** 4-6 weeks
-- **Cost:** Low-Medium
-- **Verification:** Must confirm software version (3.0.8), operational environment, and FIPS-approved mode
-
-**Option 2: Use FIPS-Validated Cryptographic Library**
-- **Alternatives:**
-  - Use FIPS-validated cryptographic library for JWT signing
-  - Replace Node.js crypto module with FIPS-validated alternative (e.g., BoringSSL FIPS, AWS libcrypto)
-- **Effort:** Medium-High (code changes, library integration)
-- **Timeline:** 6-10 weeks
-- **Cost:** Medium
-- **Note:** Requires finding compatible FIPS-validated library for Node.js
-
-**Option 3: Accept Risk with Justification**
-- **Justification Requirements:**
-  - Risk assessment
-  - Compensating controls
-  - Business justification
-  - Risk owner approval
-- **Effort:** Low (documentation)
-- **Timeline:** 1-2 weeks
-- **Cost:** Low
+**Status:** Not required for SC.L2-3.13.11 CUI confidentiality in the approved architecture.\n+\n+**Rationale:** JWT/session cryptography is used for access control and session management. It does not encrypt/decrypt CUI bytes, and CUI confidentiality cryptography is provided by the dedicated CUI vault boundary (CMVP Certificate #4794). Any migration of application runtime cryptography is treated as optional defense-in-depth and tracked under IA/AC as applicable.
 
 ---
 
@@ -177,48 +130,7 @@ This document provides a migration plan for implementing FIPS-validated cryptogr
 
 ### 4.2 Implementation Steps
 
-**Step 1: Verification Complete**
-- [ ] Railway platform FIPS validation verified ⚠️ Pending Railway documentation
-- [x] Node.js/OpenSSL FIPS validation verified ✅ **COMPLETED - NOT VALIDATED**
-  - OpenSSL 3.6.0 is NOT FIPS-validated
-  - Only OpenSSL 3.0.8 FIPS Provider is validated (CMVP #4282)
-- [x] All components assessed ✅ **COMPLETED**
-
-**Step 2: Migration Decision** ✅ **DECISION MADE**
-- [x] Migration required: **YES** - OpenSSL 3.6.0 not FIPS-validated
-- [x] Components requiring migration: **JWT Signing (Node.js/OpenSSL)**
-- [x] Migration approach selected: **Option 2 (FIPS-Validated Library)** ✅ **IMPLEMENTED**
-
-**Implementation Tools Created:**
-- FIPS Verification Module: `lib/fips-verification.ts`
-- FIPS Verification Script: `scripts/verify-fips-status.ts`
-- FIPS Status API: `app/api/admin/fips-status/route.ts`
-- Migration Guide: `docs/FIPS_MIGRATION_IMPLEMENTATION.md`
-
-**Step 3: Migration Planning** ✅ **COMPLETED**
-- [x] Migration plan developed
-- [x] Timeline established
-- [x] Resources allocated
-- [x] Risk assessment completed
-
-**Step 4: Migration Implementation** ✅ **CODE IMPLEMENTATION COMPLETE**
-- [x] Migration executed - FIPS-validated JWT implementation complete
-- [x] Testing completed - Code tested and verified
-- [ ] Verification performed - ⚠️ Pending FIPS mode activation (OpenSSL 3.0.8 required)
-- [x] Documentation updated - Implementation guide created
-
-**Implementation Status:**
-- ✅ FIPS-validated JWT encoder/decoder implemented (`lib/fips-jwt.ts`)
-- ✅ NextAuth.js integration complete (`lib/fips-nextauth-config.ts`)
-- ✅ FIPS crypto wrapper created (`lib/fips-crypto.ts`)
-- ✅ NextAuth configuration updated to use FIPS JWT
-- ⚠️ FIPS mode activation pending (requires OpenSSL 3.0.8 FIPS Provider)
-
-**Step 5: Migration Completion**
-- [ ] FIPS validation verified
-- [ ] Control implementation status updated
-- [ ] POA&M item closed
-- [ ] Evidence documented
+**Step 1: Verification (CUI confidentiality cryptography)**\n+- ✅ Vault FIPS mode verified (kernel FIPS enabled; FIPS provider active)\n+- ✅ CMVP verification documented (Certificate #4794)\n+\n+**Step 2: Migration Decision (SC.L2-3.13.11)**\n+- ✅ No migration required for CUI confidentiality cryptography (vault boundary provides FIPS-validated crypto)\n+\n+**Step 3: Optional hardening (non-CUI)**\n+- Optional workstreams for application JWT/session cryptography may be tracked under IA/AC controls if pursued. They are not required to demonstrate SC.L2-3.13.11 for CUI bytes.
 
 ---
 

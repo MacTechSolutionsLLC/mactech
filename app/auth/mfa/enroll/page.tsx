@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 export default function MFAEnrollPage() {
   const router = useRouter()
+  const { update } = useSession()
   const [step, setStep] = useState<'loading' | 'qr' | 'verify' | 'success'>('loading')
   const [qrCode, setQrCode] = useState<string>('')
   const [backupCodes, setBackupCodes] = useState<string[]>([])
@@ -87,9 +89,24 @@ export default function MFAEnrollPage() {
         setIsLoading(false)
       } else {
         setStep('success')
+        // Mark MFA as verified for the current session (enrollment verification is an MFA verification event).
+        try {
+          await update({ mfaVerified: true })
+        } catch {
+          // Ignore session update errors; middleware/API will enforce MFA gating.
+        }
         // Redirect after 2 seconds
         setTimeout(() => {
-          router.push('/admin')
+          const role = sessionStorage.getItem('mfa_userRole') || 'USER'
+          const callbackUrl = sessionStorage.getItem('mfa_callbackUrl') || ''
+          sessionStorage.removeItem('mfa_callbackUrl')
+          if (callbackUrl && callbackUrl.startsWith('/')) {
+            router.push(callbackUrl)
+            return
+          }
+          if (role === 'ADMIN') router.push('/admin')
+          else if (role === 'GUEST') router.push('/portal')
+          else router.push('/user/contract-discovery')
           router.refresh()
         }, 2000)
       }

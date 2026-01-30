@@ -76,20 +76,27 @@ sudo -u postgres psql cuivault -c "\d+ public.cui_records"
 
 ### 4.1 Encryption Library
 
-**Library:** Python cryptography library  
-**Module:** `cryptography.hazmat.primitives.ciphers.aead.AESGCM`
+**Library:** Node.js `crypto` module (AES-256-GCM)\n+**Underlying module:** Ubuntu 22.04 OpenSSL Cryptographic Module (FIPS provider) when the vault host is operating in FIPS mode (CMVP Certificate #4794)
 
 **Verification:**
 ```bash
-python3 - << 'EOF'
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-print("AESGCM available and loaded")
+node - << 'EOF'
+const crypto = require('crypto')
+const key = crypto.randomBytes(32)
+const iv = crypto.randomBytes(12)
+const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+const ct = Buffer.concat([cipher.update(Buffer.from('test')), cipher.final()])
+const tag = cipher.getAuthTag()
+const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+decipher.setAuthTag(tag)
+const pt = Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8')
+console.log(pt === 'test' ? 'AES-256-GCM OK' : 'AES-256-GCM FAIL')
 EOF
 ```
 
-**Output:** `AESGCM available and loaded`
+**Output:** `AES-256-GCM OK`
 
-**Evidence:** AES-GCM encryption library available and operational.
+**Evidence:** AES-256-GCM encryption is available and operational for application-level CUI encryption on the vault host.
 
 ---
 

@@ -328,6 +328,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (session.adminReauthVerified !== undefined) {
           token.adminReauthVerified = session.adminReauthVerified
         }
+        // MFA verification is a step-up requirement for protected access.
+        // We update the JWT when the client calls session.update({ mfaVerified: true }).
+        if ((session as any).mfaVerified !== undefined) {
+          token.mfaVerified = (session as any).mfaVerified === true
+        }
       }
       
       return token
@@ -337,6 +342,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.mustChangePassword = token.mustChangePassword as boolean
+        session.user.mfaRequired = token.mfaRequired as boolean
+        session.user.mfaEnrolled = token.mfaEnrolled as boolean
+        session.user.mfaVerified = token.mfaVerified as boolean
       }
       // Add admin re-auth flag to session
       ;(session as any).adminReauthVerified = token.adminReauthVerified === true

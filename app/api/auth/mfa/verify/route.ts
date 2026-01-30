@@ -6,11 +6,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyMFA } from "@/lib/mfa"
 import { logEvent } from "@/lib/audit"
+import { auth } from "@/lib/auth"
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // Require an authenticated session (password step completed) for MFA verification.
+    // This endpoint completes the MFA step-up for the currently authenticated user.
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await request.json()
     const { userId, code, userEmail } = body
 
@@ -21,13 +29,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Prevent verifying MFA for a different user than the authenticated session.
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     // Verify MFA code
     const result = await verifyMFA(userId, code)
 
     if (!result.valid) {
       // Log failed MFA verification
       await logEvent(
-        "login_failed",
+        "mfa_verification_failed",
         userId,
         userEmail || null,
         false,
@@ -47,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Log successful MFA verification
     await logEvent(
-      "login",
+      "mfa_verification_success",
       userId,
       userEmail || null,
       true,
@@ -58,6 +71,19 @@ export async function POST(request: NextRequest) {
         mfaVerified: true,
       }
     )
+
+    // If a backup code was used, log it explicitly for auditability.
+    if (result.usedBackupCode) {
+      await logEvent(
+        "mfa_backup_code_used",
+        userId,
+        userEmail || null,
+        true,
+        "user",
+        userId,
+        { what: "Backup code used for MFA verification" }
+      )
+    }
 
     return NextResponse.json({
       success: true,

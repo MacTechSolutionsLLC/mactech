@@ -18,18 +18,29 @@ const crypto = require('crypto')
 const app = express()
 const config = getConfig()
 
-// CORS: allow browser uploads from app origin(s). Comma-separated list or * for any.
-const corsOrigins = (process.env.CUI_VAULT_CORS_ORIGIN || '*').split(',').map(s => s.trim()).filter(Boolean)
+// CORS: allow browser uploads from app origin(s). Comma-separated list.
+// In production, do not default to wildcard.
+const corsOriginEnv = process.env.CUI_VAULT_CORS_ORIGIN
+const corsOrigins = (corsOriginEnv
+  ? corsOriginEnv
+  : (process.env.NODE_ENV === 'production' ? '' : '*')
+).split(',').map(s => s.trim()).filter(Boolean)
 function corsMiddleware(req, res, next) {
   const origin = req.headers.origin
-  const allow = corsOrigins.length === 0 || corsOrigins.includes('*')
-    ? '*'
-    : (origin && corsOrigins.includes(origin) ? origin : corsOrigins[0])
-  res.set('Access-Control-Allow-Origin', allow)
+  const allow =
+    corsOrigins.includes('*')
+      ? '*'
+      : (origin && corsOrigins.includes(origin) ? origin : null)
+  if (allow) {
+    res.set('Access-Control-Allow-Origin', allow)
+  }
   res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
   res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-VAULT-KEY')
   res.set('Access-Control-Max-Age', '86400')
   if (req.method === 'OPTIONS') {
+    if (!allow) {
+      return res.status(403).end()
+    }
     return res.status(204).end()
   }
   next()
@@ -120,6 +131,11 @@ app.get('/v1/files/:vaultId', async (req, res) => {
       return res.status(404).json({ detail: 'Not found' })
     }
     const plaintext = decrypt(row.ciphertext, row.nonce, row.tag, keyBuffer)
+    // Anti-persistence headers (reduce caching of CUI bytes on intermediaries/browsers)
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+    res.set('Pragma', 'no-cache')
+    res.set('Expires', '0')
+    res.set('X-Content-Type-Options', 'nosniff')
     res.set('Content-Type', row.mime_type || 'application/octet-stream')
     res.set('Content-Disposition', `inline; filename="${vaultId}"`)
     res.send(plaintext)

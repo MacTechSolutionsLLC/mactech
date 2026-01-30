@@ -111,13 +111,13 @@ MacTech Solutions aligns its system security governance with the NIST Risk Manag
 
 **Data Types:**
 - Federal Contract Information (FCI) - Only non-public information related to government contracts is treated as FCI. Publicly released information (e.g., SAM.gov postings) is not FCI unless combined with internal, non-public data.
-- Controlled Unclassified Information (CUI) - CUI files are stored separately in StoredCUIFile table with password protection
+- Controlled Unclassified Information (CUI) - CUI file bytes are stored in the dedicated CUI vault; Railway stores CUI metadata only (`StoredCUIFile` with `vaultId`)
 - User account information
 - System configuration and audit logs
 
 **CUI Handling:**
-- CUI files stored separately from FCI files (StoredCUIFile table)
-- CUI files require password protection for access (password: "cui" - temporary)
+- CUI files are handled via direct-to-vault upload/view; Railway does not store or proxy CUI bytes
+- Railway stores CUI metadata separately from FCI/non-CUI files (`StoredCUIFile` vs `StoredFile`)
 - CUI keyword auto-detection for file classification
 - All CUI file access attempts logged to audit log
 

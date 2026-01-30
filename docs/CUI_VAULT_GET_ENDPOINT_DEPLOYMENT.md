@@ -103,7 +103,7 @@ The CUI vault API currently only has a `POST /cui/store` endpoint. This guide pr
    ```bash
    # Test with existing record ID
    curl -s https://vault.mactechsolutionsllc.com/cui/c4c23b45-8a82-494b-ad15-292c8dafcc22 \
-     -H "X-VAULT-KEY: 77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd" \
+     -H "X-VAULT-KEY: <your_vault_api_key>" \
      | jq .
    ```
 
@@ -122,7 +122,7 @@ The CUI vault API currently only has a `POST /cui/store` endpoint. This guide pr
 5. **Decode and verify file content:**
    ```bash
    curl -s https://vault.mactechsolutionsllc.com/cui/c4c23b45-8a82-494b-ad15-292c8dafcc22 \
-     -H "X-VAULT-KEY: 77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd" \
+     -H "X-VAULT-KEY: <your_vault_api_key>" \
      | jq -r '.data' | base64 -d > retrieved-file.csv
    
    # Verify file
@@ -149,7 +149,7 @@ The CUI vault API currently only has a `POST /cui/store` endpoint. This guide pr
 3. **Test non-existent record:**
    ```bash
    curl -s https://vault.mactechsolutionsllc.com/cui/00000000-0000-0000-0000-000000000000 \
-     -H "X-VAULT-KEY: 77564883c27638b3dd8b969b6304ef6106d9dd676cf2b5f4956564bb603559fd" \
+     -H "X-VAULT-KEY: <your_vault_api_key>" \
      | jq .
    # Expected: {"detail": "Not Found"} with 404 status
    ```

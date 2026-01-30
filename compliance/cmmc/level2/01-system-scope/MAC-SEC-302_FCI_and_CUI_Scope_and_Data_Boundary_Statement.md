@@ -1,7 +1,7 @@
 # FCI and CUI Scope and Data Boundary Statement - CMMC Level 2
 
-**Document Version:** 2.0  
-**Date:** 2026-01-24  
+**Document Version:** 3.0  
+**Date:** 2026-01-30  
 **Classification:** Internal Use  
 **Compliance Framework:** CMMC 2.0 Level 2 (Advanced)  
 **Reference:** NIST SP 800-171 Rev. 2
@@ -35,14 +35,12 @@ The system handles:
 
 ---
 
-## 3. Prohibited Data Types
+## 3. Restricted Data Types and Handling Rules
 
-The following data types are **explicitly prohibited** from being uploaded, stored, or processed in the system:
+The following data types have explicit handling rules to prevent scope creep and to ensure data types are processed only within the approved boundary and controls.
 
 ### 3.1 Controlled Unclassified Information (CUI)
-- **Prohibition:** Upload of CUI is contractually and procedurally forbidden
-- **Scope:** All CUI categories as defined in 32 CFR Part 2002
-- **Enforcement:** Procedural controls and user acknowledgment (see Section 5)
+- **Status:** **In-scope** for CMMC Level 2 and handled only through the approved CUI flow.\n+- **Approved handling:** CUI file bytes are handled only within the **CUI Vault cryptographic boundary** (vault.mactechsolutionsllc.com). Railway does not store or proxy CUI bytes.\n+- **Boundary rule:** Any system/component not explicitly designated for CUI handling is prohibited from receiving/storing CUI bytes.\n+- **Enforcement:** Direct-to-vault upload/view, non-CUI upload rejection, access control, MFA, and audit logging (see Sections 4 and 5).
 
 ### 3.2 Personally Identifiable Information (PII)
 - **Prohibition:** PII that is not part of publicly available FCI is prohibited
@@ -90,13 +88,10 @@ The following data types are **explicitly prohibited** from being uploaded, stor
 ### 4.2 Procedural Controls
 
 **User Acknowledgment:**
-- All users must sign the User Access and FCI Handling Acknowledgement before system access
-- Acknowledgment explicitly prohibits CUI upload
-- Acknowledgment states user responsibility to protect FCI
+- All users must sign the User Access and FCI/CUI Handling Acknowledgement before system access.\n+- Acknowledgment covers handling responsibilities for FCI and CUI, including endpoint handling expectations (no uncontrolled dissemination, reporting of spills, and use of approved upload/view mechanisms).
 
-**Contractual Prohibition:**
-- User agreements prohibit upload of CUI
-- Violation of prohibition may result in access revocation
+**Contractual / Policy Requirements:**
+- User agreements and policies require CUI to be handled only through approved system mechanisms and prohibit unauthorized disclosure or storage outside the approved boundary.\n+- Violations may result in access revocation and incident response actions.
 
 **Administrative Oversight:**
 - System administrators monitor for unauthorized data types
@@ -113,10 +108,10 @@ The following data types are **explicitly prohibited** from being uploaded, stor
 **In-Scope Data:**
 - FCI as defined in Section 2
 - System metadata (user accounts, audit logs)
-- Note: File uploads are disabled
+- CUI metadata and vault references required for access control and auditing
+- CUI file bytes handled within the CUI Vault boundary (encrypted at rest; TLS in transit)
 
 **Out-of-Scope Data:**
-- CUI (prohibited)
 - PII beyond publicly available FCI (prohibited)
 - Classified information (prohibited)
 
@@ -152,15 +147,15 @@ The following data types are **explicitly prohibited** from being uploaded, stor
 
 I, the undersigned authorized official, attest that:
 
-1. The MacTech Solutions system is designed and operated to handle only Federal Contract Information (FCI) as defined by FAR 52.204-21.
+1. The MacTech Solutions system is designed and operated to handle Federal Contract Information (FCI) and Controlled Unclassified Information (CUI) consistent with CMMC Level 2 requirements.
 
-2. The system does not process, store, or transmit Controlled Unclassified Information (CUI), classified information, or other prohibited data types as defined in this document.
+2. CUI file bytes are handled only within the approved CUI Vault cryptographic boundary and approved direct-to-vault workflows. The main application (Railway) does not store or proxy CUI file bytes and stores metadata only.
 
-3. Upload of CUI is contractually and procedurally prohibited, and all users are required to acknowledge this prohibition before system access.
+3. The system prohibits processing/storage/transmission of prohibited data types (e.g., classified information, prohibited PII) and enforces these prohibitions through technical controls, policies, and monitoring.
 
 4. Procedural controls are in place to prevent unauthorized data types from entering the system.
 
-5. The organization will take immediate action to remove any prohibited data if detected and will revoke access for users who violate this prohibition.
+5. The organization will take immediate action to remove prohibited data if detected, execute incident response procedures as required, and revoke access for users who violate handling rules.
 
 6. This statement is accurate to the best of my knowledge and belief.
 
@@ -184,7 +179,7 @@ I, the undersigned authorized official, attest that:
 **Next Review Date:** [To be completed]
 
 **Change History:**
-- Version 1.0 (2026-01-21): Initial document creation to address assessor finding L1-FCI-01
+- Version 3.0 (2026-01-30): Updated to CMMC Level 2 posture; CUI is in-scope via vault-only cryptographic boundary; removed legacy “CUI prohibited” language.\n+- Version 2.0 (2026-01-24): Level 2 upgrade draft.\n+- Version 1.0 (2026-01-21): Initial document creation (Level 1 baseline).
 
 ---
 

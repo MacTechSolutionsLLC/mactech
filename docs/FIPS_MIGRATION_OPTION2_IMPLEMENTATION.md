@@ -14,6 +14,8 @@ Option 2 has been implemented using a FIPS-validated cryptography wrapper that:
 3. Verifies FIPS status before operations
 4. Falls back gracefully when FIPS mode is not available
 
+**Scope note (CUI confidentiality):**\n+This option applies to **application JWT/session cryptography** and is treated as defense-in-depth. SC.L2-3.13.11 compliance for **CUI confidentiality** is satisfied by the dedicated CUI vault cryptographic boundary (CMVP Certificate #4794). The main application does not encrypt/decrypt CUI bytes and does not terminate TLS for CUI bytes in the approved direct-to-vault architecture.
+
 ---
 
 ## Implementation Details
@@ -114,6 +116,8 @@ curl -H "Authorization: Bearer TOKEN" \
 - OpenSSL 3.6.0 is not FIPS-validated
 - Migration to OpenSSL 3.0.8 FIPS Provider required
 - Code is ready for FIPS mode when available
+
+**Important:** This “FIPS Mode” status applies to **application JWT/session** operations only. It does not affect vault-based CUI confidentiality protections under SC.L2-3.13.11.
 
 ### To Achieve Full Compliance
 

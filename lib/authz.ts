@@ -18,6 +18,17 @@ export async function requireAuth() {
       { status: 401 }
     )
   }
+  // CMMC Level 2 posture: MFA is required for all authenticated sessions before accessing protected resources.
+  // We enforce this at the authorization layer so API routes cannot be reached without MFA verification.
+  if ((session.user as any).mfaRequired && !(session.user as any).mfaVerified) {
+    throw NextResponse.json(
+      {
+        error: "MFA verification required",
+        requiresMFA: true,
+      },
+      { status: 403 }
+    )
+  }
   return session
 }
 

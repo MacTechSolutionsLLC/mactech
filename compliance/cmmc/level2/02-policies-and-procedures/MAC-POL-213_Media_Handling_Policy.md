@@ -65,7 +65,7 @@ This policy applies to:
 **User Requirements:**
 - All users must complete User Access and FCI/CUI Handling Acknowledgement before system access
 - Users must properly mark CUI files during upload
-- Users must use password protection when accessing CUI files
+- Users must use approved authentication + MFA and approved application workflows for any CUI handling (direct-to-vault upload/view)
 - Users are procedurally required to protect FCI/CUI and not use removable media
 - Users must not download FCI/CUI to portable storage devices
 - Users must not access system from devices with portable storage enabled (if policy requires)
@@ -80,7 +80,7 @@ This policy applies to:
 **Evidence:**
 - Database schema: `prisma/schema.prisma`
 - FCI/CUI models: `GovernmentContractDiscovery`, `UsaSpendingAward`, `OpportunityAwardLink`
-- All FCI/CUI stored in database, not on removable media
+- FCI stored in Railway PostgreSQL; CUI bytes stored in dedicated vault; CUI metadata stored in Railway PostgreSQL
 - Browser-based access only (no direct file system access)
 - Export functions: `/api/admin/events/export`, `/api/admin/physical-access-logs/export`
 
@@ -97,7 +97,7 @@ This policy applies to:
 
 **Source Code Storage:** GitHub repositories (cloud-based)
 
-**File Storage:** Limited file uploads stored in `/public/uploads/` (see Section 7.1)
+**File Storage:**\n+- Non-CUI/FCI file uploads are stored in the Railway PostgreSQL database (`StoredFile`).\n+- CUI file bytes are stored in the dedicated CUI vault (vault.mactechsolutionsllc.com); Railway stores metadata only for vault-stored CUI files.
 
 **No Removable Media:** All data storage is cloud-based or within application runtime
 
@@ -150,18 +150,12 @@ This policy applies to:
 - Evidence: `lib/file-storage.ts`, `prisma/schema.prisma` (StoredFile model)
 
 **CUI Files:**
-- Location: PostgreSQL database `StoredCUIFile` table (BYTEA column)
-- Storage Type: Database binary storage (separate from FCI files)
-- Access: Password-protected access via `/api/files/cui/[id]` endpoint
-- Password: "cui" (temporary - to be made configurable)
-- Access Control: Authentication required + password verification
-- Evidence: `lib/file-storage.ts` (storeCUIFile, getCUIFile functions), `prisma/schema.prisma` (StoredCUIFile model)
+- Primary storage (bytes): Dedicated CUI vault (vault.mactechsolutionsllc.com), encrypted at rest; served over TLS.\n+- Railway storage: `StoredCUIFile` table stores metadata and vault reference (`vaultId`) for access control and auditing; vault-stored records contain no CUI bytes on Railway.\n+- Access: Authenticated and authorized users obtain a short-lived view token and open the vault URL directly (Railway does not return CUI bytes).\n+- Evidence: `app/api/cui/upload-session/route.ts`, `app/api/cui/view-session/route.ts`, `app/api/cui/record/route.ts`, `lib/file-storage.ts` (`recordCUIUploadMetadata`, `getCUIFileMetadataForView`)
 
 **CUI File Handling Procedures:**
 - Users can mark files as CUI during upload
 - System auto-detects CUI keywords in filename and metadata
-- CUI files stored separately from FCI files
-- CUI files require password for access
+- CUI files are stored separately from FCI/non-CUI files (vault for bytes; Railway for metadata)\n+- CUI access is enforced via authentication/authorization, MFA, short-lived tokens, and audit logging
 - All CUI file access attempts logged to audit log
 
 ---

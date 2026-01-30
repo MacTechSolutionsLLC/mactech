@@ -284,7 +284,7 @@ CUI is permitted **ONLY** in the following components: Next.js Application (CUI 
 **Input:**
 - Contract opportunities from SAM.gov API (read-only)
 - User-entered data (opportunity analysis notes and tracking information - non-public data only)
-- Note: File uploads are disabled
+- Note: File uploads are supported for non-CUI only; CUI bytes are handled via direct-to-vault flow (see Section 3.2).
 
 **Processing:**
 - Data stored in PostgreSQL database
@@ -309,28 +309,24 @@ CUI is permitted **ONLY** in the following components: Next.js Application (CUI 
 - CUI received from external sources per contract requirements
 
 **Processing:**
-- CUI data stored in PostgreSQL database
-- Application logic processes and displays CUI
-- CUI handled according to CUI handling procedures
-- CUI marking and distribution controls applied as required
+- **CUI file bytes are never processed on Railway.** Railway processes CUI metadata and access control decisions only.
+- **CUI cryptographic processing occurs in the CUI Vault boundary** (upload encryption at rest; decrypt-and-stream for authorized access).
+- Application logic issues short-lived vault tokens for authorized upload/view and records metadata after vault upload.
 
 **Output:**
-- CUI displayed to authorized users only
-- CUI exports (admin-only, with appropriate CUI markings)
-- Reports and dashboards containing CUI
+- CUI file bytes are displayed to authorized users only via direct browser-to-vault streaming (vault URL + short-lived token).
+- Administrative exports that may contain CUI are restricted to authorized roles and protected by MFA and audit logging.
 
 **Storage:**
-- All CUI stored in PostgreSQL database (encrypted at rest) in separate StoredCUIFile table
-- CUI files stored separately from FCI files for enhanced access control
-- CUI files require password protection for access (password: "cui" - temporary, to be made configurable)
-- No CUI stored on local devices (browser-based access only)
-- No removable media used for CUI
-- CUI backups protected per media protection requirements
+- **Primary CUI storage (bytes):** CUI Vault (GCP VM) stores CUI encrypted at rest (AES-256-GCM) and serves CUI only over TLS 1.3.
+- **Railway storage:** Railway PostgreSQL stores **CUI metadata only** (fileId, vaultId, size, mimeType, owner, timestamps). For vault-stored CUI, the `StoredCUIFile.data` field is empty (no bytes).
+- **User endpoints:** Authorized user browsers/devices necessarily receive/transmit CUI bytes when uploading or viewing CUI. Endpoint requirements and user responsibilities are governed by policy and training; the system does not claim “no CUI bytes outside user endpoints.”
+- CUI backups and media protections apply to the vault infrastructure and any authorized export workflows, per Media Handling Policy.
 
 **Authoritative CUI Data Flow Diagram:**
 The complete CUI data flow, including ingress, storage, processing, egress, and destruction points, is documented in the authoritative CUI Data Flow Diagram (`MAC-IT-305_CUI_Data_Flow_Diagram.md`). This diagram maps each flow point to specific security controls:
 
-- **Ingress (3.1.3):** CUI files enter the system via `/api/files/upload` with authentication, MFA, and CUI keyword detection. Control 3.1.3 (Control CUI flow) is implemented through CUI file routing and classification.
+- **Ingress (3.1.3):** CUI file ingress for approved handling is via `POST /api/cui/upload-session` (metadata only) followed by direct browser upload to the vault `POST /v1/files/upload` (Bearer token). `POST /api/files/upload` is **non-CUI only** and rejects any attempt to send CUI bytes to Railway.
 
 - **Storage (3.8.2, 3.13.11):** CUI content is stored **EXCLUSIVELY** in the CUI vault on Google Cloud Platform with FIPS-validated encryption. Railway database stores CUI metadata only (not CUI content). Control 3.8.2 (Limit access to CUI on system media) is implemented through CUI vault isolation and access controls. Control 3.13.11 (FIPS-validated cryptography) is implemented through CUI vault FIPS-validated encryption.
 
@@ -338,7 +334,7 @@ The complete CUI data flow, including ingress, storage, processing, egress, and 
 
 - **Egress (3.1.3, 3.13.11):** CUI exits the system via vault URL/token issuance (`/api/cui/view-session`) and direct vault HTTPS/TLS streaming. Control 3.1.3 implements controlled CUI flow, and Control 3.13.11 implements encrypted transmission.
 
-- **Destruction (3.8.2):** CUI is securely deleted via Prisma ORM operations with permanent database record removal. Control 3.8.2 is implemented through secure deletion procedures documented in the Media Handling Policy.
+- **Destruction (3.8.2):** CUI deletion is performed vault-first (delete encrypted record in vault) followed by metadata logical deletion in Railway. Media handling and backup protections apply to vault storage per the Media Handling Policy.
 
 All CUI data flow points are protected by MFA (3.5.3), user identification (3.5.1), and audit logging (3.3.1). Evidence of implementation is documented in the CUI Blocking Technical Controls Evidence (`../05-evidence/MAC-RPT-101_CUI_Blocking_Technical_Controls_Evidence.md`) and related control evidence documents.
 
@@ -348,10 +344,10 @@ All CUI data flow points are protected by MFA (3.5.3), user identification (3.5.
 2. Unauthenticated users redirected to `/auth/signin`
 3. User provides email and password
 4. System validates credentials (bcrypt)
-5. For privileged accounts, MFA required (Level 2)
-6. Session token created (JWT)
-7. User accesses protected resources
-8. Session expires after 8 hours
+5. MFA required for all authenticated sessions (Level 2)
+6. Session token created (JWT) and access is gated until MFA verification is completed
+7. User accesses protected resources (including CUI token issuance and metadata APIs)
+8. Session expires after 8 hours (or per configured policy)
 
 ---
 
@@ -419,20 +415,13 @@ The system connects to the following external systems:
 ### 4.5 CUI File Handling Procedures
 
 **CUI File Storage:**
-- CUI files are stored in a separate `StoredCUIFile` database table
-- CUI files are segregated from FCI files for enhanced access control
-- All CUI files require password protection for access
-- Password: "cui" (temporary - to be made configurable via environment variable)
+- **Primary CUI storage (bytes):** CUI file bytes are stored in the dedicated CUI Vault (vault.mactechsolutionsllc.com) encrypted at rest.\n+- **Railway storage:** Railway PostgreSQL stores **CUI metadata only** in the `StoredCUIFile` table (e.g., `vaultId`, size, mimeType, ownership, timestamps). Vault-stored records contain no file bytes on Railway.\n+- CUI metadata records are segregated from FCI/non-CUI file records (`StoredFile`) for clear boundary enforcement and access control.
 
 **CUI File Upload:**
-- Users can mark files as CUI during upload via checkbox
-- System auto-detects CUI keywords in filename and metadata
-- Files with CUI keywords or user-selected CUI flag are stored in StoredCUIFile table
-- CUI files are not blocked - they are properly stored and protected
+- Approved CUI upload uses a **direct-to-vault** flow:\n+  - Client requests an upload session from Railway (`POST /api/cui/upload-session`) with metadata only.\n+  - Browser uploads CUI file bytes directly to the vault (`POST /v1/files/upload`) using the short-lived token.\n+  - Client records vault metadata back to Railway (`POST /api/cui/record`) so Railway can manage access control and audit logging.\n+- Any attempt to send CUI bytes to the non-CUI upload endpoint (`POST /api/files/upload`) is rejected and treated as a spill attempt.
 
 **CUI File Access:**
-- CUI files require authentication (user must be logged in)
-- CUI access uses vault-issued view tokens (no password verification on Railway)
+- CUI files require authentication and authorization (owner or ADMIN).\n+- CUI access uses short-lived view tokens issued by Railway (`GET /api/cui/view-session`) and direct browser-to-vault streaming. Railway does not proxy or return CUI bytes.
 - Users can only access their own CUI files (unless admin)
 - Admins can access all CUI files
 - All CUI file access attempts are logged to audit log
@@ -440,15 +429,11 @@ The system connects to the following external systems:
 **CUI File Management:**
 - CUI files listed separately in file manager UI
 - CUI files display CUI indicator badge
-- Password prompt shown when accessing CUI files
 - CUI files can be deleted by owner or admin
 
 **Evidence:**
-- CUI file storage: `lib/file-storage.ts` (storeCUIFile, getCUIFile functions)
-- CUI file upload: `app/api/files/upload/route.ts`
-- CUI file view session: `app/api/cui/view-session/route.ts`
+- CUI vault session issuance: `app/api/cui/upload-session/route.ts`, `app/api/cui/view-session/route.ts`\n+- CUI metadata record: `app/api/cui/record/route.ts`, `lib/file-storage.ts` (`recordCUIUploadMetadata`)\n+- CUI non-vault upload rejection: `app/api/files/upload/route.ts`\n+- CUI vault integration: `lib/cui-vault-client.ts` (token issuance; vault delete)\n+- CUI access control: `lib/file-storage.ts` (`getCUIFileMetadataForView`, `deleteCUIFile`)
 - CUI file list: `app/api/files/cui/list/route.ts`
-- CUI password prompt: `components/CUIPasswordPrompt.tsx`
 - CUI file manager UI: `components/admin/FileManager.tsx`
 
 ### 4.6 Interconnection Agreements

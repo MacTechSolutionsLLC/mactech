@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 function MFAVerifyForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl =
+    searchParams?.get('callbackUrl') ??
+    (typeof window !== 'undefined' ? (sessionStorage.getItem('mfa_callbackUrl') || '') : '')
+  const { update } = useSession()
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -61,21 +67,25 @@ function MFAVerifyForm() {
         sessionStorage.removeItem('mfa_userId')
         sessionStorage.removeItem('mfa_userEmail')
         sessionStorage.removeItem('mfa_userRole')
+        sessionStorage.removeItem('mfa_callbackUrl')
         
-        // Update session to mark MFA as verified
-        // The session should already be created from password auth
-        // Refresh to get updated session
-        router.refresh()
+        // Mark MFA as verified on the authenticated session (server-enforced in middleware/API auth)
+        try {
+          await update({ mfaVerified: true })
+        } catch {
+          // If session update fails, fall back to refresh; middleware/API will still enforce MFA gating.
+          router.refresh()
+        }
         
         // Redirect to the appropriate page
         setTimeout(() => {
-          if (role === 'ADMIN') {
-            router.push('/admin')
-          } else if (role === 'GUEST') {
-            router.push('/portal')
-          } else {
-            router.push('/user/contract-discovery')
+          if (callbackUrl && callbackUrl.startsWith('/')) {
+            router.push(callbackUrl)
+            return
           }
+          if (role === 'ADMIN') router.push('/admin')
+          else if (role === 'GUEST') router.push('/portal')
+          else router.push('/user/contract-discovery')
         }, 500)
       }
     } catch (err) {
