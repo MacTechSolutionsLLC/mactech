@@ -67,10 +67,17 @@ export default function PortalUploadPage() {
           throw new Error('CUI vault is not configured. Contact your administrator.')
         }
         const mimeType = file.type?.trim() || 'application/octet-stream'
+        const fileName = (file.name && String(file.name).trim()) || 'upload'
+        const fileSize = Number(file.size)
+        if (!Number.isFinite(fileSize) || fileSize < 0) {
+          setUploadError('Invalid file size')
+          setUploading(false)
+          return
+        }
         const sessionRes = await fetch('/api/cui/upload-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName: file.name, mimeType, fileSize: file.size }),
+          body: JSON.stringify({ fileName, mimeType, fileSize }),
         })
         const sessionData = await sessionRes.json()
         if (!sessionRes.ok) throw new Error(sessionData.error || 'Failed to get upload session')

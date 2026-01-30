@@ -244,6 +244,25 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 
 ## Troubleshooting
 
+**Step-by-step: Vault connect and read/write**
+
+1. **App env (Railway / app host)**  
+   Set `CUI_VAULT_API_KEY` and `CUI_VAULT_JWT_SECRET` (or `CUI_VAULT_API_KEY` for both). Optionally `CUI_VAULT_URL` if the vault is not at the default host.
+
+2. **Test from app**  
+   In Admin → File Management → CUI tab, click **Test vault connection**.  
+   - If "Vault connection OK": app can reach the vault; continue to step 3.  
+   - If "Vault URL not reachable": fix `CUI_VAULT_URL`, firewall, and that the vault process is running and reachable from the app.
+
+3. **Vault env (vault host)**  
+   Set `CUI_VAULT_JWT_SECRET` (same value as app), `CUI_VAULT_API_KEY`, `CUI_ENCRYPTION_KEY`, and DB. Set `CUI_VAULT_CORS_ORIGIN` to the app origin(s), e.g. `https://www.mactechsolutionsllc.com`.
+
+4. **Browser upload**  
+   Uploads go from the user’s browser directly to the vault. If "Test vault connection" is OK but uploads fail with "Cannot reach the CUI vault" or CORS errors, the browser cannot reach the vault or CORS is blocking. Confirm the vault URL is reachable from the internet and `CUI_VAULT_CORS_ORIGIN` includes the site’s origin.
+
+5. **View / download**  
+   View uses a signed URL to the vault. If view fails, check JWT secret match and that the vault GET endpoint is reachable from the browser.
+
 **Issue: Users unable to upload to CUI vault (browser → vault)**
 
 1. **"Cannot reach the CUI vault" / network error**

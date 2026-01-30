@@ -20,27 +20,34 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { fileName, mimeType, fileSize } = body
-    if (typeof fileName !== "string" || !fileName.trim()) {
+    const rawFileName = body.fileName
+    const rawMimeType = body.mimeType
+    const rawFileSize = body.fileSize
+
+    const fileName = typeof rawFileName === "string" ? rawFileName.trim() : ""
+    if (!fileName) {
       return NextResponse.json(
         { error: "fileName is required and must be a non-empty string." },
         { status: 400 }
       )
     }
-    if (typeof mimeType !== "string" || !mimeType.trim()) {
-      return NextResponse.json(
-        { error: "mimeType is required and must be a non-empty string." },
-        { status: 400 }
-      )
-    }
-    if (typeof fileSize !== "number" || fileSize < 0) {
+
+    // Accept mimeType string or default to application/octet-stream
+    const mimeType =
+      typeof rawMimeType === "string" && rawMimeType.trim()
+        ? rawMimeType.trim()
+        : "application/octet-stream"
+
+    // Accept fileSize as number or string (from JSON/form)
+    const fileSizeNum = typeof rawFileSize === "number" ? rawFileSize : Number(rawFileSize)
+    if (!Number.isFinite(fileSizeNum) || fileSizeNum < 0) {
       return NextResponse.json(
         { error: "fileSize is required and must be a non-negative number." },
         { status: 400 }
       )
     }
 
-    if (fileSize > MAX_FILE_SIZE) {
+    if (fileSizeNum > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: `File size exceeds maximum ${MAX_FILE_SIZE} bytes (10MB).` },
         { status: 400 }
@@ -54,9 +61,9 @@ export async function POST(req: NextRequest) {
     }
 
     const result = createUploadSession({
-      fileName: fileName.trim(),
-      mimeType: mimeType.trim(),
-      fileSize,
+      fileName,
+      mimeType,
+      fileSize: fileSizeNum,
       userId: session.user.id,
     })
 

@@ -72,6 +72,13 @@ export default function FileManager({ files }: FileManagerProps) {
   const [evidenceResult, setEvidenceResult] = useState<{ output: string; filename: string; success: boolean } | null>(null)
   const [evidenceError, setEvidenceError] = useState<string | null>(null)
   const [showEvidenceModal, setShowEvidenceModal] = useState(false)
+  const [vaultCheckLoading, setVaultCheckLoading] = useState(false)
+  const [vaultCheckResult, setVaultCheckResult] = useState<{
+    configured: boolean
+    vaultReachable: boolean
+    vaultUrl: string | null
+    message: string
+  } | null>(null)
   
   // Files passed from page are already filtered to exclude FCI files (System Files tab)
   const systemFiles = files
@@ -185,14 +192,17 @@ export default function FileManager({ files }: FileManagerProps) {
     try {
       if (isCUI) {
         const mimeType = file.type?.trim() || 'application/octet-stream'
+        const fileName = (file.name && String(file.name).trim()) || 'upload'
+        const fileSize = Number(file.size)
+        if (!Number.isFinite(fileSize) || fileSize < 0) {
+          setUploadError('Invalid file size')
+          setUploading(false)
+          return
+        }
         const sessionRes = await fetch('/api/cui/upload-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileName: file.name,
-            mimeType,
-            fileSize: file.size,
-          }),
+          body: JSON.stringify({ fileName, mimeType, fileSize }),
         })
         const sessionData = await sessionRes.json()
         if (!sessionRes.ok) throw new Error(sessionData.error || 'Failed to get upload session')
@@ -624,9 +634,40 @@ export default function FileManager({ files }: FileManagerProps) {
         <>
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex flex-wrap items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-amber-900">CUI Files</h2>
-            <button
-              type="button"
-              onClick={async () => {
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  setVaultCheckLoading(true)
+                  setVaultCheckResult(null)
+                  try {
+                    const res = await fetch('/api/cui/vault-check')
+                    const data = await res.json()
+                    setVaultCheckResult({
+                      configured: data.configured === true,
+                      vaultReachable: data.vaultReachable === true,
+                      vaultUrl: data.vaultUrl ?? null,
+                      message: data.message ?? (data.error || 'Check failed'),
+                    })
+                  } catch {
+                    setVaultCheckResult({
+                      configured: false,
+                      vaultReachable: false,
+                      vaultUrl: null,
+                      message: 'Request failed',
+                    })
+                  } finally {
+                    setVaultCheckLoading(false)
+                  }
+                }}
+                disabled={vaultCheckLoading}
+                className="px-3 py-1.5 text-sm font-medium rounded border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+              >
+                {vaultCheckLoading ? 'Testing…' : 'Test vault connection'}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
                 setEvidenceLoading(true)
                 setEvidenceError(null)
                 setEvidenceResult(null)
@@ -651,7 +692,17 @@ export default function FileManager({ files }: FileManagerProps) {
             >
               {evidenceLoading ? 'Running Vault Evidence Check…' : 'Run Vault Evidence Check'}
             </button>
+            </div>
           </div>
+          {vaultCheckResult && (
+            <div className={`mb-6 p-4 rounded-lg border text-sm ${vaultCheckResult.vaultReachable ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-900'}`}>
+              <p className="font-medium">
+                {vaultCheckResult.vaultReachable ? 'Vault connection OK' : 'Vault connection issue'}
+              </p>
+              {vaultCheckResult.vaultUrl && <p className="mt-1 text-xs font-mono">{vaultCheckResult.vaultUrl}</p>}
+              <p className="mt-1">{vaultCheckResult.message}</p>
+            </div>
+          )}
           {showEvidenceModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
               <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">

@@ -59,11 +59,12 @@ export default function CUIFileViewerModal({
             </p>
             {viewUrl && (
               <div className="mt-3">
+                <p className="text-xs mb-1">If the new tab did not open (e.g. pop-up blocked), click below:</p>
                 <a
                   href={viewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-blue-700 underline"
+                  className="inline-block px-3 py-2 text-sm font-medium rounded border border-blue-200 text-blue-700 bg-white hover:bg-blue-50"
                 >
                   Open secure viewer
                 </a>

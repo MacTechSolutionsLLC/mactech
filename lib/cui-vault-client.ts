@@ -42,6 +42,14 @@ export function isVaultConfigured(): boolean {
 }
 
 /**
+ * Get vault base URL for display/troubleshooting (no secrets). Returns null if not configured.
+ */
+export function getVaultBaseUrl(): string | null {
+  const config = getVaultConfig()
+  return config ? config.url.replace(/\/$/, '') : null
+}
+
+/**
  * Create a short-lived JWT for vault upload or view.
  * Vault must validate using same CUI_VAULT_JWT_SECRET (or CUI_VAULT_API_KEY fallback).
  */
