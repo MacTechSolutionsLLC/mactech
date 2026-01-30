@@ -36,7 +36,31 @@ CUI file bytes never touch Railway. The browser uploads and downloads CUI direct
 - `CUI_VAULT_TIMEOUT` - Request timeout in milliseconds (default: 30000)
 - `CUI_VAULT_RETRY_ATTEMPTS` - Number of retry attempts (default: 3)
 
-**Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:\n+- `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`). **Do not use `*` in production.** Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
+**Vault server (for browser uploads from app):** Set on the CUI vault host so the browser can POST to the vault from the app origin:
+- `CUI_VAULT_CORS_ORIGIN` - Comma-separated list of allowed origins (e.g. `https://www.mactechsolutionsllc.com,https://mactech-staging.up.railway.app`). **Do not use `*` in production.** Required for GUI-to-vault uploads; without it, the browser blocks cross-origin requests.
+
+### Vault host operational notes (production)
+
+These steps are performed **on the vault VM/container host**, not on Railway.
+
+**Node vault service:**
+- The Node vault runs as systemd service `cui-vault-node.service`.
+- The service loads environment variables from: `/opt/cui-vault-node/cui-vault-server/.env`
+- After changing vault env values (like `CUI_VAULT_CORS_ORIGIN`), restart the service:
+  - `sudo systemctl restart cui-vault-node`
+
+**Evidence download requirement (`/v1/reports/*`):**
+- The app’s “Vault Evidence Check → Download bundle” feature downloads:
+  - `GET /v1/reports/validation_summary.txt` (X-VAULT-KEY)
+  - `GET /v1/reports/validation_results.json` (X-VAULT-KEY)
+  - `GET /v1/reports/<vault_evidence_*.txt>` (X-VAULT-KEY)
+- Ensure the deployed vault server includes `GET /v1/reports/:filename` (see `cui-vault-server/server.js`) and that the evidence script writes reports into the configured `CUI_VAULT_EVIDENCE_OUTPUT_DIR`.
+
+**Quick verification (from a machine that can reach the vault):**
+- **CORS preflight should succeed** (returns 204 and `access-control-allow-origin` for your site):
+  - `curl -i -X OPTIONS https://vault.mactechsolutionsllc.com/v1/files/upload -H 'Origin: https://www.mactechsolutionsllc.com' -H 'Access-Control-Request-Method: POST'`
+- **Reports endpoint should require auth** (returns 401 without X-VAULT-KEY):
+  - `curl -i https://vault.mactechsolutionsllc.com/v1/reports/validation_summary.txt`
 
 **App Content Security Policy:** The app adds the CUI vault origin to the CSP `connect-src` directive (in `next.config.js` and `lib/security-headers.ts`) so the browser allows fetch/XHR to the vault. If you use a different vault URL via `CUI_VAULT_URL`, that origin is included automatically.
 
