@@ -244,6 +244,21 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 
 ## Troubleshooting
 
+**Issue: Users unable to upload to CUI vault (browser → vault)**
+
+1. **"Cannot reach the CUI vault" / network error**
+   - Vault must be reachable from the user's browser at `CUI_VAULT_URL` (e.g. `https://vault.mactechsolutionsllc.com`). Check DNS, firewall, and that the vault process is running behind TLS.
+   - On the **vault server**, set `CUI_VAULT_CORS_ORIGIN` to the app origin(s), e.g. `https://www.mactechsolutionsllc.com,https://your-app.up.railway.app`. Without this, the browser blocks the cross-origin request.
+
+2. **"Unauthorized" from vault (401)**
+   - The app and vault must use the **same** `CUI_VAULT_JWT_SECRET` (or same `CUI_VAULT_API_KEY` if used as JWT fallback). Set `CUI_VAULT_JWT_SECRET` on both Railway (app) and the vault host.
+
+3. **"Vault not configured" / 503 from upload-session**
+   - On the **app** (Railway), set `CUI_VAULT_API_KEY` and `CUI_VAULT_JWT_SECRET` (or `CUI_VAULT_API_KEY` for both). Upload-session will not issue tokens until these are set.
+
+4. **CSP blocking the request**
+   - The app adds the vault origin to CSP `connect-src` (see Configuration). If you use a custom vault URL, set `CUI_VAULT_URL` on the app so the correct origin is included.
+
 **Issue: Files not storing in vault**
 - Check `CUI_VAULT_API_KEY` is set correctly
 - Check vault API is accessible

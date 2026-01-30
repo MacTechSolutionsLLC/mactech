@@ -200,11 +200,22 @@ export default function FileManager({ files }: FileManagerProps) {
         const { uploadUrl, uploadToken } = sessionData
         const vaultFormData = new FormData()
         vaultFormData.append('file', file)
-        const vaultRes = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${uploadToken}` },
-          body: vaultFormData,
-        })
+        let vaultRes: Response
+        try {
+          vaultRes = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${uploadToken}` },
+            body: vaultFormData,
+          })
+        } catch (networkErr: unknown) {
+          const msg = networkErr instanceof Error ? networkErr.message : String(networkErr)
+          const isNetwork = msg.includes('fetch') || msg.includes('NetworkError') || (networkErr instanceof TypeError)
+          throw new Error(
+            isNetwork
+              ? 'Cannot reach the CUI vault. Check: (1) Vault is running and reachable, (2) CORS on the vault allows this site (CUI_VAULT_CORS_ORIGIN).'
+              : msg
+          )
+        }
         if (!vaultRes.ok) {
           const errText = await vaultRes.text()
           let errMsg = 'Vault upload failed'
@@ -214,13 +225,18 @@ export default function FileManager({ files }: FileManagerProps) {
           } catch {
             errMsg = errText || errMsg
           }
+          if (vaultRes.status === 401) {
+            errMsg += ' Ensure CUI_VAULT_JWT_SECRET matches on the app and vault.'
+          } else if (vaultRes.status === 403) {
+            errMsg += ' Check vault CORS allows this origin (CUI_VAULT_CORS_ORIGIN).'
+          }
           throw new Error(errMsg)
         }
         const vaultData = await vaultRes.json().catch(() => ({}))
         const vaultId = vaultData.vaultId || vaultData.id
         const size = vaultData.size ?? file.size
         const recordMimeType = vaultData.mimeType || mimeType
-        if (!vaultId) throw new Error('Vault did not return vaultId')
+        if (!vaultId) throw new Error('Vault did not return vaultId. Check vault response format.')
 
         const recordRes = await fetch('/api/cui/record', {
           method: 'POST',
