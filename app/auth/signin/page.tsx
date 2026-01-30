@@ -57,11 +57,21 @@ function SignInForm() {
         return
       }
 
-      // If MFA enrollment required, redirect to enrollment
+      // If MFA enrollment required, create session first then redirect to enrollment
       if (customSignInData.requiresMFAEnrollment) {
         sessionStorage.setItem('mfa_userId', customSignInData.userId)
         sessionStorage.setItem('mfa_userEmail', customSignInData.userEmail)
         sessionStorage.setItem('mfa_userRole', customSignInData.userRole)
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        })
+        if (result?.error) {
+          setError('Authentication failed')
+          setIsLoading(false)
+          return
+        }
         router.push('/auth/mfa/enroll')
         return
       }

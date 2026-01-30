@@ -102,6 +102,12 @@ export default function FileManager({ files }: FileManagerProps) {
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
   }
 
+  // Fixed-format date so server and client match (avoids hydration mismatch from toLocaleString)
+  const formatUploadedAt = (uploadedAt: Date | string) => {
+    const d = typeof uploadedAt === 'string' ? new Date(uploadedAt) : uploadedAt
+    return d.toLocaleString('en-US', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  }
+
   const handleDelete = async (fileId: string, filename: string) => {
     if (!confirm(`Delete file "${filename}"? This action cannot be undone.`)) {
       return
@@ -479,7 +485,7 @@ export default function FileManager({ files }: FileManagerProps) {
                         {file.uploader.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                        {new Date(file.uploadedAt).toLocaleString()}
+                        {formatUploadedAt(file.uploadedAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex gap-2">
@@ -569,7 +575,7 @@ export default function FileManager({ files }: FileManagerProps) {
                         {file.uploader.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                        {new Date(file.uploadedAt).toLocaleString()}
+                        {formatUploadedAt(file.uploadedAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex gap-2">
@@ -735,7 +741,7 @@ export default function FileManager({ files }: FileManagerProps) {
                         {file.uploader.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                        {new Date(file.uploadedAt).toLocaleString()}
+                        {formatUploadedAt(file.uploadedAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex gap-2">

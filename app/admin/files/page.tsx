@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -72,7 +73,9 @@ export default async function FilesPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <FileManager files={serializedFiles} />
+          <Suspense fallback={<div className="p-8 text-center text-neutral-500">Loading file manager…</div>}>
+            <FileManager files={serializedFiles} />
+          </Suspense>
         </div>
       </div>
     </div>

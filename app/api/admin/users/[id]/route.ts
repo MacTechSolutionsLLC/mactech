@@ -44,8 +44,8 @@ export async function PATCH(
       )
     }
 
-    // Security: Prevent removing last admin
-    if (body.role === "USER" && currentUser.role === "ADMIN") {
+    // Security: Prevent removing last admin (whether changing to USER or GUEST)
+    if (body.role !== undefined && body.role !== "ADMIN" && currentUser.role === "ADMIN") {
       const adminCount = await prisma.user.count({
         where: {
           role: "ADMIN",
@@ -107,7 +107,7 @@ export async function PATCH(
     }
 
     if (body.role !== undefined) {
-      if (!["USER", "ADMIN"].includes(body.role)) {
+      if (!["USER", "ADMIN", "GUEST"].includes(body.role)) {
         return NextResponse.json(
           { error: "Invalid role" },
           { status: 400 }
