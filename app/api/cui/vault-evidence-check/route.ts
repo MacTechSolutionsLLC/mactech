@@ -60,7 +60,10 @@ export async function GET(req: Request) {
     const base = filename.replace(/\.txt$/i, "")
     const downloadName = `${base}_bundle.zip`
 
-    return new NextResponse(zipBuf, {
+    // NextResponse body must be a web-compatible BodyInit; Buffer is Node-specific.
+    // Convert to Uint8Array for type compatibility (and identical bytes at runtime).
+    const body = new Uint8Array(zipBuf)
+    return new NextResponse(body, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
