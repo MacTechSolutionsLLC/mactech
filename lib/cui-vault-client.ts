@@ -212,6 +212,14 @@ export interface VaultEvidenceCheckResult {
   writtenPath?: string
 }
 
+function assertSafeReportFilename(filename: string): string {
+  const safe = filename.trim()
+  if (!safe) throw new Error('Missing filename')
+  if (safe !== safe.replace(/\\/g, '/')) throw new Error('Invalid filename')
+  if (safe.includes('/') || safe.includes('..')) throw new Error('Invalid filename')
+  return safe
+}
+
 /**
  * Run CMMC evidence check on the vault server. Vault runs the configured Python script
  * and returns stdout/stderr for viewing and download in the UI.
@@ -223,6 +231,43 @@ export async function runVaultEvidenceCheck(): Promise<VaultEvidenceCheckResult>
     timeoutMs: 330000, // 5.5 min for long-running evidence script
   })
   return result
+}
+
+/**
+ * Download a report/artifact file written to the vault's reports directory.
+ * Auth: X-VAULT-KEY. Returns raw bytes.
+ */
+export async function downloadVaultEvidenceReport(filename: string): Promise<Buffer> {
+  const config = getVaultConfig()
+  if (!config) {
+    throw new Error('CUI vault not configured: CUI_VAULT_API_KEY environment variable required')
+  }
+
+  const safeName = assertSafeReportFilename(filename)
+  const baseUrl = config.url.replace(/\/$/, '')
+  const url = `${baseUrl}/v1/reports/${encodeURIComponent(safeName)}`
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-VAULT-KEY': config.apiKey,
+    },
+  })
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '')
+    let detail = response.statusText
+    try {
+      const json = JSON.parse(text) as VaultErrorResponse
+      detail = json.detail || json.error || detail
+    } catch {
+      detail = text || detail
+    }
+    throw new Error(detail || `Vault report download failed: ${response.status}`)
+  }
+
+  const ab = await response.arrayBuffer()
+  return Buffer.from(ab)
 }
 
 /**

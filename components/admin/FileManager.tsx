@@ -734,8 +734,8 @@ export default function FileManager({ files }: FileManagerProps) {
                           {evidenceResult.success ? 'Completed' : 'Completed with errors'}
                         </span>
                         <a
-                          href={URL.createObjectURL(new Blob([evidenceResult.output], { type: 'text/plain' }))}
-                          download={evidenceResult.filename}
+                          href={`/api/cui/vault-evidence-check/download?filename=${encodeURIComponent(evidenceResult.filename)}`}
+                          download
                           className="px-3 py-1.5 text-sm font-medium rounded border border-blue-200 text-blue-700 hover:bg-blue-50"
                         >
                           Download

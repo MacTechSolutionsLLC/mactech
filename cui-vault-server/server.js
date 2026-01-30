@@ -27,7 +27,7 @@ function corsMiddleware(req, res, next) {
     : (origin && corsOrigins.includes(origin) ? origin : corsOrigins[0])
   res.set('Access-Control-Allow-Origin', allow)
   res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-VAULT-KEY')
   res.set('Access-Control-Max-Age', '86400')
   if (req.method === 'OPTIONS') {
     return res.status(204).end()
@@ -204,6 +204,45 @@ app.post('/v1/evidence-check', (req, res) => {
       writtenPath: writtenPath || undefined,
     })
   })
+})
+
+// GET /v1/reports/:filename — X-VAULT-KEY: download evidence artifacts written to the reports directory
+app.get('/v1/reports/:filename', (req, res) => {
+  const key = req.headers['x-vault-key']
+  if (!key || key !== config.apiKey) {
+    return res.status(401).json({ detail: 'Unauthorized' })
+  }
+
+  const requested = req.params.filename || ''
+  const safeName = path.basename(requested)
+  if (!safeName || safeName !== requested) {
+    return res.status(400).json({ detail: 'Invalid filename' })
+  }
+
+  const allowed =
+    safeName === 'validation_summary.txt' ||
+    safeName === 'validation_results.json' ||
+    /^vault_evidence_[0-9T\-]+Z\.txt$/.test(safeName)
+
+  if (!allowed) {
+    return res.status(404).json({ detail: 'Report not found' })
+  }
+
+  const reportPath = path.join(path.resolve(config.evidenceOutputDir), safeName)
+  try {
+    if (!fs.existsSync(reportPath)) {
+      return res.status(404).json({ detail: 'Report not found' })
+    }
+
+    if (safeName.endsWith('.json')) res.set('Content-Type', 'application/json; charset=utf-8')
+    else res.set('Content-Type', 'text/plain; charset=utf-8')
+
+    res.set('Content-Disposition', `attachment; filename="${safeName}"`)
+    return res.sendFile(reportPath)
+  } catch (err) {
+    console.error('Report download error:', err)
+    return res.status(500).json({ detail: 'Internal server error' })
+  }
 })
 
 const bind = process.env.BIND || '127.0.0.1'

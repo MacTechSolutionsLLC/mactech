@@ -37,7 +37,7 @@ export async function GET() {
           ? "Vault not configured. Set CUI_VAULT_API_KEY and CUI_VAULT_JWT_SECRET on the app."
           : vaultReachable
             ? "App can reach vault. Ensure CORS allows this site for browser uploads."
-            : "Vault URL not reachable from app. Check CUI_VAULT_URL, firewall, and vault process.",
+            : "Vault URL not reachable from app. On vault host: ensure process and nginx are running. Check DNS, firewall (inbound 443), and TLS. See docs/CUI_VAULT_INTEGRATION.md → \"Vault URL not reachable from app\".",
     })
   } catch (e) {
     if (e && typeof e === "object" && "status" in e) return e as NextResponse

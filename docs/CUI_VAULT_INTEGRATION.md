@@ -252,7 +252,7 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 2. **Test from app**  
    In Admin → File Management → CUI tab, click **Test vault connection**.  
    - If "Vault connection OK": app can reach the vault; continue to step 3.  
-   - If "Vault URL not reachable": fix `CUI_VAULT_URL`, firewall, and that the vault process is running and reachable from the app.
+   - If "Vault URL not reachable": see **"Vault URL not reachable from app"** below.
 
 3. **Vault env (vault host)**  
    Set `CUI_VAULT_JWT_SECRET` (same value as app), `CUI_VAULT_API_KEY`, `CUI_ENCRYPTION_KEY`, and DB. Set `CUI_VAULT_CORS_ORIGIN` to the app origin(s), e.g. `https://www.mactechsolutionsllc.com`.
@@ -262,6 +262,30 @@ To use the deployable CUI vault from your own application or enclave over HTTPS:
 
 5. **View / download**  
    View uses a signed URL to the vault. If view fails, check JWT secret match and that the vault GET endpoint is reachable from the browser.
+
+**"Vault URL not reachable from app"**
+
+The app server (e.g. Railway) cannot reach the vault at `CUI_VAULT_URL`. Fix in this order:
+
+1. **On the vault host**  
+   - Vault process must be running (`npm start` in `cui-vault-server`).  
+   - A reverse proxy (e.g. nginx) must listen on 443 for the vault hostname and proxy to the vault (e.g. `http://127.0.0.1:3001`).  
+   - From the vault server: `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001/health` should return `200`.
+
+2. **DNS**  
+   - The hostname in `CUI_VAULT_URL` (e.g. `vault.mactechsolutionsllc.com`) must resolve to the vault server’s public IP.  
+   - From your machine: `curl -sI https://vault.mactechsolutionsllc.com/health` should return HTTP 200 (or 401 if /health requires auth).
+
+3. **Firewall**  
+   - The vault server must allow **inbound** TCP 443 from the internet (or from the app’s egress IPs if restricted).  
+   - If the app runs on Railway, the app uses Railway’s outbound IPs; the vault host must allow those or allow 0.0.0.0/0 on 443.
+
+4. **TLS**  
+   - HTTPS must be valid for the vault hostname (certificate and hostname match). Browsers and Node `fetch` will fail on invalid certs.
+
+5. **Test from the app’s network**  
+   - Run a one-off command from the same environment as the app (e.g. Railway shell or a small script that calls `fetch(vaultUrl + '/health')`) to confirm the app host can reach the vault.  
+   - If it works from your laptop but not from the app, the blocker is firewall or network between the app host and the vault.
 
 **Issue: Users unable to upload to CUI vault (browser → vault)**
 
